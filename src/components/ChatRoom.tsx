@@ -62,7 +62,7 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 to-white max-w-md mx-auto relative overflow-hidden">
+    <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 to-white w-full mx-auto relative overflow-hidden">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg">
         <div className="flex items-center space-x-3">
@@ -77,9 +77,11 @@ const ChatRoom = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative">
+      <div className="flex-1 flex flex-col relative w-full">
         {activeView ? (
-          renderActiveView()
+          <div className="absolute inset-0 w-full h-full">
+            {renderActiveView()}
+          </div>
         ) : (
           <>
             {/* Chat Messages - Takes remaining space above menu */}
