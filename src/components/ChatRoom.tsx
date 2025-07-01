@@ -77,14 +77,14 @@ const ChatRoom = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 relative">
+      <div className="flex-1 flex flex-col relative">
         {activeView ? (
           renderActiveView()
         ) : (
           <>
-            {/* Chat Messages */}
-            <div className="flex-1 p-4 overflow-y-auto">
-              {messages.map((message) => (
+            {/* Chat Messages - Takes remaining space above menu */}
+            <div className="flex-1 p-4 overflow-y-auto pb-0">
+              {!isMenuOpen && messages.map((message) => (
                 <div
                   key={message.id}
                   className={`mb-4 flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
@@ -108,62 +108,75 @@ const ChatRoom = () => {
               ))}
             </div>
 
-            {/* Menu Grid */}
-            {isMenuOpen && (
-              <div className="bg-white border-t border-gray-200 p-4 animate-fade-in">
-                <div className="grid grid-cols-3 gap-3">
-                  {menuItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onClick={() => handleMenuItemClick(item.id)}
-                      className="flex flex-col items-center p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105 bg-white border border-gray-100"
-                    >
-                      <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center mb-2 shadow-sm`}>
-                        <item.icon className="w-6 h-6 text-white" />
-                      </div>
-                      <span className="text-xs text-gray-700 font-medium text-center leading-tight">
-                        {item.title}
-                      </span>
-                    </button>
-                  ))}
+            {/* Input Bar - Only show when menu is closed */}
+            {!isMenuOpen && (
+              <div className="bg-white border-t border-gray-200 p-4">
+                <div className="flex items-center space-x-3">
+                  <div className="flex-1 bg-gray-100 rounded-full px-4 py-2">
+                    <input
+                      type="text"
+                      placeholder="輸入訊息..."
+                      className="w-full bg-transparent outline-none text-sm"
+                    />
+                  </div>
                 </div>
               </div>
             )}
           </>
         )}
-      </div>
 
-      {/* Bottom Input/Control Bar */}
-      <div className="bg-white border-t border-gray-200 p-4">
-        <div className="flex items-center space-x-3">
-          {!isMenuOpen && !activeView && (
-            <div className="flex-1 bg-gray-100 rounded-full px-4 py-2">
-              <input
-                type="text"
-                placeholder="輸入訊息..."
-                className="w-full bg-transparent outline-none text-sm"
-              />
+        {/* Menu Grid - Fixed at bottom like LINE */}
+        {isMenuOpen && !activeView && (
+          <div className="bg-white border-t border-gray-200 animate-fade-in">
+            {/* + Button positioned at top-left of menu area */}
+            <div className="relative p-4">
+              <Button
+                onClick={() => setIsMenuOpen(false)}
+                className="absolute -top-2 left-4 w-8 h-8 rounded-full bg-gray-500 hover:bg-gray-600 rotate-45 z-10 shadow-lg"
+                size="sm"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+              
+              {/* Menu Grid */}
+              <div className="grid grid-cols-3 gap-3 pt-4">
+                {menuItems.map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => handleMenuItemClick(item.id)}
+                    className="flex flex-col items-center p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105 bg-white border border-gray-100"
+                  >
+                    <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center mb-2 shadow-sm`}>
+                      <item.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-xs text-gray-700 font-medium text-center leading-tight">
+                      {item.title}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
-          )}
-          
-          <Button
-            onClick={() => {
-              if (activeView) {
-                handleCloseView();
-              } else {
-                setIsMenuOpen(!isMenuOpen);
-              }
-            }}
-            className={`w-10 h-10 rounded-full transition-all duration-300 ${
-              isMenuOpen || activeView
-                ? 'bg-gray-500 hover:bg-gray-600 rotate-45'
-                : 'bg-green-500 hover:bg-green-600'
-            }`}
-            size="sm"
-          >
-            {isMenuOpen || activeView ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-          </Button>
-        </div>
+          </div>
+        )}
+
+        {/* Floating + Button - Show when menu is closed or view is active */}
+        {(!isMenuOpen || activeView) && (
+          <div className="absolute bottom-4 right-4">
+            <Button
+              onClick={() => {
+                if (activeView) {
+                  handleCloseView();
+                } else {
+                  setIsMenuOpen(true);
+                }
+              }}
+              className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg"
+              size="sm"
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
