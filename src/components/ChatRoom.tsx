@@ -62,9 +62,9 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-b from-gray-50 to-white w-full mx-auto relative overflow-hidden">
+    <div className="flex flex-col h-screen w-full max-w-sm mx-auto bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <Zap className="w-6 h-6 text-green-500" />
@@ -77,15 +77,15 @@ const ChatRoom = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col relative w-full">
+      <div className="flex-1 flex flex-col relative w-full min-h-0">
         {activeView ? (
-          <div className="absolute inset-0 w-full h-full">
+          <div className="absolute inset-0 w-full h-full overflow-hidden">
             {renderActiveView()}
           </div>
         ) : (
           <>
             {/* Chat Messages - Takes remaining space above menu */}
-            <div className="flex-1 p-4 overflow-y-auto pb-0">
+            <div className="flex-1 p-4 overflow-y-auto pb-0 min-h-0">
               {!isMenuOpen && messages.map((message) => (
                 <div
                   key={message.id}
@@ -112,7 +112,7 @@ const ChatRoom = () => {
 
             {/* Input Bar - Only show when menu is closed */}
             {!isMenuOpen && (
-              <div className="bg-white border-t border-gray-200 p-4">
+              <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
                 <div className="flex items-center space-x-3">
                   <div className="flex-1 bg-gray-100 rounded-full px-4 py-2">
                     <input
@@ -129,7 +129,7 @@ const ChatRoom = () => {
 
         {/* Menu Grid - Fixed at bottom like LINE */}
         {isMenuOpen && !activeView && (
-          <div className="bg-white border-t border-gray-200 animate-fade-in">
+          <div className="bg-white border-t border-gray-200 animate-fade-in flex-shrink-0">
             {/* + Button positioned at top-left of menu area */}
             <div className="relative p-4">
               <Button
@@ -163,7 +163,7 @@ const ChatRoom = () => {
 
         {/* Floating + Button - Show when menu is closed or view is active */}
         {(!isMenuOpen || activeView) && (
-          <div className="absolute bottom-4 right-4">
+          <div className="absolute bottom-4 right-4 z-20">
             <Button
               onClick={() => {
                 if (activeView) {
