@@ -134,7 +134,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
                       <div className="flex items-center space-x-2">
                         <h3 className="font-medium text-gray-800">{customer.name}</h3>
                         {showCardIcon && customer.hasCard && (
-                          <UserCheck className="w-4 h-4 text-green-500" title="已建立 AILE 名片" />
+                          <UserCheck className="w-4 h-4 text-green-500" />
                         )}
                       </div>
                       <p className="text-sm text-gray-600">{customer.phone}</p>
