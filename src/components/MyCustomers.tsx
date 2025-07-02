@@ -227,24 +227,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
               </div>
             </div>
 
-            {/* Expanded Customer Details - Exact same format as Scanner */}
+            {/* Expanded Customer Details */}
             {expandedCustomerId === customer.id && <div className="border-t border-gray-100">
                 {customer.hasCard ? (
                   <div className="p-4">
-                    {/* Electronic Business Card Preview - Same format as Scanner */}
+                    {/* Electronic Business Card Preview */}
                     <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
                       <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-6 text-white">
                         <div className="flex items-center space-x-4 mb-4">
-                          {customer.photo && (
+                          {customer.photo ? (
                             <img
                               src={customer.photo}
                               alt="照片"
                               className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg"
                             />
+                          ) : (
+                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                              {customer.name.charAt(0)}
+                            </div>
                           )}
                           <div>
                             <h3 className="text-xl font-bold mb-1">{customer.name}</h3>
-                            <p className="text-blue-100 text-sm">{customer.company}</p>
+                            {customer.company && (
+                              <p className="text-blue-100 text-sm">{customer.company}</p>
+                            )}
                             {customer.jobTitle && (
                               <p className="text-blue-200 text-xs">{customer.jobTitle}</p>
                             )}
@@ -254,19 +260,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                         <div className="space-y-2 text-sm">
                           {customer.phone && (
                             <div className="flex items-center space-x-2">
-                              <span className="w-2 h-2 bg-white rounded-full"></span>
+                              <Phone className="w-4 h-4" />
                               <span>{customer.phone}</span>
                             </div>
                           )}
                           {customer.email && (
                             <div className="flex items-center space-x-2">
-                              <span className="w-2 h-2 bg-white rounded-full"></span>
+                              <Mail className="w-4 h-4" />
                               <span>{customer.email}</span>
                             </div>
                           )}
                           {customer.website && (
                             <div className="flex items-center space-x-2">
-                              <span className="w-2 h-2 bg-white rounded-full"></span>
+                              <Globe className="w-4 h-4" />
                               <span>{customer.website}</span>
                             </div>
                           )}
@@ -283,6 +289,40 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                             </div>
                           </div>
                         )}
+                      </div>
+                      
+                      {/* QR Code and Share Section - Inside the card */}
+                      <div className="bg-gray-50 p-4 rounded-b-xl">
+                        {/* QR Code */}
+                        {showQRForCustomer[customer.id] && (
+                          <div className="mb-4 text-center">
+                            <div className="w-24 h-24 bg-white border-2 border-gray-200 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                              <QrCode className="w-16 h-16 text-gray-400" />
+                            </div>
+                            <p className="text-xs text-gray-600">掃描 QR Code 獲取名片</p>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => toggleQRForCustomer(customer.id)}
+                            size="sm"
+                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                          >
+                            <QrCode className="w-3 h-3 mr-1" />
+                            QR Code
+                          </Button>
+                          
+                          <Button
+                            onClick={() => handleShareCustomer(customer)}
+                            size="sm"
+                            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                          >
+                            <Share2 className="w-3 h-3 mr-1" />
+                            分享
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
@@ -328,7 +368,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="flex space-x-2 mb-4">
+                    <div className="flex space-x-2">
                       <Button
                         onClick={() => handleScheduleAppointment(customer)}
                         className="flex-1 bg-indigo-500 hover:bg-indigo-600"
@@ -346,40 +386,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                         <MessageCircle className="w-4 h-4 mr-1" />
                         開始對話
                       </Button>
-                    </div>
-
-                    {/* QR Code and Share Section */}
-                    <div className="bg-gray-50 rounded-lg p-4">
-                      {/* QR Code */}
-                      {showQRForCustomer[customer.id] && (
-                        <div className="mb-4 text-center">
-                          <div className="w-24 h-24 bg-white border-2 border-gray-200 rounded-lg mx-auto mb-2 flex items-center justify-center">
-                            <QrCode className="w-16 h-16 text-gray-400" />
-                          </div>
-                          <p className="text-xs text-gray-600">掃描 QR Code 獲取名片</p>
-                        </div>
-                      )}
-
-                      {/* Action Buttons */}
-                      <div className="flex space-x-2">
-                        <Button
-                          onClick={() => toggleQRForCustomer(customer.id)}
-                          size="sm"
-                          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
-                        >
-                          <QrCode className="w-3 h-3 mr-1" />
-                          QR Code
-                        </Button>
-                        
-                        <Button
-                          onClick={() => handleShareCustomer(customer)}
-                          size="sm"
-                          className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs h-8"
-                        >
-                          <Share2 className="w-3 h-3 mr-1" />
-                          分享
-                        </Button>
-                      </div>
                     </div>
                   </div>) : (
                   <div className="p-4 space-y-2 bg-gray-50">
