@@ -1,9 +1,15 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle, QrCode, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+
+// LIFF type declaration
+declare global {
+  interface Window {
+    liff: any;
+  }
+}
 
 interface ScannerProps {
   onClose: () => void;
@@ -23,6 +29,7 @@ interface CustomerData {
 }
 
 const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
+  const [isLiffReady, setIsLiffReady] = useState(false);
   const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aile-card'>('none');
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: '',
@@ -32,6 +39,25 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     jobTitle: ''
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+
+  useEffect(() => {
+    // Initialize LIFF
+    const initializeLiff = async () => {
+      try {
+        if (typeof window !== 'undefined' && window.liff) {
+          await window.liff.init({ liffId: process.env.REACT_APP_LIFF_ID || 'your-liff-id' });
+          setIsLiffReady(true);
+          console.log('LIFF initialized successfully');
+        }
+      } catch (error) {
+        console.error('LIFF initialization failed:', error);
+        // Continue without LIFF for development
+        setIsLiffReady(true);
+      }
+    };
+
+    initializeLiff();
+  }, []);
 
   const handlePaperScan = () => {
     setScanResult('paper-card');
@@ -109,15 +135,26 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     });
   };
 
+  // Show loading if LIFF is not ready
+  if (!isLiffReady) {
+    return (
+      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600 text-sm">載入中...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (showSuccessMessage) {
     return (
-      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-4 overflow-y-auto">
-        <div className="w-full max-w-sm mx-auto text-center">
+      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-4 overflow-hidden">
+        <div className="w-full max-w-sm mx-auto text-center h-full flex flex-col justify-center">
           <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-3" />
           <h2 className="text-lg font-bold text-gray-800 mb-2">客戶已成功加入！</h2>
           <p className="text-sm text-gray-600 mb-4">{customerData.name} 已加入您的客戶名單</p>
           
-          {/* 新增功能提示 - 調整為手機尺寸 */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 text-left">
             <p className="text-xs text-blue-700 mb-2 font-medium">
               💡 您現在可以在圖文選單中的「我的客戶」查看：
@@ -138,7 +175,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             </div>
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-2 mt-auto pb-safe">
             <Button
               onClick={onClose}
               className="w-full bg-green-500 hover:bg-green-600 text-sm py-2"
@@ -169,9 +206,9 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
-      {/* Header - 調整為手機尺寸 */}
-      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 shadow-lg sticky top-0 z-10">
+    <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col">
+      {/* LIFF-optimized Header */}
+      <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 shadow-lg flex-shrink-0 safe-area-inset-top">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
@@ -185,26 +222,26 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         </div>
       </div>
 
-      <div className="p-4 space-y-4 pb-safe">
-        {/* Scanner Area - 調整為手機尺寸 */}
+      {/* Main Content - Scrollable with proper mobile sizing */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 pb-safe min-h-0">
+        {/* Scanner Area */}
         <div className="bg-gray-100 rounded-xl p-4 text-center">
-          <div className="w-32 h-32 sm:w-40 sm:h-40 border-4 border-dashed border-gray-300 rounded-xl mx-auto mb-4 flex items-center justify-center">
-            <Scan className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400" />
+          <div className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-xl mx-auto mb-4 flex items-center justify-center">
+            <Scan className="w-10 h-10 text-gray-400" />
           </div>
           <p className="text-gray-600 mb-4 text-sm">選擇掃描類型</p>
           
-          {/* 分成兩個掃描按鈕 - 調整為手機尺寸 */}
           <div className="space-y-2">
             <Button
               onClick={handlePaperScan}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2.5"
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2.5 touch-manipulation"
             >
               <FileText className="w-4 h-4 mr-2" />
               紙本掃描
             </Button>
             <Button
               onClick={handleQRCodeScan}
-              className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-2.5"
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-2.5 touch-manipulation"
             >
               <QrCode className="w-4 h-4 mr-2" />
               QR Code 掃描
@@ -212,7 +249,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           </div>
         </div>
 
-        {/* Paper Business Card Results - 調整為手機尺寸 */}
+        {/* Paper Business Card Results */}
         {scanResult === 'paper-card' && (
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
             <div className="flex items-center space-x-2 mb-3">
@@ -229,7 +266,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   value={customerData.name}
                   onChange={(e) => setCustomerData({...customerData, name: e.target.value})}
                   placeholder="客戶姓名"
-                  className="text-sm"
+                  className="text-sm touch-manipulation"
                 />
               </div>
               
@@ -241,7 +278,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   value={customerData.company}
                   onChange={(e) => setCustomerData({...customerData, company: e.target.value})}
                   placeholder="公司名稱"
-                  className="text-sm"
+                  className="text-sm touch-manipulation"
                 />
               </div>
               
@@ -253,7 +290,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   value={customerData.jobTitle}
                   onChange={(e) => setCustomerData({...customerData, jobTitle: e.target.value})}
                   placeholder="職稱"
-                  className="text-sm"
+                  className="text-sm touch-manipulation"
                 />
               </div>
               
@@ -266,11 +303,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                     value={customerData.phone}
                     onChange={(e) => setCustomerData({...customerData, phone: e.target.value})}
                     placeholder="手機號碼"
-                    className="flex-1 text-sm"
+                    className="flex-1 text-sm touch-manipulation"
                   />
                   <Button
                     onClick={handleSendSMSInvitation}
-                    className="bg-green-500 hover:bg-green-600 text-white px-3 text-xs whitespace-nowrap"
+                    className="bg-green-500 hover:bg-green-600 text-white px-3 text-xs whitespace-nowrap touch-manipulation"
                     size="sm"
                   >
                     <MessageSquare className="w-3 h-3 mr-1" />
@@ -287,7 +324,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   value={customerData.email}
                   onChange={(e) => setCustomerData({...customerData, email: e.target.value})}
                   placeholder="電子信箱"
-                  className="text-sm"
+                  className="text-sm touch-manipulation"
                 />
               </div>
               
@@ -295,17 +332,17 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                 <Button
                   onClick={handleSendEmailInvitation}
                   variant="outline"
-                  className="flex-1 text-xs"
+                  className="flex-1 text-xs touch-manipulation"
                   size="sm"
                 >
                   <Mail className="w-3 h-3 mr-1" />
-                  Email 邀請
+                  Email 邀請 
                 </Button>
               </div>
               
               <Button
                 onClick={handleAddCustomer}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-sm py-2.5"
+                className="w-full bg-orange-500 hover:bg-orange-600 text-sm py-2.5 touch-manipulation"
               >
                 加入我的客戶
               </Button>
@@ -313,7 +350,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* AILE Electronic Business Card Results - 調整為手機尺寸 */}
+        {/* AILE Electronic Business Card Results */}
         {scanResult === 'aile-card' && (
           <div className="bg-green-50 border border-green-200 rounded-xl p-4">
             <div className="flex items-center space-x-2 mb-3">
@@ -321,7 +358,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               <h3 className="font-bold text-green-800 text-sm">發現 AILE 電子名片！</h3>
             </div>
             
-            {/* Electronic Business Card Preview - 調整為手機尺寸 */}
+            {/* Electronic Business Card Preview */}
             <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-3 overflow-hidden">
               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
                 <div className="flex items-center space-x-3 mb-3">
@@ -362,7 +399,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   )}
                 </div>
 
-                {/* Social Media Links - 調整為手機尺寸 */}
+                {/* Social Media Links */}
                 {(customerData.line || customerData.facebook || customerData.instagram) && (
                   <div className="mt-3 pt-3 border-t border-white/20">
                     <p className="text-xs text-blue-100 mb-1">社群媒體</p>
@@ -384,7 +421,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             
             <Button
               onClick={handleAddCustomer}
-              className="w-full bg-green-500 hover:bg-green-600 text-sm py-2.5"
+              className="w-full bg-green-500 hover:bg-green-600 text-sm py-2.5 touch-manipulation"
             >
               <UserPlus className="w-4 h-4 mr-2" />
               成為我的客戶
@@ -392,7 +429,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           </div>
         )}
 
-        {/* Instructions - 調整為手機尺寸 */}
+        {/* Instructions */}
         <div className="bg-gray-50 rounded-xl p-3">
           <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
           <ul className="text-xs text-gray-600 space-y-1">
