@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail, Search, Filter, Star, Users, Building2, Calendar, Share, Phone, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, MessageSquare, Mail, Search, Star, Users, Calendar, Share, Phone, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from '@/hooks/use-toast';
 import ChatInterface from './ChatInterface';
 
@@ -36,13 +35,26 @@ interface Customer {
   industry?: string;
   isFavorite?: boolean;
   notes?: string;
+  schedules?: Schedule[];
+}
+
+interface Schedule {
+  id: number;
+  customerId: number;
+  title: string;
+  date: string;
+  time: string;
+  location?: string;
+  description?: string;
 }
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCustomers = [], onCustomersUpdate }) => {
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
   const [pendingCustomer, setPendingCustomer] = useState<Customer | null>(null);
+  const [selectedCustomerForSchedule, setSelectedCustomerForSchedule] = useState<Customer | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([
     {
       id: 1,
@@ -57,37 +69,42 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       status: 'joined',
       industry: '科技',
       isFavorite: false,
-      notes: ''
+      notes: '',
+      schedules: []
     },
     {
       id: 2,
-      name: '李小華',
+      name: 'lee_xiahua',
       phone: '0987654321',
       email: 'lee@example.com',
-      company: 'XYZ 企業',
-      position: '主管',
+      company: '',
+      position: '',
       photo: null,
       isAileUser: false,
       addedVia: 'qrcode',
       status: 'joined',
-      industry: '金融',
+      industry: '',
       isFavorite: true,
-      notes: ''
+      notes: '',
+      line: 'lee_xiahua',
+      schedules: [{ id: 1, customerId: 2, title: '商務會議', date: new Date().toISOString().split('T')[0], time: '14:00' }]
     },
     {
       id: 3,
-      name: '王大明',
+      name: 'wang_daming',
       phone: '0911111111',
       email: 'wang@example.com',
-      company: '123 科技',
-      position: '工程師',
+      company: '',
+      position: '',
       photo: null,
       isAileUser: false,
       addedVia: 'manual',
       status: 'invited',
-      industry: '科技',
+      industry: '',
       isFavorite: false,
-      notes: ''
+      notes: '',
+      line: 'wang_daming',
+      schedules: []
     }
   ]);
   const [expandedCustomerIds, setExpandedCustomerIds] = useState<number[]>([]);
@@ -99,7 +116,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
 
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<'all' | 'aile' | 'customer' | 'favorites'>('all');
-  const [filterIndustry, setFilterIndustry] = useState<string>('all');
 
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
     name: '',
@@ -117,9 +133,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     notes: ''
   });
 
-  const [importFile, setImportFile] = useState<File | null>(null);
+  const [newSchedule, setNewSchedule] = useState({
+    title: '',
+    date: '',
+    time: '',
+    location: '',
+    description: ''
+  });
 
-  const industries = ['all', ...Array.from(new Set(customers.map(c => c.industry).filter(Boolean)))];
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (propCustomers.length > 0) {
@@ -136,18 +158,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     return customerList.filter(customer => {
       const matchesSearch = searchQuery === '' || 
         customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (customer.company && customer.company.toLowerCase().includes(searchQuery.toLowerCase())) ||
         customer.phone.includes(searchQuery) ||
-        (customer.email && customer.email.toLowerCase().includes(searchQuery.toLowerCase()));
+        (customer.email && customer.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (customer.line && customer.line.toLowerCase().includes(searchQuery.toLowerCase()));
 
       const matchesType = filterType === 'all' || 
         (filterType === 'aile' && customer.isAileUser) ||
         (filterType === 'customer' && !customer.isAileUser) ||
         (filterType === 'favorites' && customer.isFavorite);
 
-      const matchesIndustry = filterIndustry === 'all' || customer.industry === filterIndustry;
-
-      return matchesSearch && matchesType && matchesIndustry;
+      return matchesSearch && matchesType;
     });
   };
 
@@ -160,6 +181,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         c.id === customerId ? { ...c, isFavorite: !c.isFavorite } : c
       )
     );
+  };
+
+  const hasScheduleToday = (customer: Customer) => {
+    const today = new Date().toISOString().split('T')[0];
+    return customer.schedules?.some(schedule => schedule.date === today) || false;
   };
 
   const simulatePhoneCheck = (phone: string): Promise<boolean> => {
@@ -187,8 +213,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
 
     const customer: Customer = {
       id: Date.now(),
-      name: newCustomer.name,
-      phone: newCustomer.phone,
+      name: newCustomer.name!,
+      phone: newCustomer.phone!,
       email: newCustomer.email || '',
       company: newCustomer.company || '',
       position: newCustomer.position || '',
@@ -204,7 +230,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       addedVia: 'manual',
       status: isAileUser ? 'joined' : 'invited',
       isFavorite: false,
-      notes: newCustomer.notes || ''
+      notes: newCustomer.notes || '',
+      schedules: []
     };
 
     if (!isAileUser) {
@@ -311,7 +338,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           status: 'invited',
           industry: item.industry || '',
           isFavorite: false,
-          notes: ''
+          notes: '',
+          schedules: []
         }));
         
         setCustomers(prev => [...prev, ...importedCustomers]);
@@ -347,6 +375,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     );
     setIsEditing(false);
     setEditingCustomer(null);
+    toast({
+      title: "客戶資料已更新",
+      description: "客戶資料已成功儲存",
+    });
+  };
+
+  const handleSaveCustomerNotes = (customerId: number, notes: string) => {
+    setCustomers(prevCustomers =>
+      prevCustomers.map(c => (c.id === customerId ? { ...c, notes } : c))
+    );
+    toast({
+      title: "備註已儲存",
+      description: "客戶備註已成功更新",
+    });
   };
 
   const handleShareCard = (customer: Customer) => {
@@ -368,44 +410,82 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   };
 
   const handleOpenSchedule = (customer: Customer) => {
-    // 發送行事曆通知功能
-    const eventTitle = `與 ${customer.name} 的會議`;
-    const eventDetails = {
-      title: eventTitle,
-      description: `與 ${customer.company} 的 ${customer.name} 進行商務會議`,
-      location: customer.address || '待定',
-      attendees: [customer.email].filter(Boolean)
+    setSelectedCustomerForSchedule(customer);
+    setNewSchedule({
+      title: '',
+      date: '',
+      time: '',
+      location: '',
+      description: ''
+    });
+    setIsScheduleDialogOpen(true);
+  };
+
+  const handleAddSchedule = () => {
+    if (!selectedCustomerForSchedule || !newSchedule.title || !newSchedule.date || !newSchedule.time) {
+      toast({
+        title: "請填寫完整資訊",
+        description: "標題、日期和時間為必填欄位",
+      });
+      return;
+    }
+
+    const schedule = {
+      id: Date.now(),
+      customerId: selectedCustomerForSchedule.id,
+      title: newSchedule.title,
+      date: newSchedule.date,
+      time: newSchedule.time,
+      location: newSchedule.location,
+      description: newSchedule.description
     };
 
-    // 模擬發送行事曆邀請
-    toast({
-      title: "行事曆通知已發送",
-      description: `已向 ${customer.name} 發送會議邀請通知`,
+    setCustomers(prevCustomers =>
+      prevCustomers.map(c => 
+        c.id === selectedCustomerForSchedule.id 
+          ? { ...c, schedules: [...(c.schedules || []), schedule] }
+          : c
+      )
+    );
+
+    setIsScheduleDialogOpen(false);
+    setSelectedCustomerForSchedule(null);
+    setNewSchedule({
+      title: '',
+      date: '',
+      time: '',
+      location: '',
+      description: ''
     });
 
-    console.log('Calendar event details:', eventDetails);
+    toast({
+      title: "行程已新增",
+      description: `已為 ${selectedCustomerForSchedule.name} 新增行程`,
+    });
   };
 
   const renderCustomerCard = (customer: Customer, isExpanded: boolean) => (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
       {!isExpanded ? (
         <div className="p-3">
-          <div className="flex items-center space-x-3 h-14">
+          <div className="flex items-center space-x-3 h-12">
             {customer.photo ? (
               <img
                 src={customer.photo}
                 alt={customer.name}
-                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                className="w-8 h-8 rounded-full object-cover flex-shrink-0"
               />
             ) : (
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+              <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
                 {customer.name.charAt(0)}
               </div>
             )}
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center space-x-2 mb-1">
-                <h3 className="font-medium text-gray-800 text-sm truncate">{customer.name}</h3>
+                <h3 className="font-medium text-gray-800 text-sm truncate">
+                  {customer.isAileUser ? customer.name : (customer.line || customer.name)}
+                </h3>
                 {customer.isAileUser ? (
                   <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full flex items-center flex-shrink-0">
                     <Zap className="w-3 h-3 mr-1" />
@@ -416,8 +496,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                     客戶
                   </span>
                 )}
+                {hasScheduleToday(customer) && (
+                  <span className="text-orange-500 text-xs">★</span>
+                )}
               </div>
-              {customer.company && (
+              {customer.isAileUser && customer.company && (
                 <p className="text-xs text-gray-500 truncate">{customer.company}</p>
               )}
             </div>
@@ -608,11 +691,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                   </Button>
                 </div>
 
-                {/* 備註區塊 */}
-                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FileText className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">備註</span>
+                <div className="mt-4 p-3 bg-white/10 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4" />
+                      <span className="text-sm font-medium">備註</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="bg-white/10 border-white/20 text-white hover:bg-white/20 h-6 px-2 text-xs"
+                      onClick={() => handleSaveCustomerNotes(customer.id, customer.notes || '')}
+                    >
+                      <Save className="w-3 h-3 mr-1" />
+                      儲存
+                    </Button>
                   </div>
                   <Textarea
                     placeholder="新增備註..."
@@ -623,14 +716,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                         prevCustomers.map(c => (c.id === customer.id ? updatedCustomer : c))
                       );
                     }}
-                    className="min-h-[60px] text-sm"
+                    className="min-h-[60px] text-sm bg-white/10 border-white/20 text-white placeholder:text-white/60"
                   />
                 </div>
               </div>
             </div>
           ) : (
             <div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 mb-4">
                 {customer.photo ? (
                   <img
                     src={customer.photo}
@@ -639,27 +732,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                   />
                 ) : (
                   <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
-                    {customer.name.charAt(0)}
+                    {(customer.line || customer.name).charAt(0)}
                   </div>
                 )}
                 <div className="flex-1">
                   <div className="flex items-center space-x-2">
-                    <h3 className="font-semibold text-gray-800">{customer.name}</h3>
+                    <h3 className="font-semibold text-gray-800">{customer.line || customer.name}</h3>
                     <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
                       客戶
                     </span>
-                    {customer.industry && (
-                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-                        {customer.industry}
-                      </span>
-                    )}
                   </div>
-                  {customer.company && (
-                    <p className="text-sm text-gray-600">{customer.company}</p>
-                  )}
-                  {customer.position && (
-                    <p className="text-xs text-gray-500">{customer.position}</p>
-                  )}
+                  <p className="text-xs text-gray-500">LINE 帳號</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -669,23 +752,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                     className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
                   >
                     <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      const chatCustomer = {
-                        id: customer.id,
-                        name: customer.name,
-                        photo: customer.photo,
-                        company: customer.company
-                      };
-                      setSelectedCustomer(chatCustomer);
-                      setShowChatInterface(true);
-                    }}
-                    className="text-green-600 hover:text-green-700"
-                  >
-                    <MessageCircle className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -706,8 +772,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-2 gap-2 text-sm mb-3">
+              <div className="p-3 bg-gray-50 rounded-lg space-y-4">
+                <div className="grid grid-cols-2 gap-2 text-sm">
                   <div>
                     <span className="text-gray-500">電話：</span>
                     <span>{customer.phone}</span>
@@ -731,12 +797,52 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                     </div>
                   )}
                 </div>
+
+                <div className="flex space-x-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => handleOpenSchedule(customer)}
+                  >
+                    <Calendar className="w-4 h-4 mr-1" />
+                    行程
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      const chatCustomer = {
+                        id: customer.id,
+                        name: customer.name,
+                        photo: customer.photo,
+                        company: customer.company
+                      };
+                      setSelectedCustomer(chatCustomer);
+                      setShowChatInterface(true);
+                    }}
+                  >
+                    <MessageCircle className="w-4 h-4 mr-1" />
+                    聊天
+                  </Button>
+                </div>
                 
-                {/* 備註區塊 */}
                 <div className="border-t pt-3">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <FileText className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm font-medium text-gray-700">備註</span>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <FileText className="w-4 h-4 text-gray-500" />
+                      <span className="text-sm font-medium text-gray-700">備註</span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => handleSaveCustomerNotes(customer.id, customer.notes || '')}
+                    >
+                      <Save className="w-3 h-3 mr-1" />
+                      儲存
+                    </Button>
                   </div>
                   <Textarea
                     placeholder="新增備註..."
@@ -844,23 +950,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
             <span>客戶</span>
           </Button>
         </div>
-
-        <div className="flex items-center space-x-2">
-          <Building2 className="w-4 h-4 text-gray-500" />
-          <Select value={filterIndustry} onValueChange={setFilterIndustry}>
-            <SelectTrigger className="w-40">
-              <SelectValue placeholder="選擇產業" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">全部產業</SelectItem>
-              {industries.slice(1).map((industry) => (
-                <SelectItem key={industry} value={industry}>
-                  {industry}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
 
       <div className="flex-1 p-4 overflow-y-auto">
@@ -879,7 +968,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               ))}
               {joinedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all' 
+                  {searchQuery || filterType !== 'all' 
                     ? '沒有符合條件的客戶'
                     : '尚無已加入的客戶'
                   }
@@ -897,7 +986,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               ))}
               {invitedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all'
+                  {searchQuery || filterType !== 'all'
                     ? '沒有符合條件的客戶'
                     : '尚無已邀請的客戶'
                   }
@@ -957,15 +1046,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 id="position"
                 value={newCustomer.position}
                 onChange={(e) => setNewCustomer({...newCustomer, position: e.target.value})}
-                className="col-span-3"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="industry" className="text-right">產業</Label>
-              <Input
-                id="industry"
-                value={newCustomer.industry}
-                onChange={(e) => setNewCustomer({...newCustomer, industry: e.target.value})}
                 className="col-span-3"
               />
             </div>
@@ -1117,6 +1197,69 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               className="w-full"
             >
               返回編輯客戶資料
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isScheduleDialogOpen} onOpenChange={setIsScheduleDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>新增行程</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="schedule-title" className="text-right">標題 *</Label>
+              <Input
+                id="schedule-title"
+                value={newSchedule.title}
+                onChange={(e) => setNewSchedule({...newSchedule, title: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="schedule-date" className="text-right">日期 *</Label>
+              <Input
+                id="schedule-date"
+                type="date"
+                value={newSchedule.date}
+                onChange={(e) => setNewSchedule({...newSchedule, date: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="schedule-time" className="text-right">時間 *</Label>
+              <Input
+                id="schedule-time"
+                type="time"
+                value={newSchedule.time}
+                onChange={(e) => setNewSchedule({...newSchedule, time: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="schedule-location" className="text-right">地點</Label>
+              <Input
+                id="schedule-location"
+                value={newSchedule.location}
+                onChange={(e) => setNewSchedule({...newSchedule, location: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="schedule-description" className="text-right">描述</Label>
+              <Textarea
+                id="schedule-description"
+                value={newSchedule.description}
+                onChange={(e) => setNewSchedule({...newSchedule, description: e.target.value})}
+                className="col-span-3"
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={handleAddSchedule}>
+              新增行程
             </Button>
           </DialogFooter>
         </DialogContent>
