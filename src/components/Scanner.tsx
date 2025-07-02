@@ -117,8 +117,29 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         <div className="text-center p-8">
           <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-gray-800 mb-2">客戶已成功加入！</h2>
-          <p className="text-gray-600 mb-6">{customerData.name} 已加入您的客戶名單</p>
-          <p className="text-sm text-gray-500 mb-6">您可以在圖文選單中的「我的客戶」查看完整列表</p>
+          <p className="text-gray-600 mb-4">{customerData.name} 已加入您的客戶名單</p>
+          
+          {/* 新增功能提示 */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <p className="text-sm text-blue-700 mb-3">
+              💡 您現在可以在圖文選單中的「我的客戶」查看：
+            </p>
+            <div className="space-y-2 text-left">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                <span className="text-sm text-blue-600">📄 紙本名片客戶資料</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-sm text-green-600">📱 AILE 電子名片用戶</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-sm text-orange-600">✏️ 編輯客戶備註與資料</span>
+              </div>
+            </div>
+          </div>
+          
           <div className="space-y-3">
             <Button
               onClick={onClose}
