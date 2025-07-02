@@ -52,6 +52,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   ]);
 
   const [showNewMeeting, setShowNewMeeting] = useState(false);
+  const [editingMeeting, setEditingMeeting] = useState<Meeting | null>(null);
   const [newMeeting, setNewMeeting] = useState({
     title: '',
     date: '',
@@ -64,32 +65,68 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
 
   const handleCreateMeeting = () => {
     if (newMeeting.title && newMeeting.date && newMeeting.time) {
-      const meeting: Meeting = {
-        id: meetings.length + 1,
-        title: newMeeting.title,
-        date: newMeeting.date,
-        time: newMeeting.time,
-        attendees: newMeeting.attendees.split(',').map(name => name.trim()).filter(name => name),
-        type: newMeeting.type,
-        status: 'scheduled'
-      };
+      if (editingMeeting) {
+        // Update existing meeting
+        const updatedMeeting: Meeting = {
+          ...editingMeeting,
+          title: newMeeting.title,
+          date: newMeeting.date,
+          time: newMeeting.time,
+          attendees: newMeeting.attendees.split(',').map(name => name.trim()).filter(name => name),
+          type: newMeeting.type
+        };
+        
+        setMeetings(prev => prev.map(meeting => 
+          meeting.id === editingMeeting.id ? updatedMeeting : meeting
+        ));
+        
+        toast({
+          title: "會議已更新！",
+          description: "行程已成功更新並同步至行事曆。",
+        });
+        
+        setEditingMeeting(null);
+      } else {
+        // Create new meeting
+        const meeting: Meeting = {
+          id: meetings.length + 1,
+          title: newMeeting.title,
+          date: newMeeting.date,
+          time: newMeeting.time,
+          attendees: newMeeting.attendees.split(',').map(name => name.trim()).filter(name => name),
+          type: newMeeting.type,
+          status: 'scheduled'
+        };
+        
+        setMeetings([...meetings, meeting]);
+        
+        toast({
+          title: "會議已建立！",
+          description: "新的行程已加入您的排程中。",
+        });
+      }
       
-      setMeetings([...meetings, meeting]);
       setNewMeeting({ title: '', date: '', time: '', attendees: '', type: 'meeting' });
       setShowNewMeeting(false);
-      
-      toast({
-        title: "會議已建立！",
-        description: "新的行程已加入您的排程中。",
-      });
     }
   };
 
-  const handleSendInvitation = (meeting: Meeting) => {
-    toast({
-      title: "邀請已發送！",
-      description: `會議邀請已發送給 ${meeting.attendees.join(', ')}。`,
+  const handleEditMeeting = (meeting: Meeting) => {
+    setEditingMeeting(meeting);
+    setNewMeeting({
+      title: meeting.title,
+      date: meeting.date,
+      time: meeting.time,
+      attendees: meeting.attendees.join(', '),
+      type: meeting.type
     });
+    setShowNewMeeting(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowNewMeeting(false);
+    setEditingMeeting(null);
+    setNewMeeting({ title: '', date: '', time: '', attendees: '', type: 'meeting' });
   };
 
   const getTypeIcon = (type: Meeting['type']) => {
@@ -249,17 +286,12 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 </div>
               )}
               
-              <div className="flex space-x-2">
-                <Button
-                  size="sm"
+              <div className="flex justify-end">
+                <Button 
+                  size="sm" 
                   variant="outline"
-                  onClick={() => handleSendInvitation(meeting)}
-                  className="flex-1"
+                  onClick={() => handleEditMeeting(meeting)}
                 >
-                  <Mail className="w-4 h-4 mr-1" />
-                  發送邀請
-                </Button>
-                <Button size="sm" variant="outline">
                   <Edit className="w-4 h-4 mr-1" />
                   編輯
                 </Button>
@@ -288,11 +320,13 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* New Meeting Modal */}
+      {/* New/Edit Meeting Modal */}
       {showNewMeeting && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
           <div className="bg-white rounded-xl p-6 w-full max-w-md">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">新增行程</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              {editingMeeting ? '編輯行程' : '新增行程'}
+            </h3>
             
             <div className="space-y-4">
               <div>
@@ -359,7 +393,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             <div className="flex space-x-3 mt-6">
               <Button
                 variant="outline"
-                onClick={() => setShowNewMeeting(false)}
+                onClick={handleCloseModal}
                 className="flex-1"
               >
                 取消
@@ -368,7 +402,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 onClick={handleCreateMeeting}
                 className="flex-1 bg-indigo-500 hover:bg-indigo-600"
               >
-                建立
+                {editingMeeting ? '更新' : '建立'}
               </Button>
             </div>
           </div>
