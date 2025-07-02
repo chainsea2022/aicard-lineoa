@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail, Search, Filter, Star, Users, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from '@/hooks/use-toast';
 import ChatInterface from './ChatInterface';
 
@@ -31,7 +32,9 @@ interface Customer {
   address?: string;
   description?: string;
   addedVia: string;
-  status: 'joined' | 'invited'; // 新增狀態欄位
+  status: 'joined' | 'invited';
+  industry?: string;
+  isFavorite?: boolean;
 }
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCustomers = [], onCustomersUpdate }) => {
@@ -51,7 +54,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       photo: null,
       isAileUser: true,
       addedVia: 'qrcode',
-      status: 'joined'
+      status: 'joined',
+      industry: '科技',
+      isFavorite: false
     },
     {
       id: 2,
@@ -63,7 +68,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       photo: null,
       isAileUser: false,
       addedVia: 'qrcode',
-      status: 'joined'
+      status: 'joined',
+      industry: '金融',
+      isFavorite: true
     },
     {
       id: 3,
@@ -75,7 +82,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       photo: null,
       isAileUser: false,
       addedVia: 'manual',
-      status: 'invited'
+      status: 'invited',
+      industry: '科技',
+      isFavorite: false
     }
   ]);
   const [expandedCustomerIds, setExpandedCustomerIds] = useState<number[]>([]);
@@ -84,6 +93,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   const [isEditing, setIsEditing] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [activeTab, setActiveTab] = useState('joined');
+
+  // Search and Filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterType, setFilterType] = useState<'all' | 'aile' | 'customer'>('all');
+  const [filterIndustry, setFilterIndustry] = useState<string>('all');
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
   // 新增客戶表單狀態
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
@@ -97,11 +112,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     facebook: '',
     instagram: '',
     address: '',
-    description: ''
+    description: '',
+    industry: ''
   });
 
   // 匯入文件狀態
   const [importFile, setImportFile] = useState<File | null>(null);
+
+  // Get unique industries for filter
+  const industries = ['all', ...Array.from(new Set(customers.map(c => c.industry).filter(Boolean)))];
 
   useEffect(() => {
     if (propCustomers.length > 0) {
@@ -114,9 +133,43 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     }
   }, [propCustomers]);
 
+  // Filter customers based on search and filters
+  const filterCustomers = (customerList: Customer[]) => {
+    return customerList.filter(customer => {
+      // Search filter
+      const matchesSearch = searchQuery === '' || 
+        customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        customer.phone.includes(searchQuery) ||
+        (customer.email && customer.email.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      // Type filter
+      const matchesType = filterType === 'all' || 
+        (filterType === 'aile' && customer.isAileUser) ||
+        (filterType === 'customer' && !customer.isAileUser);
+
+      // Industry filter
+      const matchesIndustry = filterIndustry === 'all' || customer.industry === filterIndustry;
+
+      // Favorites filter
+      const matchesFavorites = !showOnlyFavorites || customer.isFavorite;
+
+      return matchesSearch && matchesType && matchesIndustry && matchesFavorites;
+    });
+  };
+
   // 過濾客戶列表
-  const joinedCustomers = customers.filter(c => c.status === 'joined');
-  const invitedCustomers = customers.filter(c => c.status === 'invited');
+  const joinedCustomers = filterCustomers(customers.filter(c => c.status === 'joined'));
+  const invitedCustomers = filterCustomers(customers.filter(c => c.status === 'invited'));
+
+  // Toggle favorite status
+  const toggleFavorite = (customerId: number) => {
+    setCustomers(prevCustomers =>
+      prevCustomers.map(c => 
+        c.id === customerId ? { ...c, isFavorite: !c.isFavorite } : c
+      )
+    );
+  };
 
   const simulatePhoneCheck = (phone: string): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -157,8 +210,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       instagram: newCustomer.instagram || '',
       address: newCustomer.address || '',
       description: newCustomer.description || '',
+      industry: newCustomer.industry || '',
       addedVia: 'manual',
-      status: isAileUser ? 'joined' : 'invited'
+      status: isAileUser ? 'joined' : 'invited',
+      isFavorite: false
     };
 
     if (!isAileUser) {
@@ -181,7 +236,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         facebook: '',
         instagram: '',
         address: '',
-        description: ''
+        description: '',
+        industry: ''
       });
       
       toast({
@@ -230,7 +286,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         facebook: '',
         instagram: '',
         address: '',
-        description: ''
+        description: '',
+        industry: ''
       });
       
       toast({
@@ -262,7 +319,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           photo: null,
           isAileUser: false,
           addedVia: 'import',
-          status: 'invited'
+          status: 'invited',
+          industry: item.industry || '',
+          isFavorite: false
         }));
         
         setCustomers(prev => [...prev, ...importedCustomers]);
@@ -329,6 +388,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                   客戶
                 </span>
               )}
+              {customer.industry && (
+                <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                  {customer.industry}
+                </span>
+              )}
             </div>
             {customer.company && (
               <p className="text-sm text-gray-600">{customer.company}</p>
@@ -339,6 +403,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
             <p className="text-xs text-gray-500">{customer.phone}</p>
           </div>
           <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleFavorite(customer.id)}
+              className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
+            >
+              <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
+            </Button>
             <Button
               variant="ghost"
               size="sm"
@@ -468,6 +540,79 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </div>
       </div>
 
+      {/* Search and Filter Section */}
+      <div className="p-4 bg-gray-50 border-b space-y-3">
+        {/* Search Bar */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input
+            placeholder="搜尋客戶姓名、公司、電話或信箱..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={showOnlyFavorites ? "default" : "outline"}
+            size="sm"
+            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+            className="flex items-center space-x-1"
+          >
+            <Star className={`w-3 h-3 ${showOnlyFavorites ? 'fill-current' : ''}`} />
+            <span>關注</span>
+          </Button>
+          
+          <Button
+            variant={filterType === 'all' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterType('all')}
+          >
+            全部
+          </Button>
+          
+          <Button
+            variant={filterType === 'aile' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterType('aile')}
+            className="flex items-center space-x-1"
+          >
+            <Zap className="w-3 h-3" />
+            <span>Aile</span>
+          </Button>
+          
+          <Button
+            variant={filterType === 'customer' ? "default" : "outline"}
+            size="sm"
+            onClick={() => setFilterType('customer')}
+            className="flex items-center space-x-1"
+          >
+            <Users className="w-3 h-3" />
+            <span>客戶</span>
+          </Button>
+        </div>
+
+        {/* Industry Filter */}
+        <div className="flex items-center space-x-2">
+          <Building2 className="w-4 h-4 text-gray-500" />
+          <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="選擇產業" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">全部產業</SelectItem>
+              {industries.slice(1).map((industry) => (
+                <SelectItem key={industry} value={industry}>
+                  {industry}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       {/* Customer Lists with Tabs */}
       <div className="flex-1 p-4 overflow-y-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -485,7 +630,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               ))}
               {joinedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  尚無已加入的客戶
+                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all' || showOnlyFavorites
+                    ? '沒有符合條件的客戶'
+                    : '尚無已加入的客戶'
+                  }
                 </div>
               )}
             </div>
@@ -500,7 +648,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               ))}
               {invitedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  尚無已邀請的客戶
+                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all' || showOnlyFavorites
+                    ? '沒有符合條件的客戶'
+                    : '尚無已邀請的客戶'
+                  }
                 </div>
               )}
             </div>
@@ -558,6 +709,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 id="position"
                 value={newCustomer.position}
                 onChange={(e) => setNewCustomer({...newCustomer, position: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="industry" className="text-right">產業</Label>
+              <Input
+                id="industry"
+                value={newCustomer.industry}
+                onChange={(e) => setNewCustomer({...newCustomer, industry: e.target.value})}
                 className="col-span-3"
               />
             </div>
@@ -774,6 +934,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                   value={editingCustomer.position || ''}
                   onChange={(e) =>
                     setEditingCustomer({ ...editingCustomer, position: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-industry" className="text-right">產業</Label>
+                <Input
+                  id="edit-industry"
+                  value={editingCustomer.industry || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, industry: e.target.value })
                   }
                   className="col-span-3"
                 />
