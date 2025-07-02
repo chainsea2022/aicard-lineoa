@@ -2,8 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail, Save, Calendar, StickyNote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import ChatInterface from './ChatInterface';
+import Schedule from './Schedule';
+
 interface MyCustomersProps {
   onClose: () => void;
 }
@@ -40,6 +43,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
   const [tempNotes, setTempNotes] = useState<{
     [key: number]: string;
   }>({});
+  const [showSchedule, setShowSchedule] = useState(false);
+  const [scheduleCustomer, setScheduleCustomer] = useState<Customer | null>(null);
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     const customersList = savedCustomers.filter((c: Customer) => c.hasCard);
@@ -100,11 +105,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     });
   };
   const handleScheduleAppointment = (customer: Customer) => {
-    toast({
-      title: "開啟行事曆功能",
-      description: `正在為 ${customer.name} 安排會議時間...`
-    });
-    // 這裡可以整合行事曆功能
+    setScheduleCustomer(customer);
+    setShowSchedule(true);
+  };
+  const handleCloseSchedule = () => {
+    setShowSchedule(false);
+    setScheduleCustomer(null);
   };
   const handleDelete = (customerId: number) => {
     const allCustomers = [...customers, ...invited];
@@ -185,43 +191,59 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
 
             {/* Expanded Customer Details */}
             {expandedCustomerId === customer.id && <div className="border-t border-gray-100 bg-gray-50">
-                {customer.hasCard ? (/* Electronic Business Card Preview with Enhanced Details */
+                {customer.hasCard ? (/* Electronic Business Card Preview - Same format as MyCard */
           <div className="p-4">
-                    <div className="bg-white border-2 border-gray-200 rounded-xl shadow-sm mb-4">
-                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-6 text-white">
-                        <div className="flex items-center space-x-4 mb-4">
-                          {customer.photo && <img src={customer.photo} alt="照片" className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg" />}
+                    <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
+                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
+                        <div className="flex items-center space-x-3 mb-3">
+                          {customer.photo && (
+                            <img
+                              src={customer.photo}
+                              alt="照片"
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                            />
+                          )}
                           <div>
-                            <h4 className="text-xl font-bold mb-1">{customer.name}</h4>
+                            <h3 className="text-lg font-bold">{customer.name}</h3>
                             <p className="text-blue-100 text-sm">{customer.company}</p>
-                            {customer.jobTitle && <p className="text-blue-200 text-xs">{customer.jobTitle}</p>}
+                            {customer.jobTitle && (
+                              <p className="text-blue-200 text-xs">{customer.jobTitle}</p>
+                            )}
                           </div>
                         </div>
                         
-                        <div className="space-y-2 text-sm">
-                          {customer.phone && <div className="flex items-center space-x-2">
-                              <Phone className="w-4 h-4" />
+                        <div className="space-y-2 text-xs">
+                          {customer.phone && (
+                            <div className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
                               <span>{customer.phone}</span>
-                            </div>}
-                          {customer.email && <div className="flex items-center space-x-2">
-                              <Mail className="w-4 h-4" />
+                            </div>
+                          )}
+                          {customer.email && (
+                            <div className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
                               <span>{customer.email}</span>
-                            </div>}
-                          {customer.website && <div className="flex items-center space-x-2">
-                              <Globe className="w-4 h-4" />
+                            </div>
+                          )}
+                          {customer.website && (
+                            <div className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
                               <span>{customer.website}</span>
-                            </div>}
+                            </div>
+                          )}
                         </div>
 
                         {/* Social Media Links */}
-                        {(customer.line || customer.facebook || customer.instagram) && <div className="mt-4 pt-4 border-t border-white/20">
-                            <p className="text-sm text-blue-100 mb-2">社群媒體</p>
-                            <div className="space-y-1 text-sm">
+                        {(customer.line || customer.facebook || customer.instagram) && (
+                          <div className="mt-3 pt-3 border-t border-white/20">
+                            <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                            <div className="space-y-1 text-xs">
                               {customer.line && <div>LINE: {customer.line}</div>}
                               {customer.facebook && <div>Facebook: {customer.facebook}</div>}
                               {customer.instagram && <div>Instagram: {customer.instagram}</div>}
                             </div>
-                          </div>}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -239,10 +261,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                       </div>
                       
                       {editingNotes[customer.id] ? <div className="space-y-2">
-                          <textarea value={tempNotes[customer.id] || ''} onChange={e => setTempNotes(prev => ({
-                  ...prev,
-                  [customer.id]: e.target.value
-                }))} placeholder="新增客戶備註..." className="w-full p-2 border border-gray-300 rounded-md text-sm resize-none" rows={3} />
+                          <Textarea
+                            value={tempNotes[customer.id] || ''}
+                            onChange={e => setTempNotes(prev => ({
+                              ...prev,
+                              [customer.id]: e.target.value
+                            }))}
+                            placeholder="新增客戶備註..."
+                            className="w-full text-sm resize-none"
+                            rows={3}
+                          />
                           <div className="flex space-x-2">
                             <Button size="sm" onClick={() => handleSaveNotes(customer.id)} className="bg-green-500 hover:bg-green-600">
                               <Save className="w-3 h-3 mr-1" />
@@ -262,11 +290,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
 
                     {/* Action Buttons */}
                     <div className="flex space-x-2">
-                      <Button onClick={() => handleScheduleAppointment(customer)} className="flex-1 bg-indigo-500 hover:bg-indigo-600" size="sm">
+                      <Button
+                        onClick={() => handleScheduleAppointment(customer)}
+                        className="flex-1 bg-indigo-500 hover:bg-indigo-600"
+                        size="sm"
+                      >
                         <Calendar className="w-4 h-4 mr-1" />
                         安排行程
                       </Button>
-                      <Button onClick={() => handleChatWithCustomer(customer)} variant="outline" className="flex-1" size="sm">
+                      <Button
+                        onClick={() => handleChatWithCustomer(customer)}
+                        variant="outline"
+                        className="flex-1"
+                        size="sm"
+                      >
                         <MessageCircle className="w-4 h-4 mr-1" />
                         開始對話
                       </Button>
@@ -292,11 +329,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
   if (activeChatCustomer) {
     return <ChatInterface customer={activeChatCustomer} onClose={handleCloseChatInterface} />;
   }
+
+  if (showSchedule) {
+    return <Schedule onClose={handleCloseSchedule} />;
+  }
+
   return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 shadow-lg">
         <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-white hover:bg-white/20"
+          >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="font-bold text-lg">我的客戶</h1>
@@ -307,39 +354,64 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input value={searchTerm} onChange={e => setSearchTerm(e.target.value)} placeholder="搜尋客戶姓名、電話或信箱..." className="pl-10" />
+          <Input
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="搜尋客戶姓名、電話或信箱..."
+            className="pl-10"
+          />
         </div>
 
         {/* Tabs */}
         <div className="flex bg-gray-100 rounded-lg p-1">
-          <button onClick={() => setActiveTab('customers')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'customers' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}>
+          <button
+            onClick={() => setActiveTab('customers')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'customers'
+                ? 'bg-white text-orange-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
             我的客戶 ({customers.length})
           </button>
-          <button onClick={() => setActiveTab('invited')} className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === 'invited' ? 'bg-white text-orange-600 shadow-sm' : 'text-gray-600 hover:text-gray-800'}`}>
+          <button
+            onClick={() => setActiveTab('invited')}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+              activeTab === 'invited'
+                ? 'bg-white text-orange-600 shadow-sm'
+                : 'text-gray-600 hover:text-gray-800'
+            }`}
+          >
             已邀請 ({invited.length})
           </button>
         </div>
 
         {/* Customer Lists */}
         <div className="pb-20">
-          {activeTab === 'customers' ? <div>
+          {activeTab === 'customers' ? (
+            <div>
               <div className="mb-4">
                 <h2 className="text-lg font-bold text-gray-800 mb-2">我的客戶</h2>
                 <p className="text-sm text-gray-600">已加入您名片的客戶列表</p>
               </div>
               {renderCustomerList(customers, true)}
-            </div> : <div>
+            </div>
+          ) : (
+            <div>
               <div className="mb-4">
                 <h2 className="text-lg font-bold text-gray-800 mb-2">已邀請</h2>
                 <p className="text-sm text-gray-600">已發送邀請但尚未加入的客戶</p>
               </div>
               {renderCustomerList(invited, false)}
-              {invited.length > 0 && <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              {invited.length > 0 && (
+                <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <p className="text-sm text-blue-700">
                     💡 提示：這些客戶已收到您的邀請，一旦他們建立 AILE 名片並加入，就會自動移到「我的客戶」列表中。
                   </p>
-                </div>}
-            </div>}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>;
