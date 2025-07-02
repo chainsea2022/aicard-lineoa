@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -15,6 +16,13 @@ interface MenuItem {
   color: string;
 }
 
+interface Message {
+  id: number;
+  text: string;
+  isBot: boolean;
+  timestamp: Date;
+}
+
 const menuItems: MenuItem[] = [
   { id: 'create-card', title: '建立電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
   { id: 'my-card', title: '我的電子名片', icon: Zap, color: 'bg-gradient-to-br from-green-500 to-green-600' },
@@ -27,10 +35,11 @@ const menuItems: MenuItem[] = [
 const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [activeView, setActiveView] = useState<string | null>(null);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: '歡迎使用 AILE！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
   ]);
   const [customers, setCustomers] = useState<any[]>([]);
+  const [inputText, setInputText] = useState('');
 
   useEffect(() => {
     // 監聽客戶加入事件
@@ -61,6 +70,37 @@ const ChatRoom = () => {
       window.removeEventListener('customerScannedCard', handleCustomerAdded as EventListener);
     };
   }, []);
+
+  const handleSendMessage = () => {
+    if (inputText.trim()) {
+      const userMessage: Message = {
+        id: Date.now(),
+        text: inputText,
+        isBot: false,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, userMessage]);
+      setInputText('');
+      
+      // 模擬機器人回應
+      setTimeout(() => {
+        const botMessage: Message = {
+          id: Date.now() + 1,
+          text: '收到您的訊息！如需使用功能請點選下方選單。',
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, botMessage]);
+      }, 1000);
+    }
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
 
   const handleMenuItemClick = (itemId: string) => {
     setActiveView(itemId);
@@ -119,21 +159,21 @@ const ChatRoom = () => {
         ) : (
           <>
             {/* Chat Messages - Takes remaining space above menu */}
-            <div className="flex-1 p-4 overflow-y-auto pb-0 min-h-0">
-              {!isMenuOpen && messages.map((message) => (
+            <div className="flex-1 p-4 overflow-y-auto pb-0 min-h-0 bg-gray-50">
+              {messages.map((message) => (
                 <div
                   key={message.id}
                   className={`mb-4 flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                 >
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-2 rounded-2xl shadow-sm ${
+                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
                       message.isBot
-                        ? 'bg-white border border-gray-200 text-gray-800'
-                        : 'bg-green-500 text-white'
+                        ? 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'
+                        : 'bg-green-500 text-white rounded-tr-sm'
                     }`}
                   >
-                    <p className="text-sm">{message.text}</p>
-                    <p className="text-xs opacity-70 mt-1">
+                    <p className="text-sm leading-relaxed">{message.text}</p>
+                    <p className={`text-xs mt-2 ${message.isBot ? 'text-gray-500' : 'text-green-100'}`}>
                       {message.timestamp.toLocaleTimeString('zh-TW', { 
                         hour: '2-digit', 
                         minute: '2-digit' 
@@ -144,17 +184,28 @@ const ChatRoom = () => {
               ))}
             </div>
 
-            {/* Input Bar - Only show when menu is closed */}
-            {!isMenuOpen && (
+            {/* Input Bar - Always show when not in menu or view */}
+            {!isMenuOpen && !activeView && (
               <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
                 <div className="flex items-center space-x-3">
-                  <div className="flex-1 bg-gray-100 rounded-full px-4 py-2">
+                  <div className="flex-1 bg-gray-100 rounded-full px-4 py-3 border border-gray-200">
                     <input
                       type="text"
-                      placeholder="輸入訊息..."
+                      value={inputText}
+                      onChange={(e) => setInputText(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="請輸入訊息..."
                       className="w-full bg-transparent outline-none text-sm"
                     />
                   </div>
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!inputText.trim()}
+                    className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed p-0"
+                    size="sm"
+                  >
+                    <Send className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             )}
