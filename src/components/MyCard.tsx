@@ -58,7 +58,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
         },
         {
           id: 3,
-          text: "💡 建議您加入 AIWOW 名片簿，享受更多便利功能！透過 AIWOW LINE OA，您可以：\n\n📱 更方便地管理和分享名片\n📊 獲得詳細的名片互動數據\n🎯 精準追蹤客戶互動記錄\n🚀 使用更多智能商務功能",
+          text: "💡 建議您加入 AIWOW 名片簿，享受更多便利功能！透過 AIWOW LINE OA，您可以：\n\n📱 最方便的電子名片簿\n📊 獲得詳細的名片互動數據\n🚀 使用更多智能商務功能",
           isBot: true,
           timestamp: new Date()
         }
@@ -174,54 +174,91 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
                 </div>
                 <div className="flex-1">
                   {message.isCard && message.cardData ? (
-                    /* Electronic Business Card Preview */
-                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-4 text-white shadow-lg mb-2">
-                      <div className="flex items-center space-x-3 mb-3">
-                        {message.cardData.photo && (
-                          <img
-                            src={message.cardData.photo}
-                            alt="照片"
-                            className="w-12 h-12 rounded-full object-cover border-2 border-white"
-                          />
-                        )}
-                        <div>
-                          <h3 className="text-lg font-bold">{message.cardData.name}</h3>
-                          <p className="text-blue-100 text-sm">{message.cardData.companyName}</p>
+                    /* Electronic Business Card Preview with integrated buttons */
+                    <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-2">
+                      {/* Business Card */}
+                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
+                        <div className="flex items-center space-x-3 mb-3">
+                          {message.cardData.photo && (
+                            <img
+                              src={message.cardData.photo}
+                              alt="照片"
+                              className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                            />
+                          )}
+                          <div>
+                            <h3 className="text-lg font-bold">{message.cardData.name}</h3>
+                            <p className="text-blue-100 text-sm">{message.cardData.companyName}</p>
+                          </div>
                         </div>
-                      </div>
-                      
-                      <div className="space-y-2 text-xs">
-                        {message.cardData.phone && (
-                          <div className="flex items-center space-x-2">
-                            <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
-                            <span>{message.cardData.phone}</span>
-                          </div>
-                        )}
-                        {message.cardData.email && (
-                          <div className="flex items-center space-x-2">
-                            <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
-                            <span>{message.cardData.email}</span>
-                          </div>
-                        )}
-                        {message.cardData.website && (
-                          <div className="flex items-center space-x-2">
-                            <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
-                            <span>{message.cardData.website}</span>
+                        
+                        <div className="space-y-2 text-xs">
+                          {message.cardData.phone && (
+                            <div className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              <span>{message.cardData.phone}</span>
+                            </div>
+                          )}
+                          {message.cardData.email && (
+                            <div className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              <span>{message.cardData.email}</span>
+                            </div>
+                          )}
+                          {message.cardData.website && (
+                            <div className="flex items-center space-x-2">
+                              <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                              <span>{message.cardData.website}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Social Media Links */}
+                        {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
+                          <div className="mt-3 pt-3 border-t border-white/20">
+                            <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                            <div className="space-y-1 text-xs">
+                              {message.cardData.line && <div>LINE: {message.cardData.line}</div>}
+                              {message.cardData.facebook && <div>Facebook: {message.cardData.facebook}</div>}
+                              {message.cardData.instagram && <div>Instagram: {message.cardData.instagram}</div>}
+                            </div>
                           </div>
                         )}
                       </div>
 
-                      {/* Social Media Links */}
-                      {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
-                        <div className="mt-3 pt-3 border-t border-white/20">
-                          <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                          <div className="space-y-1 text-xs">
-                            {message.cardData.line && <div>LINE: {message.cardData.line}</div>}
-                            {message.cardData.facebook && <div>Facebook: {message.cardData.facebook}</div>}
-                            {message.cardData.instagram && <div>Instagram: {message.cardData.instagram}</div>}
+                      {/* Integrated QR Code and Buttons */}
+                      <div className="p-4 bg-gray-50 rounded-b-xl">
+                        {/* QR Code */}
+                        {showQR && (
+                          <div className="mb-4 text-center">
+                            <div className="w-24 h-24 bg-white border-2 border-gray-200 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                              <QrCode className="w-16 h-16 text-gray-400" />
+                            </div>
+                            <p className="text-xs text-gray-600">掃描 QR Code 獲取名片</p>
                           </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={generateQRCode}
+                            size="sm"
+                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                          >
+                            <QrCode className="w-3 h-3 mr-1" />
+                            QR Code
+                          </Button>
+                          
+                          <Button
+                            onClick={handleShare}
+                            size="sm"
+                            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                          >
+                            <Share2 className="w-3 h-3 mr-1" />
+                            分享
+                          </Button>
                         </div>
-                      )}
+                      </div>
                     </div>
                   ) : (
                     /* Regular Chat Message */
@@ -240,26 +277,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
             </div>
           </div>
         ))}
-
-        {/* QR Code */}
-        {showQR && (
-          <div className="flex justify-start">
-            <div className="max-w-xs lg:max-w-md">
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
-                  <h4 className="text-sm font-bold text-gray-800 mb-3">我的 QR Code</h4>
-                  <div className="w-32 h-32 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
-                    <QrCode className="w-20 h-20 text-gray-400" />
-                  </div>
-                  <p className="text-xs text-gray-600">掃描此 QR Code 獲取我的名片</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* AIWOW Recommendation Card */}
         <div className="flex justify-start">
@@ -283,27 +300,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="bg-white border-t border-gray-200 p-4 space-y-3 flex-shrink-0">
-        <div className="flex space-x-3">
-          <Button
-            onClick={generateQRCode}
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm"
-          >
-            <QrCode className="w-4 h-4 mr-2" />
-            生成 QR Code
-          </Button>
-          
-          <Button
-            onClick={handleShare}
-            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm"
-          >
-            <Share2 className="w-4 h-4 mr-2" />
-            分享名片
-          </Button>
         </div>
       </div>
     </div>
