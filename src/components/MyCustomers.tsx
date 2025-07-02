@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail, Save, Calendar, StickyNote, QrCode, Share2 } from 'lucide-react';
+import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail, Save, Calendar, StickyNote, QrCode, Share2, Plus, Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import ChatInterface from './ChatInterface';
 import Schedule from './Schedule';
@@ -49,6 +50,27 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
   const [showQRForCustomer, setShowQRForCustomer] = useState<{
     [key: number]: boolean;
   }>({});
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [editingCard, setEditingCard] = useState<{
+    [key: number]: boolean;
+  }>({});
+  const [tempCardData, setTempCardData] = useState<{
+    [key: number]: Partial<Customer>;
+  }>({});
+  const [newCustomerData, setNewCustomerData] = useState<Partial<Customer>>({
+    name: '',
+    phone: '',
+    email: '',
+    company: '',
+    jobTitle: '',
+    website: '',
+    line: '',
+    facebook: '',
+    instagram: '',
+    photo: null,
+    hasCard: true,
+    addedDate: new Date().toISOString(),
+  });
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -80,6 +102,199 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       title: "客戶名稱已更新！",
       description: "客戶資訊已成功更新。"
     });
+  };
+
+  const handleEditCard = (customerId: number, customer: Customer) => {
+    setEditingCard(prev => ({
+      ...prev,
+      [customerId]: true
+    }));
+    setTempCardData(prev => ({
+      ...prev,
+      [customerId]: { ...customer }
+    }));
+  };
+
+  const handleSaveCardEdit = (customerId: number) => {
+    const allCustomers = [...customers, ...invited];
+    const updatedCustomers = allCustomers.map(customer => 
+      customer.id === customerId ? {
+        ...customer,
+        ...tempCardData[customerId]
+      } : customer
+    );
+    localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+    const customersList = updatedCustomers.filter(c => c.hasCard);
+    const invitedList = updatedCustomers.filter(c => !c.hasCard);
+    setCustomers(customersList);
+    setInvited(invitedList);
+    setEditingCard(prev => ({
+      ...prev,
+      [customerId]: false
+    }));
+    toast({
+      title: "客戶名片已更新！",
+      description: "電子名片資訊已成功更新。"
+    });
+  };
+
+  const handleCancelCardEdit = (customerId: number) => {
+    setEditingCard(prev => ({
+      ...prev,
+      [customerId]: false
+    }));
+    setTempCardData(prev => {
+      const { [customerId]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const handleCardDataChange = (customerId: number, field: keyof Customer, value: string) => {
+    setTempCardData(prev => ({
+      ...prev,
+      [customerId]: {
+        ...prev[customerId],
+        [field]: value
+      }
+    }));
+  };
+
+  const handlePhotoUpload = (customerId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        handleCardDataChange(customerId, 'photo', e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCreateCustomer = () => {
+    if (!newCustomerData.name || !newCustomerData.phone) {
+      toast({
+        title: "請填寫必要資訊",
+        description: "姓名和手機號碼為必填項目。"
+      });
+      return;
+    }
+
+    const newCustomer: Customer = {
+      id: Date.now(),
+      name: newCustomerData.name || '',
+      phone: newCustomerData.phone || '',
+      email: newCustomerData.email || '',
+      company: newCustomerData.company || '',
+      jobTitle: newCustomerData.jobTitle || '',
+      website: newCustomerData.website || '',
+      line: newCustomerData.line || '',
+      facebook: newCustomerData.facebook || '',
+      instagram: newCustomerData.instagram || '',
+      photo: newCustomerData.photo || undefined,
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+    };
+
+    const allCustomers = [...customers, ...invited, newCustomer];
+    localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
+    const customersList = allCustomers.filter(c => c.hasCard);
+    setCustomers(customersList);
+    
+    setNewCustomerData({
+      name: '',
+      phone: '',
+      email: '',
+      company: '',
+      jobTitle: '',
+      website: '',
+      line: '',
+      facebook: '',
+      instagram: '',
+      photo: null,
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+    });
+    setShowCreateForm(false);
+
+    toast({
+      title: "客戶已新增！",
+      description: "新客戶已成功加入客戶列表。"
+    });
+  };
+
+  const handleNewCustomerDataChange = (field: keyof Customer, value: string) => {
+    setNewCustomerData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleNewCustomerPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        handleNewCustomerDataChange('photo', e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImportCustomers = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === 'text/csv') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const csv = e.target?.result as string;
+          const lines = csv.split('\n');
+          const headers = lines[0].split(',').map(h => h.trim());
+          
+          const importedCustomers: Customer[] = [];
+          for (let i = 1; i < lines.length; i++) {
+            if (lines[i].trim()) {
+              const values = lines[i].split(',').map(v => v.trim());
+              const customer: Customer = {
+                id: Date.now() + i,
+                name: values[headers.indexOf('name')] || '',
+                phone: values[headers.indexOf('phone')] || '',
+                email: values[headers.indexOf('email')] || '',
+                company: values[headers.indexOf('company')] || '',
+                jobTitle: values[headers.indexOf('jobTitle')] || '',
+                website: values[headers.indexOf('website')] || '',
+                line: values[headers.indexOf('line')] || '',
+                facebook: values[headers.indexOf('facebook')] || '',
+                instagram: values[headers.indexOf('instagram')] || '',
+                hasCard: true,
+                addedDate: new Date().toISOString(),
+              };
+              importedCustomers.push(customer);
+            }
+          }
+
+          const allCustomers = [...customers, ...invited, ...importedCustomers];
+          localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
+          const customersList = allCustomers.filter(c => c.hasCard);
+          setCustomers(customersList);
+
+          toast({
+            title: "匯入成功！",
+            description: `已成功匯入 ${importedCustomers.length} 個客戶。`
+          });
+        } catch (error) {
+          toast({
+            title: "匯入失敗",
+            description: "CSV 檔案格式不正確，請檢查檔案內容。"
+          });
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      toast({
+        title: "檔案格式錯誤",
+        description: "請選擇 CSV 格式的檔案。"
+      });
+    }
   };
 
   const handleEditNotes = (customerId: number, currentNotes: string = '') => {
@@ -234,65 +449,191 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                     {/* Electronic Business Card Preview */}
                     <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
                       <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-6 text-white">
-                        <div className="flex items-center space-x-4 mb-4">
-                          {customer.photo ? (
-                            <img
-                              src={customer.photo}
-                              alt="照片"
-                              className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg"
-                            />
-                          ) : (
-                            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xl">
-                              {customer.name.charAt(0)}
+                        {editingCard[customer.id] ? (
+                          // Edit Mode
+                          <div className="space-y-4">
+                            {/* Photo Edit */}
+                            <div className="flex items-center space-x-4 mb-4">
+                              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                                {tempCardData[customer.id]?.photo ? (
+                                  <img
+                                    src={tempCardData[customer.id]?.photo}
+                                    alt="照片"
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="text-white font-bold text-xl">
+                                    {tempCardData[customer.id]?.name?.charAt(0) || customer.name.charAt(0)}
+                                  </div>
+                                )}
+                              </div>
+                              <label className="cursor-pointer text-white/80 hover:text-white text-sm">
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => handlePhotoUpload(customer.id, e)}
+                                  className="hidden"
+                                />
+                                <Upload className="w-4 h-4 inline mr-1" />上傳照片
+                              </label>
                             </div>
-                          )}
-                          <div>
-                            <h3 className="text-xl font-bold mb-1">{customer.name}</h3>
-                            {customer.company && (
-                              <p className="text-blue-100 text-sm">{customer.company}</p>
-                            )}
-                            {customer.jobTitle && (
-                              <p className="text-blue-200 text-xs">{customer.jobTitle}</p>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2 text-sm">
-                          {customer.phone && (
-                            <div className="flex items-center space-x-2">
-                              <Phone className="w-4 h-4" />
-                              <span>{customer.phone}</span>
-                            </div>
-                          )}
-                          {customer.email && (
-                            <div className="flex items-center space-x-2">
-                              <Mail className="w-4 h-4" />
-                              <span>{customer.email}</span>
-                            </div>
-                          )}
-                          {customer.website && (
-                            <div className="flex items-center space-x-2">
-                              <Globe className="w-4 h-4" />
-                              <span>{customer.website}</span>
-                            </div>
-                          )}
-                        </div>
 
-                        {/* Social Media Links */}
-                        {(customer.line || customer.facebook || customer.instagram) && (
-                          <div className="mt-4 pt-4 border-t border-white/20">
-                            <p className="text-sm text-blue-100 mb-2">社群媒體</p>
-                            <div className="space-y-1 text-sm">
-                              {customer.line && <div>LINE: {customer.line}</div>}
-                              {customer.facebook && <div>Facebook: {customer.facebook}</div>}
-                              {customer.instagram && <div>Instagram: {customer.instagram}</div>}
+                            {/* Basic Info Edit */}
+                            <div className="grid grid-cols-1 gap-3">
+                              <Input
+                                value={tempCardData[customer.id]?.name || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'name', e.target.value)}
+                                placeholder="姓名"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.company || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'company', e.target.value)}
+                                placeholder="公司名稱"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.jobTitle || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'jobTitle', e.target.value)}
+                                placeholder="職位"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.phone || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'phone', e.target.value)}
+                                placeholder="手機號碼"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.email || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'email', e.target.value)}
+                                placeholder="電子信箱"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.website || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'website', e.target.value)}
+                                placeholder="公司官網"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.line || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'line', e.target.value)}
+                                placeholder="LINE ID"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.facebook || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'facebook', e.target.value)}
+                                placeholder="Facebook"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
+                              <Input
+                                value={tempCardData[customer.id]?.instagram || ''}
+                                onChange={(e) => handleCardDataChange(customer.id, 'instagram', e.target.value)}
+                                placeholder="Instagram"
+                                className="bg-white/20 border-white/30 text-white placeholder:text-white/70"
+                              />
                             </div>
                           </div>
+                        ) : (
+                          // View Mode
+                          <>
+                            <div className="flex items-center space-x-4 mb-4">
+                              {customer.photo ? (
+                                <img
+                                  src={customer.photo}
+                                  alt="照片"
+                                  className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg"
+                                />
+                              ) : (
+                                <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center text-white font-bold text-xl">
+                                  {customer.name.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <h3 className="text-xl font-bold mb-1">{customer.name}</h3>
+                                {customer.company && (
+                                  <p className="text-blue-100 text-sm">{customer.company}</p>
+                                )}
+                                {customer.jobTitle && (
+                                  <p className="text-blue-200 text-xs">{customer.jobTitle}</p>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2 text-sm">
+                              {customer.phone && (
+                                <div className="flex items-center space-x-2">
+                                  <Phone className="w-4 h-4" />
+                                  <span>{customer.phone}</span>
+                                </div>
+                              )}
+                              {customer.email && (
+                                <div className="flex items-center space-x-2">
+                                  <Mail className="w-4 h-4" />
+                                  <span>{customer.email}</span>
+                                </div>
+                              )}
+                              {customer.website && (
+                                <div className="flex items-center space-x-2">
+                                  <Globe className="w-4 h-4" />
+                                  <span>{customer.website}</span>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Social Media Links */}
+                            {(customer.line || customer.facebook || customer.instagram) && (
+                              <div className="mt-4 pt-4 border-t border-white/20">
+                                <p className="text-sm text-blue-100 mb-2">社群媒體</p>
+                                <div className="space-y-1 text-sm">
+                                  {customer.line && <div>LINE: {customer.line}</div>}
+                                  {customer.facebook && <div>Facebook: {customer.facebook}</div>}
+                                  {customer.instagram && <div>Instagram: {customer.instagram}</div>}
+                                </div>
+                              </div>
+                            )}
+                          </>
                         )}
                       </div>
                       
-                      {/* QR Code and Share Section - Inside the card */}
+                      {/* Card Action Buttons */}
                       <div className="bg-gray-50 p-4 rounded-b-xl">
+                        {editingCard[customer.id] ? (
+                          <div className="flex space-x-2 mb-4">
+                            <Button
+                              onClick={() => handleSaveCardEdit(customer.id)}
+                              size="sm"
+                              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                            >
+                              <Save className="w-3 h-3 mr-1" />
+                              儲存
+                            </Button>
+                            <Button
+                              onClick={() => handleCancelCardEdit(customer.id)}
+                              size="sm"
+                              variant="outline"
+                              className="flex-1"
+                            >
+                              <X className="w-3 h-3 mr-1" />
+                              取消
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex justify-end mb-4">
+                            <Button
+                              onClick={() => handleEditCard(customer.id, customer)}
+                              size="sm"
+                              variant="outline"
+                              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                            >
+                              <Edit3 className="w-3 h-3 mr-1" />
+                              編輯名片
+                            </Button>
+                          </div>
+                        )}
+
                         {/* QR Code */}
                         {showQRForCustomer[customer.id] && (
                           <div className="mb-4 text-center">
@@ -303,7 +644,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                           </div>
                         )}
 
-                        {/* Action Buttons */}
+                        {/* QR and Share Buttons */}
                         <div className="flex space-x-2">
                           <Button
                             onClick={() => toggleQRForCustomer(customer.id)}
@@ -406,6 +747,146 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       </div>;
   };
 
+  const renderCreateForm = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+        <div className="p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-bold">新增客戶</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCreateForm(false)}
+            >
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Photo Upload */}
+          <div className="flex flex-col items-center space-y-3">
+            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+              {newCustomerData.photo ? (
+                <img src={newCustomerData.photo} alt="照片" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-gray-400 font-bold text-lg">
+                  {newCustomerData.name?.charAt(0) || '?'}
+                </div>
+              )}
+            </div>
+            <label className="cursor-pointer text-blue-500 hover:text-blue-600 text-sm">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleNewCustomerPhotoUpload}
+                className="hidden"
+              />
+              <Upload className="w-4 h-4 inline mr-1" />上傳照片
+            </label>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <Label>姓名 *</Label>
+              <Input
+                value={newCustomerData.name || ''}
+                onChange={(e) => handleNewCustomerDataChange('name', e.target.value)}
+                placeholder="輸入姓名"
+              />
+            </div>
+            
+            <div>
+              <Label>手機號碼 *</Label>
+              <Input
+                value={newCustomerData.phone || ''}
+                onChange={(e) => handleNewCustomerDataChange('phone', e.target.value)}
+                placeholder="輸入手機號碼"
+              />
+            </div>
+            
+            <div>
+              <Label>電子信箱</Label>
+              <Input
+                value={newCustomerData.email || ''}
+                onChange={(e) => handleNewCustomerDataChange('email', e.target.value)}
+                placeholder="輸入電子信箱"
+              />
+            </div>
+            
+            <div>
+              <Label>公司名稱</Label>
+              <Input
+                value={newCustomerData.company || ''}
+                onChange={(e) => handleNewCustomerDataChange('company', e.target.value)}
+                placeholder="輸入公司名稱"
+              />
+            </div>
+            
+            <div>
+              <Label>職位</Label>
+              <Input
+                value={newCustomerData.jobTitle || ''}
+                onChange={(e) => handleNewCustomerDataChange('jobTitle', e.target.value)}
+                placeholder="輸入職位"
+              />
+            </div>
+            
+            <div>
+              <Label>公司官網</Label>
+              <Input
+                value={newCustomerData.website || ''}
+                onChange={(e) => handleNewCustomerDataChange('website', e.target.value)}
+                placeholder="https://www.example.com"
+              />
+            </div>
+            
+            <div>
+              <Label>LINE ID</Label>
+              <Input
+                value={newCustomerData.line || ''}
+                onChange={(e) => handleNewCustomerDataChange('line', e.target.value)}
+                placeholder="LINE ID"
+              />
+            </div>
+            
+            <div>
+              <Label>Facebook</Label>
+              <Input
+                value={newCustomerData.facebook || ''}
+                onChange={(e) => handleNewCustomerDataChange('facebook', e.target.value)}
+                placeholder="Facebook 連結"
+              />
+            </div>
+            
+            <div>
+              <Label>Instagram</Label>
+              <Input
+                value={newCustomerData.instagram || ''}
+                onChange={(e) => handleNewCustomerDataChange('instagram', e.target.value)}
+                placeholder="Instagram 連結"
+              />
+            </div>
+          </div>
+
+          <div className="flex space-x-3 pt-4">
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={() => setShowCreateForm(false)}
+            >
+              取消
+            </Button>
+            <Button
+              className="flex-1 bg-green-500 hover:bg-green-600"
+              onClick={handleCreateCustomer}
+            >
+              新增客戶
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   if (activeChatCustomer) {
     return <ChatInterface customer={activeChatCustomer} onClose={handleCloseChatInterface} />;
   }
@@ -431,6 +912,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       </div>
 
       <div className="p-4 space-y-4">
+        {/* Action Buttons */}
+        <div className="flex space-x-3">
+          <Button
+            onClick={() => setShowCreateForm(true)}
+            className="flex-1 bg-green-500 hover:bg-green-600"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            新增客戶
+          </Button>
+          
+          <label className="flex-1">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImportCustomers}
+              className="hidden"
+            />
+            <Button variant="outline" className="w-full border-orange-300 text-orange-600 hover:bg-orange-50">
+              <Upload className="w-4 h-4 mr-2" />
+              匯入客戶
+            </Button>
+          </label>
+        </div>
+
         {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -494,6 +999,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
           )}
         </div>
       </div>
+
+      {/* Create Customer Modal */}
+      {showCreateForm && renderCreateForm()}
     </div>;
 };
 
