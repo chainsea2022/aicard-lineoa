@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,10 @@ interface CustomerData {
   email: string;
   company?: string;
   jobTitle?: string;
+  website?: string;
+  line?: string;
+  facebook?: string;
+  instagram?: string;
   photo?: string;
 }
 
@@ -40,6 +43,10 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         email: 'zhang@example.com',
         company: 'ABC科技公司',
         jobTitle: '業務經理',
+        website: 'www.abc-tech.com',
+        line: '@abc-tech',
+        facebook: 'ABC.Tech.Official',
+        instagram: 'abc_tech_official',
         photo: '/placeholder.svg' // 模擬大頭照
       });
     } else {
@@ -82,6 +89,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       email: customerData.email,
       company: customerData.company,
       jobTitle: customerData.jobTitle,
+      website: customerData.website,
+      line: customerData.line,
+      facebook: customerData.facebook,
+      instagram: customerData.instagram,
+      photo: customerData.photo,
       hasCard: scanResult === 'aile-card',
       addedDate: new Date().toISOString(),
     };
@@ -231,7 +243,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               <h3 className="font-bold text-green-800">發現 AILE 電子名片！</h3>
             </div>
             
-            {/* Electronic Business Card Preview */}
+            {/* Electronic Business Card Preview - matching MyCard format */}
             <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
               <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
                 <div className="flex items-center space-x-3 mb-3">
@@ -264,7 +276,25 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                       <span>{customerData.email}</span>
                     </div>
                   )}
+                  {customerData.website && (
+                    <div className="flex items-center space-x-2">
+                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                      <span>{customerData.website}</span>
+                    </div>
+                  )}
                 </div>
+
+                {/* Social Media Links */}
+                {(customerData.line || customerData.facebook || customerData.instagram) && (
+                  <div className="mt-3 pt-3 border-t border-white/20">
+                    <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                    <div className="space-y-1 text-xs">
+                      {customerData.line && <div>LINE: {customerData.line}</div>}
+                      {customerData.facebook && <div>Facebook: {customerData.facebook}</div>}
+                      {customerData.instagram && <div>Instagram: {customerData.instagram}</div>}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             

@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search } from 'lucide-react';
+import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import ChatInterface from './ChatInterface';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -14,6 +14,13 @@ interface Customer {
   name: string;
   phone: string;
   email: string;
+  company?: string;
+  jobTitle?: string;
+  website?: string;
+  line?: string;
+  facebook?: string;
+  instagram?: string;
+  photo?: string;
   hasCard: boolean;
   addedDate: string;
 }
@@ -25,6 +32,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editName, setEditName] = useState('');
+  const [expandedCustomerId, setExpandedCustomerId] = useState<number | null>(null);
+  const [activeChatCustomer, setActiveChatCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -80,6 +89,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
     });
   };
 
+  const handleChatWithCustomer = (customer: Customer) => {
+    setActiveChatCustomer(customer);
+  };
+
+  const handleCloseChatInterface = () => {
+    setActiveChatCustomer(null);
+  };
+
+  const toggleCustomerExpansion = (customerId: number) => {
+    setExpandedCustomerId(expandedCustomerId === customerId ? null : customerId);
+  };
+
   const filterCustomers = (list: Customer[]) => {
     return list.filter(customer =>
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -105,74 +126,194 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
         {filteredList.map((customer) => (
           <div
             key={customer.id}
-            className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+            className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden"
           >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3 flex-1">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
-                  {customer.name.charAt(0)}
-                </div>
-                
-                <div className="flex-1">
-                  {editingId === customer.id ? (
-                    <div className="flex items-center space-x-2">
-                      <Input
-                        value={editName}
-                        onChange={(e) => setEditName(e.target.value)}
-                        className="text-sm"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={handleSaveEdit}
-                        className="bg-green-500 hover:bg-green-600"
-                      >
-                        確認
-                      </Button>
-                    </div>
+            {/* Customer Header */}
+            <div className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3 flex-1">
+                  {customer.photo ? (
+                    <img
+                      src={customer.photo}
+                      alt={customer.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
                   ) : (
-                    <div>
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                      {customer.name.charAt(0)}
+                    </div>
+                  )}
+                  
+                  <div className="flex-1">
+                    {editingId === customer.id ? (
                       <div className="flex items-center space-x-2">
-                        <h3 className="font-medium text-gray-800">{customer.name}</h3>
-                        {showCardIcon && customer.hasCard && (
-                          <UserCheck className="w-4 h-4 text-green-500" />
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          className="text-sm"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={handleSaveEdit}
+                          className="bg-green-500 hover:bg-green-600"
+                        >
+                          確認
+                        </Button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="font-medium text-gray-800">{customer.name}</h3>
+                          {showCardIcon && customer.hasCard && (
+                            <UserCheck className="w-4 h-4 text-green-500" />
+                          )}
+                        </div>
+                        <p className="text-sm text-gray-600">{customer.company}</p>
+                        {customer.jobTitle && (
+                          <p className="text-xs text-gray-500">{customer.jobTitle}</p>
                         )}
                       </div>
-                      <p className="text-sm text-gray-600">{customer.phone}</p>
-                      <p className="text-xs text-gray-500">{customer.email}</p>
-                      <p className="text-xs text-gray-400 mt-1">
-                        加入時間: {new Date(customer.addedDate).toLocaleDateString('zh-TW')}
-                      </p>
-                    </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="flex items-center space-x-1">
+                  {editingId !== customer.id && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleChatWithCustomer(customer)}
+                        className="text-green-600 hover:text-green-700"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleCustomerExpansion(customer.id)}
+                        className="text-gray-500 hover:text-blue-600"
+                      >
+                        {expandedCustomerId === customer.id ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEdit(customer)}
+                        className="text-gray-500 hover:text-blue-600"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(customer.id)}
+                        className="text-gray-500 hover:text-red-600"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>
-              
-              {editingId !== customer.id && (
-                <div className="flex items-center space-x-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(customer)}
-                    className="text-gray-500 hover:text-blue-600"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(customer.id)}
-                    className="text-gray-500 hover:text-red-600"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
             </div>
+
+            {/* Expanded Customer Details */}
+            {expandedCustomerId === customer.id && (
+              <div className="border-t border-gray-100 bg-gray-50">
+                {customer.hasCard ? (
+                  /* Electronic Business Card Preview */
+                  <div className="p-4">
+                    <div className="bg-white border-2 border-gray-200 rounded-xl shadow-sm">
+                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
+                        <div className="flex items-center space-x-3 mb-3">
+                          {customer.photo && (
+                            <img
+                              src={customer.photo}
+                              alt="照片"
+                              className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                            />
+                          )}
+                          <div>
+                            <h4 className="font-bold">{customer.name}</h4>
+                            <p className="text-blue-100 text-sm">{customer.company}</p>
+                            {customer.jobTitle && (
+                              <p className="text-blue-200 text-xs">{customer.jobTitle}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1 text-xs">
+                          {customer.phone && (
+                            <div className="flex items-center space-x-2">
+                              <Phone className="w-3 h-3" />
+                              <span>{customer.phone}</span>
+                            </div>
+                          )}
+                          {customer.email && (
+                            <div className="flex items-center space-x-2">
+                              <Mail className="w-3 h-3" />
+                              <span>{customer.email}</span>
+                            </div>
+                          )}
+                          {customer.website && (
+                            <div className="flex items-center space-x-2">
+                              <Globe className="w-3 h-3" />
+                              <span>{customer.website}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Social Media Links */}
+                        {(customer.line || customer.facebook || customer.instagram) && (
+                          <div className="mt-3 pt-3 border-t border-white/20">
+                            <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                            <div className="space-y-1 text-xs">
+                              {customer.line && <div>LINE: {customer.line}</div>}
+                              {customer.facebook && <div>Facebook: {customer.facebook}</div>}
+                              {customer.instagram && <div>Instagram: {customer.instagram}</div>}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Simple Contact Info for Invited Users */
+                  <div className="p-4 space-y-2">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <Phone className="w-4 h-4" />
+                      <span>{customer.phone}</span>
+                    </div>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                      <Mail className="w-4 h-4" />
+                      <span>{customer.email}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      加入時間: {new Date(customer.addedDate).toLocaleDateString('zh-TW')}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
     );
   };
+
+  if (activeChatCustomer) {
+    return (
+      <ChatInterface
+        customer={activeChatCustomer}
+        onClose={handleCloseChatInterface}
+      />
+    );
+  }
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
