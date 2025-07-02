@@ -1,9 +1,10 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import EmailComposer from './EmailComposer';
+import CalendarView from './CalendarView';
 
 interface ScheduleProps {
   onClose: () => void;
@@ -58,6 +59,8 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     attendees: '',
     type: 'meeting' as Meeting['type']
   });
+  const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   const handleCreateMeeting = () => {
     if (newMeeting.title && newMeeting.date && newMeeting.time) {
@@ -113,6 +116,22 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     }
   };
 
+  const handleSendEmail = () => {
+    setShowEmailComposer(true);
+  };
+
+  const handleViewCalendar = () => {
+    setShowCalendar(true);
+  };
+
+  if (showEmailComposer) {
+    return <EmailComposer onClose={() => setShowEmailComposer(false)} />;
+  }
+
+  if (showCalendar) {
+    return <CalendarView onClose={() => setShowCalendar(false)} />;
+  }
+
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
@@ -162,6 +181,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             <span className="text-xs">新增會議</span>
           </Button>
           <Button
+            onClick={handleSendEmail}
             variant="outline"
             className="h-16 flex flex-col items-center justify-center space-y-1"
           >
@@ -169,6 +189,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             <span className="text-xs">發送信件</span>
           </Button>
           <Button
+            onClick={handleViewCalendar}
             variant="outline"
             className="h-16 flex flex-col items-center justify-center space-y-1"
           >

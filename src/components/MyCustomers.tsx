@@ -7,6 +7,8 @@ import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import ChatInterface from './ChatInterface';
 import Schedule from './Schedule';
+import EmailComposer from './EmailComposer';
+import CalendarView from './CalendarView';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -71,6 +73,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     hasCard: true,
     addedDate: new Date().toISOString(),
   });
+  const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -79,6 +83,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     setCustomers(customersList);
     setInvited(invitedList);
   }, []);
+
+  // 模擬檢查手機號碼是否已註冊 Aile 系統
+  const checkPhoneNumberInAile = (phone: string): boolean => {
+    // 模擬一些已註冊的手機號碼
+    const registeredPhones = [
+      '0912345678',
+      '0987654321',
+      '0923456789',
+      '0934567890'
+    ];
+    
+    const cleanPhone = phone.replace(/[-\s]/g, '');
+    return registeredPhones.includes(cleanPhone);
+  };
 
   const handleEdit = (customer: Customer) => {
     setEditingId(customer.id);
@@ -179,6 +197,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       return;
     }
 
+    // 檢查手機號碼是否已在 Aile 系統中
+    const hasAileCard = checkPhoneNumberInAile(newCustomerData.phone || '');
+
     const newCustomer: Customer = {
       id: Date.now(),
       name: newCustomerData.name || '',
@@ -191,14 +212,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       facebook: newCustomerData.facebook || '',
       instagram: newCustomerData.instagram || '',
       photo: newCustomerData.photo || undefined,
-      hasCard: true,
+      hasCard: hasAileCard, // 根據系統判斷決定是否有名片
       addedDate: new Date().toISOString(),
     };
 
     const allCustomers = [...customers, ...invited, newCustomer];
     localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
     const customersList = allCustomers.filter(c => c.hasCard);
+    const invitedList = allCustomers.filter(c => !c.hasCard);
     setCustomers(customersList);
+    setInvited(invitedList);
     
     setNewCustomerData({
       name: '',
@@ -216,10 +239,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     });
     setShowCreateForm(false);
 
-    toast({
-      title: "客戶已新增！",
-      description: "新客戶已成功加入客戶列表。"
-    });
+    if (hasAileCard) {
+      toast({
+        title: "客戶已新增至我的客戶！",
+        description: "系統檢測到此手機號碼已註冊 Aile，客戶已加入我的客戶列表。"
+      });
+    } else {
+      toast({
+        title: "客戶已新增至已邀請！",
+        description: "系統檢測到此手機號碼尚未註冊 Aile，客戶已加入已邀請列表。"
+      });
+    }
   };
 
   const handleNewCustomerDataChange = (field: keyof Customer, value: string) => {
@@ -254,10 +284,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
           for (let i = 1; i < lines.length; i++) {
             if (lines[i].trim()) {
               const values = lines[i].split(',').map(v => v.trim());
+              const phone = values[headers.indexOf('phone')] || '';
+              const hasAileCard = checkPhoneNumberInAile(phone);
+              
               const customer: Customer = {
                 id: Date.now() + i,
                 name: values[headers.indexOf('name')] || '',
-                phone: values[headers.indexOf('phone')] || '',
+                phone: phone,
                 email: values[headers.indexOf('email')] || '',
                 company: values[headers.indexOf('company')] || '',
                 jobTitle: values[headers.indexOf('jobTitle')] || '',
@@ -265,7 +298,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                 line: values[headers.indexOf('line')] || '',
                 facebook: values[headers.indexOf('facebook')] || '',
                 instagram: values[headers.indexOf('instagram')] || '',
-                hasCard: true,
+                hasCard: hasAileCard,
                 addedDate: new Date().toISOString(),
               };
               importedCustomers.push(customer);
@@ -275,11 +308,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
           const allCustomers = [...customers, ...invited, ...importedCustomers];
           localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
           const customersList = allCustomers.filter(c => c.hasCard);
+          const invitedList = allCustomers.filter(c => !c.hasCard);
           setCustomers(customersList);
+          setInvited(invitedList);
 
           toast({
             title: "匯入成功！",
-            description: `已成功匯入 ${importedCustomers.length} 個客戶。`
+            description: `已成功匯入 ${importedCustomers.length} 個客戶，系統已自動分配至相應列表。`
           });
         } catch (error) {
           toast({
@@ -895,6 +930,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     return <Schedule onClose={handleCloseSchedule} />;
   }
 
+  if (showEmailComposer) {
+    return <EmailComposer onClose={() => setShowEmailComposer(false)} />;
+  }
+
+  if (showCalendar) {
+    return <CalendarView onClose={() => setShowCalendar(false)} />;
+  }
+
   return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 shadow-lg">
@@ -912,26 +955,32 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       </div>
 
       <div className="p-4 space-y-4">
-        {/* Action Buttons */}
-        <div className="flex space-x-3">
+        {/* Action Buttons - 平均分配佈局 */}
+        <div className="grid grid-cols-2 gap-3">
           <Button
             onClick={() => setShowCreateForm(true)}
-            className="flex-1 bg-green-500 hover:bg-green-600"
+            className="bg-green-500 hover:bg-green-600 flex items-center justify-center space-x-2 py-3"
           >
-            <Plus className="w-4 h-4 mr-2" />
-            新增客戶
+            <Plus className="w-4 h-4" />
+            <span>新增客戶</span>
           </Button>
           
-          <label className="flex-1">
+          <label className="block">
             <input
               type="file"
               accept=".csv"
               onChange={handleImportCustomers}
               className="hidden"
             />
-            <Button variant="outline" className="w-full border-orange-300 text-orange-600 hover:bg-orange-50">
-              <Upload className="w-4 h-4 mr-2" />
-              匯入客戶
+            <Button 
+              variant="outline" 
+              className="w-full border-orange-300 text-orange-600 hover:bg-orange-50 flex items-center justify-center space-x-2 py-3"
+              asChild
+            >
+              <span>
+                <Upload className="w-4 h-4" />
+                <span>匯入客戶</span>
+              </span>
             </Button>
           </label>
         </div>
