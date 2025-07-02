@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Share2, QrCode, Download } from 'lucide-react';
+import { ArrowLeft, Share2, QrCode, Download, Zap, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -20,18 +20,62 @@ interface CardData {
   photo: string | null;
 }
 
+interface ChatMessage {
+  id: number;
+  text: string;
+  isBot: boolean;
+  timestamp: Date;
+  isCard?: boolean;
+  cardData?: CardData;
+}
+
 const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [showQR, setShowQR] = useState(false);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
 
   useEffect(() => {
     const savedData = localStorage.getItem('aile-card-data');
     if (savedData) {
-      setCardData(JSON.parse(savedData));
+      const data = JSON.parse(savedData);
+      setCardData(data);
+      
+      // 初始化聊天訊息，包含電子名片預覽
+      const initialMessages: ChatMessage[] = [
+        {
+          id: 1,
+          text: "這是您的電子名片預覽：",
+          isBot: true,
+          timestamp: new Date()
+        },
+        {
+          id: 2,
+          text: "",
+          isBot: true,
+          timestamp: new Date(),
+          isCard: true,
+          cardData: data
+        },
+        {
+          id: 3,
+          text: "💡 建議您加入 AIWOW 名片簿，享受更多便利功能！透過 AIWOW LINE OA，您可以：\n\n📱 更方便地管理和分享名片\n📊 獲得詳細的名片互動數據\n🎯 精準追蹤客戶互動記錄\n🚀 使用更多智能商務功能",
+          isBot: true,
+          timestamp: new Date()
+        }
+      ];
+      setMessages(initialMessages);
     }
   }, []);
 
   const handleShare = () => {
+    const newMessage: ChatMessage = {
+      id: messages.length + 1,
+      text: "您的電子名片已準備好分享！",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newMessage]);
+    
     toast({
       title: "分享成功！",
       description: "您的電子名片已準備好分享。",
@@ -40,10 +84,28 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
 
   const generateQRCode = () => {
     setShowQR(true);
+    const newMessage: ChatMessage = {
+      id: messages.length + 1,
+      text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片。",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newMessage]);
+    
     toast({
       title: "QR Code 已生成！",
       description: "其他人可以掃描此 QR Code 來獲取您的名片。",
     });
+  };
+
+  const handleJoinAIWOW = () => {
+    const newMessage: ChatMessage = {
+      id: messages.length + 1,
+      text: "感謝您的興趣！請點擊以下連結加入 AIWOW LINE OA，開始享受更多智能商務功能。",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newMessage]);
   };
 
   if (!cardData) {
@@ -81,9 +143,9 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   }
 
   return (
-    <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
+    <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white z-50 overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
           <Button
             variant="ghost"
@@ -93,103 +155,154 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="font-bold text-lg">我的電子名片</h1>
+          <div className="flex items-center space-x-2">
+            <Zap className="w-6 h-6" />
+            <h1 className="font-bold text-lg">AILE 智能助手</h1>
+          </div>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
-        {/* Digital Business Card */}
-        <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-white shadow-xl">
-          <div className="flex items-center space-x-4 mb-4">
-            {cardData.photo && (
-              <img
-                src={cardData.photo}
-                alt="照片"
-                className="w-20 h-20 rounded-full object-cover border-3 border-white"
-              />
-            )}
-            <div>
-              <h3 className="text-2xl font-bold">{cardData.name}</h3>
-              <p className="text-blue-100 text-lg">{cardData.companyName}</p>
-            </div>
-          </div>
-          
-          <div className="space-y-3 text-sm">
-            {cardData.phone && (
-              <div className="flex items-center space-x-3">
-                <span className="w-2 h-2 bg-white rounded-full"></span>
-                <span>{cardData.phone}</span>
-              </div>
-            )}
-            {cardData.email && (
-              <div className="flex items-center space-x-3">
-                <span className="w-2 h-2 bg-white rounded-full"></span>
-                <span>{cardData.email}</span>
-              </div>
-            )}
-            {cardData.website && (
-              <div className="flex items-center space-x-3">
-                <span className="w-2 h-2 bg-white rounded-full"></span>
-                <span>{cardData.website}</span>
-              </div>
-            )}
-          </div>
+      {/* Chat Messages */}
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0">
+        {messages.map((message) => (
+          <div key={message.id} className="flex justify-start">
+            <div className="max-w-xs lg:max-w-md">
+              {/* Bot Avatar */}
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  {message.isCard && message.cardData ? (
+                    /* Electronic Business Card Preview */
+                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-4 text-white shadow-lg mb-2">
+                      <div className="flex items-center space-x-3 mb-3">
+                        {message.cardData.photo && (
+                          <img
+                            src={message.cardData.photo}
+                            alt="照片"
+                            className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                          />
+                        )}
+                        <div>
+                          <h3 className="text-lg font-bold">{message.cardData.name}</h3>
+                          <p className="text-blue-100 text-sm">{message.cardData.companyName}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2 text-xs">
+                        {message.cardData.phone && (
+                          <div className="flex items-center space-x-2">
+                            <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span>{message.cardData.phone}</span>
+                          </div>
+                        )}
+                        {message.cardData.email && (
+                          <div className="flex items-center space-x-2">
+                            <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span>{message.cardData.email}</span>
+                          </div>
+                        )}
+                        {message.cardData.website && (
+                          <div className="flex items-center space-x-2">
+                            <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                            <span>{message.cardData.website}</span>
+                          </div>
+                        )}
+                      </div>
 
-          {/* Social Media Links */}
-          {(cardData.line || cardData.facebook || cardData.instagram) && (
-            <div className="mt-4 pt-4 border-t border-white/20">
-              <p className="text-sm text-blue-100 mb-2">社群媒體</p>
-              <div className="space-y-1 text-sm">
-                {cardData.line && <div>LINE: {cardData.line}</div>}
-                {cardData.facebook && <div>Facebook: {cardData.facebook}</div>}
-                {cardData.instagram && <div>Instagram: {cardData.instagram}</div>}
+                      {/* Social Media Links */}
+                      {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
+                        <div className="mt-3 pt-3 border-t border-white/20">
+                          <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                          <div className="space-y-1 text-xs">
+                            {message.cardData.line && <div>LINE: {message.cardData.line}</div>}
+                            {message.cardData.facebook && <div>Facebook: {message.cardData.facebook}</div>}
+                            {message.cardData.instagram && <div>Instagram: {message.cardData.instagram}</div>}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Regular Chat Message */
+                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                      <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1 ml-2">
+                    {message.timestamp.toLocaleTimeString('zh-TW', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
+                    })}
+                  </p>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        ))}
 
         {/* QR Code */}
         {showQR && (
-          <div className="bg-white border-2 border-gray-200 rounded-xl p-6 text-center">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">我的 QR Code</h3>
-            <div className="w-48 h-48 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <QrCode className="w-32 h-32 text-gray-400" />
+          <div className="flex justify-start">
+            <div className="max-w-xs lg:max-w-md">
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Bot className="w-5 h-5 text-white" />
+                </div>
+                <div className="bg-white border-2 border-gray-200 rounded-xl p-4 text-center">
+                  <h4 className="text-sm font-bold text-gray-800 mb-3">我的 QR Code</h4>
+                  <div className="w-32 h-32 bg-gray-100 rounded-lg mx-auto mb-3 flex items-center justify-center">
+                    <QrCode className="w-20 h-20 text-gray-400" />
+                  </div>
+                  <p className="text-xs text-gray-600">掃描此 QR Code 獲取我的名片</p>
+                </div>
+              </div>
             </div>
-            <p className="text-sm text-gray-600">掃描此 QR Code 獲取我的名片</p>
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="space-y-3">
+        {/* AIWOW Recommendation Card */}
+        <div className="flex justify-start">
+          <div className="max-w-xs lg:max-w-md">
+            <div className="flex items-start space-x-3">
+              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                <Bot className="w-5 h-5 text-white" />
+              </div>
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                <h4 className="font-bold text-blue-800 mb-2 text-sm">🎯 AIWOW 推薦</h4>
+                <p className="text-xs text-blue-700 mb-3">
+                  升級至 AIWOW 名片簿，解鎖更多商務功能！
+                </p>
+                <Button
+                  onClick={handleJoinAIWOW}
+                  size="sm"
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                >
+                  了解更多
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="bg-white border-t border-gray-200 p-4 space-y-3 flex-shrink-0">
+        <div className="flex space-x-3">
           <Button
             onClick={generateQRCode}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-sm"
           >
-            <QrCode className="w-5 h-5 mr-2" />
+            <QrCode className="w-4 h-4 mr-2" />
             生成 QR Code
           </Button>
           
           <Button
             onClick={handleShare}
-            className="w-full bg-green-500 hover:bg-green-600 text-white"
+            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-sm"
           >
-            <Share2 className="w-5 h-5 mr-2" />
+            <Share2 className="w-4 h-4 mr-2" />
             分享名片
-          </Button>
-        </div>
-
-        {/* Information Panel */}
-        <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-          <h4 className="font-bold text-blue-800 mb-2">💡 建議</h4>
-          <p className="text-sm text-blue-700 mb-2">
-            請加入 AIWOW 名片簿，享受更多便利功能！
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-blue-300 text-blue-600 hover:bg-blue-100"
-          >
-            加入 AIWOW LINE OA
           </Button>
         </div>
       </div>
