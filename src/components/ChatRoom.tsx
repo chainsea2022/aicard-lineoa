@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
@@ -31,6 +30,37 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([
     { id: 1, text: '歡迎使用 AILE！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
   ]);
+  const [customers, setCustomers] = useState<any[]>([]);
+
+  useEffect(() => {
+    // 監聽客戶加入事件
+    const handleCustomerAdded = (event: CustomEvent) => {
+      const newCustomer = event.detail;
+      
+      // 添加新客戶到列表
+      setCustomers(prev => [...prev, newCustomer]);
+      
+      // 添加聊天通知
+      const customerTypeText = newCustomer.isAileUser ? 
+        `${newCustomer.name} (Aile 用戶) 已加入您的客戶列表！` : 
+        `${newCustomer.name} 已加入您的客戶列表！`;
+      
+      const newMessage = {
+        id: Date.now(),
+        text: `🎉 ${customerTypeText}`,
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, newMessage]);
+    };
+
+    window.addEventListener('customerScannedCard', handleCustomerAdded as EventListener);
+    
+    return () => {
+      window.removeEventListener('customerScannedCard', handleCustomerAdded as EventListener);
+    };
+  }, []);
 
   const handleMenuItemClick = (itemId: string) => {
     setActiveView(itemId);
@@ -42,16 +72,20 @@ const ChatRoom = () => {
     setIsMenuOpen(true);
   };
 
+  const handleCustomerAdded = (customer: any) => {
+    setCustomers(prev => [...prev, customer]);
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
         return <CreateCard onClose={handleCloseView} />;
       case 'my-card':
-        return <MyCard onClose={handleCloseView} />;
+        return <MyCard onClose={handleCloseView} onCustomerAdded={handleCustomerAdded} />;
       case 'scanner':
         return <Scanner onClose={handleCloseView} />;
       case 'customers':
-        return <MyCustomers onClose={handleCloseView} />;
+        return <MyCustomers onClose={handleCloseView} customers={customers} onCustomersUpdate={setCustomers} />;
       case 'analytics':
         return <Analytics onClose={handleCloseView} />;
       case 'schedule':

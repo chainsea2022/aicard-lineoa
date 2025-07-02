@@ -6,6 +6,7 @@ import { toast } from '@/hooks/use-toast';
 
 interface MyCardProps {
   onClose: () => void;
+  onCustomerAdded?: (customer: any) => void;
 }
 
 interface CardData {
@@ -29,7 +30,7 @@ interface ChatMessage {
   cardData?: CardData;
 }
 
-const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
+const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -65,12 +66,48 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
       ];
       setMessages(initialMessages);
     }
-  }, []);
+
+    // 監聽來自其他組件的客戶加入事件
+    const handleCustomerScan = (event: CustomEvent) => {
+      const newCustomer = event.detail;
+      const newMessage: ChatMessage = {
+        id: messages.length + 1,
+        text: `🎉 ${newCustomer.name} 已透過掃描您的名片加入客戶列表！`,
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, newMessage]);
+      
+      if (onCustomerAdded) {
+        onCustomerAdded(newCustomer);
+      }
+    };
+
+    window.addEventListener('customerScannedCard', handleCustomerScan as EventListener);
+    
+    return () => {
+      window.removeEventListener('customerScannedCard', handleCustomerScan as EventListener);
+    };
+  }, [messages.length, onCustomerAdded]);
 
   const handleShare = () => {
+    const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
+    
+    // 模擬分享功能
+    if (navigator.share) {
+      navigator.share({
+        title: `${cardData?.name} 的電子名片`,
+        text: `查看 ${cardData?.name} 的電子名片`,
+        url: shareUrl,
+      });
+    } else {
+      // 複製到剪貼板作為備用方案
+      navigator.clipboard.writeText(shareUrl);
+    }
+
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: "您的電子名片已準備好分享！",
+      text: "您的電子名片分享連結已準備好！當有人透過此連結查看您的名片時，將會自動加入您的客戶列表。",
       isBot: true,
       timestamp: new Date()
     };
@@ -86,11 +123,29 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     setShowQR(true);
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片。",
+      text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片並自動加入您的客戶列表。",
       isBot: true,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, newMessage]);
+    
+    // 模擬 QR Code 被掃描的情況 (測試用)
+    setTimeout(() => {
+      const mockCustomer = {
+        id: Date.now(),
+        name: '測試客戶',
+        phone: '0912345678',
+        email: 'test@example.com',
+        company: '測試公司',
+        photo: null,
+        isAileUser: Math.random() > 0.5, // 隨機決定是否為 Aile 用戶
+        addedVia: 'qrcode'
+      };
+      
+      // 觸發客戶加入事件
+      const event = new CustomEvent('customerScannedCard', { detail: mockCustomer });
+      window.dispatchEvent(event);
+    }, 3000);
     
     toast({
       title: "QR Code 已生成！",
