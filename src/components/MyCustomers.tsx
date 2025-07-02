@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail, Search, Filter, Star, Users, Building2 } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail, Search, Filter, Star, Users, Building2, Calendar, Share, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -43,7 +43,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [pendingCustomer, setPendingCustomer] = useState<Customer | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([
-    // 模擬數據
     {
       id: 1,
       name: '陳小明',
@@ -94,13 +93,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [activeTab, setActiveTab] = useState('joined');
 
-  // Search and Filter states
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<'all' | 'aile' | 'customer'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'aile' | 'customer' | 'favorites'>('all');
   const [filterIndustry, setFilterIndustry] = useState<string>('all');
-  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
-  // 新增客戶表單狀態
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
     name: '',
     phone: '',
@@ -116,10 +112,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     industry: ''
   });
 
-  // 匯入文件狀態
   const [importFile, setImportFile] = useState<File | null>(null);
 
-  // Get unique industries for filter
   const industries = ['all', ...Array.from(new Set(customers.map(c => c.industry).filter(Boolean)))];
 
   useEffect(() => {
@@ -133,36 +127,28 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     }
   }, [propCustomers]);
 
-  // Filter customers based on search and filters
   const filterCustomers = (customerList: Customer[]) => {
     return customerList.filter(customer => {
-      // Search filter
       const matchesSearch = searchQuery === '' || 
         customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
         customer.phone.includes(searchQuery) ||
         (customer.email && customer.email.toLowerCase().includes(searchQuery.toLowerCase()));
 
-      // Type filter
       const matchesType = filterType === 'all' || 
         (filterType === 'aile' && customer.isAileUser) ||
-        (filterType === 'customer' && !customer.isAileUser);
+        (filterType === 'customer' && !customer.isAileUser) ||
+        (filterType === 'favorites' && customer.isFavorite);
 
-      // Industry filter
       const matchesIndustry = filterIndustry === 'all' || customer.industry === filterIndustry;
 
-      // Favorites filter
-      const matchesFavorites = !showOnlyFavorites || customer.isFavorite;
-
-      return matchesSearch && matchesType && matchesIndustry && matchesFavorites;
+      return matchesSearch && matchesType && matchesIndustry;
     });
   };
 
-  // 過濾客戶列表
   const joinedCustomers = filterCustomers(customers.filter(c => c.status === 'joined'));
   const invitedCustomers = filterCustomers(customers.filter(c => c.status === 'invited'));
 
-  // Toggle favorite status
   const toggleFavorite = (customerId: number) => {
     setCustomers(prevCustomers =>
       prevCustomers.map(c => 
@@ -192,8 +178,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       return;
     }
 
-    // 模擬檢查是否為 Aile 用戶
-    const isAileUser = Math.random() > 0.5; // 50% 機率
+    const isAileUser = Math.random() > 0.5;
 
     const customer: Customer = {
       id: Date.now(),
@@ -217,12 +202,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     };
 
     if (!isAileUser) {
-      // 如果不是 Aile 用戶，顯示邀請對話框
       setPendingCustomer(customer);
       setIsInviteDialogOpen(true);
       setIsAddCustomerOpen(false);
     } else {
-      // 如果是 Aile 用戶，直接加入客戶列表
       setCustomers(prevCustomers => [...prevCustomers, customer]);
       setIsAddCustomerOpen(false);
       setNewCustomer({
@@ -303,12 +286,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       return;
     }
 
-    // 模擬匯入邏輯
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const data = JSON.parse(e.target?.result as string);
-        // 假設匯入的是 JSON 格式的客戶數據
         const importedCustomers = data.map((item: any, index: number) => ({
           id: Date.now() + index,
           name: item.name || '未知',
@@ -359,13 +340,36 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     setEditingCustomer(null);
   };
 
+  const handleShareCard = (customer: Customer) => {
+    const shareText = `分享 ${customer.name} 的 AILE 電子名片`;
+    const shareUrl = `https://aile.app/card/${customer.id}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: shareText,
+        url: shareUrl
+      });
+    } else {
+      navigator.clipboard.writeText(shareUrl);
+      toast({
+        title: "連結已複製！",
+        description: "電子名片連結已複製到剪貼簿",
+      });
+    }
+  };
+
+  const handleOpenSchedule = (customer: Customer) => {
+    toast({
+      title: "開啟行程管理",
+      description: `正在為 ${customer.name} 開啟行程管理功能`,
+    });
+  };
+
   const renderCustomerCard = (customer: Customer, isExpanded: boolean) => (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
       {!isExpanded ? (
-        // Simplified compact view
         <div className="p-3">
           <div className="flex items-center space-x-3">
-            {/* Avatar */}
             {customer.photo ? (
               <img
                 src={customer.photo}
@@ -378,10 +382,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               </div>
             )}
 
-            {/* Customer Info - Different layout for Aile vs regular customers */}
             <div className="flex-1 min-w-0">
               {customer.isAileUser ? (
-                // Aile customer - e-card style display
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-3 text-white">
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
@@ -403,29 +405,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                   </div>
                 </div>
               ) : (
-                // Regular customer - simple list style
                 <div>
                   <div className="flex items-center space-x-2 mb-1">
                     <h3 className="font-medium text-gray-800 text-sm truncate">{customer.name}</h3>
                     <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex-shrink-0">
                       客戶
                     </span>
-                    {customer.industry && (
-                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full flex-shrink-0">
-                        {customer.industry}
-                      </span>
-                    )}
                   </div>
-                  <div className="text-xs text-gray-600 space-y-0.5">
-                    {customer.company && <p className="truncate">{customer.company}</p>}
-                    {customer.position && <p className="truncate">{customer.position}</p>}
+                  <div className="text-xs text-gray-500">
                     <p>{customer.phone}</p>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Action buttons */}
             <div className="flex items-center space-x-1 flex-shrink-0">
               <Button
                 variant="ghost"
@@ -455,14 +448,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => handleEditCustomer(customer)}
-                className="text-blue-600 hover:text-blue-700 p-1 h-8 w-8"
-              >
-                <Edit className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
                 onClick={() => toggleCustomerExpansion(customer.id)}
                 className="text-gray-600 hover:text-gray-700 p-1 h-8 w-8"
               >
@@ -472,143 +457,254 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           </div>
         </div>
       ) : (
-        // Expanded view
         <div className="p-4 space-y-3">
-          {/* Customer Info Display - LINE style */}
-          <div className="flex items-center space-x-3">
-            {customer.photo ? (
-              <img
-                src={customer.photo}
-                alt={customer.name}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-            ) : (
-              <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
-                {customer.name.charAt(0)}
-              </div>
-            )}
-            <div className="flex-1">
-              <div className="flex items-center space-x-2">
-                <h3 className="font-semibold text-gray-800">{customer.name}</h3>
-                {customer.isAileUser ? (
-                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center">
-                    <Zap className="w-3 h-3 mr-1" />
-                    Aile
-                  </span>
-                ) : (
-                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                    客戶
-                  </span>
-                )}
-                {customer.industry && (
-                  <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-                    {customer.industry}
-                  </span>
-                )}
-              </div>
-              {customer.company && (
-                <p className="text-sm text-gray-600">{customer.company}</p>
-              )}
-              {customer.position && (
-                <p className="text-xs text-gray-500">{customer.position}</p>
-              )}
-              <p className="text-xs text-gray-500">{customer.phone}</p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleFavorite(customer.id)}
-                className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
-              >
-                <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  const chatCustomer = {
-                    id: customer.id,
-                    name: customer.name,
-                    photo: customer.photo,
-                    company: customer.company
-                  };
-                  setSelectedCustomer(chatCustomer);
-                  setShowChatInterface(true);
-                }}
-                className="text-green-600 hover:text-green-700"
-              >
-                <MessageCircle className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleEditCustomer(customer)}
-                className="text-blue-600 hover:text-blue-700"
-              >
-                <Edit className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => toggleCustomerExpansion(customer.id)}
-                className="text-gray-600 hover:text-gray-700"
-              >
-                <ChevronUp className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Expanded Electronic Business Card */}
-          <div className="ml-4 border-l-2 border-gray-200 pl-4">
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
-              <div className="flex items-center space-x-3 mb-3">
-                {customer.photo && (
+          {customer.isAileUser ? (
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                {customer.photo ? (
                   <img
                     src={customer.photo}
                     alt={customer.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                    className="w-12 h-12 rounded-full object-cover"
                   />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
+                    {customer.name.charAt(0)}
+                  </div>
                 )}
-                <div>
-                  <h4 className="font-bold">{customer.name}</h4>
-                  {customer.company && <p className="text-xs text-blue-100">{customer.company}</p>}
-                  {customer.position && <p className="text-xs text-blue-100">{customer.position}</p>}
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2">
+                    <h3 className="font-semibold text-gray-800">{customer.name}</h3>
+                    <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center">
+                      <Zap className="w-3 h-3 mr-1" />
+                      Aile
+                    </span>
+                    {customer.industry && (
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                        {customer.industry}
+                      </span>
+                    )}
+                  </div>
+                  {customer.company && (
+                    <p className="text-sm text-gray-600">{customer.company}</p>
+                  )}
+                  {customer.position && (
+                    <p className="text-xs text-gray-500">{customer.position}</p>
+                  )}
                 </div>
-              </div>
-              
-              <div className="space-y-1 text-xs">
                 <div className="flex items-center space-x-2">
-                  <span className="w-1 h-1 bg-white rounded-full"></span>
-                  <span>{customer.phone}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleFavorite(customer.id)}
+                    className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
+                  >
+                    <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleCustomerExpansion(customer.id)}
+                    className="text-gray-600 hover:text-gray-700"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </Button>
                 </div>
-                {customer.email && (
-                  <div className="flex items-center space-x-2">
-                    <span className="w-1 h-1 bg-white rounded-full"></span>
-                    <span>{customer.email}</span>
-                  </div>
-                )}
-                {customer.website && (
-                  <div className="flex items-center space-x-2">
-                    <span className="w-1 h-1 bg-white rounded-full"></span>
-                    <span>{customer.website}</span>
-                  </div>
-                )}
               </div>
 
-              {/* 社群媒體連結 */}
-              {(customer.line || customer.facebook || customer.instagram) && (
-                <div className="mt-3 pt-3 border-t border-white/20">
-                  <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                  <div className="space-y-1 text-xs">
-                    {customer.line && <div>LINE: {customer.line}</div>}
-                    {customer.facebook && <div>Facebook: {customer.facebook}</div>}
-                    {customer.instagram && <div>Instagram: {customer.instagram}</div>}
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
+                <div className="flex items-center space-x-3 mb-3">
+                  {customer.photo && (
+                    <img
+                      src={customer.photo}
+                      alt={customer.name}
+                      className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                    />
+                  )}
+                  <div>
+                    <h4 className="font-bold">{customer.name}</h4>
+                    {customer.company && <p className="text-xs text-blue-100">{customer.company}</p>}
+                    {customer.position && <p className="text-xs text-blue-100">{customer.position}</p>}
                   </div>
                 </div>
-              )}
+                
+                <div className="space-y-1 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <Phone className="w-3 h-3" />
+                    <span>{customer.phone}</span>
+                  </div>
+                  {customer.email && (
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-3 h-3" />
+                      <span>{customer.email}</span>
+                    </div>
+                  )}
+                  {customer.website && (
+                    <div className="flex items-center space-x-2">
+                      <span className="w-3 h-3 text-center">🌐</span>
+                      <span>{customer.website}</span>
+                    </div>
+                  )}
+                </div>
+
+                {(customer.line || customer.facebook || customer.instagram) && (
+                  <div className="mt-3 pt-3 border-t border-white/20">
+                    <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                    <div className="space-y-1 text-xs">
+                      {customer.line && <div>LINE: {customer.line}</div>}
+                      {customer.facebook && <div>Facebook: {customer.facebook}</div>}
+                      {customer.instagram && <div>Instagram: {customer.instagram}</div>}
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-4 flex space-x-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    onClick={() => handleOpenSchedule(customer)}
+                  >
+                    <Calendar className="w-4 h-4 mr-1" />
+                    行程
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    onClick={() => handleShareCard(customer)}
+                  >
+                    <Share className="w-4 h-4 mr-1" />
+                    分享
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20"
+                    onClick={() => {
+                      const chatCustomer = {
+                        id: customer.id,
+                        name: customer.name,
+                        photo: customer.photo,
+                        company: customer.company
+                      };
+                      setSelectedCustomer(chatCustomer);
+                      setShowChatInterface(true);
+                    }}
+                  >
+                    <MessageCircle className="w-4 h-4 mr-1" />
+                    聊天
+                  </Button>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div>
+              <div className="flex items-center space-x-3">
+                {customer.photo ? (
+                  <img
+                    src={customer.photo}
+                    alt={customer.name}
+                    className="w-12 h-12 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
+                    {customer.name.charAt(0)}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2">
+                    <h3 className="font-semibold text-gray-800">{customer.name}</h3>
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                      客戶
+                    </span>
+                    {customer.industry && (
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                        {customer.industry}
+                      </span>
+                    )}
+                  </div>
+                  {customer.company && (
+                    <p className="text-sm text-gray-600">{customer.company}</p>
+                  )}
+                  {customer.position && (
+                    <p className="text-xs text-gray-500">{customer.position}</p>
+                  )}
+                  <p className="text-xs text-gray-500">{customer.phone}</p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleFavorite(customer.id)}
+                    className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
+                  >
+                    <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      const chatCustomer = {
+                        id: customer.id,
+                        name: customer.name,
+                        photo: customer.photo,
+                        company: customer.company
+                      };
+                      setSelectedCustomer(chatCustomer);
+                      setShowChatInterface(true);
+                    }}
+                    className="text-green-600 hover:text-green-700"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditCustomer(customer)}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleCustomerExpansion(customer.id)}
+                    className="text-gray-600 hover:text-gray-700"
+                  >
+                    <ChevronUp className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+
+              <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-gray-500">電話：</span>
+                    <span>{customer.phone}</span>
+                  </div>
+                  {customer.email && (
+                    <div>
+                      <span className="text-gray-500">信箱：</span>
+                      <span>{customer.email}</span>
+                    </div>
+                  )}
+                  {customer.company && (
+                    <div>
+                      <span className="text-gray-500">公司：</span>
+                      <span>{customer.company}</span>
+                    </div>
+                  )}
+                  {customer.position && (
+                    <div>
+                      <span className="text-gray-500">職位：</span>
+                      <span>{customer.position}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -616,7 +712,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
 
   return (
     <div className="absolute inset-0 bg-white z-50 flex flex-col">
-      {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -651,9 +746,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </div>
       </div>
 
-      {/* Search and Filter Section */}
       <div className="p-4 bg-gray-50 border-b space-y-3">
-        {/* Search Bar */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
@@ -664,15 +757,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           />
         </div>
 
-        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
           <Button
-            variant={showOnlyFavorites ? "default" : "outline"}
+            variant={filterType === 'favorites' ? "default" : "outline"}
             size="sm"
-            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+            onClick={() => setFilterType('favorites')}
             className="flex items-center space-x-1"
           >
-            <Star className={`w-3 h-3 ${showOnlyFavorites ? 'fill-current' : ''}`} />
+            <Star className={`w-3 h-3 ${filterType === 'favorites' ? 'fill-current' : ''}`} />
             <span>關注</span>
           </Button>
           
@@ -705,7 +797,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           </Button>
         </div>
 
-        {/* Industry Filter */}
         <div className="flex items-center space-x-2">
           <Building2 className="w-4 h-4 text-gray-500" />
           <Select value={filterIndustry} onValueChange={setFilterIndustry}>
@@ -724,7 +815,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </div>
       </div>
 
-      {/* Customer Lists with Tabs */}
       <div className="flex-1 p-4 overflow-y-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
@@ -741,7 +831,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               ))}
               {joinedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all' || showOnlyFavorites
+                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all' 
                     ? '沒有符合條件的客戶'
                     : '尚無已加入的客戶'
                   }
@@ -759,7 +849,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               ))}
               {invitedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
-                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all' || showOnlyFavorites
+                  {searchQuery || filterType !== 'all' || filterIndustry !== 'all'
                     ? '沒有符合條件的客戶'
                     : '尚無已邀請的客戶'
                   }
@@ -770,7 +860,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </Tabs>
       </div>
 
-      {/* Add Customer Dialog */}
       <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
         <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -869,7 +958,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </DialogContent>
       </Dialog>
 
-      {/* Import Dialog */}
       <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -898,7 +986,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </DialogContent>
       </Dialog>
 
-      {/* Invitation Dialog */}
       <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
@@ -977,7 +1064,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         </DialogContent>
       </Dialog>
 
-      {/* Chat Interface */}
       {showChatInterface && selectedCustomer && (
         <ChatInterface
           customer={selectedCustomer}
@@ -985,7 +1071,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         />
       )}
 
-      {/* Edit Customer Dialog */}
       {isEditing && editingCustomer && (
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
           <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
