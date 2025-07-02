@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail, Search, Filter, Star, Users, Building2, Calendar, Share, Phone } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail, Search, Filter, Star, Users, Building2, Calendar, Share, Phone, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,6 +35,7 @@ interface Customer {
   status: 'joined' | 'invited';
   industry?: string;
   isFavorite?: boolean;
+  notes?: string;
 }
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCustomers = [], onCustomersUpdate }) => {
@@ -55,7 +56,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       addedVia: 'qrcode',
       status: 'joined',
       industry: '科技',
-      isFavorite: false
+      isFavorite: false,
+      notes: ''
     },
     {
       id: 2,
@@ -69,7 +71,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       addedVia: 'qrcode',
       status: 'joined',
       industry: '金融',
-      isFavorite: true
+      isFavorite: true,
+      notes: ''
     },
     {
       id: 3,
@@ -83,7 +86,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       addedVia: 'manual',
       status: 'invited',
       industry: '科技',
-      isFavorite: false
+      isFavorite: false,
+      notes: ''
     }
   ]);
   const [expandedCustomerIds, setExpandedCustomerIds] = useState<number[]>([]);
@@ -109,7 +113,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     instagram: '',
     address: '',
     description: '',
-    industry: ''
+    industry: '',
+    notes: ''
   });
 
   const [importFile, setImportFile] = useState<File | null>(null);
@@ -198,7 +203,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       industry: newCustomer.industry || '',
       addedVia: 'manual',
       status: isAileUser ? 'joined' : 'invited',
-      isFavorite: false
+      isFavorite: false,
+      notes: newCustomer.notes || ''
     };
 
     if (!isAileUser) {
@@ -220,7 +226,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         instagram: '',
         address: '',
         description: '',
-        industry: ''
+        industry: '',
+        notes: ''
       });
       
       toast({
@@ -270,7 +277,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         instagram: '',
         address: '',
         description: '',
-        industry: ''
+        industry: '',
+        notes: ''
       });
       
       toast({
@@ -302,7 +310,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           addedVia: 'import',
           status: 'invited',
           industry: item.industry || '',
-          isFavorite: false
+          isFavorite: false,
+          notes: ''
         }));
         
         setCustomers(prev => [...prev, ...importedCustomers]);
@@ -359,17 +368,29 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   };
 
   const handleOpenSchedule = (customer: Customer) => {
+    // 發送行事曆通知功能
+    const eventTitle = `與 ${customer.name} 的會議`;
+    const eventDetails = {
+      title: eventTitle,
+      description: `與 ${customer.company} 的 ${customer.name} 進行商務會議`,
+      location: customer.address || '待定',
+      attendees: [customer.email].filter(Boolean)
+    };
+
+    // 模擬發送行事曆邀請
     toast({
-      title: "開啟行程管理",
-      description: `正在為 ${customer.name} 開啟行程管理功能`,
+      title: "行事曆通知已發送",
+      description: `已向 ${customer.name} 發送會議邀請通知`,
     });
+
+    console.log('Calendar event details:', eventDetails);
   };
 
   const renderCustomerCard = (customer: Customer, isExpanded: boolean) => (
     <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
       {!isExpanded ? (
         <div className="p-3">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 h-14">
             {customer.photo ? (
               <img
                 src={customer.photo}
@@ -383,39 +404,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
             )}
 
             <div className="flex-1 min-w-0">
-              {customer.isAileUser ? (
-                <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-3 text-white">
-                  <div className="flex items-center justify-between">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center space-x-2 mb-1">
-                        <h3 className="font-semibold text-sm truncate">{customer.name}</h3>
-                        <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full flex items-center flex-shrink-0">
-                          <Zap className="w-3 h-3 mr-1" />
-                          Aile
-                        </span>
-                      </div>
-                      {customer.company && (
-                        <p className="text-xs text-blue-100 truncate">{customer.company}</p>
-                      )}
-                      {customer.position && (
-                        <p className="text-xs text-blue-200 truncate">{customer.position}</p>
-                      )}
-                      <p className="text-xs text-blue-100 mt-1">{customer.phone}</p>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h3 className="font-medium text-gray-800 text-sm truncate">{customer.name}</h3>
-                    <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex-shrink-0">
-                      客戶
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    <p>{customer.phone}</p>
-                  </div>
-                </div>
+              <div className="flex items-center space-x-2 mb-1">
+                <h3 className="font-medium text-gray-800 text-sm truncate">{customer.name}</h3>
+                {customer.isAileUser ? (
+                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full flex items-center flex-shrink-0">
+                    <Zap className="w-3 h-3 mr-1" />
+                    Aile
+                  </span>
+                ) : (
+                  <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex-shrink-0">
+                    客戶
+                  </span>
+                )}
+              </div>
+              {customer.company && (
+                <p className="text-xs text-gray-500 truncate">{customer.company}</p>
               )}
             </div>
 
@@ -500,6 +503,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                     className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
                   >
                     <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleEditCustomer(customer)}
+                    className="text-blue-600 hover:text-blue-700"
+                  >
+                    <Edit className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="ghost"
@@ -596,6 +607,25 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                     聊天
                   </Button>
                 </div>
+
+                {/* 備註區塊 */}
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700">備註</span>
+                  </div>
+                  <Textarea
+                    placeholder="新增備註..."
+                    value={customer.notes || ''}
+                    onChange={(e) => {
+                      const updatedCustomer = { ...customer, notes: e.target.value };
+                      setCustomers(prevCustomers =>
+                        prevCustomers.map(c => (c.id === customer.id ? updatedCustomer : c))
+                      );
+                    }}
+                    className="min-h-[60px] text-sm"
+                  />
+                </div>
               </div>
             </div>
           ) : (
@@ -630,7 +660,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                   {customer.position && (
                     <p className="text-xs text-gray-500">{customer.position}</p>
                   )}
-                  <p className="text-xs text-gray-500">{customer.phone}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Button
@@ -678,7 +707,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               </div>
 
               <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-2 gap-2 text-sm">
+                <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                   <div>
                     <span className="text-gray-500">電話：</span>
                     <span>{customer.phone}</span>
@@ -701,6 +730,25 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                       <span>{customer.position}</span>
                     </div>
                   )}
+                </div>
+                
+                {/* 備註區塊 */}
+                <div className="border-t pt-3">
+                  <div className="flex items-center space-x-2 mb-2">
+                    <FileText className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm font-medium text-gray-700">備註</span>
+                  </div>
+                  <Textarea
+                    placeholder="新增備註..."
+                    value={customer.notes || ''}
+                    onChange={(e) => {
+                      const updatedCustomer = { ...customer, notes: e.target.value };
+                      setCustomers(prevCustomers =>
+                        prevCustomers.map(c => (c.id === customer.id ? updatedCustomer : c))
+                      );
+                    }}
+                    className="min-h-[60px] text-sm"
+                  />
                 </div>
               </div>
             </div>
@@ -949,6 +997,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 rows={2}
               />
             </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="notes" className="text-right">備註</Label>
+              <Textarea
+                id="notes"
+                value={newCustomer.notes}
+                onChange={(e) => setNewCustomer({...newCustomer, notes: e.target.value})}
+                className="col-span-3"
+                rows={2}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button type="button" onClick={handleAddCustomer}>
@@ -1165,6 +1223,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                     setEditingCustomer({ ...editingCustomer, line: e.target.value })
                   }
                   className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-notes" className="text-right">備註</Label>
+                <Textarea
+                  id="edit-notes"
+                  value={editingCustomer.notes || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, notes: e.target.value })
+                  }
+                  className="col-span-3"
+                  rows={3}
                 />
               </div>
             </div>
