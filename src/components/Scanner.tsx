@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle, QrCode, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -32,34 +33,31 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
-  const handleScan = () => {
-    // 模擬掃描結果 - 隨機決定是紙本名片還是 AILE 電子名片
-    const isAileCard = Math.random() > 0.6; // 40% 機率是 AILE 卡片
-    
-    if (isAileCard) {
-      setScanResult('aile-card');
-      setCustomerData({
-        name: '張小明',
-        phone: '0912-345-678',
-        email: 'zhang@example.com',
-        company: 'ABC科技公司',
-        jobTitle: '業務經理',
-        website: 'www.abc-tech.com',
-        line: '@abc-tech',
-        facebook: 'ABC.Tech.Official',
-        instagram: 'abc_tech_official',
-        photo: '/placeholder.svg' // 模擬大頭照
-      });
-    } else {
-      setScanResult('paper-card');
-      setCustomerData({
-        name: '李大華',
-        phone: '0923-456-789',
-        email: 'li@company.com',
-        company: '創新企業有限公司',
-        jobTitle: '行銷總監'
-      });
-    }
+  const handlePaperScan = () => {
+    setScanResult('paper-card');
+    setCustomerData({
+      name: '李大華',
+      phone: '0923-456-789',
+      email: 'li@company.com',
+      company: '創新企業有限公司',
+      jobTitle: '行銷總監'
+    });
+  };
+
+  const handleQRCodeScan = () => {
+    setScanResult('aile-card');
+    setCustomerData({
+      name: '張小明',
+      phone: '0912-345-678',
+      email: 'zhang@example.com',
+      company: 'ABC科技公司',
+      jobTitle: '業務經理',
+      website: 'www.abc-tech.com',
+      line: '@abc-tech',
+      facebook: 'ABC.Tech.Official',
+      instagram: 'abc_tech_official',
+      photo: '/placeholder.svg'
+    });
   };
 
   const handleSendSMSInvitation = () => {
@@ -97,7 +95,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       photo: customerData.photo,
       hasCard: scanResult === 'aile-card',
       addedDate: new Date().toISOString(),
-      notes: '', // 新增備註欄位
+      notes: '',
     };
     
     customers.push(newCustomer);
@@ -193,14 +191,25 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           <div className="w-48 h-48 border-4 border-dashed border-gray-300 rounded-xl mx-auto mb-6 flex items-center justify-center">
             <Scan className="w-16 h-16 text-gray-400" />
           </div>
-          <p className="text-gray-600 mb-4">將相機對準 QR Code 或紙本名片進行掃描</p>
-          <Button
-            onClick={handleScan}
-            className="bg-purple-500 hover:bg-purple-600 text-white"
-          >
-            <Scan className="w-5 h-5 mr-2" />
-            開始掃描
-          </Button>
+          <p className="text-gray-600 mb-6">選擇掃描類型</p>
+          
+          {/* 分成兩個掃描按鈕 */}
+          <div className="space-y-3">
+            <Button
+              onClick={handlePaperScan}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <FileText className="w-5 h-5 mr-2" />
+              紙本掃描
+            </Button>
+            <Button
+              onClick={handleQRCodeScan}
+              className="w-full bg-purple-500 hover:bg-purple-600 text-white"
+            >
+              <QrCode className="w-5 h-5 mr-2" />
+              QR Code 掃描
+            </Button>
+          </div>
         </div>
 
         {/* Paper Business Card Results */}
@@ -381,7 +390,8 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         <div className="bg-gray-50 rounded-xl p-4">
           <h4 className="font-bold text-gray-800 mb-2">💡 掃描說明</h4>
           <ul className="text-sm text-gray-600 space-y-1">
-            <li>• 對準客戶的 QR Code 或紙本名片</li>
+            <li>• <strong>紙本掃描：</strong>適用於傳統紙本名片識別</li>
+            <li>• <strong>QR Code 掃描：</strong>適用於 AILE 電子名片 QR Code</li>
             <li>• 確保光線充足，保持相機穩定</li>
             <li>• 掃描成功後會自動識別客戶資訊</li>
             <li>• 邀請沒有 AILE 名片的客戶加入</li>
