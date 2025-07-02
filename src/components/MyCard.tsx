@@ -58,7 +58,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
         },
         {
           id: 3,
-          text: "💡 建議您加入 AIWOW 名片簿，享受更多便利功能！透過 AIWOW LINE OA，您可以：\n\n📱 最方便的電子名片簿\n📊 獲得詳細的名片互動數據\n🚀 使用更多智能商務功能",
+          text: "💡 建議您加入 AIWOW 名片簿，享受更多便利功能！透過 AIWOW LINE OA，您可以：\n\n• 註冊即獲100可兌換點\n📱 最方便的電子名片簿\n📊 獲得詳細的名片互動數據\n🚀 使用更多智能商務功能",
           isBot: true,
           timestamp: new Date()
         }
