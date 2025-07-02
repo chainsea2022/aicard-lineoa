@@ -360,95 +360,206 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   };
 
   const renderCustomerCard = (customer: Customer, isExpanded: boolean) => (
-    <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-      <div className="space-y-3">
-        {/* Customer Info Display - LINE style */}
-        <div className="flex items-center space-x-3">
-          {customer.photo ? (
-            <img
-              src={customer.photo}
-              alt={customer.name}
-              className="w-12 h-12 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
-              {customer.name.charAt(0)}
-            </div>
-          )}
-          <div className="flex-1">
-            <div className="flex items-center space-x-2">
-              <h3 className="font-semibold text-gray-800">{customer.name}</h3>
+    <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+      {!isExpanded ? (
+        // Simplified compact view
+        <div className="p-3">
+          <div className="flex items-center space-x-3">
+            {/* Avatar */}
+            {customer.photo ? (
+              <img
+                src={customer.photo}
+                alt={customer.name}
+                className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                {customer.name.charAt(0)}
+              </div>
+            )}
+
+            {/* Customer Info - Different layout for Aile vs regular customers */}
+            <div className="flex-1 min-w-0">
               {customer.isAileUser ? (
-                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Aile
-                </span>
+                // Aile customer - e-card style display
+                <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-3 text-white">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h3 className="font-semibold text-sm truncate">{customer.name}</h3>
+                        <span className="bg-white/20 text-white text-xs px-2 py-0.5 rounded-full flex items-center flex-shrink-0">
+                          <Zap className="w-3 h-3 mr-1" />
+                          Aile
+                        </span>
+                      </div>
+                      {customer.company && (
+                        <p className="text-xs text-blue-100 truncate">{customer.company}</p>
+                      )}
+                      {customer.position && (
+                        <p className="text-xs text-blue-200 truncate">{customer.position}</p>
+                      )}
+                      <p className="text-xs text-blue-100 mt-1">{customer.phone}</p>
+                    </div>
+                  </div>
+                </div>
               ) : (
-                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                  客戶
-                </span>
-              )}
-              {customer.industry && (
-                <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
-                  {customer.industry}
-                </span>
+                // Regular customer - simple list style
+                <div>
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h3 className="font-medium text-gray-800 text-sm truncate">{customer.name}</h3>
+                    <span className="bg-green-100 text-green-800 text-xs px-2 py-0.5 rounded-full flex-shrink-0">
+                      客戶
+                    </span>
+                    {customer.industry && (
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded-full flex-shrink-0">
+                        {customer.industry}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-gray-600 space-y-0.5">
+                    {customer.company && <p className="truncate">{customer.company}</p>}
+                    {customer.position && <p className="truncate">{customer.position}</p>}
+                    <p>{customer.phone}</p>
+                  </div>
+                </div>
               )}
             </div>
-            {customer.company && (
-              <p className="text-sm text-gray-600">{customer.company}</p>
-            )}
-            {customer.position && (
-              <p className="text-xs text-gray-500">{customer.position}</p>
-            )}
-            <p className="text-xs text-gray-500">{customer.phone}</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleFavorite(customer.id)}
-              className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
-            >
-              <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const chatCustomer = {
-                  id: customer.id,
-                  name: customer.name,
-                  photo: customer.photo,
-                  company: customer.company
-                };
-                setSelectedCustomer(chatCustomer);
-                setShowChatInterface(true);
-              }}
-              className="text-green-600 hover:text-green-700"
-            >
-              <MessageCircle className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => handleEditCustomer(customer)}
-              className="text-blue-600 hover:text-blue-700"
-            >
-              <Edit className="w-4 h-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => toggleCustomerExpansion(customer.id)}
-              className="text-gray-600 hover:text-gray-700"
-            >
-              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
+
+            {/* Action buttons */}
+            <div className="flex items-center space-x-1 flex-shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleFavorite(customer.id)}
+                className={`p-1 h-8 w-8 ${customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}`}
+              >
+                <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const chatCustomer = {
+                    id: customer.id,
+                    name: customer.name,
+                    photo: customer.photo,
+                    company: customer.company
+                  };
+                  setSelectedCustomer(chatCustomer);
+                  setShowChatInterface(true);
+                }}
+                className="text-green-600 hover:text-green-700 p-1 h-8 w-8"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditCustomer(customer)}
+                className="text-blue-600 hover:text-blue-700 p-1 h-8 w-8"
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleCustomerExpansion(customer.id)}
+                className="text-gray-600 hover:text-gray-700 p-1 h-8 w-8"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
+      ) : (
+        // Expanded view
+        <div className="p-4 space-y-3">
+          {/* Customer Info Display - LINE style */}
+          <div className="flex items-center space-x-3">
+            {customer.photo ? (
+              <img
+                src={customer.photo}
+                alt={customer.name}
+                className="w-12 h-12 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
+                {customer.name.charAt(0)}
+              </div>
+            )}
+            <div className="flex-1">
+              <div className="flex items-center space-x-2">
+                <h3 className="font-semibold text-gray-800">{customer.name}</h3>
+                {customer.isAileUser ? (
+                  <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center">
+                    <Zap className="w-3 h-3 mr-1" />
+                    Aile
+                  </span>
+                ) : (
+                  <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                    客戶
+                  </span>
+                )}
+                {customer.industry && (
+                  <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full">
+                    {customer.industry}
+                  </span>
+                )}
+              </div>
+              {customer.company && (
+                <p className="text-sm text-gray-600">{customer.company}</p>
+              )}
+              {customer.position && (
+                <p className="text-xs text-gray-500">{customer.position}</p>
+              )}
+              <p className="text-xs text-gray-500">{customer.phone}</p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleFavorite(customer.id)}
+                className={customer.isFavorite ? "text-yellow-500 hover:text-yellow-600" : "text-gray-400 hover:text-yellow-500"}
+              >
+                <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  const chatCustomer = {
+                    id: customer.id,
+                    name: customer.name,
+                    photo: customer.photo,
+                    company: customer.company
+                  };
+                  setSelectedCustomer(chatCustomer);
+                  setShowChatInterface(true);
+                }}
+                className="text-green-600 hover:text-green-700"
+              >
+                <MessageCircle className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleEditCustomer(customer)}
+                className="text-blue-600 hover:text-blue-700"
+              >
+                <Edit className="w-4 h-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => toggleCustomerExpansion(customer.id)}
+                className="text-gray-600 hover:text-gray-700"
+              >
+                <ChevronUp className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
 
-        {/* Expanded Electronic Business Card */}
-        {isExpanded && (
+          {/* Expanded Electronic Business Card */}
           <div className="ml-4 border-l-2 border-gray-200 pl-4">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
               <div className="flex items-center space-x-3 mb-3">
@@ -498,8 +609,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               )}
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 
@@ -622,7 +733,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           </TabsList>
           
           <TabsContent value="joined" className="mt-4">
-            <div className="space-y-4">
+            <div className="space-y-2">
               {joinedCustomers.map(customer => (
                 <React.Fragment key={customer.id}>
                   {renderCustomerCard(customer, isCustomerExpanded(customer.id))}
@@ -640,7 +751,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           </TabsContent>
           
           <TabsContent value="invited" className="mt-4">
-            <div className="space-y-4">
+            <div className="space-y-2">
               {invitedCustomers.map(customer => (
                 <React.Fragment key={customer.id}>
                   {renderCustomerCard(customer, isCustomerExpanded(customer.id))}
