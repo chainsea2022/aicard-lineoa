@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail, Save, Calendar, StickyNote } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -23,6 +24,7 @@ interface Customer {
   photo?: string;
   hasCard: boolean;
   addedDate: string;
+  notes?: string;
 }
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
@@ -34,6 +36,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
   const [editName, setEditName] = useState('');
   const [expandedCustomerId, setExpandedCustomerId] = useState<number | null>(null);
   const [activeChatCustomer, setActiveChatCustomer] = useState<Customer | null>(null);
+  const [editingNotes, setEditingNotes] = useState<{[key: number]: boolean}>({});
+  const [tempNotes, setTempNotes] = useState<{[key: number]: string}>({});
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -69,6 +73,40 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
       title: "客戶名稱已更新！",
       description: "客戶資訊已成功更新。",
     });
+  };
+
+  const handleEditNotes = (customerId: number, currentNotes: string = '') => {
+    setEditingNotes(prev => ({ ...prev, [customerId]: true }));
+    setTempNotes(prev => ({ ...prev, [customerId]: currentNotes }));
+  };
+
+  const handleSaveNotes = (customerId: number) => {
+    const allCustomers = [...customers, ...invited];
+    const updatedCustomers = allCustomers.map(customer => 
+      customer.id === customerId ? { ...customer, notes: tempNotes[customerId] || '' } : customer
+    );
+    
+    localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+    
+    const customersList = updatedCustomers.filter(c => c.hasCard);
+    const invitedList = updatedCustomers.filter(c => !c.hasCard);
+    
+    setCustomers(customersList);
+    setInvited(invitedList);
+    setEditingNotes(prev => ({ ...prev, [customerId]: false }));
+    
+    toast({
+      title: "備註已儲存！",
+      description: "客戶備註已成功更新。",
+    });
+  };
+
+  const handleScheduleAppointment = (customer: Customer) => {
+    toast({
+      title: "開啟行事曆功能",
+      description: `正在為 ${customer.name} 安排會議時間...`,
+    });
+    // 這裡可以整合行事曆功能
   };
 
   const handleDelete = (customerId: number) => {
@@ -226,20 +264,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
             {expandedCustomerId === customer.id && (
               <div className="border-t border-gray-100 bg-gray-50">
                 {customer.hasCard ? (
-                  /* Electronic Business Card Preview */
+                  /* Electronic Business Card Preview with Enhanced Details */
                   <div className="p-4">
-                    <div className="bg-white border-2 border-gray-200 rounded-xl shadow-sm">
-                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
-                        <div className="flex items-center space-x-3 mb-3">
+                    <div className="bg-white border-2 border-gray-200 rounded-xl shadow-sm mb-4">
+                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-6 text-white">
+                        <div className="flex items-center space-x-4 mb-4">
                           {customer.photo && (
                             <img
                               src={customer.photo}
                               alt="照片"
-                              className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                              className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg"
                             />
                           )}
                           <div>
-                            <h4 className="font-bold">{customer.name}</h4>
+                            <h4 className="text-xl font-bold mb-1">{customer.name}</h4>
                             <p className="text-blue-100 text-sm">{customer.company}</p>
                             {customer.jobTitle && (
                               <p className="text-blue-200 text-xs">{customer.jobTitle}</p>
@@ -247,22 +285,22 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
                           </div>
                         </div>
                         
-                        <div className="space-y-1 text-xs">
+                        <div className="space-y-2 text-sm">
                           {customer.phone && (
                             <div className="flex items-center space-x-2">
-                              <Phone className="w-3 h-3" />
+                              <Phone className="w-4 h-4" />
                               <span>{customer.phone}</span>
                             </div>
                           )}
                           {customer.email && (
                             <div className="flex items-center space-x-2">
-                              <Mail className="w-3 h-3" />
+                              <Mail className="w-4 h-4" />
                               <span>{customer.email}</span>
                             </div>
                           )}
                           {customer.website && (
                             <div className="flex items-center space-x-2">
-                              <Globe className="w-3 h-3" />
+                              <Globe className="w-4 h-4" />
                               <span>{customer.website}</span>
                             </div>
                           )}
@@ -270,9 +308,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
 
                         {/* Social Media Links */}
                         {(customer.line || customer.facebook || customer.instagram) && (
-                          <div className="mt-3 pt-3 border-t border-white/20">
-                            <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                            <div className="space-y-1 text-xs">
+                          <div className="mt-4 pt-4 border-t border-white/20">
+                            <p className="text-sm text-blue-100 mb-2">社群媒體</p>
+                            <div className="space-y-1 text-sm">
                               {customer.line && <div>LINE: {customer.line}</div>}
                               {customer.facebook && <div>Facebook: {customer.facebook}</div>}
                               {customer.instagram && <div>Instagram: {customer.instagram}</div>}
@@ -280,6 +318,81 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose }) => {
                           </div>
                         )}
                       </div>
+                    </div>
+
+                    {/* Notes Section */}
+                    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h5 className="font-medium text-gray-800 flex items-center space-x-2">
+                          <StickyNote className="w-4 h-4" />
+                          <span>備註</span>
+                        </h5>
+                        {!editingNotes[customer.id] && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEditNotes(customer.id, customer.notes)}
+                            className="text-blue-600 hover:text-blue-700"
+                          >
+                            <Edit3 className="w-3 h-3 mr-1" />
+                            編輯
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {editingNotes[customer.id] ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={tempNotes[customer.id] || ''}
+                            onChange={(e) => setTempNotes(prev => ({ ...prev, [customer.id]: e.target.value }))}
+                            placeholder="新增客戶備註..."
+                            className="w-full p-2 border border-gray-300 rounded-md text-sm resize-none"
+                            rows={3}
+                          />
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              onClick={() => handleSaveNotes(customer.id)}
+                              className="bg-green-500 hover:bg-green-600"
+                            >
+                              <Save className="w-3 h-3 mr-1" />
+                              儲存
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setEditingNotes(prev => ({ ...prev, [customer.id]: false }))}
+                            >
+                              取消
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-gray-600">
+                          {customer.notes || '尚無備註'}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={() => handleScheduleAppointment(customer)}
+                        className="flex-1 bg-indigo-500 hover:bg-indigo-600"
+                        size="sm"
+                      >
+                        <Calendar className="w-4 h-4 mr-1" />
+                        安排行程
+                      </Button>
+                      <Button
+                        onClick={() => handleChatWithCustomer(customer)}
+                        variant="outline"
+                        className="flex-1"
+                        size="sm"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-1" />
+                        開始對話
+                      </Button>
                     </div>
                   </div>
                 ) : (

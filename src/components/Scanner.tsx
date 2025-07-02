@@ -30,6 +30,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     company: '',
     jobTitle: ''
   });
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false);
 
   const handleScan = () => {
     // 模擬掃描結果 - 隨機決定是紙本名片還是 AILE 電子名片
@@ -96,16 +97,57 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       photo: customerData.photo,
       hasCard: scanResult === 'aile-card',
       addedDate: new Date().toISOString(),
+      notes: '', // 新增備註欄位
     };
     
     customers.push(newCustomer);
     localStorage.setItem('aile-customers', JSON.stringify(customers));
+    
+    setShowSuccessMessage(true);
     
     toast({
       title: "客戶已加入！",
       description: `${customerData.name} 已成功加入您的客戶名單。`,
     });
   };
+
+  if (showSuccessMessage) {
+    return (
+      <div className="absolute inset-0 bg-white z-50 flex items-center justify-center">
+        <div className="text-center p-8">
+          <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-gray-800 mb-2">客戶已成功加入！</h2>
+          <p className="text-gray-600 mb-6">{customerData.name} 已加入您的客戶名單</p>
+          <p className="text-sm text-gray-500 mb-6">您可以在圖文選單中的「我的客戶」查看完整列表</p>
+          <div className="space-y-3">
+            <Button
+              onClick={onClose}
+              className="w-full bg-green-500 hover:bg-green-600"
+            >
+              前往我的客戶
+            </Button>
+            <Button
+              onClick={() => {
+                setShowSuccessMessage(false);
+                setScanResult('none');
+                setCustomerData({
+                  name: '',
+                  phone: '',
+                  email: '',
+                  company: '',
+                  jobTitle: ''
+                });
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              繼續掃描
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
@@ -243,19 +285,19 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               <h3 className="font-bold text-green-800">發現 AILE 電子名片！</h3>
             </div>
             
-            {/* Electronic Business Card Preview - matching MyCard format */}
+            {/* Electronic Business Card Preview */}
             <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
-                <div className="flex items-center space-x-3 mb-3">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-6 text-white">
+                <div className="flex items-center space-x-4 mb-4">
                   {customerData.photo && (
                     <img
                       src={customerData.photo}
                       alt="照片"
-                      className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                      className="w-16 h-16 rounded-full object-cover border-3 border-white shadow-lg"
                     />
                   )}
                   <div>
-                    <h3 className="text-lg font-bold">{customerData.name}</h3>
+                    <h3 className="text-xl font-bold mb-1">{customerData.name}</h3>
                     <p className="text-blue-100 text-sm">{customerData.company}</p>
                     {customerData.jobTitle && (
                       <p className="text-blue-200 text-xs">{customerData.jobTitle}</p>
@@ -263,22 +305,22 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   </div>
                 </div>
                 
-                <div className="space-y-2 text-xs">
+                <div className="space-y-2 text-sm">
                   {customerData.phone && (
                     <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                      <span className="w-2 h-2 bg-white rounded-full"></span>
                       <span>{customerData.phone}</span>
                     </div>
                   )}
                   {customerData.email && (
                     <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                      <span className="w-2 h-2 bg-white rounded-full"></span>
                       <span>{customerData.email}</span>
                     </div>
                   )}
                   {customerData.website && (
                     <div className="flex items-center space-x-2">
-                      <span className="w-1.5 h-1.5 bg-white rounded-full"></span>
+                      <span className="w-2 h-2 bg-white rounded-full"></span>
                       <span>{customerData.website}</span>
                     </div>
                   )}
@@ -286,9 +328,9 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
 
                 {/* Social Media Links */}
                 {(customerData.line || customerData.facebook || customerData.instagram) && (
-                  <div className="mt-3 pt-3 border-t border-white/20">
-                    <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                    <div className="space-y-1 text-xs">
+                  <div className="mt-4 pt-4 border-t border-white/20">
+                    <p className="text-sm text-blue-100 mb-2">社群媒體</p>
+                    <div className="space-y-1 text-sm">
                       {customerData.line && <div>LINE: {customerData.line}</div>}
                       {customerData.facebook && <div>Facebook: {customerData.facebook}</div>}
                       {customerData.instagram && <div>Instagram: {customerData.instagram}</div>}
