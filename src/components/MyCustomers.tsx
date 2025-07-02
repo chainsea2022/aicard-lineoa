@@ -168,12 +168,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         customer.phone.includes(searchQuery) ||
         (customer.email && customer.email.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (customer.line && customer.line.toLowerCase().includes(searchQuery.toLowerCase()));
-
+      
       const matchesType = filterType === 'all' || 
         (filterType === 'aile' && customer.isAileUser) ||
         (filterType === 'customer' && !customer.isAileUser) ||
         (filterType === 'favorites' && customer.isFavorite);
-
+      
       return matchesSearch && matchesType;
     });
   };
@@ -486,6 +486,207 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       title: "行程已新增",
       description: `已為 ${selectedCustomerForSchedule.name} 新增行程，並同步至行程管理系統`,
     });
+  };
+
+  const renderCustomerCard = (customer: Customer, isExpanded: boolean) => {
+    const todaySchedule = getTodaySchedule(customer);
+    
+    return (
+      <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center space-x-3 mb-2">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                {customer.name.charAt(0)}
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-2">
+                  <h3 className="font-bold text-gray-800">{customer.name}</h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleFavorite(customer.id)}
+                    className="p-1 h-auto"
+                  >
+                    <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
+                  </Button>
+                  {customer.isAileUser && (
+                    <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium flex items-center space-x-1">
+                      <Zap className="w-3 h-3" />
+                      <span>Aile</span>
+                    </span>
+                  )}
+                </div>
+                
+                {/* 未展開時顯示公司或LINE帳號 */}
+                {!isExpanded && (
+                  <div className="text-sm text-gray-600">
+                    {customer.isAileUser ? (
+                      customer.company || '未提供公司資訊'
+                    ) : (
+                      customer.line ? `LINE: ${customer.line}` : '未提供LINE帳號'
+                    )}
+                  </div>
+                )}
+                
+                {/* 今日行程提醒 */}
+                {!isExpanded && todaySchedule && (
+                  <div className="mt-1 flex items-center space-x-1 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-full w-fit">
+                    <Clock className="w-3 h-3" />
+                    <span>今日 {todaySchedule.time} {todaySchedule.title}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleCustomerExpansion(customer.id)}
+              className="p-2"
+            >
+              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* 展開內容 */}
+        {isExpanded && (
+          <div className="mt-4 space-y-4 border-t pt-4">
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span className="text-gray-500">電話：</span>
+                <span className="text-gray-800">{customer.phone}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">Email：</span>
+                <span className="text-gray-800">{customer.email || '未提供'}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">公司：</span>
+                <span className="text-gray-800">{customer.company || '未提供'}</span>
+              </div>
+              <div>
+                <span className="text-gray-500">職位：</span>
+                <span className="text-gray-800">{customer.position || '未提供'}</span>
+              </div>
+              {customer.line && (
+                <div>
+                  <span className="text-gray-500">LINE：</span>
+                  <span className="text-gray-800">{customer.line}</span>
+                </div>
+              )}
+              {customer.website && (
+                <div>
+                  <span className="text-gray-500">網站：</span>
+                  <span className="text-gray-800">{customer.website}</span>
+                </div>
+              )}
+            </div>
+
+            {/* 行程區塊 */}
+            {customer.schedules && customer.schedules.length > 0 && (
+              <div className="bg-gray-50 rounded-lg p-3">
+                <h4 className="font-medium text-gray-800 mb-2">近期行程</h4>
+                <div className="space-y-2">
+                  {customer.schedules.slice(0, 2).map(schedule => (
+                    <div key={schedule.id} className="flex items-center justify-between text-sm">
+                      <div>
+                        <span className="font-medium">{schedule.title}</span>
+                        <span className="text-gray-500 ml-2">
+                          {new Date(schedule.date).toLocaleDateString('zh-TW')} {schedule.time}
+                        </span>
+                      </div>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        schedule.status === 'scheduled' ? 'bg-yellow-100 text-yellow-700' :
+                        schedule.status === 'completed' ? 'bg-green-100 text-green-700' :
+                        'bg-red-100 text-red-700'
+                      }`}>
+                        {schedule.status === 'scheduled' ? '已安排' :
+                         schedule.status === 'completed' ? '已完成' : '已取消'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 備註區塊 */}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h4 className="font-medium text-gray-800 mb-2">備註</h4>
+              <textarea
+                value={customer.notes || ''}
+                onChange={(e) => {
+                  const updatedCustomer = { ...customer, notes: e.target.value };
+                  setCustomers(prevCustomers =>
+                    prevCustomers.map(c => (c.id === customer.id ? updatedCustomer : c))
+                  );
+                }}
+                placeholder="添加客戶備註..."
+                className="w-full p-2 border border-gray-200 rounded-md text-sm resize-none"
+                rows={3}
+              />
+              <Button
+                size="sm"
+                onClick={() => handleSaveCustomerNotes(customer.id, customer.notes || '')}
+                className="mt-2"
+              >
+                <Save className="w-3 h-3 mr-1" />
+                儲存備註
+              </Button>
+            </div>
+
+            {/* 操作按鈕 */}
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleEditCustomer(customer)}
+                className="flex items-center space-x-1"
+              >
+                <Edit className="w-3 h-3" />
+                <span>編輯</span>
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleOpenSchedule(customer)}
+                className="flex items-center space-x-1"
+              >
+                <Calendar className="w-3 h-3" />
+                <span>行程</span>
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setSelectedCustomer(customer);
+                  setShowChatInterface(true);
+                }}
+                className="flex items-center space-x-1"
+              >
+                <MessageCircle className="w-3 h-3" />
+                <span>對話</span>
+              </Button>
+              
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleShareCard(customer)}
+                className="flex items-center space-x-1"
+              >
+                <Share className="w-3 h-3" />
+                <span>分享</span>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   return (
