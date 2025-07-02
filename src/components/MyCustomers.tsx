@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail, Save, Calendar, StickyNote } from 'lucide-react';
+import { ArrowLeft, Users, UserCheck, Edit3, Trash2, Search, MessageCircle, ChevronDown, ChevronUp, Globe, Phone, Mail, Save, Calendar, StickyNote, QrCode, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -45,6 +45,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
   }>({});
   const [showSchedule, setShowSchedule] = useState(false);
   const [scheduleCustomer, setScheduleCustomer] = useState<Customer | null>(null);
+  const [showQRForCustomer, setShowQRForCustomer] = useState<{
+    [key: number]: boolean;
+  }>({});
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     const customersList = savedCustomers.filter((c: Customer) => c.hasCard);
@@ -191,8 +194,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
 
             {/* Expanded Customer Details */}
             {expandedCustomerId === customer.id && <div className="border-t border-gray-100 bg-gray-50">
-                {customer.hasCard ? (/* Electronic Business Card Preview - Same format as MyCard */
+                {customer.hasCard ? (
           <div className="p-4">
+                    {/* Electronic Business Card Preview - Same format as MyCard */}
                     <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
                       <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
                         <div className="flex items-center space-x-3 mb-3">
@@ -244,6 +248,40 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                             </div>
                           </div>
                         )}
+                      </div>
+
+                      {/* Integrated QR Code and Buttons - Same as MyCard */}
+                      <div className="p-4 bg-gray-50 rounded-b-xl">
+                        {/* QR Code */}
+                        {showQRForCustomer[customer.id] && (
+                          <div className="mb-4 text-center">
+                            <div className="w-24 h-24 bg-white border-2 border-gray-200 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                              <QrCode className="w-16 h-16 text-gray-400" />
+                            </div>
+                            <p className="text-xs text-gray-600">掃描 QR Code 獲取名片</p>
+                          </div>
+                        )}
+
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <Button
+                            onClick={() => toggleQRForCustomer(customer.id)}
+                            size="sm"
+                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                          >
+                            <QrCode className="w-3 h-3 mr-1" />
+                            QR Code
+                          </Button>
+                          
+                          <Button
+                            onClick={() => handleShareCustomer(customer)}
+                            size="sm"
+                            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                          >
+                            <Share2 className="w-3 h-3 mr-1" />
+                            分享
+                          </Button>
+                        </div>
                       </div>
                     </div>
 
@@ -308,7 +346,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                         開始對話
                       </Button>
                     </div>
-                  </div>) : (/* Simple Contact Info for Invited Users */
+                  </div>) : (
           <div className="p-4 space-y-2">
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Phone className="w-4 h-4" />
