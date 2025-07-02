@@ -26,6 +26,7 @@ interface Customer {
   addedDate: string;
   notes?: string;
 }
+
 const MyCustomers: React.FC<MyCustomersProps> = ({
   onClose
 }) => {
@@ -48,6 +49,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
   const [showQRForCustomer, setShowQRForCustomer] = useState<{
     [key: number]: boolean;
   }>({});
+
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     const customersList = savedCustomers.filter((c: Customer) => c.hasCard);
@@ -55,10 +57,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     setCustomers(customersList);
     setInvited(invitedList);
   }, []);
+
   const handleEdit = (customer: Customer) => {
     setEditingId(customer.id);
     setEditName(customer.name);
   };
+
   const handleSaveEdit = () => {
     const allCustomers = [...customers, ...invited];
     const updatedCustomers = allCustomers.map(customer => customer.id === editingId ? {
@@ -77,6 +81,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       description: "客戶資訊已成功更新。"
     });
   };
+
   const handleEditNotes = (customerId: number, currentNotes: string = '') => {
     setEditingNotes(prev => ({
       ...prev,
@@ -87,6 +92,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       [customerId]: currentNotes
     }));
   };
+
   const handleSaveNotes = (customerId: number) => {
     const allCustomers = [...customers, ...invited];
     const updatedCustomers = allCustomers.map(customer => customer.id === customerId ? {
@@ -107,14 +113,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       description: "客戶備註已成功更新。"
     });
   };
+
   const handleScheduleAppointment = (customer: Customer) => {
     setScheduleCustomer(customer);
     setShowSchedule(true);
   };
+
   const handleCloseSchedule = () => {
     setShowSchedule(false);
     setScheduleCustomer(null);
   };
+
   const handleDelete = (customerId: number) => {
     const allCustomers = [...customers, ...invited];
     const updatedCustomers = allCustomers.filter(c => c.id !== customerId);
@@ -128,15 +137,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       description: "客戶已從名單中移除。"
     });
   };
+
   const handleChatWithCustomer = (customer: Customer) => {
     setActiveChatCustomer(customer);
   };
+
   const handleCloseChatInterface = () => {
     setActiveChatCustomer(null);
   };
+
   const toggleCustomerExpansion = (customerId: number) => {
     setExpandedCustomerId(expandedCustomerId === customerId ? null : customerId);
   };
+
   const toggleQRForCustomer = (customerId: number) => {
     setShowQRForCustomer(prev => ({
       ...prev,
@@ -150,15 +163,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       });
     }
   };
+
   const handleShareCustomer = (customer: Customer) => {
     toast({
       title: "分享成功！",
       description: `${customer.name} 的電子名片已準備好分享。`,
     });
   };
+
   const filterCustomers = (list: Customer[]) => {
     return list.filter(customer => customer.name.toLowerCase().includes(searchTerm.toLowerCase()) || customer.phone.includes(searchTerm) || customer.email.toLowerCase().includes(searchTerm.toLowerCase()));
   };
+
   const renderCustomerList = (list: Customer[], showCardIcon: boolean) => {
     const filteredList = filterCustomers(list);
     if (filteredList.length === 0) {
@@ -211,12 +227,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
               </div>
             </div>
 
-            {/* Expanded Customer Details */}
-            {expandedCustomerId === customer.id && <div className="border-t border-gray-100 bg-gray-50">
+            {/* Expanded Customer Details - Match MyCard format exactly */}
+            {expandedCustomerId === customer.id && <div className="border-t border-gray-100">
                 {customer.hasCard ? (
-          <div className="p-4">
-                    {/* Electronic Business Card Preview - Same format as MyCard */}
+                  <div className="p-4">
+                    {/* Electronic Business Card Preview - Exact same format as MyCard */}
                     <div className="bg-white border-2 border-gray-200 rounded-xl shadow-lg mb-4">
+                      {/* Business Card Header */}
                       <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-xl p-4 text-white">
                         <div className="flex items-center space-x-3 mb-3">
                           {customer.photo && (
@@ -366,7 +383,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                       </Button>
                     </div>
                   </div>) : (
-          <div className="p-4 space-y-2">
+                  <div className="p-4 space-y-2 bg-gray-50">
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <Phone className="w-4 h-4" />
                       <span>{customer.phone}</span>
@@ -383,6 +400,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
           </div>)}
       </div>;
   };
+
   if (activeChatCustomer) {
     return <ChatInterface customer={activeChatCustomer} onClose={handleCloseChatInterface} />;
   }
@@ -473,4 +491,5 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       </div>
     </div>;
 };
+
 export default MyCustomers;
