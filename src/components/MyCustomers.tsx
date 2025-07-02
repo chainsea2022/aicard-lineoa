@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X, MessageSquare, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { toast } from '@/hooks/use-toast';
 import ChatInterface from './ChatInterface';
 
 interface MyCustomersProps {
@@ -37,6 +37,8 @@ interface Customer {
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCustomers = [], onCustomersUpdate }) => {
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const [pendingCustomer, setPendingCustomer] = useState<Customer | null>(null);
   const [customers, setCustomers] = useState<Customer[]>([
     // 模擬數據
     {
@@ -159,21 +161,83 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       status: isAileUser ? 'joined' : 'invited'
     };
 
-    setCustomers(prevCustomers => [...prevCustomers, customer]);
-    setIsAddCustomerOpen(false);
-    setNewCustomer({
-      name: '',
-      phone: '',
-      email: '',
-      company: '',
-      position: '',
-      website: '',
-      line: '',
-      facebook: '',
-      instagram: '',
-      address: '',
-      description: ''
-    });
+    if (!isAileUser) {
+      // 如果不是 Aile 用戶，顯示邀請對話框
+      setPendingCustomer(customer);
+      setIsInviteDialogOpen(true);
+      setIsAddCustomerOpen(false);
+    } else {
+      // 如果是 Aile 用戶，直接加入客戶列表
+      setCustomers(prevCustomers => [...prevCustomers, customer]);
+      setIsAddCustomerOpen(false);
+      setNewCustomer({
+        name: '',
+        phone: '',
+        email: '',
+        company: '',
+        position: '',
+        website: '',
+        line: '',
+        facebook: '',
+        instagram: '',
+        address: '',
+        description: ''
+      });
+      
+      toast({
+        title: "客戶已加入！",
+        description: `${customer.name} 已成功加入您的客戶名單。`,
+      });
+    }
+  };
+
+  const handleSendSMSInvitation = () => {
+    if (pendingCustomer) {
+      const registrationUrl = 'https://aile.app/register';
+      const message = `您好！邀請您加入 AILE 電子名片，享受智能商務服務。請點擊註冊：${registrationUrl}`;
+      
+      toast({
+        title: "簡訊邀請已發送！",
+        description: `邀請註冊連結已發送給 ${pendingCustomer.name}`,
+      });
+      
+      console.log('SMS內容:', message);
+    }
+  };
+
+  const handleSendEmailInvitation = () => {
+    if (pendingCustomer) {
+      toast({
+        title: "Email 已發送！",
+        description: `邀請連結已透過Email發送給 ${pendingCustomer.name}。`,
+      });
+    }
+  };
+
+  const handleCompleteInvitation = () => {
+    if (pendingCustomer) {
+      setCustomers(prevCustomers => [...prevCustomers, pendingCustomer]);
+      setIsInviteDialogOpen(false);
+      setPendingCustomer(null);
+      setNewCustomer({
+        name: '',
+        phone: '',
+        email: '',
+        company: '',
+        position: '',
+        website: '',
+        line: '',
+        facebook: '',
+        instagram: '',
+        address: '',
+        description: ''
+      });
+      
+      toast({
+        title: "客戶已加入已邀請列表！",
+        description: `${pendingCustomer.name} 已加入您的已邀請列表。`,
+      });
+    }
   };
 
   const handleImportFile = () => {
@@ -558,6 +622,85 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
           <DialogFooter>
             <Button type="button" onClick={handleImportFile}>
               匯入
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Invitation Dialog */}
+      <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>邀請客戶加入 AILE</DialogTitle>
+          </DialogHeader>
+          {pendingCustomer && (
+            <div className="space-y-4 py-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-700 mb-2">
+                  📱 {pendingCustomer.name} 尚未註冊 AILE 電子名片
+                </p>
+                <p className="text-xs text-blue-600">
+                  您可以透過簡訊或 Email 發送邀請連結，邀請客戶註冊 AILE 享受智能商務服務。
+                </p>
+              </div>
+              
+              <div className="space-y-3">
+                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <MessageSquare className="w-5 h-5 text-green-600" />
+                    <div>
+                      <p className="font-medium text-sm">發送簡訊邀請</p>
+                      <p className="text-xs text-gray-500">{pendingCustomer.phone}</p>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleSendSMSInvitation}
+                    size="sm"
+                    className="bg-green-500 hover:bg-green-600"
+                  >
+                    發送
+                  </Button>
+                </div>
+                
+                {pendingCustomer.email && (
+                  <div className="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <Mail className="w-5 h-5 text-blue-600" />
+                      <div>
+                        <p className="font-medium text-sm">發送 Email 邀請</p>
+                        <p className="text-xs text-gray-500">{pendingCustomer.email}</p>
+                      </div>
+                    </div>
+                    <Button
+                      onClick={handleSendEmailInvitation}
+                      size="sm"
+                      variant="outline"
+                      className="border-blue-200 text-blue-600 hover:bg-blue-50"
+                    >
+                      發送
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          <DialogFooter className="flex-col space-y-2">
+            <Button
+              onClick={handleCompleteInvitation}
+              className="w-full bg-orange-500 hover:bg-orange-600"
+            >
+              完成並加入已邀請列表
+            </Button>
+            <Button
+              onClick={() => {
+                setIsInviteDialogOpen(false);
+                setPendingCustomer(null);
+                setIsAddCustomerOpen(true);
+              }}
+              variant="outline"
+              className="w-full"
+            >
+              返回編輯客戶資料
             </Button>
           </DialogFooter>
         </DialogContent>
