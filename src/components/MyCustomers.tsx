@@ -1,9 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap } from 'lucide-react';
+import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ChatInterface from './ChatInterface';
 
 interface MyCustomersProps {
@@ -18,30 +21,35 @@ interface Customer {
   phone: string;
   email: string;
   company: string;
+  position?: string;
   photo: string | null;
   isAileUser: boolean;
   website?: string;
   line?: string;
   facebook?: string;
   instagram?: string;
+  address?: string;
+  description?: string;
   addedVia: string;
+  status: 'joined' | 'invited'; // 新增狀態欄位
 }
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCustomers = [], onCustomersUpdate }) => {
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
-  const [newCustomerName, setNewCustomerName] = useState('');
-  const [newCustomerPhone, setNewCustomerPhone] = useState('');
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([
-    // 新增模擬數據來示範不同類型的客戶
+    // 模擬數據
     {
       id: 1,
       name: '陳小明',
       phone: '0912345678',
       email: 'chen@example.com',
       company: 'ABC 公司',
+      position: '經理',
       photo: null,
-      isAileUser: true, // Aile 用戶
-      addedVia: 'qrcode'
+      isAileUser: true,
+      addedVia: 'qrcode',
+      status: 'joined'
     },
     {
       id: 2,
@@ -49,9 +57,23 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       phone: '0987654321',
       email: 'lee@example.com',
       company: 'XYZ 企業',
+      position: '主管',
       photo: null,
-      isAileUser: false, // 一般掃描客戶
-      addedVia: 'qrcode'
+      isAileUser: false,
+      addedVia: 'qrcode',
+      status: 'joined'
+    },
+    {
+      id: 3,
+      name: '王大明',
+      phone: '0911111111',
+      email: 'wang@example.com',
+      company: '123 科技',
+      position: '工程師',
+      photo: null,
+      isAileUser: false,
+      addedVia: 'manual',
+      status: 'invited'
     }
   ]);
   const [expandedCustomerIds, setExpandedCustomerIds] = useState<number[]>([]);
@@ -59,6 +81,25 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   const [showChatInterface, setShowChatInterface] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [activeTab, setActiveTab] = useState('joined');
+
+  // 新增客戶表單狀態
+  const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
+    name: '',
+    phone: '',
+    email: '',
+    company: '',
+    position: '',
+    website: '',
+    line: '',
+    facebook: '',
+    instagram: '',
+    address: '',
+    description: ''
+  });
+
+  // 匯入文件狀態
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (propCustomers.length > 0) {
@@ -71,6 +112,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
     }
   }, [propCustomers]);
 
+  // 過濾客戶列表
+  const joinedCustomers = customers.filter(c => c.status === 'joined');
+  const invitedCustomers = customers.filter(c => c.status === 'invited');
+
   const simulatePhoneCheck = (phone: string): Promise<boolean> => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -81,27 +126,89 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   };
 
   const handleAddCustomer = async () => {
-    const isValidPhone = await simulatePhoneCheck(newCustomerPhone);
+    if (!newCustomer.name || !newCustomer.phone) {
+      alert('請輸入姓名和電話');
+      return;
+    }
+
+    const isValidPhone = await simulatePhoneCheck(newCustomer.phone);
     if (!isValidPhone) {
       alert('請輸入有效的電話號碼 (09 開頭，共 10 碼)');
       return;
     }
 
-    const newCustomer: Customer = {
+    // 模擬檢查是否為 Aile 用戶
+    const isAileUser = Math.random() > 0.5; // 50% 機率
+
+    const customer: Customer = {
       id: Date.now(),
-      name: newCustomerName,
-      phone: newCustomerPhone,
-      email: '',
-      company: '',
+      name: newCustomer.name,
+      phone: newCustomer.phone,
+      email: newCustomer.email || '',
+      company: newCustomer.company || '',
+      position: newCustomer.position || '',
       photo: null,
-      isAileUser: false,
-      addedVia: 'manual'
+      isAileUser,
+      website: newCustomer.website || '',
+      line: newCustomer.line || '',
+      facebook: newCustomer.facebook || '',
+      instagram: newCustomer.instagram || '',
+      address: newCustomer.address || '',
+      description: newCustomer.description || '',
+      addedVia: 'manual',
+      status: isAileUser ? 'joined' : 'invited'
     };
 
-    setCustomers(prevCustomers => [...prevCustomers, newCustomer]);
+    setCustomers(prevCustomers => [...prevCustomers, customer]);
     setIsAddCustomerOpen(false);
-    setNewCustomerName('');
-    setNewCustomerPhone('');
+    setNewCustomer({
+      name: '',
+      phone: '',
+      email: '',
+      company: '',
+      position: '',
+      website: '',
+      line: '',
+      facebook: '',
+      instagram: '',
+      address: '',
+      description: ''
+    });
+  };
+
+  const handleImportFile = () => {
+    if (!importFile) {
+      alert('請選擇要匯入的檔案');
+      return;
+    }
+
+    // 模擬匯入邏輯
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target?.result as string);
+        // 假設匯入的是 JSON 格式的客戶數據
+        const importedCustomers = data.map((item: any, index: number) => ({
+          id: Date.now() + index,
+          name: item.name || '未知',
+          phone: item.phone || '',
+          email: item.email || '',
+          company: item.company || '',
+          position: item.position || '',
+          photo: null,
+          isAileUser: false,
+          addedVia: 'import',
+          status: 'invited'
+        }));
+        
+        setCustomers(prev => [...prev, ...importedCustomers]);
+        setIsImportOpen(false);
+        setImportFile(null);
+      } catch (error) {
+        alert('檔案格式錯誤，請確認是正確的 JSON 格式');
+      }
+    };
+    reader.readAsText(importFile);
   };
 
   const toggleCustomerExpansion = (customerId: number) => {
@@ -130,132 +237,133 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
   };
 
   const renderCustomerCard = (customer: Customer, isExpanded: boolean) => (
-    <div className="space-y-3">
-      {/* Customer Info Display */}
-      <div className="flex items-center space-x-3">
-        {customer.photo ? (
-          <img
-            src={customer.photo}
-            alt={customer.name}
-            className="w-12 h-12 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
-            {customer.name.charAt(0)}
+    <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+      <div className="space-y-3">
+        {/* Customer Info Display - LINE style */}
+        <div className="flex items-center space-x-3">
+          {customer.photo ? (
+            <img
+              src={customer.photo}
+              alt={customer.name}
+              className="w-12 h-12 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center text-white font-bold">
+              {customer.name.charAt(0)}
+            </div>
+          )}
+          <div className="flex-1">
+            <div className="flex items-center space-x-2">
+              <h3 className="font-semibold text-gray-800">{customer.name}</h3>
+              {customer.isAileUser ? (
+                <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center">
+                  <Zap className="w-3 h-3 mr-1" />
+                  Aile
+                </span>
+              ) : (
+                <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
+                  客戶
+                </span>
+              )}
+            </div>
+            {customer.company && (
+              <p className="text-sm text-gray-600">{customer.company}</p>
+            )}
+            {customer.position && (
+              <p className="text-xs text-gray-500">{customer.position}</p>
+            )}
+            <p className="text-xs text-gray-500">{customer.phone}</p>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                const chatCustomer = {
+                  id: customer.id,
+                  name: customer.name,
+                  photo: customer.photo,
+                  company: customer.company
+                };
+                setSelectedCustomer(chatCustomer);
+                setShowChatInterface(true);
+              }}
+              className="text-green-600 hover:text-green-700"
+            >
+              <MessageCircle className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEditCustomer(customer)}
+              className="text-blue-600 hover:text-blue-700"
+            >
+              <Edit className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => toggleCustomerExpansion(customer.id)}
+              className="text-gray-600 hover:text-gray-700"
+            >
+              {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+          </div>
+        </div>
+
+        {/* Expanded Electronic Business Card */}
+        {isExpanded && (
+          <div className="ml-4 border-l-2 border-gray-200 pl-4">
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
+              <div className="flex items-center space-x-3 mb-3">
+                {customer.photo && (
+                  <img
+                    src={customer.photo}
+                    alt={customer.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-white"
+                  />
+                )}
+                <div>
+                  <h4 className="font-bold">{customer.name}</h4>
+                  {customer.company && <p className="text-xs text-blue-100">{customer.company}</p>}
+                  {customer.position && <p className="text-xs text-blue-100">{customer.position}</p>}
+                </div>
+              </div>
+              
+              <div className="space-y-1 text-xs">
+                <div className="flex items-center space-x-2">
+                  <span className="w-1 h-1 bg-white rounded-full"></span>
+                  <span>{customer.phone}</span>
+                </div>
+                {customer.email && (
+                  <div className="flex items-center space-x-2">
+                    <span className="w-1 h-1 bg-white rounded-full"></span>
+                    <span>{customer.email}</span>
+                  </div>
+                )}
+                {customer.website && (
+                  <div className="flex items-center space-x-2">
+                    <span className="w-1 h-1 bg-white rounded-full"></span>
+                    <span>{customer.website}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 社群媒體連結 */}
+              {(customer.line || customer.facebook || customer.instagram) && (
+                <div className="mt-3 pt-3 border-t border-white/20">
+                  <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                  <div className="space-y-1 text-xs">
+                    {customer.line && <div>LINE: {customer.line}</div>}
+                    {customer.facebook && <div>Facebook: {customer.facebook}</div>}
+                    {customer.instagram && <div>Instagram: {customer.instagram}</div>}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
-        <div className="flex-1">
-          <div className="flex items-center space-x-2">
-            <h3 className="font-semibold text-gray-800">{customer.name}</h3>
-            {/* 客戶類型標識 */}
-            {customer.isAileUser ? (
-              <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full flex items-center">
-                <Zap className="w-3 h-3 mr-1" />
-                Aile
-              </span>
-            ) : (
-              <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                客戶
-              </span>
-            )}
-          </div>
-          {customer.company && (
-            <p className="text-sm text-gray-600">{customer.company}</p>
-          )}
-          <p className="text-xs text-gray-500">{customer.phone}</p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              const chatCustomer = {
-                id: customer.id,
-                name: customer.name,
-                photo: customer.photo,
-                company: customer.company
-              };
-              setSelectedCustomer(chatCustomer);
-              setShowChatInterface(true);
-            }}
-            className="text-green-600 hover:text-green-700"
-          >
-            <MessageCircle className="w-4 h-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => toggleCustomerExpansion(customer.id)}
-            className="text-gray-600 hover:text-gray-700"
-          >
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </Button>
-        </div>
       </div>
-
-      {/* Expanded Electronic Business Card */}
-      {isExpanded && (customer.isAileUser || customer.email) && (
-        <div className="ml-4 border-l-2 border-gray-200 pl-4">
-          <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white shadow-lg">
-            <div className="flex items-center space-x-3 mb-3">
-              {customer.photo && (
-                <img
-                  src={customer.photo}
-                  alt={customer.name}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-white"
-                />
-              )}
-              <div>
-                <h4 className="font-bold">{customer.name}</h4>
-                {customer.company && <p className="text-xs text-blue-100">{customer.company}</p>}
-              </div>
-            </div>
-            
-            <div className="space-y-1 text-xs">
-              <div className="flex items-center space-x-2">
-                <span className="w-1 h-1 bg-white rounded-full"></span>
-                <span>{customer.phone}</span>
-              </div>
-              {customer.email && (
-                <div className="flex items-center space-x-2">
-                  <span className="w-1 h-1 bg-white rounded-full"></span>
-                  <span>{customer.email}</span>
-                </div>
-              )}
-              {customer.website && (
-                <div className="flex items-center space-x-2">
-                  <span className="w-1 h-1 bg-white rounded-full"></span>
-                  <span>{customer.website}</span>
-                </div>
-              )}
-            </div>
-
-            {/* 社群媒體連結 */}
-            {(customer.line || customer.facebook || customer.instagram) && (
-              <div className="mt-3 pt-3 border-t border-white/20">
-                <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                <div className="space-y-1 text-xs">
-                  {customer.line && <div>LINE: {customer.line}</div>}
-                  {customer.facebook && <div>Facebook: {customer.facebook}</div>}
-                  {customer.instagram && <div>Instagram: {customer.instagram}</div>}
-                </div>
-              </div>
-            )}
-
-            {/* 編輯按鈕 */}
-            <div className="mt-3 pt-3 border-t border-white/20">
-              <Button
-                size="sm"
-                onClick={() => handleEditCustomer(customer)}
-                className="bg-white/20 hover:bg-white/30 text-white text-xs"
-              >
-                <Edit className="w-3 h-3 mr-1" />
-                編輯電子名片
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 
@@ -275,61 +383,181 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
             </Button>
             <h1 className="font-bold text-lg">我的客戶</h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsAddCustomerOpen(true)}
-            className="text-white hover:bg-white/20"
-          >
-            <Plus className="w-5 h-5" />
-          </Button>
+          <div className="flex space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsImportOpen(true)}
+              className="text-white hover:bg-white/20"
+            >
+              <Upload className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsAddCustomerOpen(true)}
+              className="text-white hover:bg-white/20"
+            >
+              <Plus className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Customer List */}
+      {/* Customer Lists with Tabs */}
       <div className="flex-1 p-4 overflow-y-auto">
-        <div className="space-y-4">
-          {customers.map(customer => (
-            <React.Fragment key={customer.id}>
-              {renderCustomerCard(customer, isCustomerExpanded(customer.id))}
-            </React.Fragment>
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="joined">我的客戶 ({joinedCustomers.length})</TabsTrigger>
+            <TabsTrigger value="invited">已邀請 ({invitedCustomers.length})</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="joined" className="mt-4">
+            <div className="space-y-4">
+              {joinedCustomers.map(customer => (
+                <React.Fragment key={customer.id}>
+                  {renderCustomerCard(customer, isCustomerExpanded(customer.id))}
+                </React.Fragment>
+              ))}
+              {joinedCustomers.length === 0 && (
+                <div className="text-center text-gray-500 py-8">
+                  尚無已加入的客戶
+                </div>
+              )}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="invited" className="mt-4">
+            <div className="space-y-4">
+              {invitedCustomers.map(customer => (
+                <React.Fragment key={customer.id}>
+                  {renderCustomerCard(customer, isCustomerExpanded(customer.id))}
+                </React.Fragment>
+              ))}
+              {invitedCustomers.length === 0 && (
+                <div className="text-center text-gray-500 py-8">
+                  尚無已邀請的客戶
+                </div>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Add Customer Dialog */}
       <Dialog open={isAddCustomerOpen} onOpenChange={setIsAddCustomerOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>新增客戶</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                姓名
-              </Label>
+              <Label htmlFor="name" className="text-right">姓名 *</Label>
               <Input
                 id="name"
-                value={newCustomerName}
-                onChange={(e) => setNewCustomerName(e.target.value)}
+                value={newCustomer.name}
+                onChange={(e) => setNewCustomer({...newCustomer, name: e.target.value})}
                 className="col-span-3"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone" className="text-right">
-                電話
-              </Label>
+              <Label htmlFor="phone" className="text-right">電話 *</Label>
               <Input
                 id="phone"
-                value={newCustomerPhone}
-                onChange={(e) => setNewCustomerPhone(e.target.value)}
+                value={newCustomer.phone}
+                onChange={(e) => setNewCustomer({...newCustomer, phone: e.target.value})}
                 className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="email" className="text-right">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={newCustomer.email}
+                onChange={(e) => setNewCustomer({...newCustomer, email: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="company" className="text-right">公司</Label>
+              <Input
+                id="company"
+                value={newCustomer.company}
+                onChange={(e) => setNewCustomer({...newCustomer, company: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="position" className="text-right">職位</Label>
+              <Input
+                id="position"
+                value={newCustomer.position}
+                onChange={(e) => setNewCustomer({...newCustomer, position: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="website" className="text-right">網站</Label>
+              <Input
+                id="website"
+                value={newCustomer.website}
+                onChange={(e) => setNewCustomer({...newCustomer, website: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="line" className="text-right">LINE</Label>
+              <Input
+                id="line"
+                value={newCustomer.line}
+                onChange={(e) => setNewCustomer({...newCustomer, line: e.target.value})}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="address" className="text-right">地址</Label>
+              <Textarea
+                id="address"
+                value={newCustomer.address}
+                onChange={(e) => setNewCustomer({...newCustomer, address: e.target.value})}
+                className="col-span-3"
+                rows={2}
               />
             </div>
           </div>
           <DialogFooter>
             <Button type="button" onClick={handleAddCustomer}>
               新增
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Import Dialog */}
+      <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>匯入客戶</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="file" className="text-right">選擇檔案</Label>
+              <Input
+                id="file"
+                type="file"
+                accept=".json,.csv"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                className="col-span-3"
+              />
+            </div>
+            <div className="text-sm text-gray-500">
+              支援 JSON 格式檔案，請確保包含 name, phone, email, company 等欄位
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" onClick={handleImportFile}>
+              匯入
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -346,17 +574,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       {/* Edit Customer Dialog */}
       {isEditing && editingCustomer && (
         <Dialog open={isEditing} onOpenChange={setIsEditing}>
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>編輯客戶</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right">
-                  姓名
-                </Label>
+                <Label htmlFor="edit-name" className="text-right">姓名</Label>
                 <Input
-                  id="name"
+                  id="edit-name"
                   value={editingCustomer.name}
                   onChange={(e) =>
                     setEditingCustomer({ ...editingCustomer, name: e.target.value })
@@ -365,11 +591,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone" className="text-right">
-                  電話
-                </Label>
+                <Label htmlFor="edit-phone" className="text-right">電話</Label>
                 <Input
-                  id="phone"
+                  id="edit-phone"
                   value={editingCustomer.phone}
                   onChange={(e) =>
                     setEditingCustomer({ ...editingCustomer, phone: e.target.value })
@@ -378,11 +602,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="email" className="text-right">
-                  Email
-                </Label>
+                <Label htmlFor="edit-email" className="text-right">Email</Label>
                 <Input
-                  id="email"
+                  id="edit-email"
                   type="email"
                   value={editingCustomer.email || ''}
                   onChange={(e) =>
@@ -392,14 +614,45 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
                 />
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="company" className="text-right">
-                  公司
-                </Label>
+                <Label htmlFor="edit-company" className="text-right">公司</Label>
                 <Input
-                  id="company"
+                  id="edit-company"
                   value={editingCustomer.company || ''}
                   onChange={(e) =>
                     setEditingCustomer({ ...editingCustomer, company: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-position" className="text-right">職位</Label>
+                <Input
+                  id="edit-position"
+                  value={editingCustomer.position || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, position: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-website" className="text-right">網站</Label>
+                <Input
+                  id="edit-website"
+                  value={editingCustomer.website || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, website: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="edit-line" className="text-right">LINE</Label>
+                <Input
+                  id="edit-line"
+                  value={editingCustomer.line || ''}
+                  onChange={(e) =>
+                    setEditingCustomer({ ...editingCustomer, line: e.target.value })
                   }
                   className="col-span-3"
                 />
