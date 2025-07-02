@@ -137,6 +137,25 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
   const toggleCustomerExpansion = (customerId: number) => {
     setExpandedCustomerId(expandedCustomerId === customerId ? null : customerId);
   };
+  const toggleQRForCustomer = (customerId: number) => {
+    setShowQRForCustomer(prev => ({
+      ...prev,
+      [customerId]: !prev[customerId]
+    }));
+    
+    if (!showQRForCustomer[customerId]) {
+      toast({
+        title: "QR Code 已生成！",
+        description: "其他人可以掃描此 QR Code 來獲取客戶名片。",
+      });
+    }
+  };
+  const handleShareCustomer = (customer: Customer) => {
+    toast({
+      title: "分享成功！",
+      description: `${customer.name} 的電子名片已準備好分享。`,
+    });
+  };
   const filterCustomers = (list: Customer[]) => {
     return list.filter(customer => customer.name.toLowerCase().includes(searchTerm.toLowerCase()) || customer.phone.includes(searchTerm) || customer.email.toLowerCase().includes(searchTerm.toLowerCase()));
   };
