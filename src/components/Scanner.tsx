@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle, QrCode, FileText, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -154,7 +153,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       facebook: customerData.facebook,
       instagram: customerData.instagram,
       photo: customerData.photo,
-      hasCard: scanResult === 'aipower-card',
+      hasCard: scanResult === 'aipower-card', // QR Code scans go to 名片夾, paper scans go to 聯絡人
       addedDate: new Date().toISOString(),
       notes: '',
       isInvited: scanResult === 'paper-card',
@@ -168,7 +167,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     
     toast({
       title: scanResult === 'paper-card' ? "聯絡人已加入！" : "名片已交換！",
-      description: `${customerData.name} 已成功${scanResult === 'paper-card' ? '加入聯絡人清單' : '加入名片夾'}。`,
+      description: `${customerData.name} 已成功加入${scanResult === 'paper-card' ? '聯絡人清單' : '我的名片夾'}。`,
     });
   };
 
@@ -483,7 +482,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-9 touch-manipulation"
             >
               <UserPlus className="w-3 h-3 mr-1" />
-              成為我的名片
+              加入我的名片夾
             </Button>
           </div>
         )}
