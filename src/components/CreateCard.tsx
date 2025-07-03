@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit, Settings, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -86,10 +85,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
         const savedCardData = localStorage.getItem('aile-card-data');
         
         setUserData(existingUser);
+        setTempUserData(existingUser); // 同步設定頁面的暫存資料
         
         if (savedCardData) {
           const existingCard = JSON.parse(savedCardData);
           setCardData(existingCard);
+        } else {
+          // 如果沒有名片資料，使用用戶資料初始化名片的手機和信箱
+          setCardData(prev => ({
+            ...prev,
+            phone: existingUser.phone,
+            email: existingUser.email,
+            name: existingUser.name
+          }));
         }
         
         setIsRegistered(true);
@@ -125,14 +133,28 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       const savedUserData = localStorage.getItem('aile-user-data');
       const savedCardData = localStorage.getItem('aile-card-data');
       
-      if (savedUserData) {
-        const existingUser = JSON.parse(savedUserData);
-        setUserData(existingUser);
-        
-        if (savedCardData) {
-          const existingCard = JSON.parse(savedCardData);
-          setCardData(existingCard);
-        }
+      // 儲存用戶資料
+      localStorage.setItem('aile-user-data', JSON.stringify(userData));
+      setTempUserData(userData); // 同步設定頁面的暫存資料
+      
+      // 初始化名片資料，使用用戶註冊資料
+      const initialCardData = {
+        companyName: '',
+        name: userData.name,
+        phone: userData.phone,
+        email: userData.email,
+        website: '',
+        line: '',
+        facebook: '',
+        instagram: '',
+        photo: null,
+      };
+      
+      if (savedCardData) {
+        const existingCard = JSON.parse(savedCardData);
+        setCardData(existingCard);
+      } else {
+        setCardData(initialCardData);
       }
       
       setIsRegistered(true);
@@ -169,6 +191,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     // 重設狀態
     setIsRegistered(false);
     setUserData({ phone: '', email: '', name: '' });
+    setTempUserData({ phone: '', email: '', name: '' });
     setCardData({
       companyName: '',
       name: '',
@@ -191,6 +214,15 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   const handleSaveSettings = () => {
     setUserData(tempUserData);
     localStorage.setItem('aile-user-data', JSON.stringify(tempUserData));
+    
+    // 同步更新名片資料中的個人資訊
+    setCardData(prev => ({
+      ...prev,
+      phone: tempUserData.phone,
+      email: tempUserData.email,
+      name: tempUserData.name
+    }));
+    
     setStep('home');
     toast({
       title: "設定已儲存",
@@ -234,7 +266,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       {isRegistered && (
         <div className="bg-green-50 border border-green-200 rounded-xl overflow-hidden">
           <button
-            onClick={() => setStep('settings')}
+            onClick={() => {
+              setTempUserData(userData); // 重新設定暫存資料
+              setStep('settings');
+            }}
             className="w-full p-4 flex items-center justify-between hover:bg-green-100 transition-colors"
           >
             <div className="flex items-center space-x-3">
