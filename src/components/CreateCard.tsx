@@ -29,7 +29,7 @@ interface UserData {
 }
 
 const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
-  const [step, setStep] = useState<'home' | 'register' | 'login' | 'otp' | 'create' | 'preview' | 'settings' | 'member-center' | 'edit-profile' | 'edit-card' | 'analytics'>('home');
+  const [step, setStep] = useState<'home' | 'register' | 'login' | 'otp' | 'create' | 'preview' | 'settings' | 'edit-profile' | 'edit-card' | 'analytics'>('home');
   const [isRegistered, setIsRegistered] = useState(() => {
     return localStorage.getItem('aile-user-registered') === 'true';
   });
@@ -98,8 +98,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
         setIsRegistered(true);
         localStorage.setItem('aile-user-registered', 'true');
         
-        // 登入成功，直接進入會員中心
-        setStep('member-center');
+        // 登入成功，直接回到首頁（會顯示會員中心內容）
+        setStep('home');
         toast({
           title: "登入成功！",
           description: "歡迎回來！",
@@ -197,7 +197,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   const handleSaveProfile = () => {
     setUserData(tempUserData);
     localStorage.setItem('aile-user-data', JSON.stringify(tempUserData));
-    setStep('member-center');
+    setStep('home');
     toast({
       title: "個人資料已更新",
       description: "您的個人資料已成功更新。",
@@ -207,7 +207,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   const handleSaveCard = () => {
     setCardData(tempCardData);
     localStorage.setItem('aile-card-data', JSON.stringify(tempCardData));
-    setStep('member-center');
+    setStep('home');
     toast({
       title: "電子名片已更新",
       description: "您的電子名片已成功更新。",
@@ -258,248 +258,229 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
 
   const renderHome = () => (
     <div className="p-6 space-y-6">
-      <h2 className="text-xl font-bold text-center text-gray-800">建立電子名片</h2>
-      
       {/* 未註冊會員的初始狀態 */}
       {!isRegistered && (
-        <div className="space-y-3">
-          <Button
-            onClick={() => setStep('register')}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            開始註冊並建立名片
-          </Button>
-          
-          <Button
-            onClick={() => setStep('login')}
-            variant="outline"
-            className="w-full border-green-500 text-green-600 hover:bg-green-50"
-          >
-            <LogIn className="w-4 h-4 mr-2" />
-            已有帳號？立即登入
-          </Button>
-        </div>
-      )}
-      
-      {/* 已註冊會員直接進入會員中心 */}
-      {isRegistered && (
-        <div className="space-y-4">
-          <Button
-            onClick={() => {
-              setTempUserData(userData);
-              setTempCardData(cardData);
-              setStep('member-center');
-            }}
-            className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4"
-          >
-            <User className="w-5 h-5 mr-3" />
-            <div className="text-left flex-1">
-              <div className="font-semibold">會員中心</div>
-              <div className="text-sm text-blue-100">管理個人資料與電子名片</div>
-            </div>
-            <ChevronRight className="w-5 h-5" />
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-
-  const renderMemberCenter = () => (
-    <div className="p-6 space-y-6">
-      <h2 className="text-xl font-bold text-center text-gray-800">會員中心</h2>
-      
-      {/* 個人資料區塊 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-xl overflow-hidden">
-        <button
-          onClick={() => setStep('edit-profile')}
-          className="w-full p-4 flex items-center justify-between hover:bg-blue-100 transition-colors"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-semibold text-blue-800">個人資料</h3>
-              <p className="text-sm text-blue-600">{userData.name}</p>
-            </div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-blue-600" />
-        </button>
-      </div>
-
-      {/* 我的電子名片區塊 - 可展開預覽 */}
-      {isCardComplete() ? (
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-800">我的電子名片</h3>
-              <div className="flex space-x-2">
-                <Button
-                  onClick={() => setStep('edit-card')}
-                  variant="outline"
-                  size="sm"
-                  className="border-gray-300 text-gray-600 hover:bg-gray-100"
-                >
-                  <Edit className="w-4 h-4 mr-1" />
-                  編輯
-                </Button>
-                <Button
-                  onClick={() => setCardExpanded(!cardExpanded)}
-                  variant="outline"
-                  size="sm"
-                  className="border-gray-300 text-gray-600 hover:bg-gray-100"
-                >
-                  {cardExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </Button>
-              </div>
-            </div>
+        <>
+          <h2 className="text-xl font-bold text-center text-gray-800">建立電子名片</h2>
+          <div className="space-y-3">
+            <Button
+              onClick={() => setStep('register')}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              開始註冊並建立名片
+            </Button>
             
-            {/* 名片預覽 */}
-            <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white text-sm">
-              <div className="flex items-center space-x-3 mb-3">
-                {cardData.photo && (
-                  <img
-                    src={cardData.photo}
-                    alt="照片"
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white"
-                  />
-                )}
-                <div>
-                  <h4 className="font-bold">{cardData.name}</h4>
-                  <p className="text-blue-100 text-xs">{cardData.companyName || '個人名片'}</p>
+            <Button
+              onClick={() => setStep('login')}
+              variant="outline"
+              className="w-full border-green-500 text-green-600 hover:bg-green-50"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              已有帳號？立即登入
+            </Button>
+          </div>
+        </>
+      )}
+      
+      {/* 已註冊會員直接顯示會員中心內容 */}
+      {isRegistered && (
+        <>
+          <h2 className="text-xl font-bold text-center text-gray-800">會員中心</h2>
+          
+          {/* 個人資料區塊 */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl overflow-hidden">
+            <button
+              onClick={() => setStep('edit-profile')}
+              className="w-full p-4 flex items-center justify-between hover:bg-blue-100 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-blue-800">個人資料</h3>
+                  <p className="text-sm text-blue-600">{userData.name}</p>
                 </div>
               </div>
-              
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center space-x-2">
-                  <Phone className="w-3 h-3" />
-                  <span>{cardData.phone}</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-3 h-3" />
-                  <span>{cardData.email}</span>
-                </div>
-                {cardData.website && (
-                  <div className="flex items-center space-x-2">
-                    <Globe className="w-3 h-3" />
-                    <span>{cardData.website}</span>
-                  </div>
-                )}
-              </div>
+              <ChevronRight className="w-5 h-5 text-blue-600" />
+            </button>
+          </div>
 
-              {/* 展開的完整資訊 */}
-              {cardExpanded && (
-                <div className="mt-4 pt-4 border-t border-white/20 space-y-3">
-                  {/* 社群媒體 */}
-                  {(cardData.line || cardData.facebook || cardData.instagram) && (
+          {/* 我的電子名片區塊 - 可展開預覽 */}
+          {isCardComplete() ? (
+            <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
+              <div className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold text-gray-800">我的電子名片</h3>
+                  <div className="flex space-x-2">
+                    <Button
+                      onClick={() => setStep('edit-card')}
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-300 text-gray-600 hover:bg-gray-100"
+                    >
+                      <Edit className="w-4 h-4 mr-1" />
+                      編輯
+                    </Button>
+                    <Button
+                      onClick={() => setCardExpanded(!cardExpanded)}
+                      variant="outline"
+                      size="sm"
+                      className="border-gray-300 text-gray-600 hover:bg-gray-100"
+                    >
+                      {cardExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                
+                {/* 名片預覽 */}
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-4 text-white text-sm">
+                  <div className="flex items-center space-x-3 mb-3">
+                    {cardData.photo && (
+                      <img
+                        src={cardData.photo}
+                        alt="照片"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-white"
+                      />
+                    )}
                     <div>
-                      <p className="text-sm text-blue-100 mb-2">社群媒體</p>
-                      <div className="space-y-1 text-xs">
-                        {cardData.line && (
-                          <div className="flex items-center space-x-2">
-                            <span className="w-3 h-3 bg-green-500 rounded-full"></span>
-                            <span>LINE: {cardData.line}</span>
+                      <h4 className="font-bold">{cardData.name}</h4>
+                      <p className="text-blue-100 text-xs">{cardData.companyName || '個人名片'}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1 text-xs">
+                    <div className="flex items-center space-x-2">
+                      <Phone className="w-3 h-3" />
+                      <span>{cardData.phone}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Mail className="w-3 h-3" />
+                      <span>{cardData.email}</span>
+                    </div>
+                    {cardData.website && (
+                      <div className="flex items-center space-x-2">
+                        <Globe className="w-3 h-3" />
+                        <span>{cardData.website}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 展開的完整資訊 */}
+                  {cardExpanded && (
+                    <div className="mt-4 pt-4 border-t border-white/20 space-y-3">
+                      {/* 社群媒體 */}
+                      {(cardData.line || cardData.facebook || cardData.instagram) && (
+                        <div>
+                          <p className="text-sm text-blue-100 mb-2">社群媒體</p>
+                          <div className="space-y-1 text-xs">
+                            {cardData.line && (
+                              <div className="flex items-center space-x-2">
+                                <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                                <span>LINE: {cardData.line}</span>
+                              </div>
+                            )}
+                            {cardData.facebook && (
+                              <div className="flex items-center space-x-2">
+                                <span className="w-3 h-3 bg-blue-600 rounded-full"></span>
+                                <span>Facebook: {cardData.facebook}</span>
+                              </div>
+                            )}
+                            {cardData.instagram && (
+                              <div className="flex items-center space-x-2">
+                                <span className="w-3 h-3 bg-pink-500 rounded-full"></span>
+                                <span>Instagram: {cardData.instagram}</span>
+                              </div>
+                            )}
                           </div>
-                        )}
-                        {cardData.facebook && (
-                          <div className="flex items-center space-x-2">
-                            <span className="w-3 h-3 bg-blue-600 rounded-full"></span>
-                            <span>Facebook: {cardData.facebook}</span>
-                          </div>
-                        )}
-                        {cardData.instagram && (
-                          <div className="flex items-center space-x-2">
-                            <span className="w-3 h-3 bg-pink-500 rounded-full"></span>
-                            <span>Instagram: {cardData.instagram}</span>
-                          </div>
-                        )}
+                        </div>
+                      )}
+
+                      {/* QR Code 區域 */}
+                      <div className="bg-white/20 rounded-lg p-3 text-center">
+                        <div className="w-20 h-20 bg-white rounded-lg mx-auto mb-2 flex items-center justify-center">
+                          <QrCode className="w-12 h-12 text-gray-800" />
+                        </div>
+                        <p className="text-xs text-blue-100">掃描 QR Code 獲取名片</p>
                       </div>
                     </div>
                   )}
-
-                  {/* QR Code 區域 */}
-                  <div className="bg-white/20 rounded-lg p-3 text-center">
-                    <div className="w-20 h-20 bg-white rounded-lg mx-auto mb-2 flex items-center justify-center">
-                      <QrCode className="w-12 h-12 text-gray-800" />
-                    </div>
-                    <p className="text-xs text-blue-100">掃描 QR Code 獲取名片</p>
-                  </div>
                 </div>
-              )}
-            </div>
 
-            {/* QR Code 和分享按鈕 */}
-            <div className="flex space-x-2 mt-4">
+                {/* QR Code 和分享按鈕 */}
+                <div className="flex space-x-2 mt-4">
+                  <Button
+                    onClick={() => {
+                      setCardExpanded(!cardExpanded);
+                      toast({ 
+                        title: "QR Code", 
+                        description: cardExpanded ? "QR Code 已隱藏" : "QR Code 已顯示" 
+                      });
+                    }}
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    <QrCode className="w-4 h-4 mr-1" />
+                    QR Code
+                  </Button>
+                  
+                  <Button
+                    onClick={handleShare}
+                    size="sm"
+                    className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    <Share2 className="w-4 h-4 mr-1" />
+                    分享
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+              <h3 className="font-semibold text-yellow-800 mb-2">完成您的電子名片</h3>
+              <p className="text-sm text-yellow-700 mb-3">您的電子名片尚未完成，請繼續建立。</p>
               <Button
-                onClick={() => {
-                  setCardExpanded(!cardExpanded);
-                  toast({ 
-                    title: "QR Code", 
-                    description: cardExpanded ? "QR Code 已隱藏" : "QR Code 已顯示" 
-                  });
-                }}
-                size="sm"
-                variant="outline"
-                className="flex-1"
+                onClick={() => setStep('create')}
+                className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
               >
-                <QrCode className="w-4 h-4 mr-1" />
-                QR Code
-              </Button>
-              
-              <Button
-                onClick={handleShare}
-                size="sm"
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-              >
-                <Share2 className="w-4 h-4 mr-1" />
-                分享
+                繼續建立電子名片
               </Button>
             </div>
+          )}
+
+          {/* 數據分析區塊 */}
+          <div className="bg-green-50 border border-green-200 rounded-xl overflow-hidden">
+            <button
+              onClick={() => setStep('analytics')}
+              className="w-full p-4 flex items-center justify-between hover:bg-green-100 transition-colors"
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                  <BarChart3 className="w-5 h-5 text-white" />
+                </div>
+                <div className="text-left">
+                  <h3 className="font-semibold text-green-800">數據中心</h3>
+                  <p className="text-sm text-green-600">查看名片互動數據</p>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-green-600" />
+            </button>
           </div>
-        </div>
-      ) : (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-          <h3 className="font-semibold text-yellow-800 mb-2">完成您的電子名片</h3>
-          <p className="text-sm text-yellow-700 mb-3">您的電子名片尚未完成，請繼續建立。</p>
-          <Button
-            onClick={() => setStep('create')}
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
-          >
-            繼續建立電子名片
-          </Button>
-        </div>
+
+          {/* 登出按鈕 */}
+          <div className="pt-4">
+            <Button
+              onClick={handleLogout}
+              variant="destructive"
+              className="w-full"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              登出
+            </Button>
+          </div>
+        </>
       )}
-
-      {/* 數據分析區塊 */}
-      <div className="bg-green-50 border border-green-200 rounded-xl overflow-hidden">
-        <button
-          onClick={() => setStep('analytics')}
-          className="w-full p-4 flex items-center justify-between hover:bg-green-100 transition-colors"
-        >
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-              <BarChart3 className="w-5 h-5 text-white" />
-            </div>
-            <div className="text-left">
-              <h3 className="font-semibold text-green-800">數據中心</h3>
-              <p className="text-sm text-green-600">查看名片互動數據</p>
-            </div>
-          </div>
-          <ChevronRight className="w-5 h-5 text-green-600" />
-        </button>
-      </div>
-
-      {/* 登出按鈕 */}
-      <div className="pt-4">
-        <Button
-          onClick={handleLogout}
-          variant="destructive"
-          className="w-full"
-        >
-          <LogOut className="w-4 h-4 mr-2" />
-          登出
-        </Button>
-      </div>
     </div>
   );
 
@@ -979,7 +960,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
               title: "名片已儲存！",
               description: "您的電子名片已成功建立並儲存。",
             });
-            setStep('member-center');
+            setStep('home');
           }}
           className="flex-1 bg-green-500 hover:bg-green-600"
         >
@@ -1058,7 +1039,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
               title: "名片已儲存！",
               description: "您的電子名片已成功建立並儲存。",
             });
-            setStep('member-center');
+            setStep('home');
           }}
           className="flex-1 bg-green-500 hover:bg-green-600"
         >
@@ -1078,12 +1059,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             variant="ghost"
             size="sm"
             onClick={() => {
-              if (step === 'member-center' || step === 'edit-profile' || step === 'edit-card' || step === 'analytics') {
-                if (step === 'edit-profile' || step === 'edit-card' || step === 'analytics') {
-                  setStep('member-center');
-                } else {
-                  onClose();
-                }
+              if (step === 'home') {
+                onClose();
+              } else if (step === 'edit-profile' || step === 'edit-card' || step === 'analytics') {
+                setStep('home');
               } else {
                 onClose();
               }
@@ -1093,7 +1072,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="font-bold text-lg">
-            {step === 'member-center' ? '會員中心' : 
+            {step === 'home' ? (isRegistered ? '會員中心' : '建立電子名片') : 
              step === 'edit-profile' ? '編輯個人資料' :
              step === 'edit-card' ? '編輯電子名片' :
              step === 'analytics' ? '數據中心' :
@@ -1105,7 +1084,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       {/* Content */}
       <div className="pb-20">
         {step === 'home' && renderHome()}
-        {step === 'member-center' && renderMemberCenter()}
         {step === 'edit-profile' && renderEditProfile()}
         {step === 'edit-card' && renderEditCard()}
         {step === 'analytics' && renderAnalytics()}
