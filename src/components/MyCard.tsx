@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Share2, QrCode, Download, Zap, Bot } from 'lucide-react';
+import { ArrowLeft, Share2, QrCode, Download, Zap, Bot, Plus, UserPlus, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
@@ -34,6 +33,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // 預設關閉選單
 
   useEffect(() => {
     const savedData = localStorage.getItem('aile-card-data');
@@ -138,11 +138,10 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
         email: 'test@example.com',
         company: '測試公司',
         photo: null,
-        isAileUser: Math.random() > 0.5, // 隨機決定是否為 Aile 用戶
+        isAileUser: Math.random() > 0.5,
         addedVia: 'qrcode'
       };
       
-      // 觸發客戶加入事件
       const event = new CustomEvent('customerScannedCard', { detail: mockCustomer });
       window.dispatchEvent(event);
     }, 3000);
@@ -151,6 +150,31 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
       title: "QR Code 已生成！",
       description: "其他人可以掃描此 QR Code 來獲取您的名片。",
     });
+  };
+
+  const handleAddContact = () => {
+    const newMessage: ChatMessage = {
+      id: messages.length + 1,
+      text: "您的名片已加入我的聯絡人！現在可以輕鬆查看和聯繫。",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newMessage]);
+    
+    toast({
+      title: "已加入聯絡人",
+      description: "名片已成功加入聯絡人清單。",
+    });
+  };
+
+  const handleCreateCard = () => {
+    const newMessage: ChatMessage = {
+      id: messages.length + 1,
+      text: "正在為您建立電子名片模板，您可以編輯個人資訊和自訂設計。",
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, newMessage]);
   };
 
   const handleJoinAIWOW = () => {
@@ -199,7 +223,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
 
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white z-50 overflow-hidden flex flex-col">
-      {/* Header */}
+      {/* 簡化的 Header - 移除智能助手標題 */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
           <Button
@@ -210,15 +234,16 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <div className="flex items-center space-x-2">
-            <Zap className="w-6 h-6" />
-            <h1 className="font-bold text-lg">AILE 智能助手</h1>
-          </div>
+          <h1 className="font-bold text-lg">我的電子名片</h1>
         </div>
       </div>
 
       {/* Chat Messages */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0">
+      <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0 bg-gray-50" style={{ 
+        backgroundImage: 'linear-gradient(45deg, #f8f9fa 25%, transparent 25%), linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8f9fa 75%), linear-gradient(-45deg, transparent 75%, #f8f9fa 75%)',
+        backgroundSize: '20px 20px',
+        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+      }}>
         {messages.map((message) => (
           <div key={message.id} className="flex justify-start">
             <div className="max-w-xs lg:max-w-md">
@@ -293,12 +318,30 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
                           </div>
                         )}
 
-                        {/* Action Buttons */}
-                        <div className="flex space-x-2">
+                        {/* Action Buttons - 更新為四個按鈕 */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button
+                            onClick={handleAddContact}
+                            size="sm"
+                            className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8"
+                          >
+                            <UserPlus className="w-3 h-3 mr-1" />
+                            加入聯絡人
+                          </Button>
+                          
+                          <Button
+                            onClick={handleCreateCard}
+                            size="sm"
+                            className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            建立我的名片
+                          </Button>
+                          
                           <Button
                             onClick={generateQRCode}
                             size="sm"
-                            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
                           >
                             <QrCode className="w-3 h-3 mr-1" />
                             QR Code
@@ -307,7 +350,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
                           <Button
                             onClick={handleShare}
                             size="sm"
-                            className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                            className="bg-green-500 hover:bg-green-600 text-white text-xs h-8"
                           >
                             <Share2 className="w-3 h-3 mr-1" />
                             分享
@@ -356,6 +399,44 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* LINE 風格圖文選單 - 預設收起 */}
+      {isMenuOpen && (
+        <div className="bg-white border-t border-gray-200 flex-shrink-0 p-4">
+          <div className="text-center mb-3">
+            <p className="text-sm text-gray-600">快速功能選單</p>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => setIsMenuOpen(false)}
+              className="bg-blue-500 hover:bg-blue-600 text-white text-sm py-3"
+            >
+              編輯名片
+            </Button>
+            <Button
+              onClick={() => setIsMenuOpen(false)}
+              className="bg-green-500 hover:bg-green-600 text-white text-sm py-3"
+            >
+              查看分析
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Floating + Button - LINE 風格 */}
+      <div className="absolute bottom-4 right-4 z-20">
+        <Button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`w-12 h-12 rounded-full shadow-lg active:scale-95 transition-all ${
+            isMenuOpen 
+              ? 'bg-gray-500 hover:bg-gray-600 rotate-45' 
+              : 'bg-green-500 hover:bg-green-600'
+          }`}
+          size="sm"
+        >
+          <Plus className="w-5 h-5" />
+        </Button>
       </div>
     </div>
   );
