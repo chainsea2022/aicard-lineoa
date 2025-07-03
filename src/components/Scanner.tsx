@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle, QrCode, FileText } from 'lucide-react';
+import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle, QrCode, FileText, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -31,7 +31,7 @@ interface CustomerData {
 
 const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
-  const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aile-card'>('none');
+  const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: '',
     phone: '',
@@ -40,6 +40,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     jobTitle: ''
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [invitationUrl, setInvitationUrl] = useState('');
 
   useEffect(() => {
     // Initialize LIFF
@@ -60,6 +61,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     initializeLiff();
   }, []);
 
+  const generateInvitationUrl = () => {
+    const inviteId = Math.random().toString(36).substring(2, 15);
+    return `https://aipower.app/register?invite=${inviteId}`;
+  };
+
   const handlePaperScan = () => {
     setScanResult('paper-card');
     setCustomerData({
@@ -69,10 +75,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       company: '創新企業有限公司',
       jobTitle: '行銷總監'
     });
+    setInvitationUrl(generateInvitationUrl());
   };
 
   const handleQRCodeScan = () => {
-    setScanResult('aile-card');
+    setScanResult('aipower-card');
     setCustomerData({
       name: '張小明',
       phone: '0912-345-678',
@@ -88,8 +95,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   };
 
   const handleSendSMSInvitation = () => {
-    const registrationUrl = 'https://aile.app/register';
-    const message = `您好！邀請您加入 AILE 電子名片，享受智能商務服務。請點擊註冊：${registrationUrl}`;
+    const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
     
     toast({
       title: "簡訊邀請已發送！",
@@ -100,10 +106,38 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   };
 
   const handleSendEmailInvitation = () => {
+    const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
+    
     toast({
       title: "Email 已發送！",
       description: `邀請連結已透過Email發送給 ${customerData.name}。`,
     });
+    
+    console.log('Email內容:', message);
+  };
+
+  const handleSocialShare = () => {
+    const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: 'Aipower 電子名片邀請',
+        text: message,
+        url: invitationUrl
+      }).catch(() => {
+        navigator.clipboard.writeText(message);
+        toast({
+          title: "已複製到剪貼板",
+          description: "邀請訊息已複製，可以分享到社群平台。"
+        });
+      });
+    } else {
+      navigator.clipboard.writeText(message);
+      toast({
+        title: "已複製到剪貼板",
+        description: "邀請訊息已複製，可以分享到社群平台。"
+      });
+    }
   };
 
   const handleAddCustomer = () => {
@@ -120,9 +154,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       facebook: customerData.facebook,
       instagram: customerData.instagram,
       photo: customerData.photo,
-      hasCard: scanResult === 'aile-card',
+      hasCard: scanResult === 'aipower-card',
       addedDate: new Date().toISOString(),
       notes: '',
+      isInvited: scanResult === 'paper-card',
+      invitationSent: scanResult === 'paper-card'
     };
     
     customers.push(newCustomer);
@@ -131,8 +167,8 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     setShowSuccessMessage(true);
     
     toast({
-      title: "客戶已加入！",
-      description: `${customerData.name} 已成功加入您的客戶名單。`,
+      title: scanResult === 'paper-card' ? "聯絡人已加入！" : "名片已交換！",
+      description: `${customerData.name} 已成功${scanResult === 'paper-card' ? '加入聯絡人清單' : '加入名片夾'}。`,
     });
   };
 
@@ -153,25 +189,29 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-3 overflow-hidden">
         <div className="w-full max-w-xs mx-auto text-center h-full flex flex-col justify-center">
           <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
-          <h2 className="text-base font-bold text-gray-800 mb-2">客戶已成功加入！</h2>
-          <p className="text-xs text-gray-600 mb-4">{customerData.name} 已加入您的客戶名單</p>
+          <h2 className="text-base font-bold text-gray-800 mb-2">
+            {scanResult === 'paper-card' ? '聯絡人已成功加入！' : '名片已成功交換！'}
+          </h2>
+          <p className="text-xs text-gray-600 mb-4">
+            {customerData.name} 已加入您的{scanResult === 'paper-card' ? '聯絡人清單' : '名片夾'}
+          </p>
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-4 text-left">
             <p className="text-xs text-blue-700 mb-2 font-medium">
-              💡 您現在可以在圖文選單中的「我的客戶」查看：
+              💡 您現在可以在圖文選單中的「名片人脈夾」查看：
             </p>
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-1 bg-blue-500 rounded-full flex-shrink-0"></div>
-                <span className="text-xs text-blue-600">📄 紙本名片客戶資料</span>
+                <span className="text-xs text-blue-600">📄 紙本名片聯絡人資料</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-1 bg-green-500 rounded-full flex-shrink-0"></div>
-                <span className="text-xs text-green-600">📱 AILE 電子名片用戶</span>
+                <span className="text-xs text-green-600">📱 Aipower 電子名片用戶</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-1 bg-orange-500 rounded-full flex-shrink-0"></div>
-                <span className="text-xs text-orange-600">✏️ 編輯客戶備註與資料</span>
+                <span className="text-xs text-orange-600">✏️ 編輯聯絡人備註與資料</span>
               </div>
             </div>
           </div>
@@ -181,7 +221,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               onClick={onClose}
               className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-8"
             >
-              前往我的客戶
+              前往名片人脈夾
             </Button>
             <Button
               onClick={() => {
@@ -255,7 +295,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
               <UserPlus className="w-4 h-4 text-blue-600" />
-              <h3 className="font-bold text-blue-800 text-xs">掃描到紙本名片</h3>
+              <h3 className="font-bold text-blue-800 text-xs">掃描紙本名片</h3>
             </div>
             
             <div className="space-y-2">
@@ -339,24 +379,42 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   <Mail className="w-3 h-3 mr-0.5" />
                   Email 邀請 
                 </Button>
+                <Button
+                  onClick={handleSocialShare}
+                  variant="outline"
+                  className="flex-1 text-xs touch-manipulation h-8"
+                  size="sm"
+                >
+                  <Share2 className="w-3 h-3 mr-0.5" />
+                  社群分享
+                </Button>
               </div>
+              
+              {invitationUrl && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-green-700 mb-1">邀請訊息預覽：</p>
+                  <p className="text-xs text-gray-600 bg-white p-2 rounded border">
+                    "邀請您建立電子名片，請加入我的人脈網！註冊連結：{invitationUrl}"
+                  </p>
+                </div>
+              )}
               
               <Button
                 onClick={handleAddCustomer}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation"
               >
-                加入我的客戶
+                加入我的名片夾
               </Button>
             </div>
           </div>
         )}
 
-        {/* AILE Electronic Business Card Results */}
-        {scanResult === 'aile-card' && (
+        {/* Aipower Electronic Business Card Results */}
+        {scanResult === 'aipower-card' && (
           <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
               <CheckCircle className="w-4 h-4 text-green-600" />
-              <h3 className="font-bold text-green-800 text-xs">發現 AILE 電子名片！</h3>
+              <h3 className="font-bold text-green-800 text-xs">發現 Aipower 電子名片！</h3>
             </div>
             
             {/* Electronic Business Card Preview */}
@@ -416,7 +474,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
               <p className="text-xs text-blue-700">
-                🎉 太好了！{customerData.name} 也是 AILE 用戶，您可以直接將他們加入客戶名單。
+                🎉 太好了！{customerData.name} 也是 Aipower 用戶，您可以直接將他們加入名片夾。
               </p>
             </div>
             
@@ -425,7 +483,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-9 touch-manipulation"
             >
               <UserPlus className="w-3 h-3 mr-1" />
-              成為我的客戶
+              成為我的名片
             </Button>
           </div>
         )}
@@ -435,10 +493,10 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           <h4 className="font-bold text-gray-800 mb-1.5 text-xs">💡 掃描說明</h4>
           <ul className="text-xs text-gray-600 space-y-0.5">
             <li>• <strong>紙本掃描：</strong>適用於傳統紙本名片識別</li>
-            <li>• <strong>QR Code 掃描：</strong>適用於 AILE 電子名片 QR Code</li>
+            <li>• <strong>QR Code 掃描：</strong>適用於 Aipower 電子名片 QR Code</li>
             <li>• 確保光線充足，保持相機穩定</li>
             <li>• 掃描成功後會自動識別客戶資訊</li>
-            <li>• 邀請沒有 AILE 名片的客戶加入</li>
+            <li>• 邀請沒有 Aipower 名片的客戶加入</li>
           </ul>
         </div>
       </div>
