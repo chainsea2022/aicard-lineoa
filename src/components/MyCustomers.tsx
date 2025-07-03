@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 
 interface MyCustomersProps {
@@ -131,43 +131,80 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   };
 
+  const handleLineClick = (lineId: string) => {
+    if (lineId) {
+      // Try to open LINE app or web version
+      const lineUrl = `https://line.me/ti/p/~${lineId}`;
+      window.open(lineUrl, '_blank');
+      toast({ title: "正在開啟 LINE 聊天室..." });
+    }
+  };
+
   const renderCompactCard = (customer: Customer) => (
-    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm mb-2">
-      <div className="flex items-center justify-between">
-        <div className="flex-1">
-          <div className="flex items-center space-x-2">
-            <h3 className="font-bold text-sm text-gray-800">{customer.name}</h3>
+    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg shadow-sm mb-3 overflow-hidden">
+      <div className="flex items-center p-4 space-x-3">
+        {/* Avatar - only show for cards section */}
+        {activeSection === 'cards' && (
+          <Avatar className="w-12 h-12 flex-shrink-0">
+            <AvatarImage src={customer.photo || undefined} alt={customer.name} />
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+              {customer.name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+        )}
+        
+        {/* Main content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-2 mb-1">
+            <h3 className="font-bold text-base text-gray-800 truncate">{customer.name}</h3>
             <Button
               onClick={() => toggleFavorite(customer.id)}
               variant="ghost"
               size="sm"
-              className="p-1 h-6 w-6"
+              className="p-1 h-6 w-6 flex-shrink-0"
             >
               <Star 
-                className={`w-3 h-3 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
+                className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
               />
             </Button>
           </div>
           
-          <div className="text-xs text-gray-600 space-y-1">
-            {customer.company && <div>{customer.company}</div>}
-            {customer.phone && <div>📱 {customer.phone}</div>}
-            {customer.line && <div>💬 LINE</div>}
+          <div className="text-sm text-gray-600 space-y-1">
+            {customer.company && (
+              <div className="truncate">{customer.company}</div>
+            )}
+            <div className="flex items-center space-x-4 text-xs">
+              {customer.phone && (
+                <div className="flex items-center space-x-1">
+                  <span>📱</span>
+                  <span className="truncate">{customer.phone}</span>
+                </div>
+              )}
+              {customer.line && (
+                <button
+                  onClick={() => handleLineClick(customer.line!)}
+                  className="flex items-center space-x-1 text-green-600 hover:text-green-700 transition-colors"
+                >
+                  <span>💬</span>
+                  <span>LINE</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
-          <Button
-            onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-            variant="ghost"
-            size="sm"
-          >
-            {expandedCard === customer.id ? 
-              <ChevronDown className="w-4 h-4" /> : 
-              <ChevronRight className="w-4 h-4" />
-            }
-          </Button>
-        </div>
+        {/* Expand button */}
+        <Button
+          onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+          variant="ghost"
+          size="sm"
+          className="flex-shrink-0"
+        >
+          {expandedCard === customer.id ? 
+            <ChevronDown className="w-5 h-5" /> : 
+            <ChevronRight className="w-5 h-5" />
+          }
+        </Button>
       </div>
     </div>
   );
@@ -177,32 +214,44 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     const displayCustomer = isEditing ? editingCustomer! : customer;
 
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-2">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <h3 className="font-bold text-lg text-gray-800">
-              {isEditing ? (
-                <Input
-                  value={displayCustomer.name}
-                  onChange={(e) => setEditingCustomer({...editingCustomer!, name: e.target.value})}
-                  className="text-lg font-bold"
+      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-3">
+            {/* Avatar - only show for cards section */}
+            {activeSection === 'cards' && (
+              <Avatar className="w-16 h-16 flex-shrink-0">
+                <AvatarImage src={displayCustomer.photo || undefined} alt={displayCustomer.name} />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
+                  {displayCustomer.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            )}
+            <div className="min-w-0 flex-1">
+              <h3 className="font-bold text-lg text-gray-800">
+                {isEditing ? (
+                  <Input
+                    value={displayCustomer.name}
+                    onChange={(e) => setEditingCustomer({...editingCustomer!, name: e.target.value})}
+                    className="text-lg font-bold"
+                  />
+                ) : (
+                  displayCustomer.name
+                )}
+              </h3>
+              <Button
+                onClick={() => toggleFavorite(customer.id)}
+                variant="ghost"
+                size="sm"
+                className="p-0 h-auto mt-1"
+              >
+                <Star 
+                  className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
                 />
-              ) : (
-                displayCustomer.name
-              )}
-            </h3>
-            <Button
-              onClick={() => toggleFavorite(customer.id)}
-              variant="ghost"
-              size="sm"
-            >
-              <Star 
-                className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
-              />
-            </Button>
+              </Button>
+            </div>
           </div>
           
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-shrink-0">
             {isEditing ? (
               <>
                 <Button onClick={saveEditing} size="sm" variant="default">
@@ -291,7 +340,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   placeholder="LINE ID"
                 />
               ) : (
-                <div className="text-sm">{displayCustomer.line || '-'}</div>
+                <div className="text-sm">
+                  {displayCustomer.line ? (
+                    <button
+                      onClick={() => handleLineClick(displayCustomer.line!)}
+                      className="text-green-600 hover:text-green-700 transition-colors underline"
+                    >
+                      {displayCustomer.line}
+                    </button>
+                  ) : (
+                    '-'
+                  )}
+                </div>
               )}
             </div>
 
@@ -504,7 +564,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-3">
         {filteredCustomers.length > 0 ? (
-          <div className="space-y-2">
+          <div className="space-y-0">
             {filteredCustomers.map(customer => 
               expandedCard === customer.id 
                 ? renderExpandedCard(customer)
