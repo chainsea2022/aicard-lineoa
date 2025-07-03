@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit, Settings, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -76,17 +77,38 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     const formData = new FormData(e.target as HTMLFormElement);
     const phone = formData.get('phone') as string;
     
-    // 模擬檢查是否為已註冊用戶
+    // 檢查是否為已註冊用戶
     const savedUserData = localStorage.getItem('aile-user-data');
     if (savedUserData) {
       const existingUser = JSON.parse(savedUserData);
       if (existingUser.phone === phone) {
-        setPhoneForOtp(phone);
-        setStep('otp');
-        toast({
-          title: "OTP 驗證碼已發送",
-          description: `驗證碼已發送至 ${phone}`,
-        });
+        // 直接登入，不需要 OTP 驗證
+        const savedCardData = localStorage.getItem('aile-card-data');
+        
+        setUserData(existingUser);
+        
+        if (savedCardData) {
+          const existingCard = JSON.parse(savedCardData);
+          setCardData(existingCard);
+        }
+        
+        setIsRegistered(true);
+        localStorage.setItem('aile-user-registered', 'true');
+        
+        // 檢查是否有已建立的電子名片
+        if (savedCardData && JSON.parse(savedCardData).name) {
+          setStep('home'); // 回到首頁顯示已建立的名片
+          toast({
+            title: "登入成功！",
+            description: "歡迎回來，您的電子名片已載入。",
+          });
+        } else {
+          setStep('create'); // 如果沒有名片則進入建立頁面
+          toast({
+            title: "登入成功！",
+            description: "現在您可以建立您的電子名片了。",
+          });
+        }
         return;
       }
     }
@@ -329,7 +351,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
         </div>
         <Button type="submit" className="w-full bg-green-500 hover:bg-green-600">
           <LogIn className="w-4 h-4 mr-2" />
-          發送登入驗證碼
+          登入
         </Button>
       </form>
       
