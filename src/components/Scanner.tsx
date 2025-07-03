@@ -402,7 +402,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                 onClick={handleAddCustomer}
                 className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation"
               >
-                加入我的名片夾
+                加入我的聯絡人
               </Button>
             </div>
           </div>
