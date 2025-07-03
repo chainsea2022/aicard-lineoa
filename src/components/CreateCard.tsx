@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit, Settings, LogOut, LogIn, QrCode, Share2, BarChart3, Send, Users, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Upload, Eye, Save, User, Phone, Mail, Globe, Camera, ChevronRight, Edit, LogOut, LogIn, QrCode, Share2, BarChart3, Send, Users, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,7 +29,7 @@ interface UserData {
 }
 
 const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
-  const [step, setStep] = useState<'home' | 'register' | 'login' | 'otp' | 'create' | 'preview' | 'settings' | 'edit-profile' | 'edit-card' | 'analytics'>('home');
+  const [step, setStep] = useState<'home' | 'register' | 'login' | 'otp' | 'edit-profile' | 'edit-card' | 'analytics'>('home');
   const [isRegistered, setIsRegistered] = useState(() => {
     return localStorage.getItem('aile-user-registered') === 'true';
   });
@@ -122,7 +122,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       localStorage.setItem('aile-user-data', JSON.stringify(userData));
       setTempUserData(userData);
       
-      // 使用用戶註冊的資料初始化名片
+      // 使用用戶註冊的資料初始化基本名片（僅基本資訊，無頭像和額外文字）
       const initialCardData = {
         companyName: '',
         name: userData.name,
@@ -137,14 +137,17 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       
       setCardData(initialCardData);
       setTempCardData(initialCardData);
+      // 直接儲存基本名片資料
+      localStorage.setItem('aile-card-data', JSON.stringify(initialCardData));
+      
       setIsRegistered(true);
       localStorage.setItem('aile-user-registered', 'true');
       
-      // 註冊成功後進入建立名片頁面
-      setStep('create');
+      // 註冊成功後直接回到會員中心首頁
+      setStep('home');
       toast({
         title: "註冊成功！",
-        description: "歡迎加入 AILE！請建立您的電子名片。",
+        description: "歡迎加入 AILE！您的電子名片已自動建立。",
       });
     } else {
       toast({
@@ -441,7 +444,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
               <h3 className="font-semibold text-yellow-800 mb-2">完成您的電子名片</h3>
               <p className="text-sm text-yellow-700 mb-3">您的電子名片尚未完成，請繼續建立。</p>
               <Button
-                onClick={() => setStep('create')}
+                onClick={() => setStep('edit-card')}
                 className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
               >
                 繼續建立電子名片
@@ -670,7 +673,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
         
         <div className="bg-purple-50 border border-purple-200 rounded-xl p-4 text-center">
           <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-2">
-            <Eye className="w-4 h-4 text-white" />
+            <User className="w-4 h-4 text-white" />
           </div>
           <h3 className="font-semibold text-purple-800 text-sm">名片瀏覽</h3>
           <p className="text-2xl font-bold text-purple-600 mt-1">256</p>
@@ -843,213 +846,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     </div>
   );
 
-  const renderCreateForm = () => (
-    <div className="p-6 space-y-6">
-      <h2 className="text-xl font-bold text-center text-gray-800">建立電子名片</h2>
-      
-      {/* Photo Upload */}
-      <div className="flex flex-col items-center space-y-4">
-        <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
-          {cardData.photo ? (
-            <img src={cardData.photo} alt="照片" className="w-full h-full object-cover" />
-          ) : (
-            <Camera className="w-8 h-8 text-gray-400" />
-          )}
-        </div>
-        <label className="cursor-pointer">
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoUpload}
-            className="hidden"
-          />
-          <div className="flex items-center space-x-2 text-blue-500 hover:text-blue-600">
-            <Upload className="w-4 h-4" />
-            <span className="text-sm">上傳照片</span>
-          </div>
-        </label>
-      </div>
-
-      <div className="space-y-4">
-        <div>
-          <Label>公司名稱</Label>
-          <Input
-            value={cardData.companyName}
-            onChange={(e) => handleInputChange('companyName', e.target.value)}
-            placeholder="輸入公司名稱"
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <Label>姓名</Label>
-          <Input
-            value={cardData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-            placeholder="輸入姓名"
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <Label>手機號碼</Label>
-          <Input
-            value={cardData.phone}
-            onChange={(e) => handleInputChange('phone', e.target.value)}
-            placeholder="輸入手機號碼"
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <Label>電子信箱</Label>
-          <Input
-            value={cardData.email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
-            placeholder="輸入電子信箱"
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <Label>公司官網</Label>
-          <Input
-            value={cardData.website}
-            onChange={(e) => handleInputChange('website', e.target.value)}
-            placeholder="https://www.example.com"
-            className="mt-1"
-          />
-        </div>
-        
-        <div className="space-y-3">
-          <Label>社群設置</Label>
-          <Input
-            value={cardData.line}
-            onChange={(e) => handleInputChange('line', e.target.value)}
-            placeholder="LINE ID"
-            className="mt-1"
-          />
-          <Input
-            value={cardData.facebook}
-            onChange={(e) => handleInputChange('facebook', e.target.value)}
-            placeholder="Facebook 連結"
-            className="mt-1"
-          />
-          <Input
-            value={cardData.instagram}
-            onChange={(e) => handleInputChange('instagram', e.target.value)}
-            placeholder="Instagram 連結"
-            className="mt-1"
-          />
-        </div>
-      </div>
-
-      <div className="flex space-x-3">
-        <Button
-          onClick={() => setStep('preview')}
-          variant="outline"
-          className="flex-1"
-        >
-          <Eye className="w-4 h-4 mr-2" />
-          預覽
-        </Button>
-        <Button
-          onClick={() => {
-            localStorage.setItem('aile-card-data', JSON.stringify(cardData));
-            toast({
-              title: "名片已儲存！",
-              description: "您的電子名片已成功建立並儲存。",
-            });
-            setStep('home');
-          }}
-          className="flex-1 bg-green-500 hover:bg-green-600"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          儲存
-        </Button>
-      </div>
-    </div>
-  );
-
-  const renderPreview = () => (
-    <div className="p-6 space-y-6">
-      <h2 className="text-xl font-bold text-center text-gray-800">名片預覽</h2>
-      
-      <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl p-6 text-white shadow-xl">
-        <div className="flex items-center space-x-4 mb-4">
-          {cardData.photo && (
-            <img
-              src={cardData.photo}
-              alt="照片"
-              className="w-16 h-16 rounded-full object-cover border-2 border-white"
-            />
-          )}
-          <div>
-            <h3 className="text-xl font-bold">{cardData.name || '姓名'}</h3>
-            <p className="text-blue-100">{cardData.companyName || '公司名稱'}</p>
-          </div>
-        </div>
-        
-        <div className="space-y-2 text-sm">
-          {cardData.phone && (
-            <div className="flex items-center space-x-2">
-              <Phone className="w-4 h-4" />
-              <span>{cardData.phone}</span>
-            </div>
-          )}
-          {cardData.email && (
-            <div className="flex items-center space-x-2">
-              <Mail className="w-4 h-4" />
-              <span>{cardData.email}</span>
-            </div>
-          )}
-          {cardData.website && (
-            <div className="flex items-center space-x-2">
-              <Globe className="w-4 h-4" />
-              <span>{cardData.website}</span>
-            </div>
-          )}
-        </div>
-
-        {/* Social Media Links */}
-        {(cardData.line || cardData.facebook || cardData.instagram) && (
-          <div className="mt-4 pt-4 border-t border-white/20">
-            <p className="text-sm text-blue-100 mb-2">社群媒體</p>
-            <div className="space-y-1 text-sm">
-              {cardData.line && <div>LINE: {cardData.line}</div>}
-              {cardData.facebook && <div>Facebook: {cardData.facebook}</div>}
-              {cardData.instagram && <div>Instagram: {cardData.instagram}</div>}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="flex space-x-3">
-        <Button
-          onClick={() => setStep('create')}
-          variant="outline"
-          className="flex-1"
-        >
-          編輯
-        </Button>
-        <Button
-          onClick={() => {
-            localStorage.setItem('aile-card-data', JSON.stringify(cardData));
-            toast({
-              title: "名片已儲存！",
-              description: "您的電子名片已成功建立並儲存。",
-            });
-            setStep('home');
-          }}
-          className="flex-1 bg-green-500 hover:bg-green-600"
-        >
-          <Save className="w-4 h-4 mr-2" />
-          儲存名片
-        </Button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
@@ -1090,8 +886,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
         {step === 'register' && renderRegisterForm()}
         {step === 'login' && renderLoginForm()}
         {step === 'otp' && renderOtpForm()}
-        {step === 'create' && renderCreateForm()}
-        {step === 'preview' && renderPreview()}
       </div>
     </div>
   );
