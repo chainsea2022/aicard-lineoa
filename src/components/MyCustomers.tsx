@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Plus, Edit, MessageCircle, ChevronDown, ChevronUp, Zap, Upload, Save, MessageSquare, Mail, Search, Star, Users, Calendar, Share, Phone, FileText, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -702,7 +703,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">我的客戶</h1>
+            <h1 className="font-bold text-lg">名片人脈夾</h1>
           </div>
           <div className="flex space-x-2">
             <Button
@@ -729,7 +730,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <Input
-            placeholder="搜尋客戶姓名、公司、電話或信箱..."
+            placeholder="搜尋名片姓名、公司、電話或信箱..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -772,7 +773,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
             className="flex items-center space-x-1"
           >
             <Users className="w-3 h-3" />
-            <span>客戶</span>
+            <span>聯絡人</span>
           </Button>
         </div>
       </div>
@@ -780,8 +781,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
       <div className="flex-1 p-4 overflow-y-auto">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="joined">我的客戶 ({joinedCustomers.length})</TabsTrigger>
-            <TabsTrigger value="invited">已邀請 ({invitedCustomers.length})</TabsTrigger>
+            <TabsTrigger value="joined">我的名片夾 ({joinedCustomers.length})</TabsTrigger>
+            <TabsTrigger value="invited">聯絡人 ({invitedCustomers.length})</TabsTrigger>
           </TabsList>
           
           <TabsContent value="joined" className="mt-4">
@@ -794,8 +795,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               {joinedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
                   {searchQuery || filterType !== 'all' 
-                    ? '沒有符合條件的客戶'
-                    : '尚無已加入的客戶'
+                    ? '沒有符合條件的名片'
+                    : '尚無名片，快去與他人交換名片吧！'
                   }
                 </div>
               )}
@@ -812,8 +813,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers: propCusto
               {invitedCustomers.length === 0 && (
                 <div className="text-center text-gray-500 py-8">
                   {searchQuery || filterType !== 'all'
-                    ? '沒有符合條件的客戶'
-                    : '尚無已邀請的客戶'
+                    ? '沒有符合條件的聯絡人'
+                    : '尚無聯絡人，可透過掃描或匯入建立聯絡人清單'
                   }
                 </div>
               )}
