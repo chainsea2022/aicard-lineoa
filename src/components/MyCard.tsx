@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Share2, QrCode, Download, Zap, Bot, Plus, UserPlus, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -56,12 +57,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
           timestamp: new Date(),
           isCard: true,
           cardData: data
-        },
-        {
-          id: 3,
-          text: "💡 建議您加入 AIWOW 名片簿，享受更多便利功能！透過 AIWOW LINE OA，您可以：\n\n• 註冊即獲100可兌換點\n📱 最方便的電子名片簿\n📊 獲得詳細的名片互動數據\n🚀 使用更多智能商務功能",
-          isBot: true,
-          timestamp: new Date()
         }
       ];
       setMessages(initialMessages);
@@ -72,7 +67,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
       const newCustomer = event.detail;
       const newMessage: ChatMessage = {
         id: messages.length + 1,
-        text: `🎉 ${newCustomer.name} 已透過掃描您的名片加入客戶列表！`,
+        text: `🎉 ${newCustomer.lineId || newCustomer.name} 已將您的名片加入聯絡人！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -134,6 +129,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
       const mockCustomer = {
         id: Date.now(),
         name: '測試客戶',
+        lineId: '@testuser123',
         phone: '0912345678',
         email: 'test@example.com',
         company: '測試公司',
@@ -177,16 +173,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
     setMessages(prev => [...prev, newMessage]);
   };
 
-  const handleJoinAIWOW = () => {
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      text: "感謝您的興趣！請點擊以下連結加入 AIWOW LINE OA，開始享受更多智能商務功能。",
-      isBot: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, newMessage]);
-  };
-
   if (!cardData) {
     return (
       <div className="absolute inset-0 bg-white z-50">
@@ -223,7 +209,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
 
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white z-50 overflow-hidden flex flex-col">
-      {/* 簡化的 Header - 移除智能助手標題 */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
           <Button
@@ -318,41 +304,41 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
                           </div>
                         )}
 
-                        {/* Action Buttons - 更新為四個按鈕 */}
-                        <div className="grid grid-cols-2 gap-2">
+                        {/* Action Buttons - 重新排列順序：QR Code, 加入聯絡人, 建立我的名片, 分享 */}
+                        <div className="grid grid-cols-1 gap-2">
+                          <Button
+                            onClick={generateQRCode}
+                            size="sm"
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-10"
+                          >
+                            <QrCode className="w-4 h-4 mr-2" />
+                            QR Code
+                          </Button>
+                          
                           <Button
                             onClick={handleAddContact}
                             size="sm"
-                            className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8"
+                            className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-10"
                           >
-                            <UserPlus className="w-3 h-3 mr-1" />
+                            <UserPlus className="w-4 h-4 mr-2" />
                             加入聯絡人
                           </Button>
                           
                           <Button
                             onClick={handleCreateCard}
                             size="sm"
-                            className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
+                            className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-10"
                           >
-                            <Edit className="w-3 h-3 mr-1" />
+                            <Edit className="w-4 h-4 mr-2" />
                             建立我的名片
-                          </Button>
-                          
-                          <Button
-                            onClick={generateQRCode}
-                            size="sm"
-                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
-                          >
-                            <QrCode className="w-3 h-3 mr-1" />
-                            QR Code
                           </Button>
                           
                           <Button
                             onClick={handleShare}
                             size="sm"
-                            className="bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                            className="bg-green-500 hover:bg-green-600 text-white text-xs h-10"
                           >
-                            <Share2 className="w-3 h-3 mr-1" />
+                            <Share2 className="w-4 h-4 mr-2" />
                             分享
                           </Button>
                         </div>
@@ -375,30 +361,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose, onCustomerAdded }) => {
             </div>
           </div>
         ))}
-
-        {/* AIWOW Recommendation Card */}
-        <div className="flex justify-start">
-          <div className="max-w-xs lg:max-w-md">
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                <Bot className="w-5 h-5 text-white" />
-              </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <h4 className="font-bold text-blue-800 mb-2 text-sm">🎯 AIWOW 推薦</h4>
-                <p className="text-xs text-blue-700 mb-3">
-                  升級至 AIWOW 名片簿，解鎖更多商務功能！
-                </p>
-                <Button
-                  onClick={handleJoinAIWOW}
-                  size="sm"
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs"
-                >
-                  了解更多
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* LINE 風格圖文選單 - 預設收起 */}
