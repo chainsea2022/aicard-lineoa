@@ -141,13 +141,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const renderCompactCard = (customer: Customer) => (
-    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg shadow-sm mb-3 overflow-hidden">
-      <div className="flex items-center p-4 space-x-3">
+    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg shadow-sm mb-2 overflow-hidden">
+      <div className="flex items-center p-2.5 space-x-2.5">
         {/* Avatar - only show for cards section */}
         {activeSection === 'cards' && (
-          <Avatar className="w-12 h-12 flex-shrink-0">
+          <Avatar className="w-10 h-10 flex-shrink-0">
             <AvatarImage src={customer.photo || undefined} alt={customer.name} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
               {customer.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
@@ -155,28 +155,28 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         
         {/* Main content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-2 mb-1">
-            <h3 className="font-bold text-base text-gray-800 truncate">{customer.name}</h3>
+          <div className="flex items-center space-x-2 mb-0.5">
+            <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
             <Button
               onClick={() => toggleFavorite(customer.id)}
               variant="ghost"
               size="sm"
-              className="p-1 h-6 w-6 flex-shrink-0"
+              className="p-0.5 h-5 w-5 flex-shrink-0"
             >
               <Star 
-                className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
+                className={`w-3.5 h-3.5 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
               />
             </Button>
           </div>
           
-          <div className="text-sm text-gray-600 space-y-1">
+          <div className="text-xs text-gray-600 space-y-0.5">
             {customer.company && (
               <div className="truncate">{customer.company}</div>
             )}
-            <div className="flex items-center space-x-4 text-xs">
+            <div className="flex items-center space-x-3 text-xs">
               {customer.phone && (
                 <div className="flex items-center space-x-1">
-                  <span>📱</span>
+                  <span className="text-xs">📱</span>
                   <span className="truncate">{customer.phone}</span>
                 </div>
               )}
@@ -185,8 +185,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   onClick={() => handleLineClick(customer.line!)}
                   className="flex items-center space-x-1 text-green-600 hover:text-green-700 transition-colors"
                 >
-                  <span>💬</span>
-                  <span>LINE</span>
+                  <span className="text-xs">💬</span>
+                  <span className="text-xs">LINE</span>
                 </button>
               )}
             </div>
@@ -198,11 +198,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
           variant="ghost"
           size="sm"
-          className="flex-shrink-0"
+          className="flex-shrink-0 h-6 w-6 p-0"
         >
           {expandedCard === customer.id ? 
-            <ChevronDown className="w-5 h-5" /> : 
-            <ChevronRight className="w-5 h-5" />
+            <ChevronDown className="w-4 h-4" /> : 
+            <ChevronRight className="w-4 h-4" />
           }
         </Button>
       </div>
