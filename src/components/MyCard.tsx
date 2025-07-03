@@ -76,7 +76,7 @@ const MyCard: React.FC<MyCardProps> = ({
       const customerName = generateRandomCustomerName();
       const newMessage: ChatMessage = {
         id: messages.length + 1,
-        text: `🎉 ${customerName}已加入您的客戶列表！`,
+        text: `🎉 ${customerName}已加入您的人脈列表！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -109,7 +109,7 @@ const MyCard: React.FC<MyCardProps> = ({
 
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: "您的電子名片分享連結已準備好！當有人透過此連結查看您的名片時，將會自動加入您的客戶列表。",
+      text: "您的電子名片分享連結已準備好！當有人透過此連結查看您的名片時，將會自動加入您的人脈列表。",
       isBot: true,
       timestamp: new Date()
     };
@@ -124,7 +124,7 @@ const MyCard: React.FC<MyCardProps> = ({
     setShowQR(true);
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片並自動加入您的客戶列表。",
+      text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片並自動加入您的人脈列表。",
       isBot: true,
       timestamp: new Date()
     };
@@ -159,7 +159,7 @@ const MyCard: React.FC<MyCardProps> = ({
     const customerName = generateRandomCustomerName();
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: `🎉 ${customerName}已加入您的客戶列表！`,
+      text: `🎉 ${customerName}已加入您的人脈列表！`,
       isBot: true,
       timestamp: new Date()
     };

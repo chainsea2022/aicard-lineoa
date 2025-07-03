@@ -78,7 +78,7 @@ const ChatRoom = () => {
       const customerName = generateRandomCustomerName();
       const newMessage = {
         id: Date.now(),
-        text: `🎉 ${customerName}已加入您的客戶列表！`,
+        text: `🎉 ${customerName}已加入您的人脈列表！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -193,7 +193,7 @@ const ChatRoom = () => {
         setTimeout(() => {
           const scanMessage: Message = {
             id: Date.now(),
-            text: `🎉 ${customerName}已加入您的客戶列表！`,
+            text: `🎉 ${customerName}已加入您的人脈列表！`,
             isBot: true,
             timestamp: new Date()
           };
@@ -209,7 +209,7 @@ const ChatRoom = () => {
       case 'addContact':
         const addMessage: Message = {
           id: Date.now(),
-          text: `🎉 ${customerName}已加入您的客戶列表！`,
+          text: `🎉 ${customerName}已加入您的人脈列表！`,
           isBot: true,
           timestamp: new Date()
         };
