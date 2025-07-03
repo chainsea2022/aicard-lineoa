@@ -34,6 +34,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   const [isRegistered, setIsRegistered] = useState(() => {
     return localStorage.getItem('aile-user-registered') === 'true';
   });
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('aile-user-logged-in') === 'true';
+  });
   const [userData, setUserData] = useState<UserData>(() => {
     const saved = localStorage.getItem('aile-user-data');
     return saved ? JSON.parse(saved) : { phone: '', email: '', name: '', lineId: '' };
@@ -95,7 +98,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       }
       
       setIsRegistered(true);
+      setIsLoggedIn(true);
       localStorage.setItem('aile-user-registered', 'true');
+      localStorage.setItem('aile-user-logged-in', 'true');
       
       // 登入成功，直接回到首頁（會顯示會員中心內容）
       setStep('home');
@@ -139,7 +144,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       localStorage.setItem('aile-card-data', JSON.stringify(initialCardData));
       
       setIsRegistered(true);
+      setIsLoggedIn(true);
       localStorage.setItem('aile-user-registered', 'true');
+      localStorage.setItem('aile-user-logged-in', 'true');
       
       // 註冊成功後直接回到會員中心首頁
       setStep('home');
@@ -156,42 +163,15 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   };
 
   const handleLogout = () => {
-    // 清除所有本地存儲的資料
-    localStorage.removeItem('aile-user-registered');
-    localStorage.removeItem('aile-user-data');
-    localStorage.removeItem('aile-card-data');
+    // 只清除登入狀態，保留註冊資料和名片資料
+    setIsLoggedIn(false);
+    localStorage.setItem('aile-user-logged-in', 'false');
     
-    // 重設狀態
-    setIsRegistered(false);
-    setUserData({ phone: '', email: '', name: '' });
-    setTempUserData({ phone: '', email: '', name: '' });
-    setCardData({
-      companyName: '',
-      name: '',
-      phone: '',
-      email: '',
-      website: '',
-      line: '',
-      facebook: '',
-      instagram: '',
-      photo: null,
-    });
-    setTempCardData({
-      companyName: '',
-      name: '',
-      phone: '',
-      email: '',
-      website: '',
-      line: '',
-      facebook: '',
-      instagram: '',
-      photo: null,
-    });
     setStep('home');
     
     toast({
       title: "已登出",
-      description: "您已成功登出，所有資料已清除。",
+      description: "您已成功登出，資料已保存。",
     });
   };
 
@@ -259,31 +239,61 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
 
   const renderHome = () => (
     <div className="p-6 space-y-6">
-      {/* 未註冊會員的初始狀態 */}
-      {!isRegistered && (
+      {/* 未註冊或未登入狀態 */}
+      {(!isRegistered || !isLoggedIn) && (
         <>
           <h2 className="text-xl font-bold text-center text-gray-800">建立電子名片</h2>
           <div className="space-y-3">
-            <Button
-              onClick={() => setStep('register')}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              開始註冊並建立名片
-            </Button>
+            {/* 如果有註冊資料但未登入，顯示快速登入 */}
+            {isRegistered && !isLoggedIn && (
+              <>
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                  <p className="text-sm text-green-700 text-center">
+                    歡迎回來！偵測到您已註冊過
+                  </p>
+                </div>
+                <Button
+                  onClick={handleLogin}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  LINE 會員快速登入
+                </Button>
+                <Button
+                  onClick={() => setStep('register')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  註冊新帳號
+                </Button>
+              </>
+            )}
             
-            <Button
-              onClick={handleLogin}
-              className="w-full bg-green-500 hover:bg-green-600 text-white"
-            >
-              <LogIn className="w-4 h-4 mr-2" />
-              LINE 會員登入
-            </Button>
+            {/* 完全新用戶 */}
+            {!isRegistered && (
+              <>
+                <Button
+                  onClick={() => setStep('register')}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+                >
+                  開始註冊並建立名片
+                </Button>
+                
+                <Button
+                  onClick={handleLogin}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white"
+                >
+                  <LogIn className="w-4 h-4 mr-2" />
+                  LINE 會員登入
+                </Button>
+              </>
+            )}
           </div>
         </>
       )}
       
-      {/* 已註冊會員直接顯示會員中心內容 */}
-      {isRegistered && (
+      {/* 已註冊且已登入會員直接顯示會員中心內容 */}
+      {isRegistered && isLoggedIn && (
         <>
           <h2 className="text-xl font-bold text-center text-gray-800">會員中心</h2>
           
@@ -874,7 +884,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="font-bold text-lg">
-            {step === 'home' ? (isRegistered ? '會員中心' : '建立電子名片') : 
+            {step === 'home' ? (isRegistered && isLoggedIn ? '會員中心' : '建立電子名片') : 
              step === 'edit-profile' ? '編輯個人資料' :
              step === 'edit-card' ? '編輯電子名片' :
              step === 'analytics' ? '數據中心' :
