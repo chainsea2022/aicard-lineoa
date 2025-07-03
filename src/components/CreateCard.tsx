@@ -121,10 +121,21 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       }
     }
     
-    // 如果找不到用戶資料
+    // 如果找不到用戶資料，自動當作新用戶註冊流程
+    const tempUserData = {
+      phone: phone,
+      email: '',
+      name: ''
+    };
+    
+    setUserData(tempUserData);
+    setTempUserData(tempUserData);
+    setPhoneForOtp(phone);
+    setStep('otp');
+    
     toast({
-      title: "找不到帳號",
-      description: "此手機號碼尚未註冊，請先註冊帳號。",
+      title: "OTP 驗證碼已發送",
+      description: `驗證碼已發送至 ${phone}`,
     });
   };
 

@@ -144,7 +144,7 @@ const ChatRoom = () => {
           </div>
           <div>
             <h1 className="font-bold text-base">AILE</h1>
-            <p className="text-green-100 text-xs">智能名片助手</p>
+            <p className="text-green-100 text-xs">商務人脈神器</p>
           </div>
         </div>
       </div>
