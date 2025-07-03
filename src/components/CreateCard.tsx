@@ -81,42 +81,26 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     if (savedUserData) {
       const existingUser = JSON.parse(savedUserData);
       if (existingUser.phone === phone) {
-        // 直接登入，不需要 OTP 驗證
+        // 直接登入，載入用戶資料
         const savedCardData = localStorage.getItem('aile-card-data');
         
         setUserData(existingUser);
-        setTempUserData(existingUser); // 同步設定頁面的暫存資料
+        setTempUserData(existingUser);
         
         if (savedCardData) {
           const existingCard = JSON.parse(savedCardData);
           setCardData(existingCard);
-        } else {
-          // 如果沒有名片資料，使用用戶資料初始化名片的手機和信箱
-          setCardData(prev => ({
-            ...prev,
-            phone: existingUser.phone,
-            email: existingUser.email,
-            name: existingUser.name
-          }));
         }
         
         setIsRegistered(true);
         localStorage.setItem('aile-user-registered', 'true');
         
-        // 檢查是否有已建立的電子名片
-        if (savedCardData && JSON.parse(savedCardData).name) {
-          setStep('home'); // 回到首頁顯示已建立的名片
-          toast({
-            title: "登入成功！",
-            description: "歡迎回來，您的電子名片已載入。",
-          });
-        } else {
-          setStep('create'); // 如果沒有名片則進入建立頁面
-          toast({
-            title: "登入成功！",
-            description: "現在您可以建立您的電子名片了。",
-          });
-        }
+        // 直接回到首頁，不管是否有名片資料都顯示首頁內容
+        setStep('home');
+        toast({
+          title: "登入成功！",
+          description: "歡迎回來！",
+        });
         return;
       }
     }
@@ -141,12 +125,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
 
   const handleOtpVerify = () => {
     if (otp.length === 6) {
-      const savedUserData = localStorage.getItem('aile-user-data');
       const savedCardData = localStorage.getItem('aile-card-data');
       
       // 儲存用戶資料
       localStorage.setItem('aile-user-data', JSON.stringify(userData));
-      setTempUserData(userData); // 同步設定頁面的暫存資料
+      setTempUserData(userData);
       
       // 初始化名片資料，使用用戶註冊資料
       const initialCardData = {
@@ -171,20 +154,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       setIsRegistered(true);
       localStorage.setItem('aile-user-registered', 'true');
       
-      // 檢查是否有已建立的電子名片
-      if (savedCardData && JSON.parse(savedCardData).name) {
-        setStep('home'); // 回到首頁顯示已建立的名片
-        toast({
-          title: "登入成功！",
-          description: "歡迎回來，您的電子名片已載入。",
-        });
-      } else {
-        setStep('create'); // 如果沒有名片則進入建立頁面
-        toast({
-          title: "登入成功！",
-          description: "現在您可以建立您的電子名片了。",
-        });
-      }
+      // 新用戶註冊完成後回到首頁
+      setStep('home');
+      toast({
+        title: "註冊成功！",
+        description: "歡迎加入 AILE！",
+      });
     } else {
       toast({
         title: "驗證失敗",
