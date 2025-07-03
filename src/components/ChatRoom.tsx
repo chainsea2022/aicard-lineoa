@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, QrCode, UserPlus, Edit, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -8,6 +8,7 @@ import Scanner from './Scanner';
 import MyCustomers from './MyCustomers';
 import Analytics from './Analytics';
 import Schedule from './Schedule';
+import { toast } from '@/hooks/use-toast';
 
 interface MenuItem {
   id: string;
@@ -21,6 +22,20 @@ interface Message {
   text: string;
   isBot: boolean;
   timestamp: Date;
+  isCard?: boolean;
+  cardData?: any;
+}
+
+interface CardData {
+  companyName: string;
+  name: string;
+  phone: string;
+  email: string;
+  website: string;
+  line: string;
+  facebook: string;
+  instagram: string;
+  photo: string | null;
 }
 
 const menuItems: MenuItem[] = [
@@ -32,6 +47,15 @@ const menuItems: MenuItem[] = [
   { id: 'schedule', title: '行程管理', icon: Calendar, color: 'bg-gradient-to-br from-indigo-500 to-indigo-600' },
 ];
 
+// 模擬客戶名稱生成器
+const generateRandomCustomerName = () => {
+  const surnames = ['王', '李', '張', '陳', '林', '黃', '吳', '劉', '蔡', '楊'];
+  const names = ['大頭', '小明', '美麗', '志強', '淑芬', '建國', '雅婷', '俊傑', '麗華', '文雄'];
+  const surname = surnames[Math.floor(Math.random() * surnames.length)];
+  const name = names[Math.floor(Math.random() * names.length)];
+  return surname + name;
+};
+
 const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [activeView, setActiveView] = useState<string | null>(null);
@@ -40,6 +64,7 @@ const ChatRoom = () => {
   ]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     // 監聽客戶加入事件
@@ -50,13 +75,10 @@ const ChatRoom = () => {
       setCustomers(prev => [...prev, newCustomer]);
       
       // 添加聊天通知
-      const customerTypeText = newCustomer.isAileUser ? 
-        `${newCustomer.name} (Aile 用戶) 已加入您的客戶列表！` : 
-        `${newCustomer.name} 已加入您的客戶列表！`;
-      
+      const customerName = generateRandomCustomerName();
       const newMessage = {
         id: Date.now(),
-        text: `🎉 ${customerTypeText}`,
+        text: `🎉 ${customerName}已加入您的客戶列表！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -103,8 +125,44 @@ const ChatRoom = () => {
   };
 
   const handleMenuItemClick = (itemId: string) => {
-    setActiveView(itemId);
-    setIsMenuOpen(false);
+    if (itemId === 'my-card') {
+      // 檢查是否有名片資料
+      const savedData = localStorage.getItem('aile-card-data');
+      if (savedData) {
+        const cardData = JSON.parse(savedData);
+        
+        // 在聊天室中顯示名片
+        const cardMessage: Message = {
+          id: Date.now(),
+          text: "這是您的電子名片：",
+          isBot: true,
+          timestamp: new Date()
+        };
+        
+        const cardPreviewMessage: Message = {
+          id: Date.now() + 1,
+          text: "",
+          isBot: true,
+          timestamp: new Date(),
+          isCard: true,
+          cardData: cardData
+        };
+        
+        setMessages(prev => [...prev, cardMessage, cardPreviewMessage]);
+      } else {
+        const noCardMessage: Message = {
+          id: Date.now(),
+          text: "您尚未建立電子名片，請先建立您的名片。",
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, noCardMessage]);
+      }
+      setIsMenuOpen(false);
+    } else {
+      setActiveView(itemId);
+      setIsMenuOpen(false);
+    }
   };
 
   const handleCloseView = () => {
@@ -116,12 +174,97 @@ const ChatRoom = () => {
     setCustomers(prev => [...prev, customer]);
   };
 
+  // 處理名片內的操作
+  const handleCardAction = (action: string, cardData: any) => {
+    const customerName = generateRandomCustomerName();
+    
+    switch (action) {
+      case 'qrcode':
+        setShowQR(true);
+        const qrMessage: Message = {
+          id: Date.now(),
+          text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片。",
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, qrMessage]);
+        
+        // 模擬 QR Code 被掃描
+        setTimeout(() => {
+          const scanMessage: Message = {
+            id: Date.now(),
+            text: `🎉 ${customerName}已加入您的客戶列表！`,
+            isBot: true,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, scanMessage]);
+        }, 3000);
+        
+        toast({
+          title: "QR Code 已生成！",
+          description: "其他人可以掃描此 QR Code 來獲取您的名片。"
+        });
+        break;
+        
+      case 'addContact':
+        const addMessage: Message = {
+          id: Date.now(),
+          text: `🎉 ${customerName}已加入您的客戶列表！`,
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, addMessage]);
+        toast({
+          title: "已加入聯絡人",
+          description: "名片已成功加入聯絡人清單。"
+        });
+        break;
+        
+      case 'createCard':
+        const createMessage: Message = {
+          id: Date.now(),
+          text: "正在為您建立電子名片模板，您可以編輯個人資訊和自訂設計。",
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, createMessage]);
+        break;
+        
+      case 'share':
+        const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
+        
+        if (navigator.share) {
+          navigator.share({
+            title: `${cardData?.name} 的電子名片`,
+            text: `查看 ${cardData?.name} 的電子名片`,
+            url: shareUrl
+          }).catch(() => {
+            // 如果分享失敗，複製到剪貼板
+            navigator.clipboard.writeText(shareUrl);
+          });
+        } else {
+          navigator.clipboard.writeText(shareUrl);
+        }
+        
+        const shareMessage: Message = {
+          id: Date.now(),
+          text: "您的電子名片分享連結已準備好！",
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages(prev => [...prev, shareMessage]);
+        toast({
+          title: "分享成功！",
+          description: "您的電子名片已準備好分享。"
+        });
+        break;
+    }
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
         return <CreateCard onClose={handleCloseView} />;
-      case 'my-card':
-        return <MyCard onClose={handleCloseView} onCustomerAdded={handleCustomerAdded} />;
       case 'scanner':
         return <Scanner onClose={handleCloseView} />;
       case 'customers':
@@ -164,34 +307,130 @@ const ChatRoom = () => {
               backgroundSize: '20px 20px',
               backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
             }}>
-              <div className="space-y-3 pb-2">
+              <div className="space-y-4 pb-2">
                 {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-                  >
-                    <div className="flex items-end space-x-1 max-w-[85%]">
-                      {message.isBot && (
-                        <div className="w-7 h-7 bg-gray-300 rounded-full flex items-center justify-center mb-1 flex-shrink-0">
-                          <Zap className="w-3 h-3 text-gray-600" />
+                  <div key={message.id} className="flex justify-start">
+                    <div className="max-w-[90%] w-full">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Bot className="w-5 h-5 text-white" />
                         </div>
-                      )}
-                      <div className="flex flex-col">
-                        <div
-                          className={`px-3 py-2 rounded-2xl shadow-sm max-w-full ${
-                            message.isBot
-                              ? 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'
-                              : 'bg-green-500 text-white rounded-br-sm'
-                          }`}
-                        >
-                          <p className="text-sm leading-relaxed break-words">{message.text}</p>
+                        <div className="flex-1 min-w-0">
+                          {message.isCard && message.cardData ? (
+                            /* LINE Flex Message Style Card */
+                            <div className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden max-w-[280px]">
+                              {/* Business Card Header */}
+                              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  {message.cardData.photo && (
+                                    <img 
+                                      src={message.cardData.photo} 
+                                      alt="照片" 
+                                      className="w-10 h-10 rounded-full object-cover border-2 border-white flex-shrink-0" 
+                                    />
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <h3 className="text-base font-bold truncate">{message.cardData.name}</h3>
+                                    <p className="text-blue-100 text-xs truncate">{message.cardData.companyName}</p>
+                                  </div>
+                                </div>
+                                
+                                <div className="space-y-1 text-xs">
+                                  {message.cardData.phone && (
+                                    <div className="flex items-center space-x-2">
+                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                      <span className="truncate">{message.cardData.phone}</span>
+                                    </div>
+                                  )}
+                                  {message.cardData.email && (
+                                    <div className="flex items-center space-x-2">
+                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                      <span className="truncate">{message.cardData.email}</span>
+                                    </div>
+                                  )}
+                                  {message.cardData.website && (
+                                    <div className="flex items-center space-x-2">
+                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                      <span className="truncate">{message.cardData.website}</span>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Social Media Links */}
+                                {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
+                                  <div className="mt-2 pt-2 border-t border-white/20">
+                                    <p className="text-xs text-blue-100 mb-1">社群媒體</p>
+                                    <div className="space-y-1 text-xs">
+                                      {message.cardData.line && <div className="truncate">LINE: {message.cardData.line}</div>}
+                                      {message.cardData.facebook && <div className="truncate">Facebook: {message.cardData.facebook}</div>}
+                                      {message.cardData.instagram && <div className="truncate">Instagram: {message.cardData.instagram}</div>}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* QR Code Section */}
+                              {showQR && (
+                                <div className="p-3 text-center bg-gray-50 border-b border-gray-100">
+                                  <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg mx-auto mb-1 flex items-center justify-center">
+                                    <QrCode className="w-12 h-12 text-gray-400" />
+                                  </div>
+                                  <p className="text-xs text-gray-600">掃描獲取名片</p>
+                                </div>
+                              )}
+
+                              {/* Action Buttons */}
+                              <div className="p-3 bg-white space-y-2">
+                                <Button 
+                                  onClick={() => handleCardAction('qrcode', message.cardData)} 
+                                  size="sm" 
+                                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                                >
+                                  <QrCode className="w-3 h-3 mr-2" />
+                                  QR Code
+                                </Button>
+                                
+                                <Button 
+                                  onClick={() => handleCardAction('addContact', message.cardData)} 
+                                  size="sm" 
+                                  className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8"
+                                >
+                                  <UserPlus className="w-3 h-3 mr-2" />
+                                  加入聯絡人
+                                </Button>
+                                
+                                <Button 
+                                  onClick={() => handleCardAction('createCard', message.cardData)} 
+                                  size="sm" 
+                                  className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
+                                >
+                                  <Edit className="w-3 h-3 mr-2" />
+                                  建立我的名片
+                                </Button>
+                                
+                                <Button 
+                                  onClick={() => handleCardAction('share', message.cardData)} 
+                                  size="sm" 
+                                  className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                                >
+                                  <Share2 className="w-3 h-3 mr-2" />
+                                  分享
+                                </Button>
+                              </div>
+                            </div>
+                          ) : (
+                            /* Regular Chat Message */
+                            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
+                              <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
+                            </div>
+                          )}
+                          <p className="text-xs text-gray-500 mt-1 ml-2">
+                            {message.timestamp.toLocaleTimeString('zh-TW', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
                         </div>
-                        <p className={`text-xs mt-1 px-1 ${message.isBot ? 'text-gray-500' : 'text-gray-500 text-right'}`}>
-                          {message.timestamp.toLocaleTimeString('zh-TW', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </p>
                       </div>
                     </div>
                   </div>
