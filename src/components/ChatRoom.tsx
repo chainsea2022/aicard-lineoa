@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -143,8 +144,8 @@ const ChatRoom = () => {
             <Zap className="w-4 h-4 text-green-500" />
           </div>
           <div>
-            <h1 className="font-bold text-base">AILE</h1>
-            <p className="text-green-100 text-xs">商務人脈神器</p>
+            <h1 className="font-bold text-base">Aipower</h1>
+            <p className="text-green-100 text-xs">名片人脈圈</p>
           </div>
         </div>
       </div>

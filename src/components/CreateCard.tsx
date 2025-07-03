@@ -26,6 +26,7 @@ interface UserData {
   phone: string;
   email: string;
   name: string;
+  lineId?: string;
 }
 
 const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
@@ -35,7 +36,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   });
   const [userData, setUserData] = useState<UserData>(() => {
     const saved = localStorage.getItem('aile-user-data');
-    return saved ? JSON.parse(saved) : { phone: '', email: '', name: '' };
+    return saved ? JSON.parse(saved) : { phone: '', email: '', name: '', lineId: '' };
   });
   const [cardData, setCardData] = useState<CardData>(() => {
     const saved = localStorage.getItem('aile-card-data');
@@ -73,47 +74,44 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     });
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const phone = formData.get('phone') as string;
+  const handleLogin = () => {
+    // 模擬 LINE 自動辨識用戶邏輯
+    const mockLineId = 'line_user_' + Math.random().toString(36).substr(2, 9);
     
     // 檢查是否為已註冊用戶
     const savedUserData = localStorage.getItem('aile-user-data');
     if (savedUserData) {
       const existingUser = JSON.parse(savedUserData);
-      if (existingUser.phone === phone) {
-        // 載入用戶資料和名片資料
-        const savedCardData = localStorage.getItem('aile-card-data');
-        
-        setUserData(existingUser);
-        setTempUserData(existingUser);
-        
-        if (savedCardData) {
-          const existingCard = JSON.parse(savedCardData);
-          setCardData(existingCard);
-          setTempCardData(existingCard);
-        }
-        
-        setIsRegistered(true);
-        localStorage.setItem('aile-user-registered', 'true');
-        
-        // 登入成功，直接回到首頁（會顯示會員中心內容）
-        setStep('home');
-        toast({
-          title: "登入成功！",
-          description: "歡迎回來！",
-        });
-        return;
+      // 載入用戶資料和名片資料
+      const savedCardData = localStorage.getItem('aile-card-data');
+      
+      setUserData(existingUser);
+      setTempUserData(existingUser);
+      
+      if (savedCardData) {
+        const existingCard = JSON.parse(savedCardData);
+        setCardData(existingCard);
+        setTempCardData(existingCard);
       }
+      
+      setIsRegistered(true);
+      localStorage.setItem('aile-user-registered', 'true');
+      
+      // 登入成功，直接回到首頁（會顯示會員中心內容）
+      setStep('home');
+      toast({
+        title: "歡迎回來！",
+        description: `LINE 用戶 ${existingUser.name} 登入成功`,
+      });
+    } else {
+      // 如果是新用戶，提示需要先註冊
+      toast({
+        title: "歡迎使用 Aipower！",
+        description: "偵測到您是新用戶，請先完成註冊建立您的名片",
+        variant: "default",
+      });
+      setStep('register');
     }
-    
-    // 如果找不到用戶資料，提示用戶先註冊
-    toast({
-      title: "找不到帳號",
-      description: "請先註冊或確認手機號碼是否正確",
-      variant: "destructive",
-    });
   };
 
   const handleOtpVerify = () => {
@@ -274,12 +272,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             </Button>
             
             <Button
-              onClick={() => setStep('login')}
-              variant="outline"
-              className="w-full border-green-500 text-green-600 hover:bg-green-50"
+              onClick={handleLogin}
+              className="w-full bg-green-500 hover:bg-green-600 text-white"
             >
               <LogIn className="w-4 h-4 mr-2" />
-              已有帳號？立即登入
+              LINE 會員登入
             </Button>
           </div>
         </>
@@ -716,24 +713,33 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
 
   const renderLoginForm = () => (
     <div className="p-6 space-y-6">
-      <h2 className="text-xl font-bold text-center text-gray-800">會員登入</h2>
-      <form onSubmit={handleLogin} className="space-y-4">
-        <div>
-          <Label htmlFor="login-phone">手機號碼</Label>
-          <Input
-            id="login-phone"
-            name="phone"
-            type="tel"
-            placeholder="請輸入註冊時的手機號碼"
-            required
-            className="mt-1"
-          />
+      <h2 className="text-xl font-bold text-center text-gray-800">LINE 會員登入</h2>
+      
+      <div className="text-center space-y-4">
+        <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto">
+          <LogIn className="w-10 h-10 text-white" />
         </div>
-        <Button type="submit" className="w-full bg-green-500 hover:bg-green-600">
-          <LogIn className="w-4 h-4 mr-2" />
-          登入
-        </Button>
-      </form>
+        
+        <p className="text-gray-600">
+          正在辨識您的 LINE 帳號...
+        </p>
+        
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+          <p className="text-sm text-green-700">
+            系統將自動辨識您的 LINE 身份
+            <br />
+            無需手動輸入任何資訊
+          </p>
+        </div>
+      </div>
+
+      <Button
+        onClick={handleLogin}
+        className="w-full bg-green-500 hover:bg-green-600 text-white"
+      >
+        <LogIn className="w-4 h-4 mr-2" />
+        確認登入
+      </Button>
       
       <div className="text-center">
         <Button
@@ -872,7 +878,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
              step === 'edit-profile' ? '編輯個人資料' :
              step === 'edit-card' ? '編輯電子名片' :
              step === 'analytics' ? '數據中心' :
-             step === 'login' ? '會員登入' : '建立電子名片'}
+             step === 'login' ? 'LINE 會員登入' : '建立電子名片'}
           </h1>
         </div>
       </div>
