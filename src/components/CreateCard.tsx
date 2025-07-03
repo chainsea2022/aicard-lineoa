@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit, Settings, LogOut, LogIn } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,7 +29,7 @@ interface UserData {
 }
 
 const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
-  const [step, setStep] = useState<'home' | 'register' | 'otp' | 'create' | 'preview' | 'settings'>('home');
+  const [step, setStep] = useState<'home' | 'register' | 'login' | 'otp' | 'create' | 'preview' | 'settings'>('home');
   const [isRegistered, setIsRegistered] = useState(() => {
     return localStorage.getItem('aile-user-registered') === 'true';
   });
@@ -71,16 +71,65 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     });
   };
 
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = new FormData(e.target as HTMLFormElement);
+    const phone = formData.get('phone') as string;
+    
+    // 模擬檢查是否為已註冊用戶
+    const savedUserData = localStorage.getItem('aile-user-data');
+    if (savedUserData) {
+      const existingUser = JSON.parse(savedUserData);
+      if (existingUser.phone === phone) {
+        setPhoneForOtp(phone);
+        setStep('otp');
+        toast({
+          title: "OTP 驗證碼已發送",
+          description: `驗證碼已發送至 ${phone}`,
+        });
+        return;
+      }
+    }
+    
+    // 如果找不到用戶資料
+    toast({
+      title: "找不到帳號",
+      description: "此手機號碼尚未註冊，請先註冊帳號。",
+    });
+  };
+
   const handleOtpVerify = () => {
     if (otp.length === 6) {
+      const savedUserData = localStorage.getItem('aile-user-data');
+      const savedCardData = localStorage.getItem('aile-card-data');
+      
+      if (savedUserData) {
+        const existingUser = JSON.parse(savedUserData);
+        setUserData(existingUser);
+        
+        if (savedCardData) {
+          const existingCard = JSON.parse(savedCardData);
+          setCardData(existingCard);
+        }
+      }
+      
       setIsRegistered(true);
       localStorage.setItem('aile-user-registered', 'true');
-      localStorage.setItem('aile-user-data', JSON.stringify(userData));
-      setStep('create');
-      toast({
-        title: "手機驗證成功！",
-        description: "現在您可以建立您的電子名片了。",
-      });
+      
+      // 檢查是否有已建立的電子名片
+      if (savedCardData && JSON.parse(savedCardData).name) {
+        setStep('home'); // 回到首頁顯示已建立的名片
+        toast({
+          title: "登入成功！",
+          description: "歡迎回來，您的電子名片已載入。",
+        });
+      } else {
+        setStep('create'); // 如果沒有名片則進入建立頁面
+        toast({
+          title: "登入成功！",
+          description: "現在您可以建立您的電子名片了。",
+        });
+      }
     } else {
       toast({
         title: "驗證失敗",
@@ -232,12 +281,23 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
       {/* 操作按鈕 */}
       <div className="space-y-3">
         {!isRegistered && (
-          <Button
-            onClick={() => setStep('register')}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
-          >
-            開始註冊並建立名片
-          </Button>
+          <>
+            <Button
+              onClick={() => setStep('register')}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              開始註冊並建立名片
+            </Button>
+            
+            <Button
+              onClick={() => setStep('login')}
+              variant="outline"
+              className="w-full border-green-500 text-green-600 hover:bg-green-50"
+            >
+              <LogIn className="w-4 h-4 mr-2" />
+              已有帳號？立即登入
+            </Button>
+          </>
         )}
         
         {isRegistered && (
@@ -248,6 +308,39 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             {hasCardData() ? '編輯電子名片' : '建立電子名片'}
           </Button>
         )}
+      </div>
+    </div>
+  );
+
+  const renderLoginForm = () => (
+    <div className="p-6 space-y-6">
+      <h2 className="text-xl font-bold text-center text-gray-800">會員登入</h2>
+      <form onSubmit={handleLogin} className="space-y-4">
+        <div>
+          <Label htmlFor="login-phone">手機號碼</Label>
+          <Input
+            id="login-phone"
+            name="phone"
+            type="tel"
+            placeholder="請輸入註冊時的手機號碼"
+            required
+            className="mt-1"
+          />
+        </div>
+        <Button type="submit" className="w-full bg-green-500 hover:bg-green-600">
+          <LogIn className="w-4 h-4 mr-2" />
+          發送登入驗證碼
+        </Button>
+      </form>
+      
+      <div className="text-center">
+        <Button
+          onClick={() => setStep('register')}
+          variant="link"
+          className="text-blue-500 hover:text-blue-600"
+        >
+          還沒有帳號？立即註冊
+        </Button>
       </div>
     </div>
   );
@@ -353,6 +446,16 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
           發送 OTP 驗證碼
         </Button>
       </form>
+      
+      <div className="text-center">
+        <Button
+          onClick={() => setStep('login')}
+          variant="link"
+          className="text-green-500 hover:text-green-600"
+        >
+          已有帳號？立即登入
+        </Button>
+      </div>
     </div>
   );
 
@@ -387,11 +490,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
           className="w-full bg-blue-500 hover:bg-blue-600"
           disabled={otp.length !== 6}
         >
-          驗證並完成註冊
+          驗證並完成
         </Button>
         
         <Button
-          onClick={() => setStep('register')}
+          onClick={() => setStep(isRegistered ? 'login' : 'register')}
           variant="outline"
           className="w-full"
         >
@@ -615,7 +718,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h1 className="font-bold text-lg">
-            {step === 'settings' ? '帳戶設定' : '建立電子名片'}
+            {step === 'settings' ? '帳戶設定' : step === 'login' ? '會員登入' : '建立電子名片'}
           </h1>
         </div>
       </div>
@@ -625,6 +728,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
         {step === 'home' && renderHome()}
         {step === 'settings' && renderSettings()}
         {step === 'register' && renderRegisterForm()}
+        {step === 'login' && renderLoginForm()}
         {step === 'otp' && renderOtpForm()}
         {step === 'create' && renderCreateForm()}
         {step === 'preview' && renderPreview()}
