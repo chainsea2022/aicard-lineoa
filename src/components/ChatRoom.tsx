@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -136,16 +135,16 @@ const ChatRoom = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-full max-w-sm mx-auto bg-gradient-to-b from-gray-50 to-white relative overflow-hidden">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
+    <div className="flex flex-col h-screen w-full bg-white relative overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
+      {/* Header - LINE style */}
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 shadow-sm flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-            <Zap className="w-6 h-6 text-green-500" />
+          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+            <Zap className="w-4 h-4 text-green-500" />
           </div>
           <div>
-            <h1 className="font-bold text-lg">AILE</h1>
-            <p className="text-green-100 text-sm">智能名片助手</p>
+            <h1 className="font-bold text-base">AILE</h1>
+            <p className="text-green-100 text-xs">智能名片助手</p>
           </div>
         </div>
       </div>
@@ -158,37 +157,52 @@ const ChatRoom = () => {
           </div>
         ) : (
           <>
-            {/* Chat Messages - Takes remaining space above menu */}
-            <div className="flex-1 p-4 overflow-y-auto pb-0 min-h-0 bg-gray-50">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`mb-4 flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
-                >
+            {/* Chat Messages Area - LINE style background */}
+            <div className="flex-1 overflow-y-auto px-3 py-2 bg-gray-50" style={{ 
+              backgroundImage: 'linear-gradient(45deg, #f8f9fa 25%, transparent 25%), linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8f9fa 75%), linear-gradient(-45deg, transparent 75%, #f8f9fa 75%)',
+              backgroundSize: '20px 20px',
+              backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+            }}>
+              <div className="space-y-3 pb-2">
+                {messages.map((message) => (
                   <div
-                    className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
-                      message.isBot
-                        ? 'bg-white border border-gray-200 text-gray-800 rounded-tl-sm'
-                        : 'bg-green-500 text-white rounded-tr-sm'
-                    }`}
+                    key={message.id}
+                    className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                   >
-                    <p className="text-sm leading-relaxed">{message.text}</p>
-                    <p className={`text-xs mt-2 ${message.isBot ? 'text-gray-500' : 'text-green-100'}`}>
-                      {message.timestamp.toLocaleTimeString('zh-TW', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                      })}
-                    </p>
+                    <div className="flex items-end space-x-1 max-w-[85%]">
+                      {message.isBot && (
+                        <div className="w-7 h-7 bg-gray-300 rounded-full flex items-center justify-center mb-1 flex-shrink-0">
+                          <Zap className="w-3 h-3 text-gray-600" />
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <div
+                          className={`px-3 py-2 rounded-2xl shadow-sm max-w-full ${
+                            message.isBot
+                              ? 'bg-white border border-gray-200 text-gray-800 rounded-bl-sm'
+                              : 'bg-green-500 text-white rounded-br-sm'
+                          }`}
+                        >
+                          <p className="text-sm leading-relaxed break-words">{message.text}</p>
+                        </div>
+                        <p className={`text-xs mt-1 px-1 ${message.isBot ? 'text-gray-500' : 'text-gray-500 text-right'}`}>
+                          {message.timestamp.toLocaleTimeString('zh-TW', { 
+                            hour: '2-digit', 
+                            minute: '2-digit' 
+                          })}
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
 
-            {/* Input Bar - Always show when not in menu or view */}
+            {/* Input Bar - LINE style */}
             {!isMenuOpen && !activeView && (
-              <div className="bg-white border-t border-gray-200 p-4 flex-shrink-0">
-                <div className="flex items-center space-x-3">
-                  <div className="flex-1 bg-gray-100 rounded-full px-4 py-3 border border-gray-200">
+              <div className="bg-white border-t border-gray-200 px-3 py-2 flex-shrink-0">
+                <div className="flex items-center space-x-2">
+                  <div className="flex-1 bg-gray-100 rounded-full px-3 py-2 border border-gray-200">
                     <input
                       type="text"
                       value={inputText}
@@ -201,7 +215,7 @@ const ChatRoom = () => {
                   <Button
                     onClick={handleSendMessage}
                     disabled={!inputText.trim()}
-                    className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed p-0"
+                    className="w-9 h-9 rounded-full bg-green-500 hover:bg-green-600 disabled:bg-gray-300 disabled:cursor-not-allowed p-0 flex-shrink-0"
                     size="sm"
                   >
                     <Send className="w-4 h-4" />
@@ -212,29 +226,28 @@ const ChatRoom = () => {
           </>
         )}
 
-        {/* Menu Grid - Fixed at bottom like LINE */}
+        {/* Menu Grid - LINE style bottom menu */}
         {isMenuOpen && !activeView && (
-          <div className="bg-white border-t border-gray-200 animate-fade-in flex-shrink-0">
-            {/* + Button positioned at top-left of menu area */}
-            <div className="relative p-4">
+          <div className="bg-white border-t border-gray-200 flex-shrink-0">
+            <div className="px-3 py-3">
               <Button
                 onClick={() => setIsMenuOpen(false)}
-                className="absolute -top-2 left-4 w-8 h-8 rounded-full bg-gray-500 hover:bg-gray-600 rotate-45 z-10 shadow-lg"
+                className="w-6 h-6 rounded-full bg-gray-400 hover:bg-gray-500 rotate-45 mb-3 ml-1"
                 size="sm"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3 h-3" />
               </Button>
               
-              {/* Menu Grid */}
-              <div className="grid grid-cols-3 gap-3 pt-4">
+              {/* Menu Grid - 3x2 layout for mobile */}
+              <div className="grid grid-cols-3 gap-2">
                 {menuItems.map((item) => (
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}
-                    className="flex flex-col items-center p-4 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 transform hover:scale-105 bg-white border border-gray-100"
+                    className="flex flex-col items-center p-3 rounded-xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 active:scale-95"
                   >
-                    <div className={`w-12 h-12 ${item.color} rounded-xl flex items-center justify-center mb-2 shadow-sm`}>
-                      <item.icon className="w-6 h-6 text-white" />
+                    <div className={`w-10 h-10 ${item.color} rounded-xl flex items-center justify-center mb-2 shadow-sm`}>
+                      <item.icon className="w-5 h-5 text-white" />
                     </div>
                     <span className="text-xs text-gray-700 font-medium text-center leading-tight">
                       {item.title}
@@ -246,7 +259,7 @@ const ChatRoom = () => {
           </div>
         )}
 
-        {/* Floating + Button - Show when menu is closed or view is active */}
+        {/* Floating + Button - LINE style */}
         {(!isMenuOpen || activeView) && (
           <div className="absolute bottom-4 right-4 z-20">
             <Button
@@ -257,10 +270,10 @@ const ChatRoom = () => {
                   setIsMenuOpen(true);
                 }
               }}
-              className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg"
+              className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg active:scale-95 transition-transform"
               size="sm"
             >
-              <Plus className="w-6 h-6" />
+              <Plus className="w-5 h-5" />
             </Button>
           </div>
         )}
