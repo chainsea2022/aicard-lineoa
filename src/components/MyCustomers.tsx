@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -29,6 +29,7 @@ interface Customer {
   notes: string;
   isInvited?: boolean;
   invitationSent?: boolean;
+  emailInvitationSent?: boolean;
   tags?: string[];
   isFavorite?: boolean;
 }
@@ -43,6 +44,22 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
+
+  // 專業頭像列表
+  const professionalAvatars = [
+    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1557804506-669a67965ba0?w=150&h=150&fit=crop&crop=face',
+    'https://images.unsplash.com/photo-1554151228-14d9def656e4?w=150&h=150&fit=crop&crop=face'
+  ];
+
+  const getRandomProfessionalAvatar = (customerId: number) => {
+    return professionalAvatars[customerId % professionalAvatars.length];
+  };
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -131,6 +148,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   };
 
+  const handlePhoneClick = (phoneNumber: string) => {
+    if (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`;
+      toast({ title: "正在撥打電話..." });
+    }
+  };
+
   const handleLineClick = (lineId: string) => {
     if (lineId) {
       // Try to open LINE app or web version
@@ -146,7 +170,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         {/* Avatar - only show for cards section */}
         {activeSection === 'cards' && (
           <Avatar className="w-10 h-10 flex-shrink-0">
-            <AvatarImage src={customer.photo || undefined} alt={customer.name} />
+            <AvatarImage 
+              src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
+              alt={customer.name} 
+            />
             <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
               {customer.name.charAt(0)}
             </AvatarFallback>
@@ -175,10 +202,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             )}
             <div className="flex items-center space-x-3 text-xs">
               {customer.phone && (
-                <div className="flex items-center space-x-1">
-                  <span className="text-xs">📱</span>
+                <button
+                  onClick={() => handlePhoneClick(customer.phone)}
+                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                  <Phone className="w-3 h-3" />
                   <span className="truncate">{customer.phone}</span>
-                </div>
+                </button>
               )}
               {customer.line && (
                 <button
@@ -192,6 +222,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </div>
           </div>
         </div>
+        
+        {/* Invitation status indicators for contacts section */}
+        {activeSection === 'contacts' && (customer.invitationSent || customer.emailInvitationSent) && (
+          <div className="flex items-center space-x-1 flex-shrink-0">
+            {customer.invitationSent && (
+              <div className="w-2 h-2 bg-green-500 rounded-full" title="已發送簡訊邀請" />
+            )}
+            {customer.emailInvitationSent && (
+              <div className="w-2 h-2 bg-blue-500 rounded-full" title="已發送Email邀請" />
+            )}
+          </div>
+        )}
         
         {/* Expand button */}
         <Button
@@ -220,7 +262,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             {/* Avatar - only show for cards section */}
             {activeSection === 'cards' && (
               <Avatar className="w-16 h-16 flex-shrink-0">
-                <AvatarImage src={displayCustomer.photo || undefined} alt={displayCustomer.name} />
+                <AvatarImage 
+                  src={displayCustomer.photo || getRandomProfessionalAvatar(displayCustomer.id)} 
+                  alt={displayCustomer.name} 
+                />
                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
                   {displayCustomer.name.charAt(0)}
                 </AvatarFallback>
@@ -314,7 +359,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   placeholder="電話號碼"
                 />
               ) : (
-                <div className="text-sm">{displayCustomer.phone || '-'}</div>
+                <div className="text-sm">
+                  {displayCustomer.phone ? (
+                    <button
+                      onClick={() => handlePhoneClick(displayCustomer.phone)}
+                      className="text-blue-600 hover:text-blue-700 transition-colors underline flex items-center space-x-1"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>{displayCustomer.phone}</span>
+                    </button>
+                  ) : (
+                    '-'
+                  )}
+                </div>
               )}
             </div>
 
@@ -370,7 +427,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
 
           {/* 邀請狀態 */}
-          {customer.isInvited && (
+          {(customer.isInvited || customer.invitationSent || customer.emailInvitationSent) && (
             <div className="border-t pt-3">
               <label className="text-xs text-gray-500 mb-2 block">邀請狀態</label>
               <div className="flex items-center space-x-3">
@@ -380,10 +437,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                     <span className="text-xs text-green-600">已發送簡訊</span>
                   </div>
                 )}
-                <div className="flex items-center space-x-1">
-                  <Mail className="w-3 h-3 text-blue-500" />
-                  <span className="text-xs text-blue-600">已發送Email</span>
-                </div>
+                {customer.emailInvitationSent && (
+                  <div className="flex items-center space-x-1">
+                    <Mail className="w-3 h-3 text-blue-500" />
+                    <span className="text-xs text-blue-600">已發送Email</span>
+                  </div>
+                )}
                 <div className="flex items-center space-x-1">
                   <Share2 className="w-3 h-3 text-purple-500" />
                   <span className="text-xs text-purple-600">已分享</span>
