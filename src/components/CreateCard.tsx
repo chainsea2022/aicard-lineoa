@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit } from 'lucide-react';
+import { ArrowLeft, Upload, Eye, Save, User, Building, Phone, Mail, Globe, Camera, ChevronRight, Edit, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -29,11 +29,10 @@ interface UserData {
 }
 
 const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
-  const [step, setStep] = useState<'home' | 'register' | 'otp' | 'create' | 'preview'>('home');
+  const [step, setStep] = useState<'home' | 'register' | 'otp' | 'create' | 'preview' | 'settings'>('home');
   const [isRegistered, setIsRegistered] = useState(() => {
     return localStorage.getItem('aile-user-registered') === 'true';
   });
-  const [showRegisteredInfo, setShowRegisteredInfo] = useState(false);
   const [userData, setUserData] = useState<UserData>(() => {
     const saved = localStorage.getItem('aile-user-data');
     return saved ? JSON.parse(saved) : { phone: '', email: '', name: '' };
@@ -54,6 +53,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
   });
   const [otp, setOtp] = useState('');
   const [phoneForOtp, setPhoneForOtp] = useState('');
+  const [tempUserData, setTempUserData] = useState<UserData>(userData);
 
   const handleRegister = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,6 +89,44 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     }
   };
 
+  const handleLogout = () => {
+    // 清除所有本地存儲的資料
+    localStorage.removeItem('aile-user-registered');
+    localStorage.removeItem('aile-user-data');
+    localStorage.removeItem('aile-card-data');
+    
+    // 重設狀態
+    setIsRegistered(false);
+    setUserData({ phone: '', email: '', name: '' });
+    setCardData({
+      companyName: '',
+      name: '',
+      phone: '',
+      email: '',
+      website: '',
+      line: '',
+      facebook: '',
+      instagram: '',
+      photo: null,
+    });
+    setStep('home');
+    
+    toast({
+      title: "已登出",
+      description: "您已成功登出，所有資料已清除。",
+    });
+  };
+
+  const handleSaveSettings = () => {
+    setUserData(tempUserData);
+    localStorage.setItem('aile-user-data', JSON.stringify(tempUserData));
+    setStep('home');
+    toast({
+      title: "設定已儲存",
+      description: "您的個人資訊已更新。",
+    });
+  };
+
   const handleInputChange = (field: keyof CardData, value: string) => {
     setCardData(prev => ({ ...prev, [field]: value }));
   };
@@ -121,34 +159,24 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
     <div className="p-6 space-y-6">
       <h2 className="text-xl font-bold text-center text-gray-800">建立電子名片</h2>
       
-      {/* 已註冊會員區塊 */}
+      {/* 設定區塊 (已註冊會員) */}
       {isRegistered && (
         <div className="bg-green-50 border border-green-200 rounded-xl overflow-hidden">
           <button
-            onClick={() => setShowRegisteredInfo(!showRegisteredInfo)}
+            onClick={() => setStep('settings')}
             className="w-full p-4 flex items-center justify-between hover:bg-green-100 transition-colors"
           >
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                <User className="w-5 h-5 text-white" />
+                <Settings className="w-5 h-5 text-white" />
               </div>
               <div className="text-left">
-                <h3 className="font-semibold text-green-800">已註冊會員</h3>
+                <h3 className="font-semibold text-green-800">設定</h3>
                 <p className="text-sm text-green-600">{userData.name}</p>
               </div>
             </div>
-            <ChevronRight className={`w-5 h-5 text-green-600 transition-transform ${showRegisteredInfo ? 'rotate-90' : ''}`} />
+            <ChevronRight className="w-5 h-5 text-green-600" />
           </button>
-          
-          {showRegisteredInfo && (
-            <div className="px-4 pb-4 space-y-2 bg-green-50">
-              <div className="text-sm text-green-700">
-                <p><span className="font-medium">姓名：</span>{userData.name}</p>
-                <p><span className="font-medium">手機：</span>{userData.phone}</p>
-                <p><span className="font-medium">信箱：</span>{userData.email}</p>
-              </div>
-            </div>
-          )}
         </div>
       )}
 
@@ -220,6 +248,66 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
             {hasCardData() ? '編輯電子名片' : '建立電子名片'}
           </Button>
         )}
+      </div>
+    </div>
+  );
+
+  const renderSettings = () => (
+    <div className="p-6 space-y-6">
+      <h2 className="text-xl font-bold text-center text-gray-800">帳戶設定</h2>
+      
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="settings-phone">手機號碼</Label>
+          <Input
+            id="settings-phone"
+            type="tel"
+            value={tempUserData.phone}
+            onChange={(e) => setTempUserData(prev => ({ ...prev, phone: e.target.value }))}
+            className="mt-1"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="settings-email">電子信箱</Label>
+          <Input
+            id="settings-email"
+            type="email"
+            value={tempUserData.email}
+            onChange={(e) => setTempUserData(prev => ({ ...prev, email: e.target.value }))}
+            className="mt-1"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="settings-name">姓名</Label>
+          <Input
+            id="settings-name"
+            type="text"
+            value={tempUserData.name}
+            onChange={(e) => setTempUserData(prev => ({ ...prev, name: e.target.value }))}
+            className="mt-1"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <Button
+          onClick={handleSaveSettings}
+          className="w-full bg-green-500 hover:bg-green-600"
+        >
+          <Save className="w-4 h-4 mr-2" />
+          儲存設定
+        </Button>
+        
+        <Button
+          onClick={handleLogout}
+          variant="destructive"
+          className="w-full"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          登出
+        </Button>
       </div>
     </div>
   );
@@ -514,18 +602,28 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose }) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={onClose}
+            onClick={() => {
+              if (step === 'settings') {
+                setTempUserData(userData); // 重設暫存資料
+                setStep('home');
+              } else {
+                onClose();
+              }
+            }}
             className="text-white hover:bg-white/20"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className="font-bold text-lg">建立電子名片</h1>
+          <h1 className="font-bold text-lg">
+            {step === 'settings' ? '帳戶設定' : '建立電子名片'}
+          </h1>
         </div>
       </div>
 
       {/* Content */}
       <div className="pb-20">
         {step === 'home' && renderHome()}
+        {step === 'settings' && renderSettings()}
         {step === 'register' && renderRegisterForm()}
         {step === 'otp' && renderOtpForm()}
         {step === 'create' && renderCreateForm()}
