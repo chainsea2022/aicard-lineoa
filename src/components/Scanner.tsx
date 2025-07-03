@@ -10,11 +10,9 @@ declare global {
     liff: any;
   }
 }
-
 interface ScannerProps {
   onClose: () => void;
 }
-
 interface CustomerData {
   name: string;
   phone: string;
@@ -27,8 +25,9 @@ interface CustomerData {
   instagram?: string;
   photo?: string;
 }
-
-const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
+const Scanner: React.FC<ScannerProps> = ({
+  onClose
+}) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
   const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
   const [customerData, setCustomerData] = useState<CustomerData>({
@@ -40,13 +39,14 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
-
   useEffect(() => {
     // Initialize LIFF
     const initializeLiff = async () => {
       try {
         if (typeof window !== 'undefined' && window.liff) {
-          await window.liff.init({ liffId: process.env.REACT_APP_LIFF_ID || 'your-liff-id' });
+          await window.liff.init({
+            liffId: process.env.REACT_APP_LIFF_ID || 'your-liff-id'
+          });
           setIsLiffReady(true);
           console.log('LIFF initialized successfully');
         }
@@ -56,15 +56,12 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         setIsLiffReady(true);
       }
     };
-
     initializeLiff();
   }, []);
-
   const generateInvitationUrl = () => {
     const inviteId = Math.random().toString(36).substring(2, 15);
     return `https://aipower.app/register?invite=${inviteId}`;
   };
-
   const handlePaperScan = () => {
     setScanResult('paper-card');
     setCustomerData({
@@ -76,7 +73,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     });
     setInvitationUrl(generateInvitationUrl());
   };
-
   const handleQRCodeScan = () => {
     setScanResult('aipower-card');
     setCustomerData({
@@ -92,32 +88,24 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       photo: '/placeholder.svg'
     });
   };
-
   const handleSendSMSInvitation = () => {
     const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
-    
     toast({
       title: "簡訊邀請已發送！",
-      description: `邀請註冊連結已發送給 ${customerData.name}`,
+      description: `邀請註冊連結已發送給 ${customerData.name}`
     });
-    
     console.log('SMS內容:', message);
   };
-
   const handleSendEmailInvitation = () => {
     const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
-    
     toast({
       title: "Email 已發送！",
-      description: `邀請連結已透過Email發送給 ${customerData.name}。`,
+      description: `邀請連結已透過Email發送給 ${customerData.name}。`
     });
-    
     console.log('Email內容:', message);
   };
-
   const handleSocialShare = () => {
     const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
-    
     if (navigator.share) {
       navigator.share({
         title: 'Aipower 電子名片邀請',
@@ -138,7 +126,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       });
     }
   };
-
   const handleAddCustomer = () => {
     const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     const newCustomer = {
@@ -153,39 +140,33 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       facebook: customerData.facebook,
       instagram: customerData.instagram,
       photo: customerData.photo,
-      hasCard: scanResult === 'aipower-card', // QR Code scans go to 名片夾, paper scans go to 聯絡人
+      hasCard: scanResult === 'aipower-card',
+      // QR Code scans go to 名片夾, paper scans go to 聯絡人
       addedDate: new Date().toISOString(),
       notes: '',
       isInvited: scanResult === 'paper-card',
       invitationSent: scanResult === 'paper-card'
     };
-    
     customers.push(newCustomer);
     localStorage.setItem('aile-customers', JSON.stringify(customers));
-    
     setShowSuccessMessage(true);
-    
     toast({
       title: scanResult === 'paper-card' ? "聯絡人已加入！" : "名片已交換！",
-      description: `${customerData.name} 已成功加入${scanResult === 'paper-card' ? '聯絡人清單' : '我的名片夾'}。`,
+      description: `${customerData.name} 已成功加入${scanResult === 'paper-card' ? '聯絡人清單' : '我的名片夾'}。`
     });
   };
 
   // Show loading if LIFF is not ready
   if (!isLiffReady) {
-    return (
-      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    return <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-600 text-sm">載入中...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (showSuccessMessage) {
-    return (
-      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-3 overflow-hidden">
+    return <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-3 overflow-hidden">
         <div className="w-full max-w-xs mx-auto text-center h-full flex flex-col justify-center">
           <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
           <h2 className="text-base font-bold text-gray-800 mb-2">
@@ -216,46 +197,31 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           </div>
           
           <div className="space-y-2 mt-auto pb-4">
-            <Button
-              onClick={onClose}
-              className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-8"
-            >
+            <Button onClick={onClose} className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-8">
               前往名片人脈夾
             </Button>
-            <Button
-              onClick={() => {
-                setShowSuccessMessage(false);
-                setScanResult('none');
-                setCustomerData({
-                  name: '',
-                  phone: '',
-                  email: '',
-                  company: '',
-                  jobTitle: ''
-                });
-              }}
-              variant="outline"
-              className="w-full text-xs py-2 h-8"
-            >
+            <Button onClick={() => {
+            setShowSuccessMessage(false);
+            setScanResult('none');
+            setCustomerData({
+              name: '',
+              phone: '',
+              email: '',
+              company: '',
+              jobTitle: ''
+            });
+          }} variant="outline" className="w-full text-xs py-2 h-8">
               繼續掃描
             </Button>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col max-w-sm mx-auto">
+  return <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col max-w-sm mx-auto">
       {/* LIFF-optimized Header */}
       <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-white hover:bg-white/20 p-1.5 h-8 w-8"
-          >
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20 p-1.5 h-8 w-8">
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <h1 className="font-bold text-base">掃描</h1>
@@ -272,17 +238,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           <p className="text-gray-600 mb-3 text-xs">選擇掃描類型</p>
           
           <div className="space-y-2">
-            <Button
-              onClick={handlePaperScan}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-2 h-9 touch-manipulation"
-            >
+            <Button onClick={handlePaperScan} className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-2 h-9 touch-manipulation">
               <FileText className="w-3 h-3 mr-1" />
               紙本掃描
             </Button>
-            <Button
-              onClick={handleQRCodeScan}
-              className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs py-2 h-9 touch-manipulation"
-            >
+            <Button onClick={handleQRCodeScan} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs py-2 h-9 touch-manipulation">
               <QrCode className="w-3 h-3 mr-1" />
               QR Code 掃描
             </Button>
@@ -290,8 +250,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         </div>
 
         {/* Paper Business Card Results */}
-        {scanResult === 'paper-card' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        {scanResult === 'paper-card' && <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
               <UserPlus className="w-4 h-4 text-blue-600" />
               <h3 className="font-bold text-blue-800 text-xs">掃描紙本名片</h3>
@@ -302,36 +261,30 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   客戶姓名
                 </label>
-                <Input
-                  value={customerData.name}
-                  onChange={(e) => setCustomerData({...customerData, name: e.target.value})}
-                  placeholder="客戶姓名"
-                  className="text-xs h-8 touch-manipulation"
-                />
+                <Input value={customerData.name} onChange={e => setCustomerData({
+              ...customerData,
+              name: e.target.value
+            })} placeholder="客戶姓名" className="text-xs h-8 touch-manipulation" />
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   公司名稱
                 </label>
-                <Input
-                  value={customerData.company}
-                  onChange={(e) => setCustomerData({...customerData, company: e.target.value})}
-                  placeholder="公司名稱"
-                  className="text-xs h-8 touch-manipulation"
-                />
+                <Input value={customerData.company} onChange={e => setCustomerData({
+              ...customerData,
+              company: e.target.value
+            })} placeholder="公司名稱" className="text-xs h-8 touch-manipulation" />
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   職稱
                 </label>
-                <Input
-                  value={customerData.jobTitle}
-                  onChange={(e) => setCustomerData({...customerData, jobTitle: e.target.value})}
-                  placeholder="職稱"
-                  className="text-xs h-8 touch-manipulation"
-                />
+                <Input value={customerData.jobTitle} onChange={e => setCustomerData({
+              ...customerData,
+              jobTitle: e.target.value
+            })} placeholder="職稱" className="text-xs h-8 touch-manipulation" />
               </div>
               
               <div>
@@ -339,17 +292,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                   手機號碼
                 </label>
                 <div className="flex gap-1">
-                  <Input
-                    value={customerData.phone}
-                    onChange={(e) => setCustomerData({...customerData, phone: e.target.value})}
-                    placeholder="手機號碼"
-                    className="flex-1 text-xs h-8 touch-manipulation"
-                  />
-                  <Button
-                    onClick={handleSendSMSInvitation}
-                    className="bg-green-500 hover:bg-green-600 text-white px-2 text-xs whitespace-nowrap touch-manipulation h-8"
-                    size="sm"
-                  >
+                  <Input value={customerData.phone} onChange={e => setCustomerData({
+                ...customerData,
+                phone: e.target.value
+              })} placeholder="手機號碼" className="flex-1 text-xs h-8 touch-manipulation" />
+                  <Button onClick={handleSendSMSInvitation} className="bg-green-500 hover:bg-green-600 text-white px-2 text-xs whitespace-nowrap touch-manipulation h-8" size="sm">
                     <MessageSquare className="w-3 h-3 mr-0.5" />
                     簡訊
                   </Button>
@@ -360,57 +307,36 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   電子信箱
                 </label>
-                <Input
-                  value={customerData.email}
-                  onChange={(e) => setCustomerData({...customerData, email: e.target.value})}
-                  placeholder="電子信箱"
-                  className="text-xs h-8 touch-manipulation"
-                />
+                <Input value={customerData.email} onChange={e => setCustomerData({
+              ...customerData,
+              email: e.target.value
+            })} placeholder="電子信箱" className="text-xs h-8 touch-manipulation" />
               </div>
               
               <div className="flex gap-1">
-                <Button
-                  onClick={handleSendEmailInvitation}
-                  variant="outline"
-                  className="flex-1 text-xs touch-manipulation h-8"
-                  size="sm"
-                >
+                <Button onClick={handleSendEmailInvitation} variant="outline" className="flex-1 text-xs touch-manipulation h-8" size="sm">
                   <Mail className="w-3 h-3 mr-0.5" />
                   Email 邀請 
                 </Button>
-                <Button
-                  onClick={handleSocialShare}
-                  variant="outline"
-                  className="flex-1 text-xs touch-manipulation h-8"
-                  size="sm"
-                >
+                <Button onClick={handleSocialShare} variant="outline" className="flex-1 text-xs touch-manipulation h-8" size="sm">
                   <Share2 className="w-3 h-3 mr-0.5" />
                   社群分享
                 </Button>
               </div>
               
-              {invitationUrl && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+              {invitationUrl && <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
                   <p className="text-xs text-green-700 mb-1">邀請訊息預覽：</p>
                   <p className="text-xs text-gray-600 bg-white p-2 rounded border">
                     "邀請您建立電子名片，請加入我的人脈網！註冊連結：{invitationUrl}"
                   </p>
-                </div>
-              )}
+                </div>}
               
-              <Button
-                onClick={handleAddCustomer}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation"
-              >
-                加入我的聯絡人
-              </Button>
+              <Button onClick={handleAddCustomer} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation">加入我的聯絡人</Button>
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Aipower Electronic Business Card Results */}
-        {scanResult === 'aipower-card' && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+        {scanResult === 'aipower-card' && <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
               <CheckCircle className="w-4 h-4 text-green-600" />
               <h3 className="font-bold text-green-800 text-xs">發現 Aipower 電子名片！</h3>
@@ -420,54 +346,38 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             <div className="bg-white border-2 border-gray-200 rounded-lg shadow-md mb-2 overflow-hidden">
               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 text-white">
                 <div className="flex items-center space-x-2 mb-2">
-                  {customerData.photo && (
-                    <img
-                      src={customerData.photo}
-                      alt="照片"
-                      className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0"
-                    />
-                  )}
+                  {customerData.photo && <img src={customerData.photo} alt="照片" className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0" />}
                   <div className="min-w-0 flex-1">
                     <h3 className="text-sm font-bold mb-0.5 truncate">{customerData.name}</h3>
                     <p className="text-blue-100 text-xs truncate">{customerData.company}</p>
-                    {customerData.jobTitle && (
-                      <p className="text-blue-200 text-xs truncate">{customerData.jobTitle}</p>
-                    )}
+                    {customerData.jobTitle && <p className="text-blue-200 text-xs truncate">{customerData.jobTitle}</p>}
                   </div>
                 </div>
                 
                 <div className="space-y-0.5 text-xs">
-                  {customerData.phone && (
-                    <div className="flex items-center space-x-1">
+                  {customerData.phone && <div className="flex items-center space-x-1">
                       <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{customerData.phone}</span>
-                    </div>
-                  )}
-                  {customerData.email && (
-                    <div className="flex items-center space-x-1">
+                    </div>}
+                  {customerData.email && <div className="flex items-center space-x-1">
                       <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{customerData.email}</span>
-                    </div>
-                  )}
-                  {customerData.website && (
-                    <div className="flex items-center space-x-1">
+                    </div>}
+                  {customerData.website && <div className="flex items-center space-x-1">
                       <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{customerData.website}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
 
                 {/* Social Media Links */}
-                {(customerData.line || customerData.facebook || customerData.instagram) && (
-                  <div className="mt-2 pt-2 border-t border-white/20">
+                {(customerData.line || customerData.facebook || customerData.instagram) && <div className="mt-2 pt-2 border-t border-white/20">
                     <p className="text-xs text-blue-100 mb-0.5">社群媒體</p>
                     <div className="space-y-0.5 text-xs">
                       {customerData.line && <div className="truncate">LINE: {customerData.line}</div>}
                       {customerData.facebook && <div className="truncate">FB: {customerData.facebook}</div>}
                       {customerData.instagram && <div className="truncate">IG: {customerData.instagram}</div>}
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
             
@@ -477,15 +387,11 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               </p>
             </div>
             
-            <Button
-              onClick={handleAddCustomer}
-              className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-9 touch-manipulation"
-            >
+            <Button onClick={handleAddCustomer} className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-9 touch-manipulation">
               <UserPlus className="w-3 h-3 mr-1" />
               加入我的名片夾
             </Button>
-          </div>
-        )}
+          </div>}
 
         {/* Instructions */}
         <div className="bg-gray-50 rounded-lg p-2.5">
@@ -499,8 +405,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           </ul>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Scanner;
