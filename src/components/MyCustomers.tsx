@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 
 interface MyCustomersProps {
@@ -35,11 +36,15 @@ interface Customer {
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustomersUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
+  const [activeSection, setActiveSection] = useState<'cards' | 'contacts'>('cards');
   const [localCustomers, setLocalCustomers] = useState<Customer[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>(['工作', '朋友', '客戶', '合作夥伴', '潛在客戶']);
+  const [expandedCard, setExpandedCard] = useState<number | null>(null);
+  const [editingCard, setEditingCard] = useState<number | null>(null);
+  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
+  const [newTag, setNewTag] = useState('');
 
   useEffect(() => {
-    // 從 localStorage 載入客戶資料
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     setLocalCustomers(savedCustomers);
     onCustomersUpdate(savedCustomers);
@@ -50,23 +55,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                          customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer.email.toLowerCase().includes(searchTerm.toLowerCase());
     
+    const matchesSection = activeSection === 'cards' ? customer.hasCard : !customer.hasCard;
+    
     switch (activeFilter) {
       case 'favorites':
-        return matchesSearch && customer.isFavorite;
-      case 'cards':
-        return matchesSearch && customer.hasCard;
-      case 'contacts':
-        return matchesSearch && !customer.hasCard;
+        return matchesSearch && customer.isFavorite && matchesSection;
       default:
         if (availableTags.includes(activeFilter)) {
-          return matchesSearch && customer.tags?.includes(activeFilter);
+          return matchesSearch && customer.tags?.includes(activeFilter) && matchesSection;
         }
-        return matchesSearch;
+        return matchesSearch && matchesSection;
     }
   });
-
-  const cardCustomers = filteredCustomers.filter(customer => customer.hasCard);
-  const contactCustomers = filteredCustomers.filter(customer => !customer.hasCard);
 
   const toggleFavorite = (customerId: number) => {
     const updatedCustomers = localCustomers.map(customer => 
@@ -79,15 +79,45 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   };
 
+  const startEditing = (customer: Customer) => {
+    setEditingCard(customer.id);
+    setEditingCustomer({ ...customer });
+  };
+
+  const cancelEditing = () => {
+    setEditingCard(null);
+    setEditingCustomer(null);
+  };
+
+  const saveEditing = () => {
+    if (!editingCustomer) return;
+    
+    const updatedCustomers = localCustomers.map(customer => 
+      customer.id === editingCustomer.id ? editingCustomer : customer
+    );
+    setLocalCustomers(updatedCustomers);
+    localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+    onCustomersUpdate(updatedCustomers);
+    setEditingCard(null);
+    setEditingCustomer(null);
+    toast({ title: "客戶資料已更新" });
+  };
+
   const addTag = (customerId: number, tag: string) => {
+    if (!tag.trim()) return;
+    
     const updatedCustomers = localCustomers.map(customer => 
       customer.id === customerId 
-        ? { ...customer, tags: [...(customer.tags || []), tag] }
+        ? { ...customer, tags: [...(customer.tags || []), tag.trim()] }
         : customer
     );
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
+    
+    if (!availableTags.includes(tag.trim())) {
+      setAvailableTags([...availableTags, tag.trim()]);
+    }
   };
 
   const removeTag = (customerId: number, tag: string) => {
@@ -101,11 +131,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   };
 
-  const renderCustomerCard = (customer: Customer) => (
-    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-      <div className="flex items-start justify-between mb-2">
+  const renderCompactCard = (customer: Customer) => (
+    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm mb-2">
+      <div className="flex items-center justify-between">
         <div className="flex-1">
-          <div className="flex items-center space-x-2 mb-1">
+          <div className="flex items-center space-x-2">
             <h3 className="font-bold text-sm text-gray-800">{customer.name}</h3>
             <Button
               onClick={() => toggleFavorite(customer.id)}
@@ -119,90 +149,263 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </Button>
           </div>
           
-          {customer.company && (
-            <p className="text-xs text-gray-600 mb-1">{customer.company}</p>
-          )}
-          
-          {customer.jobTitle && (
-            <p className="text-xs text-gray-500 mb-1">{customer.jobTitle}</p>
-          )}
-          
-          <div className="space-y-1 text-xs text-gray-600">
+          <div className="text-xs text-gray-600 space-y-1">
+            {customer.company && <div>{customer.company}</div>}
             {customer.phone && <div>📱 {customer.phone}</div>}
-            {customer.email && <div>✉️ {customer.email}</div>}
-            {customer.website && <div>🌐 {customer.website}</div>}
+            {customer.line && <div>💬 LINE</div>}
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Button
+            onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+            variant="ghost"
+            size="sm"
+          >
+            {expandedCard === customer.id ? 
+              <ChevronDown className="w-4 h-4" /> : 
+              <ChevronRight className="w-4 h-4" />
+            }
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderExpandedCard = (customer: Customer) => {
+    const isEditing = editingCard === customer.id;
+    const displayCustomer = isEditing ? editingCustomer! : customer;
+
+    return (
+      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-2">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <h3 className="font-bold text-lg text-gray-800">
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.name}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, name: e.target.value})}
+                  className="text-lg font-bold"
+                />
+              ) : (
+                displayCustomer.name
+              )}
+            </h3>
+            <Button
+              onClick={() => toggleFavorite(customer.id)}
+              variant="ghost"
+              size="sm"
+            >
+              <Star 
+                className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
+              />
+            </Button>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            {isEditing ? (
+              <>
+                <Button onClick={saveEditing} size="sm" variant="default">
+                  <Save className="w-4 h-4" />
+                </Button>
+                <Button onClick={cancelEditing} size="sm" variant="outline">
+                  <X className="w-4 h-4" />
+                </Button>
+              </>
+            ) : (
+              <Button onClick={() => startEditing(customer)} size="sm" variant="outline">
+                <Edit className="w-4 h-4" />
+              </Button>
+            )}
+            <Button
+              onClick={() => setExpandedCard(null)}
+              variant="ghost"
+              size="sm"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3">
+          {/* 基本資訊 */}
+          <div className="space-y-2">
+            <div>
+              <label className="text-xs text-gray-500">公司</label>
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.company || ''}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, company: e.target.value})}
+                  placeholder="公司名稱"
+                />
+              ) : (
+                <div className="text-sm">{displayCustomer.company || '-'}</div>
+              )}
+            </div>
+            
+            <div>
+              <label className="text-xs text-gray-500">職稱</label>
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.jobTitle || ''}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, jobTitle: e.target.value})}
+                  placeholder="職稱"
+                />
+              ) : (
+                <div className="text-sm">{displayCustomer.jobTitle || '-'}</div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">電話</label>
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.phone || ''}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, phone: e.target.value})}
+                  placeholder="電話號碼"
+                />
+              ) : (
+                <div className="text-sm">{displayCustomer.phone || '-'}</div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">Email</label>
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.email || ''}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, email: e.target.value})}
+                  placeholder="電子信箱"
+                />
+              ) : (
+                <div className="text-sm">{displayCustomer.email || '-'}</div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">LINE</label>
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.line || ''}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, line: e.target.value})}
+                  placeholder="LINE ID"
+                />
+              ) : (
+                <div className="text-sm">{displayCustomer.line || '-'}</div>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs text-gray-500">網站</label>
+              {isEditing ? (
+                <Input
+                  value={displayCustomer.website || ''}
+                  onChange={(e) => setEditingCustomer({...editingCustomer!, website: e.target.value})}
+                  placeholder="網站網址"
+                />
+              ) : (
+                <div className="text-sm">{displayCustomer.website || '-'}</div>
+              )}
+            </div>
           </div>
 
-          {/* 邀請狀態顯示 */}
+          {/* 邀請狀態 */}
           {customer.isInvited && (
-            <div className="mt-2 flex items-center space-x-2">
-              {customer.invitationSent && (
+            <div className="border-t pt-3">
+              <label className="text-xs text-gray-500 mb-2 block">邀請狀態</label>
+              <div className="flex items-center space-x-3">
+                {customer.invitationSent && (
+                  <div className="flex items-center space-x-1">
+                    <MessageSquare className="w-3 h-3 text-green-500" />
+                    <span className="text-xs text-green-600">已發送簡訊</span>
+                  </div>
+                )}
                 <div className="flex items-center space-x-1">
-                  <MessageSquare className="w-3 h-3 text-green-500" />
-                  <span className="text-xs text-green-600">已發送簡訊</span>
+                  <Mail className="w-3 h-3 text-blue-500" />
+                  <span className="text-xs text-blue-600">已發送Email</span>
                 </div>
-              )}
-              <div className="flex items-center space-x-1">
-                <Mail className="w-3 h-3 text-blue-500" />
-                <span className="text-xs text-blue-600">已發送Email</span>
-              </div>
-              <div className="flex items-center space-x-1">
-                <Share2 className="w-3 h-3 text-purple-500" />
-                <span className="text-xs text-purple-600">已分享</span>
+                <div className="flex items-center space-x-1">
+                  <Share2 className="w-3 h-3 text-purple-500" />
+                  <span className="text-xs text-purple-600">已分享</span>
+                </div>
               </div>
             </div>
           )}
 
           {/* 標籤系統 */}
-          <div className="mt-2">
-            <div className="flex flex-wrap gap-1 mb-1">
-              {customer.tags?.map(tag => (
+          <div className="border-t pt-3">
+            <label className="text-xs text-gray-500 mb-2 block">標籤</label>
+            <div className="flex flex-wrap gap-1 mb-2">
+              {displayCustomer.tags?.map(tag => (
                 <span 
                   key={tag}
-                  className="inline-flex items-center px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full"
+                  className="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full"
                 >
                   {tag}
-                  <button
-                    onClick={() => removeTag(customer.id, tag)}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
+                  {!isEditing && (
+                    <button
+                      onClick={() => removeTag(customer.id, tag)}
+                      className="ml-1 text-blue-500 hover:text-blue-700"
+                    >
+                      ×
+                    </button>
+                  )}
                 </span>
               ))}
             </div>
             
-            <select
-              onChange={(e) => {
-                if (e.target.value) {
-                  addTag(customer.id, e.target.value);
-                  e.target.value = '';
-                }
-              }}
-              className="text-xs border border-gray-200 rounded px-2 py-1"
-            >
-              <option value="">新增標籤</option>
-              {availableTags.map(tag => (
-                <option key={tag} value={tag}>{tag}</option>
-              ))}
-            </select>
+            {!isEditing && (
+              <div className="flex space-x-2">
+                <Input
+                  placeholder="新增標籤"
+                  value={newTag}
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      addTag(customer.id, newTag);
+                      setNewTag('');
+                    }
+                  }}
+                  className="text-xs"
+                />
+                <Button
+                  onClick={() => {
+                    addTag(customer.id, newTag);
+                    setNewTag('');
+                  }}
+                  size="sm"
+                  variant="outline"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* 備註 */}
+          <div className="border-t pt-3">
+            <label className="text-xs text-gray-500 mb-2 block">備註</label>
+            {isEditing ? (
+              <Textarea
+                value={displayCustomer.notes || ''}
+                onChange={(e) => setEditingCustomer({...editingCustomer!, notes: e.target.value})}
+                placeholder="備註內容"
+                rows={3}
+              />
+            ) : (
+              <div className="text-sm text-gray-600 min-h-[60px] p-2 border rounded">
+                {displayCustomer.notes || '無備註'}
+              </div>
+            )}
+          </div>
+
+          <div className="text-xs text-gray-400 border-t pt-2">
+            加入時間: {new Date(customer.addedDate).toLocaleDateString('zh-TW')}
           </div>
         </div>
-        
-        <div className="flex items-center space-x-1">
-          {customer.hasCard ? (
-            <QrCode className="w-4 h-4 text-green-500" />
-          ) : (
-            <UserPlus className="w-4 h-4 text-orange-500" />
-          )}
-        </div>
       </div>
-      
-      <div className="text-xs text-gray-500">
-        加入時間: {new Date(customer.addedDate).toLocaleDateString('zh-TW')}
-      </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
@@ -221,9 +424,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {/* Search and Filters */}
+      {/* Search */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="relative mb-3">
+        <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <Input
             placeholder="搜尋名片或聯絡人..."
@@ -232,8 +435,36 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             className="pl-10 text-sm h-9"
           />
         </div>
+      </div>
 
-        {/* Filter Tabs */}
+      {/* Section Toggle */}
+      <div className="flex bg-white border-b border-gray-200 flex-shrink-0">
+        <Button
+          onClick={() => setActiveSection('cards')}
+          variant={activeSection === 'cards' ? 'default' : 'ghost'}
+          className="flex-1 rounded-none border-r"
+        >
+          <QrCode className="w-4 h-4 mr-2" />
+          我的名片夾
+          <span className="ml-2 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
+            {localCustomers.filter(c => c.hasCard).length}
+          </span>
+        </Button>
+        <Button
+          onClick={() => setActiveSection('contacts')}
+          variant={activeSection === 'contacts' ? 'default' : 'ghost'}
+          className="flex-1 rounded-none"
+        >
+          <UserPlus className="w-4 h-4 mr-2" />
+          我的聯絡人
+          <span className="ml-2 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
+            {localCustomers.filter(c => !c.hasCard).length}
+          </span>
+        </Button>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
         <div className="flex space-x-1 overflow-x-auto pb-1">
           <Button
             onClick={() => setActiveFilter('favorites')}
@@ -271,79 +502,23 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-4">
-        {/* 我的名片夾 (QR Code 掃描同步) */}
-        {(activeFilter === 'all' || activeFilter === 'cards') && cardCustomers.length > 0 && (
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <QrCode className="w-4 h-4 text-green-500" />
-              <h2 className="font-bold text-sm text-gray-800">我的名片夾</h2>
-              <span className="bg-green-100 text-green-700 text-xs px-2 py-0.5 rounded-full">
-                {cardCustomers.length}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {cardCustomers.map(renderCustomerCard)}
-            </div>
+      <div className="flex-1 overflow-y-auto p-3">
+        {filteredCustomers.length > 0 ? (
+          <div className="space-y-2">
+            {filteredCustomers.map(customer => 
+              expandedCard === customer.id 
+                ? renderExpandedCard(customer)
+                : renderCompactCard(customer)
+            )}
           </div>
-        )}
-
-        {/* 我的聯絡人 (紙本掃描同步) */}
-        {(activeFilter === 'all' || activeFilter === 'contacts') && contactCustomers.length > 0 && (
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <UserPlus className="w-4 h-4 text-orange-500" />
-              <h2 className="font-bold text-sm text-gray-800">我的聯絡人</h2>
-              <span className="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-full">
-                {contactCustomers.length}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {contactCustomers.map(renderCustomerCard)}
-            </div>
-          </div>
-        )}
-
-        {/* 按標籤篩選的結果 */}
-        {availableTags.includes(activeFilter) && (
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Tag className="w-4 h-4 text-blue-500" />
-              <h2 className="font-bold text-sm text-gray-800">{activeFilter}</h2>
-              <span className="bg-blue-100 text-blue-700 text-xs px-2 py-0.5 rounded-full">
-                {filteredCustomers.length}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {filteredCustomers.map(renderCustomerCard)}
-            </div>
-          </div>
-        )}
-
-        {/* 關注列表 */}
-        {activeFilter === 'favorites' && (
-          <div>
-            <div className="flex items-center space-x-2 mb-3">
-              <Star className="w-4 h-4 text-yellow-500" />
-              <h2 className="font-bold text-sm text-gray-800">關注</h2>
-              <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-0.5 rounded-full">
-                {filteredCustomers.length}
-              </span>
-            </div>
-            <div className="space-y-2">
-              {filteredCustomers.map(renderCustomerCard)}
-            </div>
-          </div>
-        )}
-
-        {filteredCustomers.length === 0 && (
+        ) : (
           <div className="text-center py-8">
             <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-gray-500 text-sm">
-              {searchTerm ? '找不到符合條件的聯絡人' : '還沒有任何名片或聯絡人'}
+              {searchTerm ? '找不到符合條件的聯絡人' : `還沒有任何${activeSection === 'cards' ? '名片' : '聯絡人'}`}
             </p>
             <p className="text-gray-400 text-xs mt-1">
-              使用掃描功能來新增名片和聯絡人
+              使用掃描功能來新增{activeSection === 'cards' ? '名片' : '聯絡人'}
             </p>
           </div>
         )}
