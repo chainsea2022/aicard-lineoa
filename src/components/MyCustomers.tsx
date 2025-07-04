@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Award, Eye, Crown, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -917,7 +918,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
       {/* Filter Tags */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-        <ScrollArea className="w-full" orientation="horizontal">
+        <ScrollArea className="w-full">
           <div className="flex space-x-1 pb-1 min-w-max">
             <Button
               onClick={() => setActiveFilter('favorites')}
