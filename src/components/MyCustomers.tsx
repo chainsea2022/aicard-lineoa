@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, UserCheck } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,8 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import FollowingPage from './FollowingPage';
-import FollowersPage from './FollowersPage';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -58,9 +57,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
-  const [followingCount, setFollowingCount] = useState(12);
-  const [followersCount, setFollowersCount] = useState(8);
-  const [currentPage, setCurrentPage] = useState<'main' | 'following' | 'followers'>('main');
 
   const recommendedContacts = [
     {
@@ -80,6 +76,24 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
       mutualFriends: ['李大華'],
       reason: '您和林俊傑有1位共同好友'
+    },
+    {
+      id: 3,
+      name: '張美琪',
+      jobTitle: '行銷總監',
+      company: '廣告創意公司',
+      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
+      mutualFriends: ['王小明', '李大華'],
+      reason: '您和張美琪有2位共同好友'
+    },
+    {
+      id: 4,
+      name: '劉志明',
+      jobTitle: '技術長',
+      company: '科技新創公司',
+      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      mutualFriends: ['陳雅婷'],
+      reason: '您和劉志明有1位共同好友'
     }
   ];
 
@@ -144,7 +158,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         company: contact.company,
         jobTitle: contact.jobTitle,
         photo: contact.photo,
-        hasCard: false,
+        hasCard: true,
         addedDate: new Date().toISOString(),
         notes: `推薦聯絡人 - ${contact.reason}`,
         tags: ['推薦聯絡人']
@@ -243,24 +257,27 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
-  const renderCompactRecommendationCard = (contact: RecommendedContact) => (
-    <Card key={contact.id} className="w-20 flex-shrink-0 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
-      <CardContent className="p-1.5">
-        <div className="flex flex-col items-center space-y-1">
-          <Avatar className="w-8 h-8 border border-orange-300">
+  const renderRecommendationCard = (contact: RecommendedContact) => (
+    <Card className="w-full bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
+      <CardContent className="p-4">
+        <div className="flex items-center space-x-3">
+          <Avatar className="w-12 h-12 border border-orange-300">
             <AvatarImage src={contact.photo} alt={contact.name} />
-            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
+            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold">
               {contact.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
-          <div className="text-center">
-            <h3 className="font-bold text-xs text-gray-800 truncate w-full leading-tight">{contact.name}</h3>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-bold text-sm text-gray-800 truncate">{contact.name}</h3>
+            <p className="text-xs text-gray-600 truncate">{contact.jobTitle}</p>
+            <p className="text-xs text-gray-500 truncate">{contact.company}</p>
+            <p className="text-xs text-orange-600 mt-1">{contact.reason}</p>
           </div>
           <Button
             onClick={() => addRecommendedContact(contact.id)}
             size="sm"
             variant="outline"
-            className="h-4 px-1 text-xs border-orange-300 text-orange-600 hover:bg-orange-100 w-full"
+            className="border-orange-300 text-orange-600 hover:bg-orange-100 flex-shrink-0"
           >
             加入
           </Button>
@@ -622,26 +639,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     );
   };
 
-  if (currentPage === 'following') {
-    return (
-      <FollowingPage
-        onBack={() => setCurrentPage('main')}
-        followingCount={followingCount}
-        customers={localCustomers.filter(c => c.isFavorite)}
-      />
-    );
-  }
-
-  if (currentPage === 'followers') {
-    return (
-      <FollowersPage
-        onBack={() => setCurrentPage('main')}
-        followersCount={followersCount}
-        customers={localCustomers.filter(c => c.hasCard)}
-      />
-    );
-  }
-
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 shadow-lg flex-shrink-0">
@@ -668,65 +665,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             className="pl-10 text-sm h-9"
           />
         </div>
-      </div>
-
-      {/* Compact Following/Followers Statistics */}
-      <div className="p-2 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200 flex-shrink-0">
-        <div className="flex items-center justify-center space-x-6">
-          <button 
-            onClick={() => setCurrentPage('following')}
-            className="flex items-center space-x-2 hover:bg-white/50 p-1.5 rounded-lg transition-colors"
-          >
-            <UserCheck className="w-3.5 h-3.5 text-purple-600" />
-            <span className="font-bold text-sm text-purple-700">{followingCount}</span>
-            <span className="text-xs text-purple-600">關注中</span>
-          </button>
-          <div className="w-px h-6 bg-purple-300"></div>
-          <button 
-            onClick={() => setCurrentPage('followers')}
-            className="flex items-center space-x-2 hover:bg-white/50 p-1.5 rounded-lg transition-colors"
-          >
-            <Users className="w-3.5 h-3.5 text-purple-600" />
-            <span className="font-bold text-sm text-purple-700">{followersCount}</span>
-            <span className="text-xs text-purple-600">關注者</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Compact Smart Recommendations Section - Reduced Height */}
-      <div className="p-1.5 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center space-x-1.5">
-            <TrendingUp className="w-3 h-3 text-orange-600" />
-            <span className="text-xs font-medium text-orange-700">智能推薦</span>
-          </div>
-          <Button
-            onClick={showUpgradePrompt}
-            variant="ghost"
-            size="sm"
-            className="text-xs text-orange-600 hover:bg-white/50 h-5 px-1.5"
-          >
-            更多
-          </Button>
-        </div>
-        <ScrollArea className="h-16">
-          <div className="flex space-x-1.5 pb-1">
-            {recommendedContacts.map(contact => 
-              renderCompactRecommendationCard(contact)
-            )}
-            <Card className="w-16 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
-              <CardContent className="p-1.5">
-                <button 
-                  onClick={showUpgradePrompt}
-                  className="w-full h-full flex flex-col items-center justify-center space-y-0.5 text-orange-600 hover:text-orange-700"
-                >
-                  <Crown className="w-4 h-4" />
-                  <span className="text-xs font-medium text-center leading-tight">升級</span>
-                </button>
-              </CardContent>
-            </Card>
-          </div>
-        </ScrollArea>
       </div>
 
       {/* Section Tabs */}
@@ -819,6 +757,49 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           )}
         </div>
       </ScrollArea>
+
+      {/* Smart Recommendations Section - Moved to Bottom */}
+      <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="w-4 h-4 text-orange-600" />
+            <span className="text-sm font-medium text-orange-700">智能推薦</span>
+          </div>
+          <Button
+            onClick={showUpgradePrompt}
+            variant="ghost"
+            size="sm"
+            className="text-xs text-orange-600 hover:bg-white/50 h-6 px-2"
+          >
+            更多
+          </Button>
+        </div>
+        
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2 md:-ml-4">
+            {recommendedContacts.map((contact) => (
+              <CarouselItem key={contact.id} className="pl-2 md:pl-4 basis-4/5">
+                {renderRecommendationCard(contact)}
+              </CarouselItem>
+            ))}
+            <CarouselItem className="pl-2 md:pl-4 basis-4/5">
+              <Card className="w-full border-2 border-dashed border-orange-300 bg-orange-50/50">
+                <CardContent className="p-4">
+                  <button 
+                    onClick={showUpgradePrompt}
+                    className="w-full h-full flex flex-col items-center justify-center space-y-2 text-orange-600 hover:text-orange-700"
+                  >
+                    <Crown className="w-8 h-8" />
+                    <span className="text-sm font-medium text-center">升級解鎖更多推薦</span>
+                  </button>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          </CarouselContent>
+          <CarouselPrevious className="left-2" />
+          <CarouselNext className="right-2" />
+        </Carousel>
+      </div>
     </div>
   );
 };
