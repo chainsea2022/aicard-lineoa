@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Award, Eye } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Award, Eye, Crown, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
+import { Card, CardContent } from '@/components/ui/card';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -68,6 +70,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [newTag, setNewTag] = useState('');
   const [showAdvisers, setShowAdvisers] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const [followingCount, setFollowingCount] = useState(12);
+  const [followersCount, setFollowersCount] = useState(8);
+  const [showFollowingModal, setShowFollowingModal] = useState(false);
+  const [showFollowersModal, setShowFollowersModal] = useState(false);
 
   const professionalAdvisers = [
     {
@@ -323,70 +329,71 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
   };
 
-  const renderAdviserCard = (adviser: ProfessionalAdviser) => (
-    <div key={adviser.id} className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3 shadow-sm">
-      <div className="flex items-center space-x-3 mb-2">
-        <Avatar className="w-12 h-12 flex-shrink-0 border-2 border-blue-300">
-          <AvatarImage src={adviser.photo} alt={adviser.name} />
-          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-            {adviser.name.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-sm text-gray-800 truncate">{adviser.name}</h3>
-          <p className="text-xs text-blue-600 truncate">{adviser.jobTitle}</p>
-          <p className="text-xs text-gray-500 truncate">{adviser.company}</p>
-        </div>
-        <div className="flex flex-col items-end space-y-1">
-          <div className="flex items-center space-x-1 text-xs text-gray-500">
-            <Eye className="w-3 h-3" />
-            <span>{(adviser.followers / 1000).toFixed(1)}K</span>
+  const showUpgradePrompt = () => {
+    toast({
+      title: "升級至 Aile 商務版",
+      description: "解鎖專業商務管理功能，享受更多進階服務",
+      duration: 3000,
+    });
+  };
+
+  const renderCompactAdviserCard = (adviser: ProfessionalAdviser) => (
+    <Card key={adviser.id} className="w-32 flex-shrink-0 bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200">
+      <CardContent className="p-3">
+        <div className="flex flex-col items-center space-y-2">
+          <Avatar className="w-16 h-16 border-2 border-blue-300">
+            <AvatarImage src={adviser.photo} alt={adviser.name} />
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+              {adviser.name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text-center">
+            <h3 className="font-bold text-xs text-gray-800 truncate w-full">{adviser.name}</h3>
+            <p className="text-xs text-blue-600 truncate w-full">{adviser.jobTitle}</p>
+            <div className="flex items-center justify-center space-x-1 text-xs text-gray-500 mt-1">
+              <Eye className="w-3 h-3" />
+              <span>{(adviser.followers / 1000).toFixed(1)}K</span>
+            </div>
           </div>
           <Button
             onClick={() => followAdviser(adviser.id)}
             size="sm"
             variant={adviser.isFollowing ? "default" : "outline"}
-            className="h-6 px-2 text-xs"
+            className="h-6 px-2 text-xs w-full"
           >
             {adviser.isFollowing ? "已關注" : "關注"}
           </Button>
         </div>
-      </div>
-      <div className="flex flex-wrap gap-1">
-        {adviser.expertise.slice(0, 2).map(skill => (
-          <span key={skill} className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
-            {skill}
-          </span>
-        ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 
-  const renderRecommendationCard = (contact: RecommendedContact) => (
-    <div key={contact.id} className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-3 shadow-sm">
-      <div className="flex items-center space-x-3 mb-2">
-        <Avatar className="w-12 h-12 flex-shrink-0 border-2 border-orange-300">
-          <AvatarImage src={contact.photo} alt={contact.name} />
-          <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold">
-            {contact.name.charAt(0)}
-          </AvatarFallback>
-        </Avatar>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-sm text-gray-800 truncate">{contact.name}</h3>
-          <p className="text-xs text-orange-600 truncate">{contact.jobTitle}</p>
-          <p className="text-xs text-gray-500 truncate">{contact.company}</p>
+  const renderCompactRecommendationCard = (contact: RecommendedContact) => (
+    <Card key={contact.id} className="w-32 flex-shrink-0 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
+      <CardContent className="p-3">
+        <div className="flex flex-col items-center space-y-2">
+          <Avatar className="w-16 h-16 border-2 border-orange-300">
+            <AvatarImage src={contact.photo} alt={contact.name} />
+            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold">
+              {contact.name.charAt(0)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="text-center">
+            <h3 className="font-bold text-xs text-gray-800 truncate w-full">{contact.name}</h3>
+            <p className="text-xs text-orange-600 truncate w-full">{contact.jobTitle}</p>
+            <p className="text-xs text-gray-500 truncate w-full mt-1">{contact.mutualFriends.length}位共同好友</p>
+          </div>
+          <Button
+            onClick={() => addRecommendedContact(contact.id)}
+            size="sm"
+            variant="outline"
+            className="h-6 px-2 text-xs border-orange-300 text-orange-600 hover:bg-orange-100 w-full"
+          >
+            加入
+          </Button>
         </div>
-        <Button
-          onClick={() => addRecommendedContact(contact.id)}
-          size="sm"
-          variant="outline"
-          className="h-6 px-2 text-xs border-orange-300 text-orange-600 hover:bg-orange-100"
-        >
-          加入
-        </Button>
-      </div>
-      <p className="text-xs text-gray-600">{contact.reason}</p>
-    </div>
+      </CardContent>
+    </Card>
   );
 
   const renderCompactCard = (customer: Customer) => (
@@ -770,82 +777,114 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {!showAdvisers && (
-        <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200 flex-shrink-0">
-          <Button
-            onClick={() => setShowAdvisers(true)}
-            variant="ghost"
-            className="w-full flex items-center justify-between p-2 hover:bg-white/50"
+      {/* Following/Followers Statistics */}
+      <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200 flex-shrink-0">
+        <div className="flex items-center justify-around">
+          <button 
+            onClick={() => setShowFollowingModal(true)}
+            className="flex flex-col items-center space-y-1 hover:bg-white/50 p-2 rounded-lg transition-colors"
           >
-            <div className="flex items-center space-x-2">
-              <Award className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">專業顧問推薦</span>
+            <div className="flex items-center space-x-1">
+              <UserCheck className="w-4 h-4 text-purple-600" />
+              <span className="font-bold text-lg text-purple-700">{followingCount}</span>
             </div>
-            <ChevronRight className="w-4 h-4 text-blue-600" />
+            <span className="text-xs text-purple-600">關注中</span>
+          </button>
+          <div className="w-px h-8 bg-purple-300"></div>
+          <button 
+            onClick={() => setShowFollowersModal(true)}
+            className="flex flex-col items-center space-y-1 hover:bg-white/50 p-2 rounded-lg transition-colors"
+          >
+            <div className="flex items-center space-x-1">
+              <Users className="w-4 h-4 text-purple-600" />
+              <span className="font-bold text-lg text-purple-700">{followersCount}</span>
+            </div>
+            <span className="text-xs text-purple-600">關注者</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Professional Advisers Section */}
+      <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200 flex-shrink-0">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <Award className="w-4 h-4 text-blue-600" />
+            <span className="text-sm font-medium text-blue-700">專業顧問推薦</span>
+          </div>
+          <Button
+            onClick={showUpgradePrompt}
+            variant="ghost"
+            size="sm"
+            className="text-xs text-blue-600 hover:bg-white/50"
+          >
+            查看更多
           </Button>
         </div>
-      )}
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2">
+            {professionalAdvisers.map(adviser => (
+              <CarouselItem key={adviser.id} className="pl-2 basis-auto">
+                {renderCompactAdviserCard(adviser)}
+              </CarouselItem>
+            ))}
+            <CarouselItem className="pl-2 basis-auto">
+              <Card className="w-32 flex-shrink-0 border-2 border-dashed border-blue-300 bg-blue-50/50">
+                <CardContent className="p-3">
+                  <button 
+                    onClick={showUpgradePrompt}
+                    className="w-full h-full flex flex-col items-center justify-center space-y-2 text-blue-600 hover:text-blue-700"
+                  >
+                    <Crown className="w-8 h-8" />
+                    <span className="text-xs font-medium text-center">升級查看更多專業顧問</span>
+                  </button>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
+      </div>
 
-      {showAdvisers && (
-        <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <Award className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-700">專業顧問推薦</span>
-            </div>
-            <Button
-              onClick={() => setShowAdvisers(false)}
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0"
-            >
-              <ChevronDown className="w-4 h-4 text-blue-600" />
-            </Button>
+      {/* Smart Recommendations Section */}
+      <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center space-x-2">
+            <TrendingUp className="w-4 h-4 text-orange-600" />
+            <span className="text-sm font-medium text-orange-700">智能推薦</span>
           </div>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {professionalAdvisers.map(adviser => renderAdviserCard(adviser))}
-          </div>
-        </div>
-      )}
-
-      {!showRecommendations && (
-        <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
           <Button
-            onClick={() => setShowRecommendations(true)}
+            onClick={showUpgradePrompt}
             variant="ghost"
-            className="w-full flex items-center justify-between p-2 hover:bg-white/50"
+            size="sm"
+            className="text-xs text-orange-600 hover:bg-white/50"
           >
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">智能推薦</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-orange-600" />
+            查看更多
           </Button>
         </div>
-      )}
+        <Carousel className="w-full">
+          <CarouselContent className="-ml-2">
+            {recommendedContacts.map(contact => (
+              <CarouselItem key={contact.id} className="pl-2 basis-auto">
+                {renderCompactRecommendationCard(contact)}
+              </CarouselItem>
+            ))}
+            <CarouselItem className="pl-2 basis-auto">
+              <Card className="w-32 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
+                <CardContent className="p-3">
+                  <button 
+                    onClick={showUpgradePrompt}
+                    className="w-full h-full flex flex-col items-center justify-center space-y-2 text-orange-600 hover:text-orange-700"
+                  >
+                    <Crown className="w-8 h-8" />
+                    <span className="text-xs font-medium text-center">升級查看更多推薦</span>
+                  </button>
+                </CardContent>
+              </Card>
+            </CarouselItem>
+          </CarouselContent>
+        </Carousel>
+      </div>
 
-      {showRecommendations && (
-        <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">智能推薦</span>
-            </div>
-            <Button
-              onClick={() => setShowRecommendations(false)}
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0"
-            >
-              <ChevronDown className="w-4 h-4 text-orange-600" />
-            </Button>
-          </div>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {recommendedContacts.map(contact => renderRecommendationCard(contact))}
-          </div>
-        </div>
-      )}
-
+      {/* Section Tabs */}
       <div className="flex bg-white border-b border-gray-200 flex-shrink-0">
         <Button
           onClick={() => setActiveSection('cards')}
@@ -871,6 +910,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </Button>
       </div>
 
+      {/* Filter Tags */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
         <div className="flex space-x-1 overflow-x-auto pb-1">
           <Button
@@ -908,6 +948,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
+      {/* Customer List */}
       <div className="flex-1 overflow-y-auto p-3">
         {filteredCustomers.length > 0 ? (
           <div className="space-y-0">
@@ -929,6 +970,32 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
         )}
       </div>
+
+      {/* Following Modal Placeholder */}
+      {showFollowingModal && (
+        <div className="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 className="font-bold text-lg mb-4">我的關注</h3>
+            <p className="text-gray-600 text-sm mb-4">顯示您關注的 {followingCount} 位好友</p>
+            <Button onClick={() => setShowFollowingModal(false)} className="w-full">
+              關閉
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Followers Modal Placeholder */}
+      {showFollowersModal && (
+        <div className="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 className="font-bold text-lg mb-4">關注我的</h3>
+            <p className="text-gray-600 text-sm mb-4">顯示關注您的 {followersCount} 位好友</p>
+            <Button onClick={() => setShowFollowersModal(false)} className="w-full">
+              關閉
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
