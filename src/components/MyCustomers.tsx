@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Award, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -34,6 +34,28 @@ interface Customer {
   isFavorite?: boolean;
 }
 
+interface ProfessionalAdviser {
+  id: number;
+  name: string;
+  jobTitle: string;
+  company: string;
+  industry: string;
+  photo: string;
+  isFollowing: boolean;
+  followers: number;
+  expertise: string[];
+}
+
+interface RecommendedContact {
+  id: number;
+  name: string;
+  jobTitle: string;
+  company: string;
+  photo: string;
+  mutualFriends: string[];
+  reason: string;
+}
+
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustomersUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
@@ -44,8 +66,66 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
+  const [showAdvisers, setShowAdvisers] = useState(false);
+  const [showRecommendations, setShowRecommendations] = useState(false);
 
-  // 專業頭像列表
+  const professionalAdvisers = [
+    {
+      id: 1,
+      name: '王建國',
+      jobTitle: '資深投資顧問',
+      company: '台灣金融投資集團',
+      industry: '金融投資',
+      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+      isFollowing: false,
+      followers: 12500,
+      expertise: ['股票投資', '基金管理', '風險控制']
+    },
+    {
+      id: 2,
+      name: '李美華',
+      jobTitle: '數位行銷總監',
+      company: '創新科技行銷',
+      industry: '數位行銷',
+      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
+      isFollowing: false,
+      followers: 8900,
+      expertise: ['社群行銷', 'SEO優化', '品牌策略']
+    },
+    {
+      id: 3,
+      name: '張志強',
+      jobTitle: '技術長',
+      company: 'AI科技有限公司',
+      industry: '人工智慧',
+      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+      isFollowing: false,
+      followers: 15200,
+      expertise: ['機器學習', '深度學習', '數據分析']
+    }
+  ];
+
+  const recommendedContacts = [
+    {
+      id: 1,
+      name: '陳雅婷',
+      jobTitle: '產品經理',
+      company: '創新軟體公司',
+      photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+      mutualFriends: ['王小明'],
+      reason: '您和陳雅婷有1位共同好友'
+    },
+    {
+      id: 2,
+      name: '林俊傑',
+      jobTitle: '業務總監',
+      company: '國際貿易公司',
+      photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
+      mutualFriends: ['李大華'],
+      reason: '您和林俊傑有1位共同好友'
+    }
+  ];
+
   const professionalAvatars = [
     'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
     'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
@@ -94,6 +174,86 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
+  };
+
+  const followAdviser = (adviserId: number) => {
+    const adviser = professionalAdvisers.find(a => a.id === adviserId);
+    if (adviser) {
+      adviser.isFollowing = !adviser.isFollowing;
+      
+      if (adviser.isFollowing) {
+        const newCustomer: Customer = {
+          id: Date.now(),
+          name: adviser.name,
+          phone: '',
+          email: '',
+          company: adviser.company,
+          jobTitle: adviser.jobTitle,
+          photo: adviser.photo,
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: `專業顧問 - ${adviser.industry}`,
+          isFavorite: true,
+          tags: ['專業顧問', adviser.industry]
+        };
+        
+        const updatedCustomers = [...localCustomers, newCustomer];
+        setLocalCustomers(updatedCustomers);
+        localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+        onCustomersUpdate(updatedCustomers);
+        
+        toast({ 
+          title: "已關注專業顧問", 
+          description: `${adviser.name} 已加入您的關注列表` 
+        });
+
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: { customerName: adviser.name, action: 'followed' }
+          }));
+        }, 1000);
+      } else {
+        toast({ 
+          title: "已取消關注", 
+          description: `不再關注 ${adviser.name}` 
+        });
+      }
+    }
+  };
+
+  const addRecommendedContact = (contactId: number) => {
+    const contact = recommendedContacts.find(c => c.id === contactId);
+    if (contact) {
+      const newCustomer: Customer = {
+        id: Date.now(),
+        name: contact.name,
+        phone: '',
+        email: '',
+        company: contact.company,
+        jobTitle: contact.jobTitle,
+        photo: contact.photo,
+        hasCard: false,
+        addedDate: new Date().toISOString(),
+        notes: `推薦聯絡人 - ${contact.reason}`,
+        tags: ['推薦聯絡人']
+      };
+      
+      const updatedCustomers = [...localCustomers, newCustomer];
+      setLocalCustomers(updatedCustomers);
+      localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+      onCustomersUpdate(updatedCustomers);
+      
+      toast({ 
+        title: "已加入聯絡人", 
+        description: `${contact.name} 已加入您的聯絡人列表` 
+      });
+
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+          detail: { customerName: contact.name, action: 'added' }
+        }));
+      }, 1000);
+    }
   };
 
   const startEditing = (customer: Customer) => {
@@ -157,57 +317,120 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   const handleLineClick = (lineId: string) => {
     if (lineId) {
-      // Try to open LINE app or web version
       const lineUrl = `https://line.me/ti/p/~${lineId}`;
       window.open(lineUrl, '_blank');
       toast({ title: "正在開啟 LINE 聊天室..." });
     }
   };
 
+  const renderAdviserCard = (adviser: ProfessionalAdviser) => (
+    <div key={adviser.id} className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-3 shadow-sm">
+      <div className="flex items-center space-x-3 mb-2">
+        <Avatar className="w-12 h-12 flex-shrink-0 border-2 border-blue-300">
+          <AvatarImage src={adviser.photo} alt={adviser.name} />
+          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
+            {adviser.name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-sm text-gray-800 truncate">{adviser.name}</h3>
+          <p className="text-xs text-blue-600 truncate">{adviser.jobTitle}</p>
+          <p className="text-xs text-gray-500 truncate">{adviser.company}</p>
+        </div>
+        <div className="flex flex-col items-end space-y-1">
+          <div className="flex items-center space-x-1 text-xs text-gray-500">
+            <Eye className="w-3 h-3" />
+            <span>{(adviser.followers / 1000).toFixed(1)}K</span>
+          </div>
+          <Button
+            onClick={() => followAdviser(adviser.id)}
+            size="sm"
+            variant={adviser.isFollowing ? "default" : "outline"}
+            className="h-6 px-2 text-xs"
+          >
+            {adviser.isFollowing ? "已關注" : "關注"}
+          </Button>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {adviser.expertise.slice(0, 2).map(skill => (
+          <span key={skill} className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full">
+            {skill}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderRecommendationCard = (contact: RecommendedContact) => (
+    <div key={contact.id} className="bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200 rounded-lg p-3 shadow-sm">
+      <div className="flex items-center space-x-3 mb-2">
+        <Avatar className="w-12 h-12 flex-shrink-0 border-2 border-orange-300">
+          <AvatarImage src={contact.photo} alt={contact.name} />
+          <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold">
+            {contact.name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-bold text-sm text-gray-800 truncate">{contact.name}</h3>
+          <p className="text-xs text-orange-600 truncate">{contact.jobTitle}</p>
+          <p className="text-xs text-gray-500 truncate">{contact.company}</p>
+        </div>
+        <Button
+          onClick={() => addRecommendedContact(contact.id)}
+          size="sm"
+          variant="outline"
+          className="h-6 px-2 text-xs border-orange-300 text-orange-600 hover:bg-orange-100"
+        >
+          加入
+        </Button>
+      </div>
+      <p className="text-xs text-gray-600">{contact.reason}</p>
+    </div>
+  );
+
   const renderCompactCard = (customer: Customer) => (
-    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg shadow-sm mb-2 overflow-hidden">
-      <div className="flex items-center p-2.5 space-x-2.5">
-        {/* Avatar - only show for cards section */}
+    <div key={customer.id} className="bg-white border border-gray-200 rounded-lg shadow-sm mb-1.5 overflow-hidden">
+      <div className="flex items-center p-2 space-x-2">
         {activeSection === 'cards' && (
-          <Avatar className="w-10 h-10 flex-shrink-0">
+          <Avatar className="w-8 h-8 flex-shrink-0">
             <AvatarImage 
               src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
               alt={customer.name} 
             />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
+            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xs">
               {customer.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
         )}
         
-        {/* Main content */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-2 mb-0.5">
-            <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
+          <div className="flex items-center space-x-1.5 mb-0.5">
+            <h3 className="font-bold text-xs text-gray-800 truncate">{customer.name}</h3>
             <Button
               onClick={() => toggleFavorite(customer.id)}
               variant="ghost"
               size="sm"
-              className="p-0.5 h-5 w-5 flex-shrink-0"
+              className="p-0 h-4 w-4 flex-shrink-0"
             >
               <Star 
-                className={`w-3.5 h-3.5 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
+                className={`w-3 h-3 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
               />
             </Button>
           </div>
           
           <div className="text-xs text-gray-600 space-y-0.5">
             {customer.company && (
-              <div className="truncate">{customer.company}</div>
+              <div className="truncate text-xs">{customer.company}</div>
             )}
-            <div className="flex items-center space-x-3 text-xs">
+            <div className="flex items-center space-x-2 text-xs">
               {customer.phone && (
                 <button
                   onClick={() => handlePhoneClick(customer.phone)}
                   className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 transition-colors"
                 >
-                  <Phone className="w-3 h-3" />
-                  <span className="truncate">{customer.phone}</span>
+                  <Phone className="w-2.5 h-2.5" />
+                  <span className="truncate text-xs">{customer.phone}</span>
                 </button>
               )}
               {customer.line && (
@@ -223,28 +446,26 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
         </div>
         
-        {/* Invitation status indicators for contacts section */}
         {activeSection === 'contacts' && (customer.invitationSent || customer.emailInvitationSent) && (
           <div className="flex items-center space-x-1 flex-shrink-0">
             {customer.invitationSent && (
-              <div className="w-2 h-2 bg-green-500 rounded-full" title="已發送簡訊邀請" />
+              <div className="w-1.5 h-1.5 bg-green-500 rounded-full" title="已發送簡訊邀請" />
             )}
             {customer.emailInvitationSent && (
-              <div className="w-2 h-2 bg-blue-500 rounded-full" title="已發送Email邀請" />
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" title="已發送Email邀請" />
             )}
           </div>
         )}
         
-        {/* Expand button */}
         <Button
           onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
           variant="ghost"
           size="sm"
-          className="flex-shrink-0 h-6 w-6 p-0"
+          className="flex-shrink-0 h-5 w-5 p-0"
         >
           {expandedCard === customer.id ? 
-            <ChevronDown className="w-4 h-4" /> : 
-            <ChevronRight className="w-4 h-4" />
+            <ChevronDown className="w-3 h-3" /> : 
+            <ChevronRight className="w-3 h-3" />
           }
         </Button>
       </div>
@@ -259,7 +480,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            {/* Avatar - only show for cards section */}
             {activeSection === 'cards' && (
               <Avatar className="w-16 h-16 flex-shrink-0">
                 <AvatarImage 
@@ -322,7 +542,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
 
         <div className="grid grid-cols-1 gap-3">
-          {/* 基本資訊 */}
           <div className="space-y-2">
             <div>
               <label className="text-xs text-gray-500">公司</label>
@@ -426,7 +645,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </div>
           </div>
 
-          {/* 邀請狀態 */}
           {(customer.isInvited || customer.invitationSent || customer.emailInvitationSent) && (
             <div className="border-t pt-3">
               <label className="text-xs text-gray-500 mb-2 block">邀請狀態</label>
@@ -451,7 +669,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </div>
           )}
 
-          {/* 標籤系統 */}
           <div className="border-t pt-3">
             <label className="text-xs text-gray-500 mb-2 block">標籤</label>
             <div className="flex flex-wrap gap-1 mb-2">
@@ -501,7 +718,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             )}
           </div>
 
-          {/* 備註 */}
           <div className="border-t pt-3">
             <label className="text-xs text-gray-500 mb-2 block">備註</label>
             {isEditing ? (
@@ -528,7 +744,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
-      {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
           <Button 
@@ -543,7 +758,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {/* Search */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
         <div className="relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -556,7 +770,82 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {/* Section Toggle */}
+      {!showAdvisers && (
+        <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200 flex-shrink-0">
+          <Button
+            onClick={() => setShowAdvisers(true)}
+            variant="ghost"
+            className="w-full flex items-center justify-between p-2 hover:bg-white/50"
+          >
+            <div className="flex items-center space-x-2">
+              <Award className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">專業顧問推薦</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-blue-600" />
+          </Button>
+        </div>
+      )}
+
+      {showAdvisers && (
+        <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <Award className="w-4 h-4 text-blue-600" />
+              <span className="text-sm font-medium text-blue-700">專業顧問推薦</span>
+            </div>
+            <Button
+              onClick={() => setShowAdvisers(false)}
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+            >
+              <ChevronDown className="w-4 h-4 text-blue-600" />
+            </Button>
+          </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {professionalAdvisers.map(adviser => renderAdviserCard(adviser))}
+          </div>
+        </div>
+      )}
+
+      {!showRecommendations && (
+        <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
+          <Button
+            onClick={() => setShowRecommendations(true)}
+            variant="ghost"
+            className="w-full flex items-center justify-between p-2 hover:bg-white/50"
+          >
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-medium text-orange-700">智能推薦</span>
+            </div>
+            <ChevronRight className="w-4 h-4 text-orange-600" />
+          </Button>
+        </div>
+      )}
+
+      {showRecommendations && (
+        <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-medium text-orange-700">智能推薦</span>
+            </div>
+            <Button
+              onClick={() => setShowRecommendations(false)}
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+            >
+              <ChevronDown className="w-4 h-4 text-orange-600" />
+            </Button>
+          </div>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {recommendedContacts.map(contact => renderRecommendationCard(contact))}
+          </div>
+        </div>
+      )}
+
       <div className="flex bg-white border-b border-gray-200 flex-shrink-0">
         <Button
           onClick={() => setActiveSection('cards')}
@@ -582,7 +871,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </Button>
       </div>
 
-      {/* Filter Tabs */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
         <div className="flex space-x-1 overflow-x-auto pb-1">
           <Button
@@ -620,7 +908,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto p-3">
         {filteredCustomers.length > 0 ? (
           <div className="space-y-0">
