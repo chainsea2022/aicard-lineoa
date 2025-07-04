@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Award, Eye, Crown, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -803,48 +802,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </div>
             <span className="text-xs text-purple-600">關注者</span>
           </button>
-        </div>
-      </div>
-
-      {/* Professional Advisers Section */}
-      <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-blue-200 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <Award className="w-4 h-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-700">專業顧問推薦</span>
-          </div>
-          <Button
-            onClick={showUpgradePrompt}
-            variant="ghost"
-            size="sm"
-            className="text-xs text-blue-600 hover:bg-white/50"
-          >
-            查看更多
-          </Button>
-        </div>
-        <div className="overflow-x-auto">
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-2">
-              {professionalAdvisers.map(adviser => (
-                <CarouselItem key={adviser.id} className="pl-2 basis-auto">
-                  {renderCompactAdviserCard(adviser)}
-                </CarouselItem>
-              ))}
-              <CarouselItem className="pl-2 basis-auto">
-                <Card className="w-32 flex-shrink-0 border-2 border-dashed border-blue-300 bg-blue-50/50">
-                  <CardContent className="p-3">
-                    <button 
-                      onClick={showUpgradePrompt}
-                      className="w-full h-full flex flex-col items-center justify-center space-y-2 text-blue-600 hover:text-blue-700"
-                    >
-                      <Crown className="w-8 h-8" />
-                      <span className="text-xs font-medium text-center">升級查看更多專業顧問</span>
-                    </button>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
         </div>
       </div>
 
