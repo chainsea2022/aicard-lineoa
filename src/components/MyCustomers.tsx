@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, Heart, UserCheck, Bell, ChevronUp, Minimize2, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -35,6 +35,9 @@ interface Customer {
   emailInvitationSent?: boolean;
   tags?: string[];
   isFavorite?: boolean;
+  isMyFriend?: boolean;
+  isFollowingMe?: boolean;
+  hasPendingInvitation?: boolean;
 }
 
 interface RecommendedContact {
@@ -50,13 +53,15 @@ interface RecommendedContact {
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustomersUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [activeSection, setActiveSection] = useState<'cards' | 'contacts'>('cards');
+  const [activeSection, setActiveSection] = useState<'friends' | 'followers' | 'contacts'>('friends');
   const [localCustomers, setLocalCustomers] = useState<Customer[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>(['工作', '朋友', '客戶', '合作夥伴', '潛在客戶']);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
+  const [isRecommendationMinimized, setIsRecommendationMinimized] = useState(false);
+  const [invitationFilter, setInvitationFilter] = useState<'all' | 'invited' | 'uninvited'>('all');
 
   const recommendedContacts = [
     {
@@ -114,8 +119,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
-    setLocalCustomers(savedCustomers);
-    onCustomersUpdate(savedCustomers);
+    const updatedCustomers = savedCustomers.map((customer: Customer) => ({
+      ...customer,
+      isMyFriend: customer.isMyFriend || customer.hasCard,
+      isFollowingMe: customer.isFollowingMe || false,
+      hasPendingInvitation: customer.hasPendingInvitation || false
+    }));
+    setLocalCustomers(updatedCustomers);
+    onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
 
   const filteredCustomers = localCustomers.filter(customer => {
@@ -123,7 +134,29 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                          customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          customer.email.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesSection = activeSection === 'cards' ? customer.hasCard : !customer.hasCard;
+    let matchesSection = false;
+    switch (activeSection) {
+      case 'friends':
+        matchesSection = customer.isMyFriend;
+        break;
+      case 'followers':
+        matchesSection = customer.isFollowingMe;
+        break;
+      case 'contacts':
+        matchesSection = !customer.hasCard;
+        break;
+    }
+    
+    if (activeSection === 'contacts') {
+      switch (invitationFilter) {
+        case 'invited':
+          matchesSection = matchesSection && (customer.invitationSent || customer.emailInvitationSent);
+          break;
+        case 'uninvited':
+          matchesSection = matchesSection && !(customer.invitationSent || customer.emailInvitationSent);
+          break;
+      }
+    }
     
     switch (activeFilter) {
       case 'favorites':
@@ -135,6 +168,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         return matchesSearch && matchesSection;
     }
   });
+
+  const myFriendsCount = localCustomers.filter(c => c.isMyFriend).length;
+  const followersCount = localCustomers.filter(c => c.isFollowingMe).length;
+  const pendingInvitationsCount = localCustomers.filter(c => c.hasPendingInvitation).length;
+  const contactsCount = localCustomers.filter(c => !c.hasCard).length;
 
   const toggleFavorite = (customerId: number) => {
     const updatedCustomers = localCustomers.map(customer => 
@@ -249,6 +287,27 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
   };
 
+  const sendInvitation = (customerId: number, type: 'sms' | 'email') => {
+    const updatedCustomers = localCustomers.map(customer => 
+      customer.id === customerId 
+        ? { 
+            ...customer, 
+            invitationSent: type === 'sms' ? true : customer.invitationSent,
+            emailInvitationSent: type === 'email' ? true : customer.emailInvitationSent
+          }
+        : customer
+    );
+    setLocalCustomers(updatedCustomers);
+    localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+    onCustomersUpdate(updatedCustomers);
+    
+    const inviteType = type === 'sms' ? '簡訊' : 'Email';
+    toast({ 
+      title: `${inviteType}邀請已發送`, 
+      description: `已向客戶發送${inviteType}邀請` 
+    });
+  };
+
   const showUpgradePrompt = () => {
     toast({
       title: "升級至 Aile 商務版",
@@ -259,25 +318,24 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   const renderRecommendationCard = (contact: RecommendedContact) => (
     <Card className="w-full bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
-      <CardContent className="p-4">
-        <div className="flex items-center space-x-3">
-          <Avatar className="w-12 h-12 border border-orange-300">
+      <CardContent className="p-3">
+        <div className="flex items-center space-x-2">
+          <Avatar className="w-10 h-10 border border-orange-300 flex-shrink-0">
             <AvatarImage src={contact.photo} alt={contact.name} />
-            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
               {contact.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-sm text-gray-800 truncate">{contact.name}</h3>
+            <h3 className="font-bold text-xs text-gray-800 truncate">{contact.name}</h3>
             <p className="text-xs text-gray-600 truncate">{contact.jobTitle}</p>
             <p className="text-xs text-gray-500 truncate">{contact.company}</p>
-            <p className="text-xs text-orange-600 mt-1">{contact.reason}</p>
           </div>
           <Button
             onClick={() => addRecommendedContact(contact.id)}
             size="sm"
             variant="outline"
-            className="border-orange-300 text-orange-600 hover:bg-orange-100 flex-shrink-0"
+            className="border-orange-300 text-orange-600 hover:bg-orange-100 flex-shrink-0 text-xs h-6 px-2"
           >
             加入
           </Button>
@@ -289,17 +347,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const renderCompactCard = (customer: Customer) => (
     <div key={customer.id} className="bg-white border border-gray-200 rounded-lg shadow-sm mb-1.5 overflow-hidden">
       <div className="flex items-center p-2 space-x-2">
-        {activeSection === 'cards' && (
-          <Avatar className="w-8 h-8 flex-shrink-0">
-            <AvatarImage 
-              src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
-              alt={customer.name} 
-            />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xs">
-              {customer.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-        )}
+        <Avatar className="w-8 h-8 flex-shrink-0">
+          <AvatarImage 
+            src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
+            alt={customer.name} 
+          />
+          <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-xs">
+            {customer.name.charAt(0)}
+          </AvatarFallback>
+        </Avatar>
         
         <div className="flex-1 min-w-0">
           <div className="flex items-center space-x-1.5 mb-0.5">
@@ -314,6 +370,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                 className={`w-3 h-3 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
               />
             </Button>
+            {customer.hasPendingInvitation && (
+              <Bell className="w-3 h-3 text-red-500 flex-shrink-0" />
+            )}
           </div>
           
           <div className="text-xs text-gray-600 space-y-0.5">
@@ -343,14 +402,26 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
         </div>
         
-        {activeSection === 'contacts' && (customer.invitationSent || customer.emailInvitationSent) && (
-          <div className="flex items-center space-x-1 flex-shrink-0">
-            {customer.invitationSent && (
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full" title="已發送簡訊邀請" />
-            )}
-            {customer.emailInvitationSent && (
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full" title="已發送Email邀請" />
-            )}
+        {activeSection === 'contacts' && (
+          <div className="flex flex-col space-y-1 flex-shrink-0">
+            <Button
+              onClick={() => sendInvitation(customer.id, 'sms')}
+              size="sm"
+              variant="outline"
+              className="h-6 px-2 text-xs"
+              disabled={customer.invitationSent}
+            >
+              {customer.invitationSent ? '已發送' : '簡訊'}
+            </Button>
+            <Button
+              onClick={() => sendInvitation(customer.id, 'email')}
+              size="sm"
+              variant="outline"
+              className="h-6 px-2 text-xs"
+              disabled={customer.emailInvitationSent}
+            >
+              {customer.emailInvitationSent ? '已發送' : 'Email'}
+            </Button>
           </div>
         )}
         
@@ -377,17 +448,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            {activeSection === 'cards' && (
-              <Avatar className="w-16 h-16 flex-shrink-0">
-                <AvatarImage 
-                  src={displayCustomer.photo || getRandomProfessionalAvatar(displayCustomer.id)} 
-                  alt={displayCustomer.name} 
-                />
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
-                  {displayCustomer.name.charAt(0)}
-                </AvatarFallback>
-              </Avatar>
-            )}
+            <Avatar className="w-16 h-16 flex-shrink-0">
+              <AvatarImage 
+                src={displayCustomer.photo || getRandomProfessionalAvatar(displayCustomer.id)} 
+                alt={displayCustomer.name} 
+              />
+              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
+                {displayCustomer.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
             <div className="min-w-0 flex-1">
               <h3 className="font-bold text-lg text-gray-800">
                 {isEditing ? (
@@ -400,16 +469,24 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   displayCustomer.name
                 )}
               </h3>
-              <Button
-                onClick={() => toggleFavorite(customer.id)}
-                variant="ghost"
-                size="sm"
-                className="p-0 h-auto mt-1"
-              >
-                <Star 
-                  className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
-                />
-              </Button>
+              <div className="flex items-center space-x-2 mt-1">
+                <Button
+                  onClick={() => toggleFavorite(customer.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="p-0 h-auto"
+                >
+                  <Star 
+                    className={`w-4 h-4 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
+                  />
+                </Button>
+                {customer.hasPendingInvitation && (
+                  <div className="flex items-center space-x-1">
+                    <Bell className="w-4 h-4 text-red-500" />
+                    <span className="text-xs text-red-600">待處理邀請</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
@@ -542,26 +619,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </div>
           </div>
 
-          {(customer.isInvited || customer.invitationSent || customer.emailInvitationSent) && (
-            <div className="border-t pt-3">
-              <label className="text-xs text-gray-500 mb-2 block">邀請狀態</label>
-              <div className="flex items-center space-x-3">
-                {customer.invitationSent && (
-                  <div className="flex items-center space-x-1">
-                    <MessageSquare className="w-3 h-3 text-green-500" />
-                    <span className="text-xs text-green-600">已發送簡訊</span>
-                  </div>
-                )}
-                {customer.emailInvitationSent && (
-                  <div className="flex items-center space-x-1">
-                    <Mail className="w-3 h-3 text-blue-500" />
-                    <span className="text-xs text-blue-600">已發送Email</span>
-                  </div>
-                )}
-                <div className="flex items-center space-x-1">
-                  <Share2 className="w-3 h-3 text-purple-500" />
-                  <span className="text-xs text-purple-600">已分享</span>
-                </div>
+          {activeSection === 'contacts' && (
+            <div className="border-t pt-3 mt-3">
+              <label className="text-xs text-gray-500 mb-2 block">邀請功能</label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={() => sendInvitation(customer.id, 'sms')}
+                  size="sm"
+                  variant="outline"
+                  disabled={customer.invitationSent}
+                  className="flex items-center space-x-2"
+                >
+                  <MessageSquare className="w-3 h-3" />
+                  <span>{customer.invitationSent ? '簡訊已發送' : '發送簡訊'}</span>
+                </Button>
+                <Button
+                  onClick={() => sendInvitation(customer.id, 'email')}
+                  size="sm"
+                  variant="outline"
+                  disabled={customer.emailInvitationSent}
+                  className="flex items-center space-x-2"
+                >
+                  <Mail className="w-3 h-3" />
+                  <span>{customer.emailInvitationSent ? 'Email已發送' : '發送Email'}</span>
+                </Button>
               </div>
             </div>
           )}
@@ -670,25 +751,41 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       {/* Section Tabs */}
       <div className="flex bg-white border-b border-gray-200 flex-shrink-0">
         <Button
-          onClick={() => setActiveSection('cards')}
-          variant={activeSection === 'cards' ? 'default' : 'ghost'}
-          className="flex-1 rounded-none border-r"
+          onClick={() => setActiveSection('friends')}
+          variant={activeSection === 'friends' ? 'default' : 'ghost'}
+          className="flex-1 rounded-none border-r text-xs"
         >
-          <QrCode className="w-4 h-4 mr-2" />
-          我的名片夾
-          <span className="ml-2 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
-            {localCustomers.filter(c => c.hasCard).length}
+          <Heart className="w-4 h-4 mr-1" />
+          我的好友
+          <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+            {myFriendsCount}
           </span>
+        </Button>
+        <Button
+          onClick={() => setActiveSection('followers')}
+          variant={activeSection === 'followers' ? 'default' : 'ghost'}
+          className="flex-1 rounded-none border-r text-xs relative"
+        >
+          <UserCheck className="w-4 h-4 mr-1" />
+          追蹤我
+          <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+            {followersCount}
+          </span>
+          {pendingInvitationsCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+              {pendingInvitationsCount}
+            </span>
+          )}
         </Button>
         <Button
           onClick={() => setActiveSection('contacts')}
           variant={activeSection === 'contacts' ? 'default' : 'ghost'}
-          className="flex-1 rounded-none"
+          className="flex-1 rounded-none text-xs"
         >
-          <UserPlus className="w-4 h-4 mr-2" />
+          <UserPlus className="w-4 h-4 mr-1" />
           我的聯絡人
-          <span className="ml-2 bg-white/20 text-white text-xs px-2 py-0.5 rounded-full">
-            {localCustomers.filter(c => !c.hasCard).length}
+          <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+            {contactsCount}
           </span>
         </Button>
       </div>
@@ -706,6 +803,35 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               <Star className="w-3 h-3 mr-1" />
               關注
             </Button>
+            
+            {activeSection === 'contacts' && (
+              <>
+                <Button
+                  onClick={() => setInvitationFilter('all')}
+                  variant={invitationFilter === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  全部
+                </Button>
+                <Button
+                  onClick={() => setInvitationFilter('invited')}
+                  variant={invitationFilter === 'invited' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  已邀請
+                </Button>
+                <Button
+                  onClick={() => setInvitationFilter('uninvited')}
+                  variant={invitationFilter === 'uninvited' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  未邀請
+                </Button>
+              </>
+            )}
             
             {availableTags.map(tag => (
               <Button
@@ -748,57 +874,75 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             <div className="text-center py-8">
               <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500 text-sm">
-                {searchTerm ? '找不到符合條件的聯絡人' : `還沒有任何${activeSection === 'cards' ? '名片' : '聯絡人'}`}
+                {searchTerm ? '找不到符合條件的聯絡人' : `還沒有任何${activeSection === 'friends' ? '好友' : activeSection === 'followers' ? '追蹤者' : '聯絡人'}`}
               </p>
               <p className="text-gray-400 text-xs mt-1">
-                使用掃描功能來新增{activeSection === 'cards' ? '名片' : '聯絡人'}
+                使用掃描功能來新增聯絡人
               </p>
             </div>
           )}
         </div>
       </ScrollArea>
 
-      {/* Smart Recommendations Section - Moved to Bottom */}
-      <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
+      {/* Smart Recommendations Section - Bottom */}
+      <div className={`bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0 transition-all duration-300 ${isRecommendationMinimized ? 'p-2' : 'p-3'}`}>
+        <div className="flex items-center justify-between mb-2">
           <div className="flex items-center space-x-2">
             <TrendingUp className="w-4 h-4 text-orange-600" />
             <span className="text-sm font-medium text-orange-700">智能推薦</span>
           </div>
-          <Button
-            onClick={showUpgradePrompt}
-            variant="ghost"
-            size="sm"
-            className="text-xs text-orange-600 hover:bg-white/50 h-6 px-2"
-          >
-            更多
-          </Button>
+          <div className="flex items-center space-x-1">
+            <Button
+              onClick={() => setIsRecommendationMinimized(!isRecommendationMinimized)}
+              variant="ghost"
+              size="sm"
+              className="text-orange-600 hover:bg-white/50 h-6 w-6 p-0"
+            >
+              {isRecommendationMinimized ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
+            </Button>
+            <Button
+              onClick={showUpgradePrompt}
+              variant="ghost"
+              size="sm"
+              className="text-xs text-orange-600 hover:bg-white/50 h-6 px-2"
+            >
+              更多
+            </Button>
+          </div>
         </div>
         
-        <Carousel className="w-full">
-          <CarouselContent className="-ml-2 md:-ml-4">
-            {recommendedContacts.map((contact) => (
-              <CarouselItem key={contact.id} className="pl-2 md:pl-4 basis-4/5">
-                {renderRecommendationCard(contact)}
+        {!isRecommendationMinimized && (
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2 md:-ml-4">
+              {recommendedContacts.map((contact) => (
+                <CarouselItem key={contact.id} className="pl-2 md:pl-4 basis-3/4">
+                  {renderRecommendationCard(contact)}
+                </CarouselItem>
+              ))}
+              <CarouselItem className="pl-2 md:pl-4 basis-3/4">
+                <Card className="w-full border-2 border-dashed border-orange-300 bg-orange-50/50">
+                  <CardContent className="p-3">
+                    <button 
+                      onClick={showUpgradePrompt}
+                      className="w-full h-full flex flex-col items-center justify-center space-y-1 text-orange-600 hover:text-orange-700"
+                    >
+                      <Crown className="w-6 h-6" />
+                      <span className="text-xs font-medium text-center">升級解鎖</span>
+                    </button>
+                  </CardContent>
+                </Card>
               </CarouselItem>
-            ))}
-            <CarouselItem className="pl-2 md:pl-4 basis-4/5">
-              <Card className="w-full border-2 border-dashed border-orange-300 bg-orange-50/50">
-                <CardContent className="p-4">
-                  <button 
-                    onClick={showUpgradePrompt}
-                    className="w-full h-full flex flex-col items-center justify-center space-y-2 text-orange-600 hover:text-orange-700"
-                  >
-                    <Crown className="w-8 h-8" />
-                    <span className="text-sm font-medium text-center">升級解鎖更多推薦</span>
-                  </button>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          </CarouselContent>
-          <CarouselPrevious className="left-2" />
-          <CarouselNext className="right-2" />
-        </Carousel>
+            </CarouselContent>
+            <CarouselPrevious className="left-1" />
+            <CarouselNext className="right-1" />
+          </Carousel>
+        )}
+        
+        {isRecommendationMinimized && (
+          <div className="text-center">
+            <span className="text-xs text-orange-600">點擊展開查看推薦</span>
+          </div>
+        )}
       </div>
     </div>
   );
