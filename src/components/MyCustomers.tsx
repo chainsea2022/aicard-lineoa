@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Award, Eye, Crown, UserCheck } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import FollowingPage from './FollowingPage';
+import FollowersPage from './FollowersPage';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -37,18 +38,6 @@ interface Customer {
   isFavorite?: boolean;
 }
 
-interface ProfessionalAdviser {
-  id: number;
-  name: string;
-  jobTitle: string;
-  company: string;
-  industry: string;
-  photo: string;
-  isFollowing: boolean;
-  followers: number;
-  expertise: string[];
-}
-
 interface RecommendedContact {
   id: number;
   name: string;
@@ -69,48 +58,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
-  const [showAdvisers, setShowAdvisers] = useState(false);
-  const [showRecommendations, setShowRecommendations] = useState(false);
   const [followingCount, setFollowingCount] = useState(12);
   const [followersCount, setFollowersCount] = useState(8);
-  const [showFollowingModal, setShowFollowingModal] = useState(false);
-  const [showFollowersModal, setShowFollowersModal] = useState(false);
-
-  const professionalAdvisers = [
-    {
-      id: 1,
-      name: '王建國',
-      jobTitle: '資深投資顧問',
-      company: '台灣金融投資集團',
-      industry: '金融投資',
-      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      isFollowing: false,
-      followers: 12500,
-      expertise: ['股票投資', '基金管理', '風險控制']
-    },
-    {
-      id: 2,
-      name: '李美華',
-      jobTitle: '數位行銷總監',
-      company: '創新科技行銷',
-      industry: '數位行銷',
-      photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
-      isFollowing: false,
-      followers: 8900,
-      expertise: ['社群行銷', 'SEO優化', '品牌策略']
-    },
-    {
-      id: 3,
-      name: '張志強',
-      jobTitle: '技術長',
-      company: 'AI科技有限公司',
-      industry: '人工智慧',
-      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      isFollowing: false,
-      followers: 15200,
-      expertise: ['機器學習', '深度學習', '數據分析']
-    }
-  ];
+  const [currentPage, setCurrentPage] = useState<'main' | 'following' | 'followers'>('main');
 
   const recommendedContacts = [
     {
@@ -181,51 +131,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
-  };
-
-  const followAdviser = (adviserId: number) => {
-    const adviser = professionalAdvisers.find(a => a.id === adviserId);
-    if (adviser) {
-      adviser.isFollowing = !adviser.isFollowing;
-      
-      if (adviser.isFollowing) {
-        const newCustomer: Customer = {
-          id: Date.now(),
-          name: adviser.name,
-          phone: '',
-          email: '',
-          company: adviser.company,
-          jobTitle: adviser.jobTitle,
-          photo: adviser.photo,
-          hasCard: true,
-          addedDate: new Date().toISOString(),
-          notes: `專業顧問 - ${adviser.industry}`,
-          isFavorite: true,
-          tags: ['專業顧問', adviser.industry]
-        };
-        
-        const updatedCustomers = [...localCustomers, newCustomer];
-        setLocalCustomers(updatedCustomers);
-        localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
-        onCustomersUpdate(updatedCustomers);
-        
-        toast({ 
-          title: "已關注專業顧問", 
-          description: `${adviser.name} 已加入您的關注列表` 
-        });
-
-        setTimeout(() => {
-          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-            detail: { customerName: adviser.name, action: 'followed' }
-          }));
-        }, 1000);
-      } else {
-        toast({ 
-          title: "已取消關注", 
-          description: `不再關注 ${adviser.name}` 
-        });
-      }
-    }
   };
 
   const addRecommendedContact = (contactId: number) => {
@@ -338,57 +243,25 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
-  const renderCompactAdviserCard = (adviser: ProfessionalAdviser) => (
-    <Card key={adviser.id} className="w-32 flex-shrink-0 bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200">
-      <CardContent className="p-3">
-        <div className="flex flex-col items-center space-y-2">
-          <Avatar className="w-16 h-16 border-2 border-blue-300">
-            <AvatarImage src={adviser.photo} alt={adviser.name} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold">
-              {adviser.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="text-center">
-            <h3 className="font-bold text-xs text-gray-800 truncate w-full">{adviser.name}</h3>
-            <p className="text-xs text-blue-600 truncate w-full">{adviser.jobTitle}</p>
-            <div className="flex items-center justify-center space-x-1 text-xs text-gray-500 mt-1">
-              <Eye className="w-3 h-3" />
-              <span>{(adviser.followers / 1000).toFixed(1)}K</span>
-            </div>
-          </div>
-          <Button
-            onClick={() => followAdviser(adviser.id)}
-            size="sm"
-            variant={adviser.isFollowing ? "default" : "outline"}
-            className="h-6 px-2 text-xs w-full"
-          >
-            {adviser.isFollowing ? "已關注" : "關注"}
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   const renderCompactRecommendationCard = (contact: RecommendedContact) => (
-    <Card key={contact.id} className="w-32 flex-shrink-0 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
-      <CardContent className="p-3">
-        <div className="flex flex-col items-center space-y-2">
-          <Avatar className="w-16 h-16 border-2 border-orange-300">
+    <Card key={contact.id} className="w-24 flex-shrink-0 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
+      <CardContent className="p-2">
+        <div className="flex flex-col items-center space-y-1.5">
+          <Avatar className="w-12 h-12 border-2 border-orange-300">
             <AvatarImage src={contact.photo} alt={contact.name} />
-            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold">
+            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
               {contact.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="text-center">
             <h3 className="font-bold text-xs text-gray-800 truncate w-full">{contact.name}</h3>
             <p className="text-xs text-orange-600 truncate w-full">{contact.jobTitle}</p>
-            <p className="text-xs text-gray-500 truncate w-full mt-1">{contact.mutualFriends.length}位共同好友</p>
           </div>
           <Button
             onClick={() => addRecommendedContact(contact.id)}
             size="sm"
             variant="outline"
-            className="h-6 px-2 text-xs border-orange-300 text-orange-600 hover:bg-orange-100 w-full"
+            className="h-5 px-1.5 text-xs border-orange-300 text-orange-600 hover:bg-orange-100 w-full"
           >
             加入
           </Button>
@@ -750,6 +623,26 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     );
   };
 
+  if (currentPage === 'following') {
+    return (
+      <FollowingPage
+        onBack={() => setCurrentPage('main')}
+        followingCount={followingCount}
+        customers={localCustomers.filter(c => c.isFavorite)}
+      />
+    );
+  }
+
+  if (currentPage === 'followers') {
+    return (
+      <FollowersPage
+        onBack={() => setCurrentPage('main')}
+        followersCount={followersCount}
+        customers={localCustomers.filter(c => c.hasCard)}
+      />
+    );
+  }
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
       <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 shadow-lg flex-shrink-0">
@@ -778,73 +671,63 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {/* Following/Followers Statistics */}
-      <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200 flex-shrink-0">
-        <div className="flex items-center justify-around">
+      {/* Compact Following/Followers Statistics */}
+      <div className="p-2 bg-gradient-to-r from-purple-50 to-pink-50 border-b border-purple-200 flex-shrink-0">
+        <div className="flex items-center justify-center space-x-6">
           <button 
-            onClick={() => setShowFollowingModal(true)}
-            className="flex flex-col items-center space-y-1 hover:bg-white/50 p-2 rounded-lg transition-colors"
+            onClick={() => setCurrentPage('following')}
+            className="flex items-center space-x-2 hover:bg-white/50 p-1.5 rounded-lg transition-colors"
           >
-            <div className="flex items-center space-x-1">
-              <UserCheck className="w-4 h-4 text-purple-600" />
-              <span className="font-bold text-lg text-purple-700">{followingCount}</span>
-            </div>
+            <UserCheck className="w-3.5 h-3.5 text-purple-600" />
+            <span className="font-bold text-sm text-purple-700">{followingCount}</span>
             <span className="text-xs text-purple-600">關注中</span>
           </button>
-          <div className="w-px h-8 bg-purple-300"></div>
+          <div className="w-px h-6 bg-purple-300"></div>
           <button 
-            onClick={() => setShowFollowersModal(true)}
-            className="flex flex-col items-center space-y-1 hover:bg-white/50 p-2 rounded-lg transition-colors"
+            onClick={() => setCurrentPage('followers')}
+            className="flex items-center space-x-2 hover:bg-white/50 p-1.5 rounded-lg transition-colors"
           >
-            <div className="flex items-center space-x-1">
-              <Users className="w-4 h-4 text-purple-600" />
-              <span className="font-bold text-lg text-purple-700">{followersCount}</span>
-            </div>
+            <Users className="w-3.5 h-3.5 text-purple-600" />
+            <span className="font-bold text-sm text-purple-700">{followersCount}</span>
             <span className="text-xs text-purple-600">關注者</span>
           </button>
         </div>
       </div>
 
-      {/* Smart Recommendations Section */}
-      <div className="p-3 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-orange-600" />
-            <span className="text-sm font-medium text-orange-700">智能推薦</span>
+      {/* Compact Smart Recommendations Section */}
+      <div className="p-2 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-1.5">
+            <TrendingUp className="w-3.5 h-3.5 text-orange-600" />
+            <span className="text-xs font-medium text-orange-700">智能推薦</span>
           </div>
           <Button
             onClick={showUpgradePrompt}
             variant="ghost"
             size="sm"
-            className="text-xs text-orange-600 hover:bg-white/50"
+            className="text-xs text-orange-600 hover:bg-white/50 h-6 px-2"
           >
-            查看更多
+            更多
           </Button>
         </div>
-        <div className="overflow-x-auto">
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-2">
-              {recommendedContacts.map(contact => (
-                <CarouselItem key={contact.id} className="pl-2 basis-auto">
-                  {renderCompactRecommendationCard(contact)}
-                </CarouselItem>
-              ))}
-              <CarouselItem className="pl-2 basis-auto">
-                <Card className="w-32 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
-                  <CardContent className="p-3">
-                    <button 
-                      onClick={showUpgradePrompt}
-                      className="w-full h-full flex flex-col items-center justify-center space-y-2 text-orange-600 hover:text-orange-700"
-                    >
-                      <Crown className="w-8 h-8" />
-                      <span className="text-xs font-medium text-center">升級查看更多推薦</span>
-                    </button>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            </CarouselContent>
-          </Carousel>
-        </div>
+        <ScrollArea>
+          <div className="flex space-x-2 pb-1">
+            {recommendedContacts.map(contact => 
+              renderCompactRecommendationCard(contact)
+            )}
+            <Card className="w-20 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
+              <CardContent className="p-2">
+                <button 
+                  onClick={showUpgradePrompt}
+                  className="w-full h-full flex flex-col items-center justify-center space-y-1 text-orange-600 hover:text-orange-700"
+                >
+                  <Crown className="w-6 h-6" />
+                  <span className="text-xs font-medium text-center leading-tight">升級看更多</span>
+                </button>
+              </CardContent>
+            </Card>
+          </div>
+        </ScrollArea>
       </div>
 
       {/* Section Tabs */}
@@ -875,7 +758,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
       {/* Filter Tags */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-        <ScrollArea className="w-full">
+        <ScrollArea>
           <div className="flex space-x-1 pb-1 min-w-max">
             <Button
               onClick={() => setActiveFilter('favorites')}
@@ -937,32 +820,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           )}
         </div>
       </ScrollArea>
-
-      {/* Following Modal Placeholder */}
-      {showFollowingModal && (
-        <div className="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-            <h3 className="font-bold text-lg mb-4">我的關注</h3>
-            <p className="text-gray-600 text-sm mb-4">顯示您關注的 {followingCount} 位好友</p>
-            <Button onClick={() => setShowFollowingModal(false)} className="w-full">
-              關閉
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Followers Modal Placeholder */}
-      {showFollowersModal && (
-        <div className="fixed inset-0 bg-black/50 z-60 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-sm">
-            <h3 className="font-bold text-lg mb-4">關注我的</h3>
-            <p className="text-gray-600 text-sm mb-4">顯示關注您的 {followersCount} 位好友</p>
-            <Button onClick={() => setShowFollowersModal(false)} className="w-full">
-              關閉
-            </Button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
