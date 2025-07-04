@@ -7,6 +7,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -820,28 +821,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             查看更多
           </Button>
         </div>
-        <Carousel className="w-full">
-          <CarouselContent className="-ml-2">
-            {professionalAdvisers.map(adviser => (
-              <CarouselItem key={adviser.id} className="pl-2 basis-auto">
-                {renderCompactAdviserCard(adviser)}
+        <div className="overflow-x-auto">
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2">
+              {professionalAdvisers.map(adviser => (
+                <CarouselItem key={adviser.id} className="pl-2 basis-auto">
+                  {renderCompactAdviserCard(adviser)}
+                </CarouselItem>
+              ))}
+              <CarouselItem className="pl-2 basis-auto">
+                <Card className="w-32 flex-shrink-0 border-2 border-dashed border-blue-300 bg-blue-50/50">
+                  <CardContent className="p-3">
+                    <button 
+                      onClick={showUpgradePrompt}
+                      className="w-full h-full flex flex-col items-center justify-center space-y-2 text-blue-600 hover:text-blue-700"
+                    >
+                      <Crown className="w-8 h-8" />
+                      <span className="text-xs font-medium text-center">升級查看更多專業顧問</span>
+                    </button>
+                  </CardContent>
+                </Card>
               </CarouselItem>
-            ))}
-            <CarouselItem className="pl-2 basis-auto">
-              <Card className="w-32 flex-shrink-0 border-2 border-dashed border-blue-300 bg-blue-50/50">
-                <CardContent className="p-3">
-                  <button 
-                    onClick={showUpgradePrompt}
-                    className="w-full h-full flex flex-col items-center justify-center space-y-2 text-blue-600 hover:text-blue-700"
-                  >
-                    <Crown className="w-8 h-8" />
-                    <span className="text-xs font-medium text-center">升級查看更多專業顧問</span>
-                  </button>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          </CarouselContent>
-        </Carousel>
+            </CarouselContent>
+          </Carousel>
+        </div>
       </div>
 
       {/* Smart Recommendations Section */}
@@ -860,28 +863,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             查看更多
           </Button>
         </div>
-        <Carousel className="w-full">
-          <CarouselContent className="-ml-2">
-            {recommendedContacts.map(contact => (
-              <CarouselItem key={contact.id} className="pl-2 basis-auto">
-                {renderCompactRecommendationCard(contact)}
+        <div className="overflow-x-auto">
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2">
+              {recommendedContacts.map(contact => (
+                <CarouselItem key={contact.id} className="pl-2 basis-auto">
+                  {renderCompactRecommendationCard(contact)}
+                </CarouselItem>
+              ))}
+              <CarouselItem className="pl-2 basis-auto">
+                <Card className="w-32 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
+                  <CardContent className="p-3">
+                    <button 
+                      onClick={showUpgradePrompt}
+                      className="w-full h-full flex flex-col items-center justify-center space-y-2 text-orange-600 hover:text-orange-700"
+                    >
+                      <Crown className="w-8 h-8" />
+                      <span className="text-xs font-medium text-center">升級查看更多推薦</span>
+                    </button>
+                  </CardContent>
+                </Card>
               </CarouselItem>
-            ))}
-            <CarouselItem className="pl-2 basis-auto">
-              <Card className="w-32 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
-                <CardContent className="p-3">
-                  <button 
-                    onClick={showUpgradePrompt}
-                    className="w-full h-full flex flex-col items-center justify-center space-y-2 text-orange-600 hover:text-orange-700"
-                  >
-                    <Crown className="w-8 h-8" />
-                    <span className="text-xs font-medium text-center">升級查看更多推薦</span>
-                  </button>
-                </CardContent>
-              </Card>
-            </CarouselItem>
-          </CarouselContent>
-        </Carousel>
+            </CarouselContent>
+          </Carousel>
+        </div>
       </div>
 
       {/* Section Tabs */}
@@ -912,64 +917,68 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
       {/* Filter Tags */}
       <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="flex space-x-1 overflow-x-auto pb-1">
-          <Button
-            onClick={() => setActiveFilter('favorites')}
-            variant={activeFilter === 'favorites' ? 'default' : 'outline'}
-            size="sm"
-            className="flex-shrink-0 text-xs h-7"
-          >
-            <Star className="w-3 h-3 mr-1" />
-            關注
-          </Button>
-          
-          {availableTags.map(tag => (
+        <ScrollArea className="w-full" orientation="horizontal">
+          <div className="flex space-x-1 pb-1 min-w-max">
             <Button
-              key={tag}
-              onClick={() => setActiveFilter(tag)}
-              variant={activeFilter === tag ? 'default' : 'outline'}
+              onClick={() => setActiveFilter('favorites')}
+              variant={activeFilter === 'favorites' ? 'default' : 'outline'}
               size="sm"
               className="flex-shrink-0 text-xs h-7"
             >
-              <Tag className="w-3 h-3 mr-1" />
-              {tag}
+              <Star className="w-3 h-3 mr-1" />
+              關注
             </Button>
-          ))}
-          
-          <Button
-            onClick={() => setActiveFilter('all')}
-            variant={activeFilter === 'all' ? 'default' : 'outline'}
-            size="sm"
-            className="flex-shrink-0 text-xs h-7"
-          >
-            <Filter className="w-3 h-3 mr-1" />
-            全部
-          </Button>
-        </div>
+            
+            {availableTags.map(tag => (
+              <Button
+                key={tag}
+                onClick={() => setActiveFilter(tag)}
+                variant={activeFilter === tag ? 'default' : 'outline'}
+                size="sm"
+                className="flex-shrink-0 text-xs h-7"
+              >
+                <Tag className="w-3 h-3 mr-1" />
+                {tag}
+              </Button>
+            ))}
+            
+            <Button
+              onClick={() => setActiveFilter('all')}
+              variant={activeFilter === 'all' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-shrink-0 text-xs h-7"
+            >
+              <Filter className="w-3 h-3 mr-1" />
+              全部
+            </Button>
+          </div>
+        </ScrollArea>
       </div>
 
       {/* Customer List */}
-      <div className="flex-1 overflow-y-auto p-3">
-        {filteredCustomers.length > 0 ? (
-          <div className="space-y-0">
-            {filteredCustomers.map(customer => 
-              expandedCard === customer.id 
-                ? renderExpandedCard(customer)
-                : renderCompactCard(customer)
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-8">
-            <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 text-sm">
-              {searchTerm ? '找不到符合條件的聯絡人' : `還沒有任何${activeSection === 'cards' ? '名片' : '聯絡人'}`}
-            </p>
-            <p className="text-gray-400 text-xs mt-1">
-              使用掃描功能來新增{activeSection === 'cards' ? '名片' : '聯絡人'}
-            </p>
-          </div>
-        )}
-      </div>
+      <ScrollArea className="flex-1">
+        <div className="p-3">
+          {filteredCustomers.length > 0 ? (
+            <div className="space-y-0">
+              {filteredCustomers.map(customer => 
+                expandedCard === customer.id 
+                  ? renderExpandedCard(customer)
+                  : renderCompactCard(customer)
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+              <p className="text-gray-500 text-sm">
+                {searchTerm ? '找不到符合條件的聯絡人' : `還沒有任何${activeSection === 'cards' ? '名片' : '聯絡人'}`}
+              </p>
+              <p className="text-gray-400 text-xs mt-1">
+                使用掃描功能來新增{activeSection === 'cards' ? '名片' : '聯絡人'}
+              </p>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
 
       {/* Following Modal Placeholder */}
       {showFollowingModal && (
