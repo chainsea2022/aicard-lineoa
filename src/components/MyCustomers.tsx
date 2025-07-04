@@ -244,24 +244,23 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const renderCompactRecommendationCard = (contact: RecommendedContact) => (
-    <Card key={contact.id} className="w-24 flex-shrink-0 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
-      <CardContent className="p-2">
-        <div className="flex flex-col items-center space-y-1.5">
-          <Avatar className="w-12 h-12 border-2 border-orange-300">
+    <Card key={contact.id} className="w-20 flex-shrink-0 bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
+      <CardContent className="p-1.5">
+        <div className="flex flex-col items-center space-y-1">
+          <Avatar className="w-8 h-8 border border-orange-300">
             <AvatarImage src={contact.photo} alt={contact.name} />
             <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
               {contact.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="text-center">
-            <h3 className="font-bold text-xs text-gray-800 truncate w-full">{contact.name}</h3>
-            <p className="text-xs text-orange-600 truncate w-full">{contact.jobTitle}</p>
+            <h3 className="font-bold text-xs text-gray-800 truncate w-full leading-tight">{contact.name}</h3>
           </div>
           <Button
             onClick={() => addRecommendedContact(contact.id)}
             size="sm"
             variant="outline"
-            className="h-5 px-1.5 text-xs border-orange-300 text-orange-600 hover:bg-orange-100 w-full"
+            className="h-4 px-1 text-xs border-orange-300 text-orange-600 hover:bg-orange-100 w-full"
           >
             加入
           </Button>
@@ -694,35 +693,35 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
       </div>
 
-      {/* Compact Smart Recommendations Section */}
-      <div className="p-2 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
-        <div className="flex items-center justify-between mb-2">
+      {/* Compact Smart Recommendations Section - Reduced Height */}
+      <div className="p-1.5 bg-gradient-to-r from-orange-50 to-yellow-50 border-b border-orange-200 flex-shrink-0">
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-center space-x-1.5">
-            <TrendingUp className="w-3.5 h-3.5 text-orange-600" />
+            <TrendingUp className="w-3 h-3 text-orange-600" />
             <span className="text-xs font-medium text-orange-700">智能推薦</span>
           </div>
           <Button
             onClick={showUpgradePrompt}
             variant="ghost"
             size="sm"
-            className="text-xs text-orange-600 hover:bg-white/50 h-6 px-2"
+            className="text-xs text-orange-600 hover:bg-white/50 h-5 px-1.5"
           >
             更多
           </Button>
         </div>
-        <ScrollArea>
-          <div className="flex space-x-2 pb-1">
+        <ScrollArea className="h-16">
+          <div className="flex space-x-1.5 pb-1">
             {recommendedContacts.map(contact => 
               renderCompactRecommendationCard(contact)
             )}
-            <Card className="w-20 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
-              <CardContent className="p-2">
+            <Card className="w-16 flex-shrink-0 border-2 border-dashed border-orange-300 bg-orange-50/50">
+              <CardContent className="p-1.5">
                 <button 
                   onClick={showUpgradePrompt}
-                  className="w-full h-full flex flex-col items-center justify-center space-y-1 text-orange-600 hover:text-orange-700"
+                  className="w-full h-full flex flex-col items-center justify-center space-y-0.5 text-orange-600 hover:text-orange-700"
                 >
-                  <Crown className="w-6 h-6" />
-                  <span className="text-xs font-medium text-center leading-tight">升級看更多</span>
+                  <Crown className="w-4 h-4" />
+                  <span className="text-xs font-medium text-center leading-tight">升級</span>
                 </button>
               </CardContent>
             </Card>
