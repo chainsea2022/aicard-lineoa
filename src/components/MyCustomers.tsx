@@ -360,6 +360,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       }
     });
 
+    // Sort addedMe cards with newest first
     if (activeFilter === 'addedMe') {
       filteredCards.sort((a, b) => {
         if (a.isNewAddition && !b.isNewAddition) return -1;
