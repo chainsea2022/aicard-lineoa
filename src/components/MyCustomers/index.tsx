@@ -65,9 +65,99 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     
     if (savedCustomers.length === 0) {
       const defaultCustomers = getDefaultCustomers();
-      setLocalCustomers(defaultCustomers);
-      localStorage.setItem('aile-customers', JSON.stringify(defaultCustomers));
-      onCustomersUpdate(defaultCustomers);
+      // 確保有5個被加入的聯絡人
+      const addedMeContacts = [
+        {
+          id: 1001,
+          name: '吳雅芳',
+          phone: '0912-345-678',
+          email: 'wu.yafang@email.com',
+          company: '科技公司',
+          jobTitle: '產品經理',
+          photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: true
+        },
+        {
+          id: 1002,
+          name: '劉志明',
+          phone: '0923-456-789',
+          email: 'liu.zhiming@email.com',
+          company: '設計工作室',
+          jobTitle: '創意總監',
+          photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: true
+        },
+        {
+          id: 1003,
+          name: '許文華',
+          phone: '0934-567-890',
+          email: 'xu.wenhua@email.com',
+          company: '行銷公司',
+          jobTitle: '業務經理',
+          photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: true
+        },
+        {
+          id: 1004,
+          name: '黃志成',
+          phone: '0945-678-901',
+          email: 'huang.zhicheng@email.com',
+          company: '建築事務所',
+          jobTitle: '建築師',
+          photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: true
+        },
+        {
+          id: 1005,
+          name: '蔡雅玲',
+          phone: '0956-789-012',
+          email: 'cai.yaling@email.com',
+          company: '金融服務',
+          jobTitle: '理財顧問',
+          photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: true
+        }
+      ];
+      
+      const allCustomers = [...defaultCustomers, ...addedMeContacts];
+      setLocalCustomers(allCustomers);
+      localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
+      onCustomersUpdate(allCustomers);
       return;
     }
 
@@ -111,8 +201,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       switch (activeFilter) {
         case 'favorites':
           return matchesSearch && customer.isFavorite;
-        case 'collected':
-          return matchesSearch && customer.relationshipStatus === 'collected';
         case 'addedMe':
           return matchesSearch && customer.relationshipStatus === 'addedMe';
         default:
@@ -186,7 +274,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       return c;
     });
     updateCustomers(updatedCustomers);
-    toast({ title: "已加入已收藏名片夾" });
+    toast({ title: "已加入我的電子名片夾" });
   };
 
   const ignoreFollower = (customerId: number) => {
@@ -406,29 +494,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   </Button>
 
                   {activeSection === 'cards' && (
-                    <>
-                      <Button
-                        onClick={() => toggleFilter('collected')}
-                        variant={activeFilter === 'collected' ? 'default' : 'outline'}
-                        size="sm"
-                        className="flex-shrink-0 text-xs h-6"
-                      >
-                        + 已收藏
-                      </Button>
-                      <Button
-                        onClick={() => toggleFilter('addedMe')}
-                        variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
-                        size="sm"
-                        className="flex-shrink-0 text-xs h-6 relative"
-                      >
-                        ⚠️ 被加入
-                        {getPendingNotificationCount() > 0 && (
-                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                            {getPendingNotificationCount()}
-                          </div>
-                        )}
-                      </Button>
-                    </>
+                    <Button
+                      onClick={() => toggleFilter('addedMe')}
+                      variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-shrink-0 text-xs h-6 relative"
+                    >
+                      ⚠️ 被加入
+                      {getPendingNotificationCount() > 0 && (
+                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                          {getPendingNotificationCount()}
+                        </div>
+                      )}
+                    </Button>
                   )}
                   
                   {availableTags.map(tag => (
