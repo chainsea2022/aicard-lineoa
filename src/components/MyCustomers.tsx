@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, QrCode, UserPlus, MessageSquare, Mail, Share2, Tag, Filter, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, Heart, UserCheck, Bell, ChevronUp, Minimize2, Maximize2, UserX } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, UserPlus, MessageSquare, Mail, Tag, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, Heart, UserCheck, Bell, Minimize2, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -54,6 +54,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeSection, setActiveSection] = useState<'friends' | 'contacts'>('friends');
+  const [friendsSubSection, setFriendsSubSection] = useState<'myFriends' | 'followingMe'>('myFriends');
   const [localCustomers, setLocalCustomers] = useState<Customer[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>(['工作', '朋友', '客戶', '合作夥伴', '潛在客戶']);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
@@ -62,8 +63,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [newTag, setNewTag] = useState('');
   const [isRecommendationMinimized, setIsRecommendationMinimized] = useState(false);
   const [invitationFilter, setInvitationFilter] = useState<'all' | 'invited' | 'uninvited'>('all');
-  const [showMoreMyFriends, setShowMoreMyFriends] = useState(false);
-  const [showMoreFollowing, setShowMoreFollowing] = useState(false);
 
   const recommendedContacts = [
     {
@@ -140,11 +139,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   // 我的聯絡人：非電子名片的聯絡人
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
-  const displayedMyFriends = showMoreMyFriends ? myFriendsCards : myFriendsCards.slice(0, 5);
-  const displayedFollowingMe = showMoreFollowing ? followingMeCards : followingMeCards.slice(0, 5);
-
   const getFilteredFriends = () => {
-    return [...displayedMyFriends, ...displayedFollowingMe].filter(customer => {
+    const currentList = friendsSubSection === 'myFriends' ? myFriendsCards : followingMeCards;
+    return currentList.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -356,143 +353,56 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
   };
 
-  const renderMyFriendCard = (customer: Customer) => (
-    <Card key={customer.id} className="mb-2 shadow-sm bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200">
+  // Condensed card component for mobile optimization
+  const renderCondensedCard = (customer: Customer, isFollowingMe: boolean = false) => (
+    <Card 
+      key={customer.id} 
+      className={`mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md ${
+        isFollowingMe 
+          ? 'bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200' 
+          : 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200'
+      }`}
+      onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+    >
       <CardContent className="p-3">
         <div className="flex items-center space-x-3">
-          <Avatar className="w-12 h-12 flex-shrink-0 border border-blue-300">
+          <Avatar className={`w-10 h-10 flex-shrink-0 ${isFollowingMe ? 'border border-orange-300' : 'border border-blue-300'}`}>
             <AvatarImage 
               src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
               alt={customer.name} 
             />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
+            <AvatarFallback className={`text-white font-bold text-sm ${
+              isFollowingMe 
+                ? 'bg-gradient-to-br from-orange-500 to-red-600' 
+                : 'bg-gradient-to-br from-blue-500 to-purple-600'
+            }`}>
               {customer.name.charAt(0)}
             </AvatarFallback>
           </Avatar>
           
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-1">
+            <div className="flex items-center justify-between">
               <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
-              <Button
-                onClick={() => toggleFavorite(customer.id)}
-                variant="ghost"
-                size="sm"
-                className="p-0 h-4 w-4 flex-shrink-0"
-              >
-                <Star 
-                  className={`w-3 h-3 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
-                />
-              </Button>
+              <div className="flex items-center space-x-1 flex-shrink-0">
+                {customer.isFavorite && (
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                )}
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </div>
             </div>
             
-            <div className="text-xs text-gray-600 space-y-0.5">
-              {customer.company && (
-                <div className="truncate">{customer.company}</div>
-              )}
-              {customer.jobTitle && (
-                <div className="truncate text-gray-500">{customer.jobTitle}</div>
-              )}
+            <div className="text-xs text-gray-600 truncate">
+              {customer.company && customer.jobTitle 
+                ? `${customer.company} · ${customer.jobTitle}`
+                : customer.company || customer.jobTitle || '無公司資訊'
+              }
             </div>
             
-            <div className="flex items-center space-x-2 mt-1">
-              {customer.phone && (
-                <button
-                  onClick={() => handlePhoneClick(customer.phone)}
-                  className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 transition-colors text-xs"
-                >
-                  <Phone className="w-3 h-3" />
-                </button>
-              )}
-              {customer.line && (
-                <button
-                  onClick={() => handleLineClick(customer.line!)}
-                  className="flex items-center space-x-1 text-green-600 hover:text-green-700 transition-colors text-xs"
-                >
-                  <span>💬</span>
-                </button>
-              )}
-              {customer.email && (
-                <button
-                  onClick={() => handleEmailClick(customer.email)}
-                  className="flex items-center space-x-1 text-purple-600 hover:text-purple-700 transition-colors text-xs"
-                >
-                  <Mail className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-          </div>
-          
-          <Button
-            onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-            variant="ghost"
-            size="sm"
-            className="flex-shrink-0 h-6 w-6 p-0"
-          >
-            {expandedCard === customer.id ? 
-              <ChevronDown className="w-3 h-3" /> : 
-              <ChevronRight className="w-3 h-3" />
-            }
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
-  const renderFollowingMeCard = (customer: Customer) => (
-    <Card key={customer.id} className="mb-2 shadow-sm bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200">
-      <CardContent className="p-3">
-        <div className="flex items-center space-x-3">
-          <Avatar className="w-12 h-12 flex-shrink-0 border border-orange-300">
-            <AvatarImage 
-              src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
-              alt={customer.name} 
-            />
-            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-red-600 text-white font-bold text-sm">
-              {customer.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-1">
-              <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
-              <span className="text-xs text-red-600 font-medium">⚠️ 對方已追蹤您</span>
-            </div>
-            
-            <div className="text-xs text-gray-600 space-y-0.5">
-              {customer.company && (
-                <div className="truncate">{customer.company}</div>
-              )}
-              {customer.jobTitle && (
-                <div className="truncate text-gray-500">{customer.jobTitle}</div>
-              )}
-            </div>
-            
-            <div className="flex items-center space-x-1 mt-2">
-              <Button
-                onClick={() => addFollowerToFriends(customer.id)}
-                size="sm"
-                variant="default"
-                className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700"
-              >
-                加入好友
-              </Button>
-              <Button
-                onClick={() => ignoreFollower(customer.id)}
-                size="sm"
-                variant="outline"
-                className="h-6 px-2 text-xs border-gray-300 text-gray-600 hover:bg-gray-50"
-              >
-                忽略
-              </Button>
-              <Button
-                onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-                variant="ghost"
-                size="sm"
-                className="h-6 px-2 text-xs"
-              >
-                查看名片
-              </Button>
-            </div>
+            {isFollowingMe && (
+              <div className="text-xs text-red-600 font-medium mt-1">
+                ⚠️ 對方已追蹤您
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
@@ -500,79 +410,50 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   );
 
   const renderContactCard = (customer: Customer) => (
-    <Card key={customer.id} className="mb-2 shadow-sm">
+    <Card 
+      key={customer.id} 
+      className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md"
+      onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+    >
       <CardContent className="p-3">
-        <div className="flex items-start justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
-            <div className="flex items-center space-x-2 mb-1">
-              <h3 className="font-bold text-sm text-gray-800">{customer.name}</h3>
-              <Button
-                onClick={() => toggleFavorite(customer.id)}
-                variant="ghost"
-                size="sm"
-                className="p-0 h-4 w-4 flex-shrink-0"
-              >
-                <Star 
-                  className={`w-3 h-3 ${customer.isFavorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} 
-                />
-              </Button>
+            <div className="flex items-center space-x-2">
+              <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
+              {customer.isFavorite && (
+                <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 flex-shrink-0" />
+              )}
             </div>
             
-            <div className="text-xs text-gray-600 space-y-1">
-              {customer.company && <div>{customer.company}</div>}
-              {customer.jobTitle && <div>{customer.jobTitle}</div>}
-              {customer.phone && <div>{customer.phone}</div>}
-              {customer.email && <div>{customer.email}</div>}
+            <div className="text-xs text-gray-600 truncate">
+              {customer.company && customer.jobTitle 
+                ? `${customer.company} · ${customer.jobTitle}`
+                : customer.company || customer.jobTitle || (customer.phone || customer.email || '無聯絡資訊')
+              }
             </div>
             
             {customer.tags && customer.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {customer.tags.map(tag => (
+              <div className="flex flex-wrap gap-1 mt-1">
+                {customer.tags.slice(0, 2).map(tag => (
                   <span 
                     key={tag}
-                    className="inline-flex items-center px-1.5 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full"
+                    className="inline-flex items-center px-1 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full"
                   >
                     {tag}
                   </span>
                 ))}
+                {customer.tags.length > 2 && (
+                  <span className="text-xs text-gray-400">+{customer.tags.length - 2}</span>
+                )}
               </div>
             )}
           </div>
           
-          <div className="flex flex-col space-y-1 ml-3 flex-shrink-0">
-            {customer.phone && (
-              <Button
-                onClick={() => handleSMSClick(customer.phone)}
-                size="sm"
-                variant="ghost"
-                className="h-8 w-8 p-0"
-                title="發送簡訊"
-              >
-                <MessageSquare className="w-4 h-4 text-blue-600" />
-              </Button>
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {(customer.invitationSent || customer.emailInvitationSent) && (
+              <span className="text-xs text-green-600 font-medium">已邀請</span>
             )}
-            {customer.email && (
-              <Button
-                onClick={() => handleEmailClick(customer.email)}
-                size="sm"
-                variant="ghost"
-                className="h-8 w-8 p-0"
-                title="發送Email"
-              >
-                <Mail className="w-4 h-4 text-green-600" />
-              </Button>
-            )}
-            <Button
-              onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-              variant="ghost"
-              size="sm"
-              className="h-8 w-8 p-0"
-            >
-              {expandedCard === customer.id ? 
-                <ChevronDown className="w-4 h-4" /> : 
-                <ChevronRight className="w-4 h-4" />
-              }
-            </Button>
+            <ChevronRight className="w-4 h-4 text-gray-400" />
           </div>
         </div>
       </CardContent>
@@ -582,6 +463,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const renderExpandedCard = (customer: Customer) => {
     const isEditing = editingCard === customer.id;
     const displayCustomer = isEditing ? editingCustomer! : customer;
+    const isFollowingMe = customer.isFollowingMe && !customer.isMyFriend;
 
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
@@ -653,6 +535,35 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </Button>
           </div>
         </div>
+
+        {isFollowingMe && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-orange-800">
+                <span className="font-medium">⚠️ 對方已追蹤您</span>
+                <p className="text-xs text-orange-600 mt-1">您可以加入好友或忽略此追蹤</p>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => addFollowerToFriends(customer.id)}
+                  size="sm"
+                  variant="default"
+                  className="bg-green-600 hover:bg-green-700 text-xs"
+                >
+                  加入好友
+                </Button>
+                <Button
+                  onClick={() => ignoreFollower(customer.id)}
+                  size="sm"
+                  variant="outline"
+                  className="text-xs"
+                >
+                  忽略
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-3">
           <div className="space-y-2">
@@ -941,6 +852,41 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </Button>
       </div>
 
+      {/* Sub-section filters for Friends */}
+      {activeSection === 'friends' && (
+        <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
+          <div className="flex space-x-1">
+            <Button
+              onClick={() => setFriendsSubSection('myFriends')}
+              variant={friendsSubSection === 'myFriends' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-shrink-0 text-xs h-7"
+            >
+              我的好友名片
+              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {myFriendsCards.length}
+              </span>
+            </Button>
+            <Button
+              onClick={() => setFriendsSubSection('followingMe')}
+              variant={friendsSubSection === 'followingMe' ? 'default' : 'outline'}
+              size="sm"
+              className="flex-shrink-0 text-xs h-7 relative"
+            >
+              追蹤我
+              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {followingMeCards.length}
+              </span>
+              {followingMeCards.some(c => c.hasPendingInvitation) && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
+                  !
+                </span>
+              )}
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Filters for Contacts Section */}
       {activeSection === 'contacts' && (
         <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
@@ -952,6 +898,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               className="flex-shrink-0 text-xs h-7"
             >
               全部
+              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {myContacts.length}
+              </span>
             </Button>
             <Button
               onClick={() => setInvitationFilter('invited')}
@@ -960,6 +909,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               className="flex-shrink-0 text-xs h-7"
             >
               已邀請
+              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {myContacts.filter(c => c.invitationSent || c.emailInvitationSent).length}
+              </span>
             </Button>
             <Button
               onClick={() => setInvitationFilter('uninvited')}
@@ -968,21 +920,24 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               className="flex-shrink-0 text-xs h-7"
             >
               未邀請
+              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                {myContacts.filter(c => !(c.invitationSent || c.emailInvitationSent)).length}
+              </span>
             </Button>
           </div>
         </div>
       )}
 
-      {/* Filters for Friends Section */}
+      {/* Additional Filters for Friends Section */}
       {activeSection === 'friends' && (
-        <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
+        <div className="px-3 pb-3 bg-white border-b border-gray-200 flex-shrink-0">
           <ScrollArea>
             <div className="flex space-x-1 pb-1 min-w-max">
               <Button
                 onClick={() => toggleFilter('favorites')}
                 variant={activeFilter === 'favorites' ? 'default' : 'outline'}
                 size="sm"
-                className="flex-shrink-0 text-xs h-7"
+                className="flex-shrink-0 text-xs h-6"
               >
                 <Star className="w-3 h-3 mr-1" />
                 關注中
@@ -994,7 +949,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   onClick={() => toggleFilter(tag)}
                   variant={activeFilter === tag ? 'default' : 'outline'}
                   size="sm"
-                  className="flex-shrink-0 text-xs h-7"
+                  className="flex-shrink-0 text-xs h-6"
                 >
                   <Tag className="w-3 h-3 mr-1" />
                   {tag}
@@ -1009,81 +964,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       <ScrollArea className="flex-1">
         <div className="p-3">
           {activeSection === 'friends' ? (
-            <div className="space-y-4">
-              {/* 我的好友名片區塊 */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-blue-800 flex items-center space-x-2">
-                    <UserCheck className="w-4 h-4" />
-                    <span>我的好友名片</span>
-                    <span className="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
-                      {myFriendsCards.length}
-                    </span>
-                  </h3>
-                  {myFriendsCards.length > 5 && (
-                    <Button
-                      onClick={() => setShowMoreMyFriends(!showMoreMyFriends)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-blue-600"
-                    >
-                      {showMoreMyFriends ? '收起' : '展開更多'}
-                    </Button>
-                  )}
+            <div className="space-y-0">
+              {getFilteredFriends().length > 0 ? (
+                getFilteredFriends().map(customer => 
+                  expandedCard === customer.id 
+                    ? renderExpandedCard(customer)
+                    : renderCondensedCard(customer, friendsSubSection === 'followingMe')
+                )
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <p className="text-gray-500 text-sm">
+                    {friendsSubSection === 'myFriends' 
+                      ? (searchTerm ? '找不到符合條件的好友名片' : '還沒有好友名片')
+                      : (searchTerm ? '找不到符合條件的追蹤者' : '沒有人追蹤您')
+                    }
+                  </p>
+                  <p className="text-gray-400 text-xs mt-1">
+                    {friendsSubSection === 'myFriends' 
+                      ? '掃描對方的電子名片來加入好友'
+                      : '分享您的電子名片讓別人追蹤您'
+                    }
+                  </p>
                 </div>
-                
-                {displayedMyFriends.length > 0 ? (
-                  displayedMyFriends.map(customer => 
-                    expandedCard === customer.id 
-                      ? renderExpandedCard(customer)
-                      : renderMyFriendCard(customer)
-                  )
-                ) : (
-                  <div className="text-center py-4 text-gray-500 text-sm">
-                    還沒有好友名片
-                  </div>
-                )}
-              </div>
-
-              {/* 追蹤我區塊 */}
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-orange-800 flex items-center space-x-2">
-                    <Bell className="w-4 h-4" />
-                    <span>追蹤我</span>
-                    <span className="bg-orange-200 text-orange-800 text-xs px-2 py-1 rounded-full font-medium">
-                      {followingMeCards.length}
-                    </span>
-                    {followingMeCards.some(c => c.hasPendingInvitation) && (
-                      <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium animate-pulse">
-                        有新邀請
-                      </span>
-                    )}
-                  </h3>
-                  {followingMeCards.length > 5 && (
-                    <Button
-                      onClick={() => setShowMoreFollowing(!showMoreFollowing)}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs text-orange-600"
-                    >
-                      {showMoreFollowing ? '收起' : '展開更多'}
-                    </Button>
-                  )}
-                </div>
-                
-                {displayedFollowingMe.length > 0 ? (
-                  displayedFollowingMe.map(customer => 
-                    expandedCard === customer.id 
-                      ? renderExpandedCard(customer)
-                      : renderFollowingMeCard(customer)
-                  )
-                ) : (
-                  <div className="text-center py-4 text-gray-500 text-sm">
-                    沒有人追蹤您
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           ) : (
             <div className="space-y-0">
