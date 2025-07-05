@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, UserPlus, MessageSquare, Mail, Tag, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, Heart, UserCheck, Bell, Minimize2, Maximize2 } from 'lucide-react';
+import { ArrowLeft, Search, Star, Users, UserPlus, MessageSquare, Mail, Tag, Edit, Save, X, Plus, ChevronDown, ChevronRight, Phone, TrendingUp, Crown, Heart, Bell, Minimize2, Maximize2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,7 +7,6 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
 import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -63,6 +62,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
   const [recommendationCount, setRecommendationCount] = useState(0);
+  const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(false);
 
   const recommendedContacts = [
     {
@@ -120,7 +120,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
-    const updatedCustomers = savedCustomers.map((customer: Customer) => {
+    const updatedCustomers = savedCustomers.map((customer: any) => {
       // 計算人脈關係狀態
       let relationshipStatus: 'mutual' | 'addedByMe' | 'addedMe' = 'addedByMe';
       
@@ -159,6 +159,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       switch (activeFilter) {
         case 'favorites':
           return matchesSearch && customer.isFavorite;
+        case 'mutual':
+          return matchesSearch && customer.relationshipStatus === 'mutual';
+        case 'addedByMe':
+          return matchesSearch && customer.relationshipStatus === 'addedByMe';
+        case 'addedMe':
+          return matchesSearch && customer.relationshipStatus === 'addedMe';
         default:
           if (availableTags.includes(activeFilter)) {
             return matchesSearch && customer.tags?.includes(activeFilter);
@@ -204,11 +210,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const addFollowerToFriends = (customerId: number) => {
     const updatedCustomers = localCustomers.map(c => {
       if (c.id === customerId) {
-        const newStatus = c.isFollowingMe ? 'mutual' : 'addedByMe';
         return { 
           ...c, 
           isMyFriend: true,
-          relationshipStatus: newStatus
+          relationshipStatus: 'mutual' as const
         };
       }
       return c;
@@ -216,7 +221,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
-    toast({ title: "已加入好友名片" });
+    toast({ title: "已加入好友名片，成為互為人脈" });
   };
 
   const ignoreFollower = (customerId: number) => {
@@ -441,7 +446,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                     variant="default"
                     className="bg-green-600 hover:bg-green-700 text-xs h-6 px-2"
                   >
-                    加入好友
+                    加對方
                   </Button>
                 )}
               </div>
@@ -579,12 +584,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
         </div>
 
-        {isFollowingMe && (
+        {customer.relationshipStatus === 'addedMe' && (
           <div className="bg-orange-50 border border-orange-200 rounded-lg p-3 mb-4">
             <div className="flex items-center justify-between">
               <div className="text-sm text-orange-800">
-                <span className="font-medium">⚠️ 對方已追蹤您</span>
-                <p className="text-xs text-orange-600 mt-1">您可以加入好友或忽略此追蹤</p>
+                <span className="font-medium">⚠️ 對方已加您</span>
+                <p className="text-xs text-orange-600 mt-1">您可以加對方成為互為人脈或忽略此人</p>
               </div>
               <div className="flex space-x-2">
                 <Button
@@ -593,7 +598,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   variant="default"
                   className="bg-green-600 hover:bg-green-700 text-xs"
                 >
-                  加入好友
+                  加對方
                 </Button>
                 <Button
                   onClick={() => ignoreFollower(customer.id)}
@@ -926,6 +931,35 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                 <Star className="w-3 h-3 mr-1" />
                 關注中
               </Button>
+
+              {activeSection === 'cards' && (
+                <>
+                  <Button
+                    onClick={() => toggleFilter('mutual')}
+                    variant={activeFilter === 'mutual' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-shrink-0 text-xs h-6"
+                  >
+                    ✅ 互為人脈
+                  </Button>
+                  <Button
+                    onClick={() => toggleFilter('addedByMe')}
+                    variant={activeFilter === 'addedByMe' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-shrink-0 text-xs h-6"
+                  >
+                    ➕ 已加對方
+                  </Button>
+                  <Button
+                    onClick={() => toggleFilter('addedMe')}
+                    variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-shrink-0 text-xs h-6"
+                  >
+                    ⚠️ 對方已加我
+                  </Button>
+                </>
+              )}
               
               {availableTags.map(tag => (
                 <Button
@@ -959,7 +993,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
-                      {searchTerm ? '找不到符合條件的電子名片' : '還沒有任何電子名片'}
+                      {searchTerm || activeFilter !== 'all' ? '找不到符合條件的電子名片' : '還沒有任何電子名片'}
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
                       掃描對方的電子名片來建立人脈關係
@@ -991,28 +1025,40 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
         </ScrollArea>
 
-        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0 p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">智能推薦</span>
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0">
+          <div className={`transition-all duration-300 ${isRecommendationCollapsed ? 'p-2' : 'p-3'}`}>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="w-4 h-4 text-orange-600" />
+                <span className="text-sm font-medium text-orange-700">智能推薦</span>
+                <Button
+                  onClick={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
+                  variant="ghost"
+                  size="sm"
+                  className="p-1 h-6 w-6 text-orange-600 hover:bg-orange-100"
+                >
+                  {isRecommendationCollapsed ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
+                </Button>
+              </div>
             </div>
-          </div>
-          
-          <div className="relative">
-            <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-              {recommendedContacts.concat(Array(10).fill(null)).map((contact, index) => 
-                contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
-                  id: 100 + index,
-                  name: `推薦聯絡人 ${index + 5}`,
-                  jobTitle: '專業人士',
-                  company: '知名企業',
-                  photo: professionalAvatars[index % professionalAvatars.length],
-                  mutualFriends: [],
-                  reason: '系統推薦'
-                }, index + 4)
-              )}
-            </div>
+            
+            {!isRecommendationCollapsed && (
+              <div className="relative">
+                <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                  {recommendedContacts.concat(Array(10).fill(null)).map((contact, index) => 
+                    contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
+                      id: 100 + index,
+                      name: `推薦聯絡人 ${index + 5}`,
+                      jobTitle: '專業人士',
+                      company: '知名企業',
+                      photo: professionalAvatars[index % professionalAvatars.length],
+                      mutualFriends: [],
+                      reason: '系統推薦'
+                    }, index + 4)
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
