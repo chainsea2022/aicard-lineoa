@@ -37,7 +37,8 @@ interface Customer {
   isMyFriend?: boolean;
   isFollowingMe?: boolean;
   hasPendingInvitation?: boolean;
-  relationshipStatus?: 'mutual' | 'addedByMe' | 'addedMe';
+  relationshipStatus?: 'collected' | 'addedMe';
+  isNewAddition?: boolean;
 }
 
 interface RecommendedContact {
@@ -118,9 +119,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     return professionalAvatars[customerId % professionalAvatars.length];
   };
 
-  // 預設的範例數據 - 為每個狀態準備3個範例
   const getDefaultCustomers = (): Customer[] => [
-    // 已互加狀態 (3個)
     {
       id: 1001,
       name: '王小明',
@@ -130,10 +129,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       jobTitle: '產品經理',
       hasCard: true,
       addedDate: new Date().toISOString(),
-      notes: '互為人脈的好友',
-      relationshipStatus: 'mutual' as const,
+      notes: '已掃描加入的電子名片',
+      relationshipStatus: 'collected' as const,
       isMyFriend: true,
-      isFollowingMe: true,
+      isFollowingMe: false,
       tags: ['工作', '朋友']
     },
     {
@@ -146,9 +145,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '設計合作夥伴',
-      relationshipStatus: 'mutual' as const,
+      relationshipStatus: 'collected' as const,
       isMyFriend: true,
-      isFollowingMe: true,
+      isFollowingMe: false,
       tags: ['工作']
     },
     {
@@ -161,13 +160,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '行銷合作夥伴',
-      relationshipStatus: 'mutual' as const,
+      relationshipStatus: 'collected' as const,
       isMyFriend: true,
-      isFollowingMe: true,
+      isFollowingMe: false,
       isFavorite: true,
       tags: ['合作夥伴']
     },
-    // 已收藏狀態 (3個)
     {
       id: 1004,
       name: '陳建志',
@@ -177,8 +175,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       jobTitle: '技術總監',
       hasCard: true,
       addedDate: new Date().toISOString(),
-      notes: '我已加對方但對方還沒加我',
-      relationshipStatus: 'addedByMe' as const,
+      notes: '已掃描加入的技術顧問',
+      relationshipStatus: 'collected' as const,
       isMyFriend: true,
       isFollowingMe: false,
       tags: ['客戶']
@@ -193,7 +191,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '已收藏的聯絡人',
-      relationshipStatus: 'addedByMe' as const,
+      relationshipStatus: 'collected' as const,
       isMyFriend: true,
       isFollowingMe: false,
       tags: ['潛在客戶']
@@ -208,12 +206,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '建築專案合作',
-      relationshipStatus: 'addedByMe' as const,
+      relationshipStatus: 'collected' as const,
       isMyFriend: true,
       isFollowingMe: false,
       tags: ['工作']
     },
-    // 被加入狀態 (3個)
     {
       id: 1007,
       name: '吳雅芳',
@@ -222,12 +219,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       company: '廣告公司',
       jobTitle: '創意總監',
       hasCard: true,
-      addedDate: new Date().toISOString(),
+      addedDate: new Date(Date.now() - 86400000).toISOString(),
       notes: '對方已加我，等待我回應',
       relationshipStatus: 'addedMe' as const,
       isMyFriend: false,
       isFollowingMe: true,
       hasPendingInvitation: true,
+      isNewAddition: false,
       tags: ['合作夥伴']
     },
     {
@@ -238,12 +236,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       company: '科技新創',
       jobTitle: '執行長',
       hasCard: true,
-      addedDate: new Date().toISOString(),
+      addedDate: new Date(Date.now() - 43200000).toISOString(),
       notes: '新創公司執行長',
       relationshipStatus: 'addedMe' as const,
       isMyFriend: false,
       isFollowingMe: true,
       hasPendingInvitation: true,
+      isNewAddition: true,
       tags: ['潛在客戶']
     },
     {
@@ -260,6 +259,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       isMyFriend: false,
       isFollowingMe: true,
       hasPendingInvitation: true,
+      isNewAddition: true,
       isFavorite: true,
       tags: ['媒體']
     }
@@ -271,7 +271,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     
-    // 如果沒有儲存的客戶資料，使用預設資料
     if (savedCustomers.length === 0) {
       const defaultCustomers = getDefaultCustomers();
       setLocalCustomers(defaultCustomers);
@@ -281,14 +280,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
 
     const updatedCustomers = savedCustomers.map((customer: any) => {
-      let relationshipStatus: 'mutual' | 'addedByMe' | 'addedMe' = 'addedByMe';
+      let relationshipStatus: 'collected' | 'addedMe' = 'collected';
       
-      if (customer.isMyFriend && customer.isFollowingMe) {
-        relationshipStatus = 'mutual';
-      } else if (customer.isMyFriend && !customer.isFollowingMe) {
-        relationshipStatus = 'addedByMe';
-      } else if (!customer.isMyFriend && customer.isFollowingMe) {
+      if (!customer.isMyFriend && customer.isFollowingMe) {
         relationshipStatus = 'addedMe';
+      } else {
+        relationshipStatus = 'collected';
       }
 
       return {
@@ -296,7 +293,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         isMyFriend: customer.isMyFriend || customer.hasCard,
         isFollowingMe: customer.isFollowingMe || false,
         hasPendingInvitation: customer.hasPendingInvitation || false,
-        relationshipStatus
+        relationshipStatus,
+        isNewAddition: customer.isNewAddition || false
       } as Customer;
     });
     setLocalCustomers(updatedCustomers);
@@ -307,7 +305,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
   const getFilteredCards = () => {
-    return myBusinessCards.filter(customer => {
+    let filteredCards = myBusinessCards.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -315,10 +313,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       switch (activeFilter) {
         case 'favorites':
           return matchesSearch && customer.isFavorite;
-        case 'mutual':
-          return matchesSearch && customer.relationshipStatus === 'mutual';
-        case 'addedByMe':
-          return matchesSearch && customer.relationshipStatus === 'addedByMe';
+        case 'collected':
+          return matchesSearch && customer.relationshipStatus === 'collected';
         case 'addedMe':
           return matchesSearch && customer.relationshipStatus === 'addedMe';
         default:
@@ -328,6 +324,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           return matchesSearch;
       }
     });
+
+    if (activeFilter === 'addedMe') {
+      filteredCards.sort((a, b) => {
+        if (a.isNewAddition && !b.isNewAddition) return -1;
+        if (!a.isNewAddition && b.isNewAddition) return 1;
+        return new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime();
+      });
+    }
+
+    return filteredCards;
   };
 
   const getFilteredContacts = () => {
@@ -363,14 +369,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   };
 
-  const addFollowerToFriends = (customerId: number) => {
+  const addFollowerToCollected = (customerId: number) => {
     const updatedCustomers = localCustomers.map(c => {
       if (c.id === customerId) {
         return { 
           ...c, 
           isMyFriend: true,
-          relationshipStatus: 'mutual' as const,
-          hasPendingInvitation: false
+          relationshipStatus: 'collected' as const,
+          hasPendingInvitation: false,
+          isNewAddition: false
         };
       }
       return c;
@@ -378,12 +385,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
-    toast({ title: "已加入好友名片，成為互為人脈" });
+    toast({ title: "已加入已收藏名片夾" });
   };
 
   const ignoreFollower = (customerId: number) => {
     const updatedCustomers = localCustomers.map(c => 
-      c.id === customerId ? { ...c, isFollowingMe: false, hasPendingInvitation: false } : c
+      c.id === customerId ? { ...c, isFollowingMe: false, hasPendingInvitation: false, isNewAddition: false } : c
     );
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
@@ -405,7 +412,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         hasCard: true,
         addedDate: new Date().toISOString(),
         notes: `推薦聯絡人 - ${contact.reason}`,
-        tags: ['推薦聯絡人']
+        tags: ['推薦聯絡人'],
+        relationshipStatus: 'collected'
       };
       
       const updatedCustomers = [...localCustomers, newCustomer];
@@ -536,11 +544,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
   };
 
-  const getRelationshipStatusDisplay = (status?: 'mutual' | 'addedByMe' | 'addedMe') => {
+  const getRelationshipStatusDisplay = (status?: 'collected' | 'addedMe') => {
     switch (status) {
-      case 'mutual':
-        return { text: '✅ 已互加', className: 'text-green-600 bg-green-50' };
-      case 'addedByMe':
+      case 'collected':
         return { text: '+ 已收藏', className: 'text-blue-600 bg-blue-50' };
       case 'addedMe':
         return { text: '⚠️ 被加入', className: 'text-orange-600 bg-orange-50' };
@@ -560,15 +566,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       >
         <CardContent className="p-3">
           <div className="flex items-center space-x-3">
-            <Avatar className="w-10 h-10 flex-shrink-0 border border-blue-300">
-              <AvatarImage 
-                src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
-                alt={customer.name} 
-              />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
-                {customer.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="w-10 h-10 flex-shrink-0 border border-blue-300">
+                <AvatarImage 
+                  src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
+                  alt={customer.name} 
+                />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
+                  {customer.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              {customer.isNewAddition && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white"></div>
+              )}
+            </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1">
@@ -597,13 +608,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   <Button
                     onClick={(e) => {
                       e.stopPropagation();
-                      addFollowerToFriends(customer.id);
+                      addFollowerToCollected(customer.id);
                     }}
                     size="sm"
                     variant="default"
                     className="bg-green-600 hover:bg-green-700 text-xs h-6 px-2"
                   >
-                    加對方
+                    加入
                   </Button>
                 )}
               </div>
@@ -674,15 +685,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-3">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center space-x-3">
-            <Avatar className="w-16 h-16 flex-shrink-0">
-              <AvatarImage 
-                src={displayCustomer.photo || getRandomProfessionalAvatar(displayCustomer.id)} 
-                alt={displayCustomer.name} 
-              />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
-                {displayCustomer.name.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar className="w-16 h-16 flex-shrink-0">
+                <AvatarImage 
+                  src={displayCustomer.photo || getRandomProfessionalAvatar(displayCustomer.id)} 
+                  alt={displayCustomer.name} 
+                />
+                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
+                  {displayCustomer.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              {customer.isNewAddition && (
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-white"></div>
+              )}
+            </div>
             <div className="min-w-0 flex-1">
               <h3 className="font-bold text-lg text-gray-800">
                 {isEditing ? (
@@ -746,16 +762,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             <div className="flex items-center justify-between">
               <div className="text-sm text-orange-800">
                 <span className="font-medium">⚠️ 對方已加您</span>
-                <p className="text-xs text-orange-600 mt-1">您可以加對方成為互為人脈或忽略此人</p>
+                <p className="text-xs text-orange-600 mt-1">您可以加入已收藏或忽略此人</p>
               </div>
               <div className="flex space-x-2">
                 <Button
-                  onClick={() => addFollowerToFriends(customer.id)}
+                  onClick={() => addFollowerToCollected(customer.id)}
                   size="sm"
                   variant="default"
                   className="bg-green-600 hover:bg-green-700 text-xs"
                 >
-                  加對方
+                  加入
                 </Button>
                 <Button
                   onClick={() => ignoreFollower(customer.id)}
@@ -1108,16 +1124,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                 {activeSection === 'cards' && (
                   <>
                     <Button
-                      onClick={() => toggleFilter('mutual')}
-                      variant={activeFilter === 'mutual' ? 'default' : 'outline'}
-                      size="sm"
-                      className="flex-shrink-0 text-xs h-6"
-                    >
-                      ✅ 已互加
-                    </Button>
-                    <Button
-                      onClick={() => toggleFilter('addedByMe')}
-                      variant={activeFilter === 'addedByMe' ? 'default' : 'outline'}
+                      onClick={() => toggleFilter('collected')}
+                      variant={activeFilter === 'collected' ? 'default' : 'outline'}
                       size="sm"
                       className="flex-shrink-0 text-xs h-6"
                     >
