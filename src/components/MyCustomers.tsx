@@ -127,6 +127,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       email: 'wang@example.com',
       company: '科技創新公司',
       jobTitle: '產品經理',
+      line: 'wang_xiaoming',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '已掃描加入的電子名片',
@@ -142,6 +143,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       email: 'li@example.com',
       company: '設計工作室',
       jobTitle: '創意總監',
+      line: 'li_yating',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '設計合作夥伴',
@@ -157,6 +159,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       email: 'zhang@example.com',
       company: '行銷顧問公司',
       jobTitle: '行銷總監',
+      line: 'zhang_zhihao',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '行銷合作夥伴',
@@ -173,6 +176,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       email: 'chen@example.com',
       company: '軟體開發公司',
       jobTitle: '技術總監',
+      line: 'chen_jianzhi',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '已掃描加入的技術顧問',
@@ -188,6 +192,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       email: 'lin@example.com',
       company: '財務顧問公司',
       jobTitle: '財務顧問',
+      line: 'lin_meihui',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '已收藏的聯絡人',
@@ -197,46 +202,33 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       tags: ['潛在客戶']
     },
     {
-      id: 1006,
-      name: '黃俊傑',
-      phone: '0967-890-123',
-      email: 'huang@example.com',
-      company: '建築事務所',
-      jobTitle: '建築師',
-      hasCard: true,
-      addedDate: new Date().toISOString(),
-      notes: '建築專案合作',
-      relationshipStatus: 'collected' as const,
-      isMyFriend: true,
-      isFollowingMe: false,
-      tags: ['工作']
-    },
-    {
-      id: 1007,
+      id: 2001,
       name: '吳雅芳',
       phone: '0978-901-234',
       email: 'wu@example.com',
       company: '廣告公司',
       jobTitle: '創意總監',
+      line: 'wu_yafang',
       hasCard: true,
-      addedDate: new Date(Date.now() - 86400000).toISOString(),
+      addedDate: new Date(Date.now() - 3600000).toISOString(),
       notes: '對方已加我，等待我回應',
       relationshipStatus: 'addedMe' as const,
       isMyFriend: false,
       isFollowingMe: true,
       hasPendingInvitation: true,
-      isNewAddition: false,
+      isNewAddition: true,
       tags: ['合作夥伴']
     },
     {
-      id: 1008,
+      id: 2002,
       name: '劉志明',
       phone: '0989-012-345',
       email: 'liu@example.com',
       company: '科技新創',
       jobTitle: '執行長',
+      line: 'liu_zhiming',
       hasCard: true,
-      addedDate: new Date(Date.now() - 43200000).toISOString(),
+      addedDate: new Date(Date.now() - 7200000).toISOString(),
       notes: '新創公司執行長',
       relationshipStatus: 'addedMe' as const,
       isMyFriend: false,
@@ -246,14 +238,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       tags: ['潛在客戶']
     },
     {
-      id: 1009,
+      id: 2003,
       name: '許文華',
       phone: '0990-123-456',
       email: 'xu@example.com',
       company: '媒體公司',
       jobTitle: '記者',
+      line: 'xu_wenhua',
       hasCard: true,
-      addedDate: new Date().toISOString(),
+      addedDate: new Date(Date.now() - 10800000).toISOString(),
       notes: '媒體記者聯絡人',
       relationshipStatus: 'addedMe' as const,
       isMyFriend: false,
@@ -262,6 +255,42 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       isNewAddition: true,
       isFavorite: true,
       tags: ['媒體']
+    },
+    {
+      id: 2004,
+      name: '黃志成',
+      phone: '0901-234-567',
+      email: 'huang@example.com',
+      company: '建築事務所',
+      jobTitle: '建築師',
+      line: 'huang_zhicheng',
+      hasCard: true,
+      addedDate: new Date(Date.now() - 14400000).toISOString(),
+      notes: '建築專案合作',
+      relationshipStatus: 'addedMe' as const,
+      isMyFriend: false,
+      isFollowingMe: true,
+      hasPendingInvitation: true,
+      isNewAddition: false,
+      tags: ['工作']
+    },
+    {
+      id: 2005,
+      name: '蔡雅玲',
+      phone: '0912-345-678',
+      email: 'cai@example.com',
+      company: '行銷公司',
+      jobTitle: '行銷經理',
+      line: 'cai_yaling',
+      hasCard: true,
+      addedDate: new Date(Date.now() - 18000000).toISOString(),
+      notes: '行銷活動合作',
+      relationshipStatus: 'addedMe' as const,
+      isMyFriend: false,
+      isFollowingMe: true,
+      hasPendingInvitation: true,
+      isNewAddition: false,
+      tags: ['行銷']
     }
   ].map(customer => ({
     ...customer,
@@ -303,6 +332,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
   const myContacts = localCustomers.filter(c => !c.hasCard);
+
+  const getPendingNotificationCount = () => {
+    return myBusinessCards.filter(c => 
+      c.relationshipStatus === 'addedMe' && c.hasPendingInvitation
+    ).length;
+  };
 
   const getFilteredCards = () => {
     let filteredCards = myBusinessCards.filter(customer => {
@@ -600,9 +635,39 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               </div>
               
               <div className="flex items-center justify-between">
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusDisplay.className}`}>
-                  {statusDisplay.text}
-                </span>
+                <div className="flex items-center space-x-1">
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusDisplay.className}`}>
+                    {statusDisplay.text}
+                  </span>
+                  
+                  {/* LINE and Phone icons */}
+                  <div className="flex items-center space-x-1">
+                    {customer.line && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLineClick(customer.line!);
+                        }}
+                        className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors"
+                        title="開啟 LINE"
+                      >
+                        <MessageSquare className="w-3 h-3 text-green-600" />
+                      </button>
+                    )}
+                    {customer.phone && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handlePhoneClick(customer.phone);
+                        }}
+                        className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors"
+                        title="撥打電話"
+                      >
+                        <Phone className="w-3 h-3 text-blue-600" />
+                      </button>
+                    )}
+                  </div>
+                </div>
                 
                 {customer.relationshipStatus === 'addedMe' && (
                   <Button
@@ -1074,13 +1139,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               setActiveFilter('all');
             }}
             variant={activeSection === 'cards' ? 'default' : 'ghost'}
-            className="flex-1 rounded-none border-r text-xs"
+            className="flex-1 rounded-none border-r text-xs relative"
           >
             <Heart className="w-4 h-4 mr-1" />
             我的電子名片夾
             <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
               {myBusinessCards.length}
             </span>
+            {/* Notification badge for pending invitations */}
+            {getPendingNotificationCount() > 0 && (
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                {getPendingNotificationCount()}
+              </div>
+            )}
           </Button>
           <Button
             onClick={() => setActiveSection('contacts')}
@@ -1109,53 +1180,80 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
           
           {showTagFilters && (
-            <ScrollArea>
-              <div className="flex space-x-1 pb-1 min-w-max">
-                <Button
-                  onClick={() => toggleFilter('favorites')}
-                  variant={activeFilter === 'favorites' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-shrink-0 text-xs h-6"
-                >
-                  <Star className="w-3 h-3 mr-1" />
-                  關注中
-                </Button>
-
-                {activeSection === 'cards' && (
-                  <>
-                    <Button
-                      onClick={() => toggleFilter('collected')}
-                      variant={activeFilter === 'collected' ? 'default' : 'outline'}
-                      size="sm"
-                      className="flex-shrink-0 text-xs h-6"
-                    >
-                      + 已收藏
-                    </Button>
-                    <Button
-                      onClick={() => toggleFilter('addedMe')}
-                      variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
-                      size="sm"
-                      className="flex-shrink-0 text-xs h-6"
-                    >
-                      ⚠️ 被加入
-                    </Button>
-                  </>
-                )}
-                
-                {availableTags.map(tag => (
+            <>
+              {/* Notification bar for pending additions */}
+              {activeSection === 'cards' && getPendingNotificationCount() > 0 && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-2 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Bell className="w-4 h-4 text-red-500" />
+                    <span className="text-sm text-red-700 font-medium">
+                      有 {getPendingNotificationCount()} 位新朋友加您
+                    </span>
+                  </div>
                   <Button
-                    key={tag}
-                    onClick={() => toggleFilter(tag)}
-                    variant={activeFilter === tag ? 'default' : 'outline'}
+                    onClick={() => setActiveFilter('addedMe')}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs h-6 border-red-300 text-red-600 hover:bg-red-100"
+                  >
+                    查看
+                  </Button>
+                </div>
+              )}
+              
+              <ScrollArea>
+                <div className="flex space-x-1 pb-1 min-w-max">
+                  <Button
+                    onClick={() => toggleFilter('favorites')}
+                    variant={activeFilter === 'favorites' ? 'default' : 'outline'}
                     size="sm"
                     className="flex-shrink-0 text-xs h-6"
                   >
-                    <Tag className="w-3 h-3 mr-1" />
-                    {tag}
+                    <Star className="w-3 h-3 mr-1" />
+                    關注中
                   </Button>
-                ))}
-              </div>
-            </ScrollArea>
+
+                  {activeSection === 'cards' && (
+                    <>
+                      <Button
+                        onClick={() => toggleFilter('collected')}
+                        variant={activeFilter === 'collected' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-shrink-0 text-xs h-6"
+                      >
+                        + 已收藏
+                      </Button>
+                      <Button
+                        onClick={() => toggleFilter('addedMe')}
+                        variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-shrink-0 text-xs h-6 relative"
+                      >
+                        ⚠️ 被加入
+                        {getPendingNotificationCount() > 0 && (
+                          <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                            {getPendingNotificationCount()}
+                          </div>
+                        )}
+                      </Button>
+                    </>
+                  )}
+                  
+                  {availableTags.map(tag => (
+                    <Button
+                      key={tag}
+                      onClick={() => toggleFilter(tag)}
+                      variant={activeFilter === tag ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-shrink-0 text-xs h-6"
+                    >
+                      <Tag className="w-3 h-3 mr-1" />
+                      {tag}
+                    </Button>
+                  ))}
+                </div>
+              </ScrollArea>
+            </>
           )}
         </div>
       </div>
