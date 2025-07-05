@@ -65,6 +65,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [showMoreScanned, setShowMoreScanned] = useState(false);
   const [showMoreFollowing, setShowMoreFollowing] = useState(false);
   const [expandedSubSection, setExpandedSubSection] = useState<'myFriends' | 'followingMe' | null>(null);
+  const [friendsFilter, setFriendsFilter] = useState<'all' | 'myFriends' | 'followingMe'>('all');
 
   const recommendedContacts = [
     {
@@ -140,21 +141,36 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const displayedScannedFriends = showMoreScanned ? myFriendsScanned : myFriendsScanned.slice(0, 5);
   const displayedFollowingMe = showMoreFollowing ? followingMeUnscanned : followingMeUnscanned.slice(0, 5);
 
-  const filteredFriends = [...displayedScannedFriends, ...displayedFollowingMe].filter(customer => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+  const getFilteredFriends = () => {
+    let friendsList = [];
     
-    switch (activeFilter) {
-      case 'favorites':
-        return matchesSearch && customer.isFavorite;
+    switch (friendsFilter) {
+      case 'myFriends':
+        friendsList = displayedScannedFriends;
+        break;
+      case 'followingMe':
+        friendsList = displayedFollowingMe;
+        break;
       default:
-        if (availableTags.includes(activeFilter)) {
-          return matchesSearch && customer.tags?.includes(activeFilter);
-        }
-        return matchesSearch;
+        friendsList = [...displayedScannedFriends, ...displayedFollowingMe];
     }
-  });
+
+    return friendsList.filter(customer => {
+      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      switch (activeFilter) {
+        case 'favorites':
+          return matchesSearch && customer.isFavorite;
+        default:
+          if (availableTags.includes(activeFilter)) {
+            return matchesSearch && customer.tags?.includes(activeFilter);
+          }
+          return matchesSearch;
+      }
+    });
+  };
 
   const filteredContacts = myContacts.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -896,35 +912,70 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </Button>
       </div>
 
-      {/* Filter Tags */}
+      {/* Filter Sections */}
       {activeSection === 'friends' && (
-        <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-          <ScrollArea>
-            <div className="flex space-x-1 pb-1 min-w-max">
+        <div className="bg-white border-b border-gray-200 flex-shrink-0">
+          <div className="p-3 border-b">
+            <div className="flex space-x-1">
               <Button
-                onClick={() => toggleFilter('favorites')}
-                variant={activeFilter === 'favorites' ? 'default' : 'outline'}
+                onClick={() => setFriendsFilter('all')}
+                variant={friendsFilter === 'all' ? 'default' : 'outline'}
                 size="sm"
                 className="flex-shrink-0 text-xs h-7"
               >
-                <Star className="w-3 h-3 mr-1" />
-                關注中
+                全部
               </Button>
-              
-              {availableTags.map(tag => (
+              <Button
+                onClick={() => setFriendsFilter('myFriends')}
+                variant={friendsFilter === 'myFriends' ? 'default' : 'outline'}
+                size="sm"
+                className="flex-shrink-0 text-xs h-7"
+              >
+                我的好友名片
+              </Button>
+              <Button
+                onClick={() => setFriendsFilter('followingMe')}
+                variant={friendsFilter === 'followingMe' ? 'default' : 'outline'}
+                size="sm"
+                className="flex-shrink-0 text-xs h-7"
+              >
+                追蹤我
+                {followingMeWithPendingInvitations.length > 0 && (
+                  <span className="ml-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full">
+                    {followingMeWithPendingInvitations.length}
+                  </span>
+                )}
+              </Button>
+            </div>
+          </div>
+          <div className="p-3">
+            <ScrollArea>
+              <div className="flex space-x-1 pb-1 min-w-max">
                 <Button
-                  key={tag}
-                  onClick={() => toggleFilter(tag)}
-                  variant={activeFilter === tag ? 'default' : 'outline'}
+                  onClick={() => toggleFilter('favorites')}
+                  variant={activeFilter === 'favorites' ? 'default' : 'outline'}
                   size="sm"
                   className="flex-shrink-0 text-xs h-7"
                 >
-                  <Tag className="w-3 h-3 mr-1" />
-                  {tag}
+                  <Star className="w-3 h-3 mr-1" />
+                  關注中
                 </Button>
-              ))}
-            </div>
-          </ScrollArea>
+                
+                {availableTags.map(tag => (
+                  <Button
+                    key={tag}
+                    onClick={() => toggleFilter(tag)}
+                    variant={activeFilter === tag ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-shrink-0 text-xs h-7"
+                  >
+                    <Tag className="w-3 h-3 mr-1" />
+                    {tag}
+                  </Button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
         </div>
       )}
 
@@ -963,75 +1014,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       <ScrollArea className="flex-1">
         <div className="p-3">
           {activeSection === 'friends' ? (
-            <div className="space-y-3">
-              {/* 我的好友區塊 */}
-              {renderSubSectionHeader('我的好友', myFriendsScanned.length, false, 'myFriends')}
-              {expandedSubSection === 'myFriends' && (
-                <div className="space-y-0 mb-4">
-                  {myFriendsScanned
-                    .filter(customer => {
-                      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-                      switch (activeFilter) {
-                        case 'favorites':
-                          return matchesSearch && customer.isFavorite;
-                        default:
-                          if (availableTags.includes(activeFilter)) {
-                            return matchesSearch && customer.tags?.includes(activeFilter);
-                          }
-                          return matchesSearch;
-                      }
-                    })
-                    .map(customer => 
-                      expandedCard === customer.id 
-                        ? renderExpandedCard(customer)
-                        : renderFriendCard(customer)
-                    )}
-                  {myFriendsScanned.length === 0 && (
-                    <div className="text-center py-4 text-gray-500 text-sm">
-                      還沒有好友的電子名片卡
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* 追蹤我區塊 */}
-              {renderSubSectionHeader('追蹤我', followingMeUnscanned.length, followingMeWithPendingInvitations.length > 0, 'followingMe')}
-              {expandedSubSection === 'followingMe' && (
-                <div className="space-y-0">
-                  {followingMeUnscanned
-                    .filter(customer => {
-                      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-                      switch (activeFilter) {
-                        case 'favorites':
-                          return matchesSearch && customer.isFavorite;
-                        default:
-                          if (availableTags.includes(activeFilter)) {
-                            return matchesSearch && customer.tags?.includes(activeFilter);
-                          }
-                          return matchesSearch;
-                      }
-                    })
-                    .map(customer => 
-                      expandedCard === customer.id 
-                        ? renderExpandedCard(customer)
-                        : renderFriendCard(customer)
-                    )}
-                  {followingMeUnscanned.length === 0 && (
-                    <div className="text-center py-4 text-gray-500 text-sm">
-                      還沒有人追蹤您的電子名片卡
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {myFriendsScanned.length === 0 && followingMeUnscanned.length === 0 && (
+            <div className="space-y-0">
+              {getFilteredFriends().length > 0 ? (
+                getFilteredFriends().map(customer => 
+                  expandedCard === customer.id 
+                    ? renderExpandedCard(customer)
+                    : renderFriendCard(customer)
+                )
+              ) : (
                 <div className="text-center py-8">
                   <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">還沒有任何電子名片卡</p>
+                  <p className="text-gray-500 text-sm">
+                    {searchTerm || activeFilter !== 'all' ? '找不到符合條件的名片' : '還沒有任何電子名片卡'}
+                  </p>
                   <p className="text-gray-400 text-xs mt-1">使用掃描功能來新增名片卡</p>
                 </div>
               )}
