@@ -138,7 +138,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         isFollowingMe: customer.isFollowingMe || false,
         hasPendingInvitation: customer.hasPendingInvitation || false,
         relationshipStatus
-      };
+      } as Customer;
     });
     setLocalCustomers(updatedCustomers);
     onCustomersUpdate(updatedCustomers);
