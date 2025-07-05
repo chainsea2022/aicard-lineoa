@@ -62,6 +62,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [newTag, setNewTag] = useState('');
   const [recommendationCount, setRecommendationCount] = useState(0);
   const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(false);
+  const [showTagFilters, setShowTagFilters] = useState(true);
 
   const recommendedContacts = [
     {
@@ -117,8 +118,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     return professionalAvatars[customerId % professionalAvatars.length];
   };
 
-  // 預設的範例數據
+  // 預設的範例數據 - 為每個狀態準備3個範例
   const getDefaultCustomers = (): Customer[] => [
+    // 已互加狀態 (3個)
     {
       id: 1001,
       name: '王小明',
@@ -136,11 +138,43 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     },
     {
       id: 1002,
-      name: '李大華',
+      name: '李雅婷',
       phone: '0923-456-789',
       email: 'li@example.com',
       company: '設計工作室',
       jobTitle: '創意總監',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '設計合作夥伴',
+      relationshipStatus: 'mutual' as const,
+      isMyFriend: true,
+      isFollowingMe: true,
+      tags: ['工作']
+    },
+    {
+      id: 1003,
+      name: '張志豪',
+      phone: '0934-567-890',
+      email: 'zhang@example.com',
+      company: '行銷顧問公司',
+      jobTitle: '行銷總監',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '行銷合作夥伴',
+      relationshipStatus: 'mutual' as const,
+      isMyFriend: true,
+      isFollowingMe: true,
+      isFavorite: true,
+      tags: ['合作夥伴']
+    },
+    // 已收藏狀態 (3個)
+    {
+      id: 1004,
+      name: '陳建志',
+      phone: '0945-678-901',
+      email: 'chen@example.com',
+      company: '軟體開發公司',
+      jobTitle: '技術總監',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '我已加對方但對方還沒加我',
@@ -150,12 +184,43 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       tags: ['客戶']
     },
     {
-      id: 1003,
-      name: '張雅芳',
-      phone: '0934-567-890',
-      email: 'zhang@example.com',
-      company: '行銷顧問公司',
-      jobTitle: '行銷總監',
+      id: 1005,
+      name: '林美慧',
+      phone: '0956-789-012',
+      email: 'lin@example.com',
+      company: '財務顧問公司',
+      jobTitle: '財務顧問',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '已收藏的聯絡人',
+      relationshipStatus: 'addedByMe' as const,
+      isMyFriend: true,
+      isFollowingMe: false,
+      tags: ['潛在客戶']
+    },
+    {
+      id: 1006,
+      name: '黃俊傑',
+      phone: '0967-890-123',
+      email: 'huang@example.com',
+      company: '建築事務所',
+      jobTitle: '建築師',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '建築專案合作',
+      relationshipStatus: 'addedByMe' as const,
+      isMyFriend: true,
+      isFollowingMe: false,
+      tags: ['工作']
+    },
+    // 被加入狀態 (3個)
+    {
+      id: 1007,
+      name: '吳雅芳',
+      phone: '0978-901-234',
+      email: 'wu@example.com',
+      company: '廣告公司',
+      jobTitle: '創意總監',
       hasCard: true,
       addedDate: new Date().toISOString(),
       notes: '對方已加我，等待我回應',
@@ -166,22 +231,42 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       tags: ['合作夥伴']
     },
     {
-      id: 1004,
-      name: '陳建志',
-      phone: '0945-678-901',
-      email: 'chen@example.com',
-      company: '軟體開發公司',
-      jobTitle: '技術總監',
+      id: 1008,
+      name: '劉志明',
+      phone: '0989-012-345',
+      email: 'liu@example.com',
+      company: '科技新創',
+      jobTitle: '執行長',
       hasCard: true,
       addedDate: new Date().toISOString(),
-      notes: '技術合作夥伴',
-      relationshipStatus: 'mutual' as const,
-      isMyFriend: true,
+      notes: '新創公司執行長',
+      relationshipStatus: 'addedMe' as const,
+      isMyFriend: false,
       isFollowingMe: true,
+      hasPendingInvitation: true,
+      tags: ['潛在客戶']
+    },
+    {
+      id: 1009,
+      name: '許文華',
+      phone: '0990-123-456',
+      email: 'xu@example.com',
+      company: '媒體公司',
+      jobTitle: '記者',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '媒體記者聯絡人',
+      relationshipStatus: 'addedMe' as const,
+      isMyFriend: false,
+      isFollowingMe: true,
+      hasPendingInvitation: true,
       isFavorite: true,
-      tags: ['工作', '合作夥伴']
+      tags: ['媒體']
     }
-  ];
+  ].map(customer => ({
+    ...customer,
+    tags: customer.tags || []
+  }));
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -454,13 +539,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const getRelationshipStatusDisplay = (status?: 'mutual' | 'addedByMe' | 'addedMe') => {
     switch (status) {
       case 'mutual':
-        return { text: '✅ 互為人脈', className: 'text-green-600 bg-green-50' };
+        return { text: '✅ 已互加', className: 'text-green-600 bg-green-50' };
       case 'addedByMe':
-        return { text: '➕ 已加對方', className: 'text-gray-600 bg-gray-50' };
+        return { text: '+ 已收藏', className: 'text-blue-600 bg-blue-50' };
       case 'addedMe':
-        return { text: '⚠️ 對方已加您', className: 'text-red-600 bg-red-50' };
+        return { text: '⚠️ 被加入', className: 'text-orange-600 bg-orange-50' };
       default:
-        return { text: '➕ 已加對方', className: 'text-gray-600 bg-gray-50' };
+        return { text: '+ 已收藏', className: 'text-blue-600 bg-blue-50' };
     }
   };
 
@@ -968,7 +1053,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
         <div className="flex bg-white border-b border-gray-200">
           <Button
-            onClick={() => setActiveSection('cards')}
+            onClick={() => {
+              setActiveSection('cards');
+              setActiveFilter('all');
+            }}
             variant={activeSection === 'cards' ? 'default' : 'ghost'}
             className="flex-1 rounded-none border-r text-xs"
           >
@@ -992,61 +1080,75 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
 
         <div className="p-3 bg-white border-b border-gray-200">
-          <ScrollArea>
-            <div className="flex space-x-1 pb-1 min-w-max">
-              <Button
-                onClick={() => toggleFilter('favorites')}
-                variant={activeFilter === 'favorites' ? 'default' : 'outline'}
-                size="sm"
-                className="flex-shrink-0 text-xs h-6"
-              >
-                <Star className="w-3 h-3 mr-1" />
-                關注中
-              </Button>
-
-              {activeSection === 'cards' && (
-                <>
-                  <Button
-                    onClick={() => toggleFilter('mutual')}
-                    variant={activeFilter === 'mutual' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-shrink-0 text-xs h-6"
-                  >
-                    ✅ 互為人脈
-                  </Button>
-                  <Button
-                    onClick={() => toggleFilter('addedByMe')}
-                    variant={activeFilter === 'addedByMe' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-shrink-0 text-xs h-6"
-                  >
-                    ➕ 已加對方
-                  </Button>
-                  <Button
-                    onClick={() => toggleFilter('addedMe')}
-                    variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-shrink-0 text-xs h-6"
-                  >
-                    ⚠️ 對方已加我
-                  </Button>
-                </>
-              )}
-              
-              {availableTags.map(tag => (
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-700">篩選條件</span>
+            <Button
+              onClick={() => setShowTagFilters(!showTagFilters)}
+              variant="ghost"
+              size="sm"
+              className="p-1 h-6 w-6"
+            >
+              {showTagFilters ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </Button>
+          </div>
+          
+          {showTagFilters && (
+            <ScrollArea>
+              <div className="flex space-x-1 pb-1 min-w-max">
                 <Button
-                  key={tag}
-                  onClick={() => toggleFilter(tag)}
-                  variant={activeFilter === tag ? 'default' : 'outline'}
+                  onClick={() => toggleFilter('favorites')}
+                  variant={activeFilter === 'favorites' ? 'default' : 'outline'}
                   size="sm"
                   className="flex-shrink-0 text-xs h-6"
                 >
-                  <Tag className="w-3 h-3 mr-1" />
-                  {tag}
+                  <Star className="w-3 h-3 mr-1" />
+                  關注中
                 </Button>
-              ))}
-            </div>
-          </ScrollArea>
+
+                {activeSection === 'cards' && (
+                  <>
+                    <Button
+                      onClick={() => toggleFilter('mutual')}
+                      variant={activeFilter === 'mutual' ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-shrink-0 text-xs h-6"
+                    >
+                      ✅ 已互加
+                    </Button>
+                    <Button
+                      onClick={() => toggleFilter('addedByMe')}
+                      variant={activeFilter === 'addedByMe' ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-shrink-0 text-xs h-6"
+                    >
+                      + 已收藏
+                    </Button>
+                    <Button
+                      onClick={() => toggleFilter('addedMe')}
+                      variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
+                      size="sm"
+                      className="flex-shrink-0 text-xs h-6"
+                    >
+                      ⚠️ 被加入
+                    </Button>
+                  </>
+                )}
+                
+                {availableTags.map(tag => (
+                  <Button
+                    key={tag}
+                    onClick={() => toggleFilter(tag)}
+                    variant={activeFilter === tag ? 'default' : 'outline'}
+                    size="sm"
+                    className="flex-shrink-0 text-xs h-6"
+                  >
+                    <Tag className="w-3 h-3 mr-1" />
+                    {tag}
+                  </Button>
+                ))}
+              </div>
+            </ScrollArea>
+          )}
         </div>
       </div>
 
