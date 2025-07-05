@@ -37,7 +37,6 @@ interface Customer {
   isMyFriend?: boolean;
   isFollowingMe?: boolean;
   hasPendingInvitation?: boolean;
-  // 新增人脈關係狀態
   relationshipStatus?: 'mutual' | 'addedByMe' | 'addedMe';
 }
 
@@ -118,18 +117,93 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     return professionalAvatars[customerId % professionalAvatars.length];
   };
 
+  // 預設的範例數據
+  const getDefaultCustomers = (): Customer[] => [
+    {
+      id: 1001,
+      name: '王小明',
+      phone: '0912-345-678',
+      email: 'wang@example.com',
+      company: '科技創新公司',
+      jobTitle: '產品經理',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '互為人脈的好友',
+      relationshipStatus: 'mutual' as const,
+      isMyFriend: true,
+      isFollowingMe: true,
+      tags: ['工作', '朋友']
+    },
+    {
+      id: 1002,
+      name: '李大華',
+      phone: '0923-456-789',
+      email: 'li@example.com',
+      company: '設計工作室',
+      jobTitle: '創意總監',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '我已加對方但對方還沒加我',
+      relationshipStatus: 'addedByMe' as const,
+      isMyFriend: true,
+      isFollowingMe: false,
+      tags: ['客戶']
+    },
+    {
+      id: 1003,
+      name: '張雅芳',
+      phone: '0934-567-890',
+      email: 'zhang@example.com',
+      company: '行銷顧問公司',
+      jobTitle: '行銷總監',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '對方已加我，等待我回應',
+      relationshipStatus: 'addedMe' as const,
+      isMyFriend: false,
+      isFollowingMe: true,
+      hasPendingInvitation: true,
+      tags: ['合作夥伴']
+    },
+    {
+      id: 1004,
+      name: '陳建志',
+      phone: '0945-678-901',
+      email: 'chen@example.com',
+      company: '軟體開發公司',
+      jobTitle: '技術總監',
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '技術合作夥伴',
+      relationshipStatus: 'mutual' as const,
+      isMyFriend: true,
+      isFollowingMe: true,
+      isFavorite: true,
+      tags: ['工作', '合作夥伴']
+    }
+  ];
+
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
+    
+    // 如果沒有儲存的客戶資料，使用預設資料
+    if (savedCustomers.length === 0) {
+      const defaultCustomers = getDefaultCustomers();
+      setLocalCustomers(defaultCustomers);
+      localStorage.setItem('aile-customers', JSON.stringify(defaultCustomers));
+      onCustomersUpdate(defaultCustomers);
+      return;
+    }
+
     const updatedCustomers = savedCustomers.map((customer: any) => {
-      // 計算人脈關係狀態
       let relationshipStatus: 'mutual' | 'addedByMe' | 'addedMe' = 'addedByMe';
       
       if (customer.isMyFriend && customer.isFollowingMe) {
-        relationshipStatus = 'mutual'; // 互為人脈
+        relationshipStatus = 'mutual';
       } else if (customer.isMyFriend && !customer.isFollowingMe) {
-        relationshipStatus = 'addedByMe'; // 已加對方
+        relationshipStatus = 'addedByMe';
       } else if (!customer.isMyFriend && customer.isFollowingMe) {
-        relationshipStatus = 'addedMe'; // 對方已加我
+        relationshipStatus = 'addedMe';
       }
 
       return {
@@ -144,10 +218,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
 
-  // 我的電子名片夾：包含所有電子名片（原本的好友名片 + 追蹤我）
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
-  
-  // 我的聯絡人：非電子名片的聯絡人
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
   const getFilteredCards = () => {
@@ -213,7 +284,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         return { 
           ...c, 
           isMyFriend: true,
-          relationshipStatus: 'mutual' as const
+          relationshipStatus: 'mutual' as const,
+          hasPendingInvitation: false
         };
       }
       return c;
@@ -821,14 +893,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const renderSmartRecommendationCard = (contact: RecommendedContact, index: number) => {
     if (index >= 10) {
       return (
-        <Card key="upgrade" className="w-32 h-20 bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-dashed border-purple-300 flex-shrink-0">
-          <CardContent className="p-2 h-full">
+        <Card key="upgrade" className="w-24 h-16 bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-dashed border-purple-300 flex-shrink-0">
+          <CardContent className="p-1 h-full">
             <button 
               onClick={showUpgradePrompt}
-              className="w-full h-full flex flex-col items-center justify-center space-y-1 text-purple-600 hover:text-purple-700"
+              className="w-full h-full flex flex-col items-center justify-center space-y-0.5 text-purple-600 hover:text-purple-700"
             >
-              <Crown className="w-4 h-4" />
-              <span className="text-xs font-medium text-center leading-tight">升級解鎖<br />全功能</span>
+              <Crown className="w-3 h-3" />
+              <span className="text-xs font-medium text-center leading-tight">升級<br />解鎖</span>
             </button>
           </CardContent>
         </Card>
@@ -836,11 +908,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
 
     return (
-      <Card key={contact.id} className="w-32 h-20 bg-white border border-orange-200 flex-shrink-0">
-        <CardContent className="p-2">
+      <Card key={contact.id} className="w-24 h-16 bg-white border border-orange-200 flex-shrink-0">
+        <CardContent className="p-1">
           <div className="flex flex-col h-full">
-            <div className="flex items-center space-x-1 mb-1">
-              <Avatar className="w-6 h-6 border border-orange-300 flex-shrink-0">
+            <div className="flex items-center space-x-1 mb-0.5">
+              <Avatar className="w-4 h-4 border border-orange-300 flex-shrink-0">
                 <AvatarImage src={contact.photo} alt={contact.name} />
                 <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
                   {contact.name.charAt(0)}
@@ -855,7 +927,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               onClick={() => addRecommendedContact(contact.id)}
               size="sm"
               variant="outline"
-              className="border-orange-300 text-orange-600 hover:bg-orange-100 text-xs h-5 px-2 mt-auto"
+              className="border-orange-300 text-orange-600 hover:bg-orange-100 text-xs h-4 px-1 mt-auto"
             >
               加入
             </Button>
@@ -1026,37 +1098,67 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </ScrollArea>
 
         <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0">
-          <div className={`transition-all duration-300 ${isRecommendationCollapsed ? 'p-2' : 'p-3'}`}>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-700">智能推薦</span>
+          <div className={`transition-all duration-300 ${isRecommendationCollapsed ? 'p-2' : 'p-2'}`}>
+            {!isRecommendationCollapsed ? (
+              <>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="w-4 h-4 text-orange-600" />
+                    <span className="text-sm font-medium text-orange-700">智能推薦</span>
+                  </div>
+                  <Button
+                    onClick={() => setIsRecommendationCollapsed(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="p-1 h-6 w-6 text-orange-600 hover:bg-orange-100"
+                  >
+                    <Minimize2 className="w-3 h-3" />
+                  </Button>
+                </div>
+                
+                <div className="relative">
+                  <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+                    {recommendedContacts.concat(Array(10).fill(null)).map((contact, index) => 
+                      contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
+                        id: 100 + index,
+                        name: `推薦聯絡人 ${index + 5}`,
+                        jobTitle: '專業人士',
+                        company: '知名企業',
+                        photo: professionalAvatars[index % professionalAvatars.length],
+                        mutualFriends: [],
+                        reason: '系統推薦'
+                      }, index + 4)
+                    )}
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm font-medium text-orange-700">智能推薦</span>
+                  <div className="flex space-x-1">
+                    {recommendedContacts.slice(0, 3).map((contact, index) => (
+                      <Avatar key={contact.id} className="w-6 h-6 border border-orange-300">
+                        <AvatarImage src={contact.photo} alt={contact.name} />
+                        <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
+                          {contact.name.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                    ))}
+                    <div className="w-6 h-6 border border-orange-300 rounded-full bg-orange-100 flex items-center justify-center">
+                      <span className="text-xs text-orange-600 font-medium">+</span>
+                    </div>
+                  </div>
+                </div>
                 <Button
-                  onClick={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
+                  onClick={() => setIsRecommendationCollapsed(false)}
                   variant="ghost"
                   size="sm"
                   className="p-1 h-6 w-6 text-orange-600 hover:bg-orange-100"
                 >
-                  {isRecommendationCollapsed ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
+                  <Maximize2 className="w-3 h-3" />
                 </Button>
-              </div>
-            </div>
-            
-            {!isRecommendationCollapsed && (
-              <div className="relative">
-                <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-                  {recommendedContacts.concat(Array(10).fill(null)).map((contact, index) => 
-                    contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
-                      id: 100 + index,
-                      name: `推薦聯絡人 ${index + 5}`,
-                      jobTitle: '專業人士',
-                      company: '知名企業',
-                      photo: professionalAvatars[index % professionalAvatars.length],
-                      mutualFriends: [],
-                      reason: '系統推薦'
-                    }, index + 4)
-                  )}
-                </div>
               </div>
             )}
           </div>
