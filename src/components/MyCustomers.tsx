@@ -55,14 +55,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeSection, setActiveSection] = useState<'friends' | 'contacts'>('friends');
   const [friendsSubSection, setFriendsSubSection] = useState<'myFriends' | 'followingMe'>('myFriends');
+  const [contactsSubSection, setContactsSubSection] = useState<'all' | 'invited' | 'uninvited'>('all');
   const [localCustomers, setLocalCustomers] = useState<Customer[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>(['工作', '朋友', '客戶', '合作夥伴', '潛在客戶']);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
   const [editingCard, setEditingCard] = useState<number | null>(null);
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
   const [newTag, setNewTag] = useState('');
-  const [isRecommendationMinimized, setIsRecommendationMinimized] = useState(false);
-  const [invitationFilter, setInvitationFilter] = useState<'all' | 'invited' | 'uninvited'>('all');
+  const [recommendationCount, setRecommendationCount] = useState(0);
 
   const recommendedContacts = [
     {
@@ -158,20 +158,37 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
-  const filteredContacts = myContacts.filter(customer => {
-    const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    switch (invitationFilter) {
-      case 'invited':
-        return matchesSearch && (customer.invitationSent || customer.emailInvitationSent);
-      case 'uninvited':
-        return matchesSearch && !(customer.invitationSent || customer.emailInvitationSent);
-      default:
-        return matchesSearch;
-    }
-  });
+  const getFilteredContacts = () => {
+    return myContacts.filter(customer => {
+      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      // 首先根據邀請狀態篩選
+      let matchesInvitationFilter = true;
+      switch (contactsSubSection) {
+        case 'invited':
+          matchesInvitationFilter = customer.invitationSent || customer.emailInvitationSent;
+          break;
+        case 'uninvited':
+          matchesInvitationFilter = !(customer.invitationSent || customer.emailInvitationSent);
+          break;
+        default:
+          matchesInvitationFilter = true;
+      }
+      
+      // 然後根據其他篩選條件
+      switch (activeFilter) {
+        case 'favorites':
+          return matchesSearch && matchesInvitationFilter && customer.isFavorite;
+        default:
+          if (availableTags.includes(activeFilter)) {
+            return matchesSearch && matchesInvitationFilter && customer.tags?.includes(activeFilter);
+          }
+          return matchesSearch && matchesInvitationFilter;
+      }
+    });
+  };
 
   const toggleFilter = (filter: string) => {
     setActiveFilter(activeFilter === filter ? 'all' : filter);
@@ -353,7 +370,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
   };
 
-  // Condensed card component for mobile optimization
   const renderCondensedCard = (customer: Customer, isFollowingMe: boolean = false) => (
     <Card 
       key={customer.id} 
@@ -770,167 +786,178 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     );
   };
 
-  const renderRecommendationCard = (contact: RecommendedContact) => (
-    <Card className="w-full bg-gradient-to-br from-orange-50 to-yellow-50 border border-orange-200">
-      <CardContent className="p-3">
-        <div className="flex items-center space-x-2">
-          <Avatar className="w-10 h-10 border border-orange-300 flex-shrink-0">
-            <AvatarImage src={contact.photo} alt={contact.name} />
-            <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
-              {contact.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-xs text-gray-800 truncate">{contact.name}</h3>
-            <p className="text-xs text-gray-600 truncate">{contact.jobTitle}</p>
-            <p className="text-xs text-gray-500 truncate">{contact.company}</p>
+  const renderSmartRecommendationCard = (contact: RecommendedContact, index: number) => {
+    if (index >= 10) {
+      return (
+        <Card key="upgrade" className="w-32 h-20 bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-dashed border-purple-300 flex-shrink-0">
+          <CardContent className="p-2 h-full">
+            <button 
+              onClick={showUpgradePrompt}
+              className="w-full h-full flex flex-col items-center justify-center space-y-1 text-purple-600 hover:text-purple-700"
+            >
+              <Crown className="w-4 h-4" />
+              <span className="text-xs font-medium text-center leading-tight">升級解鎖<br />全功能</span>
+            </button>
+          </CardContent>
+        </Card>
+      );
+    }
+
+    return (
+      <Card key={contact.id} className="w-32 h-20 bg-white border border-orange-200 flex-shrink-0">
+        <CardContent className="p-2">
+          <div className="flex flex-col h-full">
+            <div className="flex items-center space-x-1 mb-1">
+              <Avatar className="w-6 h-6 border border-orange-300 flex-shrink-0">
+                <AvatarImage src={contact.photo} alt={contact.name} />
+                <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
+                  {contact.name.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-bold text-xs text-gray-800 truncate">{contact.name}</h3>
+              </div>
+            </div>
+            <p className="text-xs text-gray-600 truncate mb-1">{contact.jobTitle}</p>
+            <Button
+              onClick={() => addRecommendedContact(contact.id)}
+              size="sm"
+              variant="outline"
+              className="border-orange-300 text-orange-600 hover:bg-orange-100 text-xs h-5 px-2 mt-auto"
+            >
+              加入
+            </Button>
           </div>
-          <Button
-            onClick={() => addRecommendedContact(contact.id)}
-            size="sm"
-            variant="outline"
-            className="border-orange-300 text-orange-600 hover:bg-orange-100 flex-shrink-0 text-xs h-6 px-2"
-          >
-            加入
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
-      <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 shadow-lg flex-shrink-0">
-        <div className="flex items-center space-x-3">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onClose} 
-            className="text-white hover:bg-white/20 p-1.5 h-8 w-8"
+      <div className="flex-shrink-0">
+        <div className="bg-gradient-to-r from-orange-500 to-orange-600 text-white p-3 shadow-lg">
+          <div className="flex items-center space-x-3">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose} 
+              className="text-white hover:bg-white/20 p-1.5 h-8 w-8"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+            <h1 className="font-bold text-base">名片人脈夾</h1>
+          </div>
+        </div>
+
+        <div className="p-3 bg-white border-b border-gray-200">
+          <div className="relative">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Input
+              placeholder="搜尋名片或聯絡人..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 text-sm h-9"
+            />
+          </div>
+        </div>
+
+        <div className="flex bg-white border-b border-gray-200">
+          <Button
+            onClick={() => setActiveSection('friends')}
+            variant={activeSection === 'friends' ? 'default' : 'ghost'}
+            className="flex-1 rounded-none border-r text-xs"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <Heart className="w-4 h-4 mr-1" />
+            我的電子名片夾
+            <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+              {myFriendsCards.length + followingMeCards.length}
+            </span>
           </Button>
-          <h1 className="font-bold text-base">名片人脈夾</h1>
+          <Button
+            onClick={() => setActiveSection('contacts')}
+            variant={activeSection === 'contacts' ? 'default' : 'ghost'}
+            className="flex-1 rounded-none text-xs"
+          >
+            <UserPlus className="w-4 h-4 mr-1" />
+            我的聯絡人
+            <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+              {myContacts.length}
+            </span>
+          </Button>
         </div>
-      </div>
 
-      <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-        <div className="relative">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <Input
-            placeholder="搜尋名片或聯絡人..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 text-sm h-9"
-          />
-        </div>
-      </div>
-
-      {/* Section Tabs */}
-      <div className="flex bg-white border-b border-gray-200 flex-shrink-0">
-        <Button
-          onClick={() => setActiveSection('friends')}
-          variant={activeSection === 'friends' ? 'default' : 'ghost'}
-          className="flex-1 rounded-none border-r text-xs"
-        >
-          <Heart className="w-4 h-4 mr-1" />
-          我的電子名片夾
-          <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-            {myFriendsCards.length + followingMeCards.length}
-          </span>
-        </Button>
-        <Button
-          onClick={() => setActiveSection('contacts')}
-          variant={activeSection === 'contacts' ? 'default' : 'ghost'}
-          className="flex-1 rounded-none text-xs"
-        >
-          <UserPlus className="w-4 h-4 mr-1" />
-          我的聯絡人
-          <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-            {myContacts.length}
-          </span>
-        </Button>
-      </div>
-
-      {/* Sub-section filters for Friends */}
-      {activeSection === 'friends' && (
-        <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-          <div className="flex space-x-1">
-            <Button
-              onClick={() => setFriendsSubSection('myFriends')}
-              variant={friendsSubSection === 'myFriends' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 text-xs h-7"
-            >
-              我的好友名片
-              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {myFriendsCards.length}
-              </span>
-            </Button>
-            <Button
-              onClick={() => setFriendsSubSection('followingMe')}
-              variant={friendsSubSection === 'followingMe' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 text-xs h-7 relative"
-            >
-              追蹤我
-              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {followingMeCards.length}
-              </span>
-              {followingMeCards.some(c => c.hasPendingInvitation) && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
-                  !
-                </span>
-              )}
-            </Button>
+        <div className="p-3 bg-white border-b border-gray-200">
+          <div className="flex space-x-1 mb-2">
+            {activeSection === 'friends' ? (
+              <>
+                <Button
+                  onClick={() => setFriendsSubSection('myFriends')}
+                  variant={friendsSubSection === 'myFriends' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  我的好友名片
+                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {myFriendsCards.length}
+                  </span>
+                </Button>
+                <Button
+                  onClick={() => setFriendsSubSection('followingMe')}
+                  variant={friendsSubSection === 'followingMe' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7 relative"
+                >
+                  追蹤我
+                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {followingMeCards.length}
+                  </span>
+                  {followingMeCards.some(c => c.hasPendingInvitation) && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
+                      !
+                    </span>
+                  )}
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  onClick={() => setContactsSubSection('all')}
+                  variant={contactsSubSection === 'all' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  全部
+                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {myContacts.length}
+                  </span>
+                </Button>
+                <Button
+                  onClick={() => setContactsSubSection('invited')}
+                  variant={contactsSubSection === 'invited' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  已邀請
+                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {myContacts.filter(c => c.invitationSent || c.emailInvitationSent).length}
+                  </span>
+                </Button>
+                <Button
+                  onClick={() => setContactsSubSection('uninvited')}
+                  variant={contactsSubSection === 'uninvited' ? 'default' : 'outline'}
+                  size="sm"
+                  className="flex-shrink-0 text-xs h-7"
+                >
+                  未邀請
+                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
+                    {myContacts.filter(c => !(c.invitationSent || c.emailInvitationSent)).length}
+                  </span>
+                </Button>
+              </>
+            )}
           </div>
-        </div>
-      )}
 
-      {/* Filters for Contacts Section */}
-      {activeSection === 'contacts' && (
-        <div className="p-3 bg-white border-b border-gray-200 flex-shrink-0">
-          <div className="flex space-x-1">
-            <Button
-              onClick={() => setInvitationFilter('all')}
-              variant={invitationFilter === 'all' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 text-xs h-7"
-            >
-              全部
-              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {myContacts.length}
-              </span>
-            </Button>
-            <Button
-              onClick={() => setInvitationFilter('invited')}
-              variant={invitationFilter === 'invited' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 text-xs h-7"
-            >
-              已邀請
-              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {myContacts.filter(c => c.invitationSent || c.emailInvitationSent).length}
-              </span>
-            </Button>
-            <Button
-              onClick={() => setInvitationFilter('uninvited')}
-              variant={invitationFilter === 'uninvited' ? 'default' : 'outline'}
-              size="sm"
-              className="flex-shrink-0 text-xs h-7"
-            >
-              未邀請
-              <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                {myContacts.filter(c => !(c.invitationSent || c.emailInvitationSent)).length}
-              </span>
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Additional Filters for Friends Section */}
-      {activeSection === 'friends' && (
-        <div className="px-3 pb-3 bg-white border-b border-gray-200 flex-shrink-0">
           <ScrollArea>
             <div className="flex space-x-1 pb-1 min-w-max">
               <Button
@@ -958,120 +985,85 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             </div>
           </ScrollArea>
         </div>
-      )}
+      </div>
 
-      {/* Content Area */}
-      <ScrollArea className="flex-1">
-        <div className="p-3">
-          {activeSection === 'friends' ? (
-            <div className="space-y-0">
-              {getFilteredFriends().length > 0 ? (
-                getFilteredFriends().map(customer => 
-                  expandedCard === customer.id 
-                    ? renderExpandedCard(customer)
-                    : renderCondensedCard(customer, friendsSubSection === 'followingMe')
-                )
-              ) : (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">
-                    {friendsSubSection === 'myFriends' 
-                      ? (searchTerm ? '找不到符合條件的好友名片' : '還沒有好友名片')
-                      : (searchTerm ? '找不到符合條件的追蹤者' : '沒有人追蹤您')
-                    }
-                  </p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    {friendsSubSection === 'myFriends' 
-                      ? '掃描對方的電子名片來加入好友'
-                      : '分享您的電子名片讓別人追蹤您'
-                    }
-                  </p>
-                </div>
+      <div className="flex-1 flex flex-col min-h-0">
+        <ScrollArea className="flex-1">
+          <div className="p-3">
+            {activeSection === 'friends' ? (
+              <div className="space-y-0">
+                {getFilteredFriends().length > 0 ? (
+                  getFilteredFriends().map(customer => 
+                    expandedCard === customer.id 
+                      ? renderExpandedCard(customer)
+                      : renderCondensedCard(customer, friendsSubSection === 'followingMe')
+                  )
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm">
+                      {friendsSubSection === 'myFriends' 
+                        ? (searchTerm ? '找不到符合條件的好友名片' : '還沒有好友名片')
+                        : (searchTerm ? '找不到符合條件的追蹤者' : '沒有人追蹤您')
+                      }
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      {friendsSubSection === 'myFriends' 
+                        ? '掃描對方的電子名片來加入好友'
+                        : '分享您的電子名片讓別人追蹤您'
+                      }
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-0">
+                {getFilteredContacts().length > 0 ? (
+                  getFilteredContacts().map(customer => 
+                    expandedCard === customer.id 
+                      ? renderExpandedCard(customer)
+                      : renderContactCard(customer)
+                  )
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 text-sm">
+                      {searchTerm ? '找不到符合條件的聯絡人' : '還沒有任何聯絡人'}
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      掃描紙本名片來新增聯絡人
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0 p-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center space-x-2">
+              <TrendingUp className="w-4 h-4 text-orange-600" />
+              <span className="text-sm font-medium text-orange-700">智能推薦</span>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
+              {recommendedContacts.concat(Array(5).fill(null)).map((contact, index) => 
+                contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
+                  id: 100 + index,
+                  name: `推薦聯絡人 ${index + 5}`,
+                  jobTitle: '專業人士',
+                  company: '知名企業',
+                  photo: professionalAvatars[index % professionalAvatars.length],
+                  mutualFriends: [],
+                  reason: '系統推薦'
+                }, index + 4)
               )}
             </div>
-          ) : (
-            <div className="space-y-0">
-              {filteredContacts.length > 0 ? (
-                filteredContacts.map(customer => 
-                  expandedCard === customer.id 
-                    ? renderExpandedCard(customer)
-                    : renderContactCard(customer)
-                )
-              ) : (
-                <div className="text-center py-8">
-                  <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">
-                    {searchTerm ? '找不到符合條件的聯絡人' : '還沒有任何聯絡人'}
-                  </p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    掃描紙本名片來新增聯絡人
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </ScrollArea>
-
-      {/* Smart Recommendations Section - Bottom */}
-      <div className={`bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0 transition-all duration-300 ${isRecommendationMinimized ? 'p-2' : 'p-3'}`}>
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-orange-600" />
-            <span className="text-sm font-medium text-orange-700">智能推薦</span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <Button
-              onClick={() => setIsRecommendationMinimized(!isRecommendationMinimized)}
-              variant="ghost"
-              size="sm"
-              className="text-orange-600 hover:bg-white/50 h-6 w-6 p-0"
-            >
-              {isRecommendationMinimized ? <Maximize2 className="w-3 h-3" /> : <Minimize2 className="w-3 h-3" />}
-            </Button>
-            <Button
-              onClick={showUpgradePrompt}
-              variant="ghost"
-              size="sm"
-              className="text-xs text-orange-600 hover:bg-white/50 h-6 px-2"
-            >
-              更多
-            </Button>
           </div>
         </div>
-        
-        {!isRecommendationMinimized && (
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-2 md:-ml-4">
-              {recommendedContacts.map((contact) => (
-                <CarouselItem key={contact.id} className="pl-2 md:pl-4 basis-3/4">
-                  {renderRecommendationCard(contact)}
-                </CarouselItem>
-              ))}
-              <CarouselItem className="pl-2 md:pl-4 basis-3/4">
-                <Card className="w-full border-2 border-dashed border-orange-300 bg-orange-50/50">
-                  <CardContent className="p-3">
-                    <button 
-                      onClick={showUpgradePrompt}
-                      className="w-full h-full flex flex-col items-center justify-center space-y-1 text-orange-600 hover:text-orange-700"
-                    >
-                      <Crown className="w-6 h-6" />
-                      <span className="text-xs font-medium text-center">升級解鎖</span>
-                    </button>
-                  </CardContent>
-                </Card>
-              </CarouselItem>
-            </CarouselContent>
-            <CarouselPrevious className="left-1" />
-            <CarouselNext className="right-1" />
-          </Carousel>
-        )}
-        
-        {isRecommendationMinimized && (
-          <div className="text-center">
-            <span className="text-xs text-orange-600">點擊展開查看推薦</span>
-          </div>
-        )}
       </div>
     </div>
   );
