@@ -38,6 +38,8 @@ interface Customer {
   isMyFriend?: boolean;
   isFollowingMe?: boolean;
   hasPendingInvitation?: boolean;
+  // 新增人脈關係狀態
+  relationshipStatus?: 'mutual' | 'addedByMe' | 'addedMe';
 }
 
 interface RecommendedContact {
@@ -53,9 +55,7 @@ interface RecommendedContact {
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustomersUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState('all');
-  const [activeSection, setActiveSection] = useState<'friends' | 'contacts'>('friends');
-  const [friendsSubSection, setFriendsSubSection] = useState<'myFriends' | 'followingMe'>('myFriends');
-  const [contactsSubSection, setContactsSubSection] = useState<'all' | 'invited' | 'uninvited'>('all');
+  const [activeSection, setActiveSection] = useState<'cards' | 'contacts'>('cards');
   const [localCustomers, setLocalCustomers] = useState<Customer[]>([]);
   const [availableTags, setAvailableTags] = useState<string[]>(['工作', '朋友', '客戶', '合作夥伴', '潛在客戶']);
   const [expandedCard, setExpandedCard] = useState<number | null>(null);
@@ -120,28 +120,38 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   useEffect(() => {
     const savedCustomers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
-    const updatedCustomers = savedCustomers.map((customer: Customer) => ({
-      ...customer,
-      isMyFriend: customer.isMyFriend || customer.hasCard,
-      isFollowingMe: customer.isFollowingMe || false,
-      hasPendingInvitation: customer.hasPendingInvitation || false
-    }));
+    const updatedCustomers = savedCustomers.map((customer: Customer) => {
+      // 計算人脈關係狀態
+      let relationshipStatus: 'mutual' | 'addedByMe' | 'addedMe' = 'addedByMe';
+      
+      if (customer.isMyFriend && customer.isFollowingMe) {
+        relationshipStatus = 'mutual'; // 互為人脈
+      } else if (customer.isMyFriend && !customer.isFollowingMe) {
+        relationshipStatus = 'addedByMe'; // 已加對方
+      } else if (!customer.isMyFriend && customer.isFollowingMe) {
+        relationshipStatus = 'addedMe'; // 對方已加我
+      }
+
+      return {
+        ...customer,
+        isMyFriend: customer.isMyFriend || customer.hasCard,
+        isFollowingMe: customer.isFollowingMe || false,
+        hasPendingInvitation: customer.hasPendingInvitation || false,
+        relationshipStatus
+      };
+    });
     setLocalCustomers(updatedCustomers);
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
 
-  // 我的好友名片：已掃描並加入好友的電子名片
-  const myFriendsCards = localCustomers.filter(c => c.isMyFriend && c.hasCard);
-  
-  // 追蹤我：對方追蹤我但我尚未加入為好友
-  const followingMeCards = localCustomers.filter(c => c.isFollowingMe && !c.isMyFriend);
+  // 我的電子名片夾：包含所有電子名片（原本的好友名片 + 追蹤我）
+  const myBusinessCards = localCustomers.filter(c => c.hasCard);
   
   // 我的聯絡人：非電子名片的聯絡人
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
-  const getFilteredFriends = () => {
-    const currentList = friendsSubSection === 'myFriends' ? myFriendsCards : followingMeCards;
-    return currentList.filter(customer => {
+  const getFilteredCards = () => {
+    return myBusinessCards.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -164,28 +174,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                            customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
       
-      // 首先根據邀請狀態篩選
-      let matchesInvitationFilter = true;
-      switch (contactsSubSection) {
-        case 'invited':
-          matchesInvitationFilter = customer.invitationSent || customer.emailInvitationSent;
-          break;
-        case 'uninvited':
-          matchesInvitationFilter = !(customer.invitationSent || customer.emailInvitationSent);
-          break;
-        default:
-          matchesInvitationFilter = true;
-      }
-      
-      // 然後根據其他篩選條件
       switch (activeFilter) {
         case 'favorites':
-          return matchesSearch && matchesInvitationFilter && customer.isFavorite;
+          return matchesSearch && customer.isFavorite;
         default:
           if (availableTags.includes(activeFilter)) {
-            return matchesSearch && matchesInvitationFilter && customer.tags?.includes(activeFilter);
+            return matchesSearch && customer.tags?.includes(activeFilter);
           }
-          return matchesSearch && matchesInvitationFilter;
+          return matchesSearch;
       }
     });
   };
@@ -206,9 +202,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const addFollowerToFriends = (customerId: number) => {
-    const updatedCustomers = localCustomers.map(c => 
-      c.id === customerId ? { ...c, isMyFriend: true } : c
-    );
+    const updatedCustomers = localCustomers.map(c => {
+      if (c.id === customerId) {
+        const newStatus = c.isFollowingMe ? 'mutual' : 'addedByMe';
+        return { 
+          ...c, 
+          isMyFriend: true,
+          relationshipStatus: newStatus
+        };
+      }
+      return c;
+    });
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
@@ -370,60 +374,83 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     }
   };
 
-  const renderCondensedCard = (customer: Customer, isFollowingMe: boolean = false) => (
-    <Card 
-      key={customer.id} 
-      className={`mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md ${
-        isFollowingMe 
-          ? 'bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200' 
-          : 'bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200'
-      }`}
-      onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-    >
-      <CardContent className="p-3">
-        <div className="flex items-center space-x-3">
-          <Avatar className={`w-10 h-10 flex-shrink-0 ${isFollowingMe ? 'border border-orange-300' : 'border border-blue-300'}`}>
-            <AvatarImage 
-              src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
-              alt={customer.name} 
-            />
-            <AvatarFallback className={`text-white font-bold text-sm ${
-              isFollowingMe 
-                ? 'bg-gradient-to-br from-orange-500 to-red-600' 
-                : 'bg-gradient-to-br from-blue-500 to-purple-600'
-            }`}>
-              {customer.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between">
-              <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
-              <div className="flex items-center space-x-1 flex-shrink-0">
-                {customer.isFavorite && (
-                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+  const getRelationshipStatusDisplay = (status?: 'mutual' | 'addedByMe' | 'addedMe') => {
+    switch (status) {
+      case 'mutual':
+        return { text: '✅ 互為人脈', className: 'text-green-600 bg-green-50' };
+      case 'addedByMe':
+        return { text: '➕ 已加對方', className: 'text-gray-600 bg-gray-50' };
+      case 'addedMe':
+        return { text: '⚠️ 對方已加您', className: 'text-red-600 bg-red-50' };
+      default:
+        return { text: '➕ 已加對方', className: 'text-gray-600 bg-gray-50' };
+    }
+  };
+
+  const renderCondensedCard = (customer: Customer) => {
+    const statusDisplay = getRelationshipStatusDisplay(customer.relationshipStatus);
+    
+    return (
+      <Card 
+        key={customer.id} 
+        className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md bg-white border border-gray-200"
+        onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+      >
+        <CardContent className="p-3">
+          <div className="flex items-center space-x-3">
+            <Avatar className="w-10 h-10 flex-shrink-0 border border-blue-300">
+              <AvatarImage 
+                src={customer.photo || getRandomProfessionalAvatar(customer.id)} 
+                alt={customer.name} 
+              />
+              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-sm">
+                {customer.name.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
+                <div className="flex items-center space-x-1 flex-shrink-0">
+                  {customer.isFavorite && (
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  )}
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </div>
+              </div>
+              
+              <div className="text-xs text-gray-600 truncate mb-1">
+                {customer.company && customer.jobTitle 
+                  ? `${customer.company} · ${customer.jobTitle}`
+                  : customer.company || customer.jobTitle || '無公司資訊'
+                }
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusDisplay.className}`}>
+                  {statusDisplay.text}
+                </span>
+                
+                {customer.relationshipStatus === 'addedMe' && (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addFollowerToFriends(customer.id);
+                    }}
+                    size="sm"
+                    variant="default"
+                    className="bg-green-600 hover:bg-green-700 text-xs h-6 px-2"
+                  >
+                    加入好友
+                  </Button>
                 )}
-                <ChevronRight className="w-4 h-4 text-gray-400" />
               </div>
             </div>
-            
-            <div className="text-xs text-gray-600 truncate">
-              {customer.company && customer.jobTitle 
-                ? `${customer.company} · ${customer.jobTitle}`
-                : customer.company || customer.jobTitle || '無公司資訊'
-              }
-            </div>
-            
-            {isFollowingMe && (
-              <div className="text-xs text-red-600 font-medium mt-1">
-                ⚠️ 對方已追蹤您
-              </div>
-            )}
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
 
   const renderContactCard = (customer: Customer) => (
     <Card 
@@ -864,14 +891,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
         <div className="flex bg-white border-b border-gray-200">
           <Button
-            onClick={() => setActiveSection('friends')}
-            variant={activeSection === 'friends' ? 'default' : 'ghost'}
+            onClick={() => setActiveSection('cards')}
+            variant={activeSection === 'cards' ? 'default' : 'ghost'}
             className="flex-1 rounded-none border-r text-xs"
           >
             <Heart className="w-4 h-4 mr-1" />
             我的電子名片夾
             <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-              {myFriendsCards.length + followingMeCards.length}
+              {myBusinessCards.length}
             </span>
           </Button>
           <Button
@@ -888,76 +915,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         </div>
 
         <div className="p-3 bg-white border-b border-gray-200">
-          <div className="flex space-x-1 mb-2">
-            {activeSection === 'friends' ? (
-              <>
-                <Button
-                  onClick={() => setFriendsSubSection('myFriends')}
-                  variant={friendsSubSection === 'myFriends' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-shrink-0 text-xs h-7"
-                >
-                  我的好友名片
-                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {myFriendsCards.length}
-                  </span>
-                </Button>
-                <Button
-                  onClick={() => setFriendsSubSection('followingMe')}
-                  variant={friendsSubSection === 'followingMe' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-shrink-0 text-xs h-7 relative"
-                >
-                  追蹤我
-                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {followingMeCards.length}
-                  </span>
-                  {followingMeCards.some(c => c.hasPendingInvitation) && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 py-0.5 rounded-full animate-pulse">
-                      !
-                    </span>
-                  )}
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button
-                  onClick={() => setContactsSubSection('all')}
-                  variant={contactsSubSection === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-shrink-0 text-xs h-7"
-                >
-                  全部
-                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {myContacts.length}
-                  </span>
-                </Button>
-                <Button
-                  onClick={() => setContactsSubSection('invited')}
-                  variant={contactsSubSection === 'invited' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-shrink-0 text-xs h-7"
-                >
-                  已邀請
-                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {myContacts.filter(c => c.invitationSent || c.emailInvitationSent).length}
-                  </span>
-                </Button>
-                <Button
-                  onClick={() => setContactsSubSection('uninvited')}
-                  variant={contactsSubSection === 'uninvited' ? 'default' : 'outline'}
-                  size="sm"
-                  className="flex-shrink-0 text-xs h-7"
-                >
-                  未邀請
-                  <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
-                    {myContacts.filter(c => !(c.invitationSent || c.emailInvitationSent)).length}
-                  </span>
-                </Button>
-              </>
-            )}
-          </div>
-
           <ScrollArea>
             <div className="flex space-x-1 pb-1 min-w-max">
               <Button
@@ -990,28 +947,22 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       <div className="flex-1 flex flex-col min-h-0">
         <ScrollArea className="flex-1">
           <div className="p-3">
-            {activeSection === 'friends' ? (
+            {activeSection === 'cards' ? (
               <div className="space-y-0">
-                {getFilteredFriends().length > 0 ? (
-                  getFilteredFriends().map(customer => 
+                {getFilteredCards().length > 0 ? (
+                  getFilteredCards().map(customer => 
                     expandedCard === customer.id 
                       ? renderExpandedCard(customer)
-                      : renderCondensedCard(customer, friendsSubSection === 'followingMe')
+                      : renderCondensedCard(customer)
                   )
                 ) : (
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
-                      {friendsSubSection === 'myFriends' 
-                        ? (searchTerm ? '找不到符合條件的好友名片' : '還沒有好友名片')
-                        : (searchTerm ? '找不到符合條件的追蹤者' : '沒有人追蹤您')
-                      }
+                      {searchTerm ? '找不到符合條件的電子名片' : '還沒有任何電子名片'}
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
-                      {friendsSubSection === 'myFriends' 
-                        ? '掃描對方的電子名片來加入好友'
-                        : '分享您的電子名片讓別人追蹤您'
-                      }
+                      掃描對方的電子名片來建立人脈關係
                     </p>
                   </div>
                 )}
@@ -1050,7 +1001,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           
           <div className="relative">
             <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-              {recommendedContacts.concat(Array(5).fill(null)).map((contact, index) => 
+              {recommendedContacts.concat(Array(10).fill(null)).map((contact, index) => 
                 contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
                   id: 100 + index,
                   name: `推薦聯絡人 ${index + 5}`,
