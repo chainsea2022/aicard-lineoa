@@ -64,6 +64,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const [invitationFilter, setInvitationFilter] = useState<'all' | 'invited' | 'uninvited'>('all');
   const [showMoreScanned, setShowMoreScanned] = useState(false);
   const [showMoreFollowing, setShowMoreFollowing] = useState(false);
+  const [expandedSubSection, setExpandedSubSection] = useState<'myFriends' | 'followingMe' | null>(null);
 
   const recommendedContacts = [
     {
@@ -133,6 +134,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   const myFriendsScanned = localCustomers.filter(c => c.isMyFriend && c.hasCard);
   const followingMeUnscanned = localCustomers.filter(c => c.isFollowingMe && !c.isMyFriend);
+  const followingMeWithPendingInvitations = followingMeUnscanned.filter(c => c.hasPendingInvitation);
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
   const displayedScannedFriends = showMoreScanned ? myFriendsScanned : myFriendsScanned.slice(0, 5);
@@ -217,6 +219,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         }));
       }, 1000);
     }
+  };
+
+  const addFollowerToFriends = (customerId: number) => {
+    const updatedCustomers = localCustomers.map(c => 
+      c.id === customerId ? { ...c, isMyFriend: true } : c
+    );
+    setLocalCustomers(updatedCustomers);
+    localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
+    onCustomersUpdate(updatedCustomers);
+    toast({ title: "已加入我的好友" });
   };
 
   const startEditing = (customer: Customer) => {
@@ -357,6 +369,31 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     </Card>
   );
 
+  const renderSubSectionHeader = (title: string, count: number, hasNotifications: boolean = false, subSection: 'myFriends' | 'followingMe') => (
+    <div 
+      className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-3 mb-2 cursor-pointer hover:bg-gradient-to-r hover:from-blue-100 hover:to-indigo-100 transition-colors"
+      onClick={() => setExpandedSubSection(expandedSubSection === subSection ? null : subSection)}
+    >
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <h3 className="text-sm font-medium text-blue-800">{title}</h3>
+          <span className="bg-blue-200 text-blue-800 text-xs px-2 py-1 rounded-full font-medium">
+            {count}
+          </span>
+          {hasNotifications && (
+            <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-medium animate-pulse">
+              有新邀請
+            </span>
+          )}
+        </div>
+        {expandedSubSection === subSection ? 
+          <ChevronDown className="w-4 h-4 text-blue-600" /> : 
+          <ChevronRight className="w-4 h-4 text-blue-600" />
+        }
+      </div>
+    </div>
+  );
+
   const renderFriendCard = (customer: Customer) => {
     const isUnscannedFollower = customer.isFollowingMe && !customer.isMyFriend;
     
@@ -420,15 +457,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           
           {isUnscannedFollower && (
             <Button
-              onClick={() => {
-                const updatedCustomers = localCustomers.map(c => 
-                  c.id === customer.id ? { ...c, isMyFriend: true } : c
-                );
-                setLocalCustomers(updatedCustomers);
-                localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
-                onCustomersUpdate(updatedCustomers);
-                toast({ title: "已加入我的好友" });
-              }}
+              onClick={() => addFollowerToFriends(customer.id)}
               size="sm"
               variant="outline"
               className="h-6 px-2 text-xs flex-shrink-0"
@@ -849,7 +878,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           className="flex-1 rounded-none border-r text-xs"
         >
           <Heart className="w-4 h-4 mr-1" />
-          我的名片夾
+          我的電子名片夾
           <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
             {myFriendsScanned.length + followingMeUnscanned.length}
           </span>
@@ -935,97 +964,75 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         <div className="p-3">
           {activeSection === 'friends' ? (
             <div className="space-y-3">
-              {/* 我已掃描的電子名片卡 */}
-              {myFriendsScanned.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-700">我已掃描的電子名片卡</h3>
-                    {myFriendsScanned.length > 5 && (
-                      <Button
-                        onClick={() => setShowMoreScanned(!showMoreScanned)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-xs text-blue-600"
-                      >
-                        {showMoreScanned ? '收起' : `更多 (${myFriendsScanned.length - 5})`}
-                      </Button>
+              {/* 我的好友區塊 */}
+              {renderSubSectionHeader('我的好友', myFriendsScanned.length, false, 'myFriends')}
+              {expandedSubSection === 'myFriends' && (
+                <div className="space-y-0 mb-4">
+                  {myFriendsScanned
+                    .filter(customer => {
+                      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+                      switch (activeFilter) {
+                        case 'favorites':
+                          return matchesSearch && customer.isFavorite;
+                        default:
+                          if (availableTags.includes(activeFilter)) {
+                            return matchesSearch && customer.tags?.includes(activeFilter);
+                          }
+                          return matchesSearch;
+                      }
+                    })
+                    .map(customer => 
+                      expandedCard === customer.id 
+                        ? renderExpandedCard(customer)
+                        : renderFriendCard(customer)
                     )}
-                  </div>
-                  <div className="space-y-0">
-                    {displayedScannedFriends
-                      .filter(customer => {
-                        const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                             customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                             customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-                        switch (activeFilter) {
-                          case 'favorites':
-                            return matchesSearch && customer.isFavorite;
-                          default:
-                            if (availableTags.includes(activeFilter)) {
-                              return matchesSearch && customer.tags?.includes(activeFilter);
-                            }
-                            return matchesSearch;
-                        }
-                      })
-                      .map(customer => 
-                        expandedCard === customer.id 
-                          ? renderExpandedCard(customer)
-                          : renderFriendCard(customer)
-                      )}
-                  </div>
+                  {myFriendsScanned.length === 0 && (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      還沒有好友的電子名片卡
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* 追蹤我的電子名片卡（我尚未加入的） */}
-              {followingMeUnscanned.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium text-gray-700">追蹤我的電子名片卡</h3>
-                    {followingMeUnscanned.length > 5 && (
-                      <Button
-                        onClick={() => setShowMoreFollowing(!showMoreFollowing)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-xs text-blue-600"
-                      >
-                        {showMoreFollowing ? '收起' : `更多 (${followingMeUnscanned.length - 5})`}
-                      </Button>
+              {/* 追蹤我區塊 */}
+              {renderSubSectionHeader('追蹤我', followingMeUnscanned.length, followingMeWithPendingInvitations.length > 0, 'followingMe')}
+              {expandedSubSection === 'followingMe' && (
+                <div className="space-y-0">
+                  {followingMeUnscanned
+                    .filter(customer => {
+                      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
+                      switch (activeFilter) {
+                        case 'favorites':
+                          return matchesSearch && customer.isFavorite;
+                        default:
+                          if (availableTags.includes(activeFilter)) {
+                            return matchesSearch && customer.tags?.includes(activeFilter);
+                          }
+                          return matchesSearch;
+                      }
+                    })
+                    .map(customer => 
+                      expandedCard === customer.id 
+                        ? renderExpandedCard(customer)
+                        : renderFriendCard(customer)
                     )}
-                  </div>
-                  <div className="space-y-0">
-                    {displayedFollowingMe
-                      .filter(customer => {
-                        const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                             customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                             customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-                        switch (activeFilter) {
-                          case 'favorites':
-                            return matchesSearch && customer.isFavorite;
-                          default:
-                            if (availableTags.includes(activeFilter)) {
-                              return matchesSearch && customer.tags?.includes(activeFilter);
-                            }
-                            return matchesSearch;
-                        }
-                      })
-                      .map(customer => 
-                        expandedCard === customer.id 
-                          ? renderExpandedCard(customer)
-                          : renderFriendCard(customer)
-                      )}
-                  </div>
+                  {followingMeUnscanned.length === 0 && (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      還沒有人追蹤您的電子名片卡
+                    </div>
+                  )}
                 </div>
               )}
 
-              {filteredFriends.length === 0 && (
+              {myFriendsScanned.length === 0 && followingMeUnscanned.length === 0 && (
                 <div className="text-center py-8">
                   <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500 text-sm">
-                    {searchTerm ? '找不到符合條件的名片卡' : '還沒有任何名片卡'}
-                  </p>
-                  <p className="text-gray-400 text-xs mt-1">
-                    使用掃描功能來新增名片卡
-                  </p>
+                  <p className="text-gray-500 text-sm">還沒有任何電子名片卡</p>
+                  <p className="text-gray-400 text-xs mt-1">使用掃描功能來新增名片卡</p>
                 </div>
               )}
             </div>
