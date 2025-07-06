@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -140,7 +139,6 @@ const mockRecommendedContacts: RecommendedContact[] = generateMockRecommendedCon
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCustomersUpdate }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filter, setFilter] = useState<CustomerFilter>({});
   const [activeTab, setActiveTab] = useState<'digital' | 'paper'>('digital');
   const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(true);
@@ -175,8 +173,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const digitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
   const paperCards = localCustomers.filter(customer => customer.isDigitalCard === false);
 
-  // 計算加我名片的數量（紅色通知數）
-  const addedMeCount = digitalCards.filter(customer => customer.relationshipStatus === 'addedMe').length;
+  // 計算各種通知數量
+  const followingMeCount = digitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length;
+  const iFollowingCount = digitalCards.filter(customer => customer.isFavorite).length;
 
   const getFilteredCustomers = (customerList: Customer[]) => {
     return customerList.filter(customer => {
@@ -406,118 +405,65 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="digital" className="relative">
                 我的電子名片夾
-                {addedMeCount > 0 && (
+                {followingMeCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
-                    {addedMeCount}
+                    {followingMeCount}
                   </Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="paper">我的聯絡人</TabsTrigger>
             </TabsList>
 
-            {/* Search and Filter */}
-            <div className="flex items-center space-x-2 mt-2">
+            {/* Search */}
+            <div className="mt-2">
               <Input
                 type="search"
                 placeholder="搜尋聯絡人..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 rounded-full"
+                className="w-full rounded-full"
               />
-              <Button onClick={() => setIsFilterOpen(!isFilterOpen)} variant="outline" size="icon" className="shrink-0">
-                <Filter className="w-4 h-4" />
-              </Button>
             </div>
 
-            {/* Enhanced Filter Options */}
-            {isFilterOpen && (
-              <div className="mt-2 space-y-3 p-3 bg-white border border-gray-200 rounded-lg">
-                {activeTab === 'digital' && (
-                  <>
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">關係狀態</h4>
-                      <div className="flex items-center space-x-2 flex-wrap gap-2">
-                        <Button
-                          variant={filter.relationshipStatus === 'collected' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setFilter({ ...filter, relationshipStatus: filter.relationshipStatus === 'collected' ? null : 'collected' })}
-                        >
-                          已收藏
-                        </Button>
-                        <Button
-                          variant={filter.relationshipStatus === 'addedMe' ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setFilter({ ...filter, relationshipStatus: filter.relationshipStatus === 'addedMe' ? null : 'addedMe' })}
-                        >
-                          加我名片
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-700 mb-2">互動關係</h4>
-                      <div className="flex items-center space-x-2 flex-wrap gap-2">
-                        <Button
-                          variant={filter.followingMe ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setFilter({ ...filter, followingMe: !filter.followingMe })}
-                        >
-                          <Eye className="w-3 h-3 mr-1" />
-                          追蹤我
-                        </Button>
-                        <Button
-                          variant={filter.iFollowing ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => setFilter({ ...filter, iFollowing: !filter.iFollowing })}
-                        >
-                          <Heart className="w-3 h-3 mr-1" />
-                          我關注的
-                        </Button>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {activeTab === 'paper' && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">邀請狀態</h4>
-                    <div className="flex items-center space-x-2 flex-wrap gap-2">
-                      <Button
-                        variant={filter.invitationStatus === 'all' || !filter.invitationStatus ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
-                      >
-                        全部
-                      </Button>
-                      <Button
-                        variant={filter.invitationStatus === 'invited' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter({ ...filter, invitationStatus: 'invited' })}
-                      >
-                        已邀請
-                      </Button>
-                      <Button
-                        variant={filter.invitationStatus === 'not_invited' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter({ ...filter, invitationStatus: 'not_invited' })}
-                      >
-                        未邀請
-                      </Button>
-                      <Button
-                        variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
-                      >
-                        邀請紀錄
-                      </Button>
-                    </div>
-                  </div>
-                )}
+            {/* Enhanced Filter Options - 移到上方並優化排列 */}
+            {activeTab === 'digital' && (
+              <div className="mt-3 space-y-3">
+                {/* 互動關係篩選 - 兩排排列 */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={filter.followingMe ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter({ ...filter, followingMe: !filter.followingMe })}
+                    className="relative flex items-center justify-center text-xs h-9"
+                  >
+                    <Eye className="w-3 h-3 mr-1" />
+                    追蹤我
+                    {followingMeCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
+                        {followingMeCount}
+                      </Badge>
+                    )}
+                  </Button>
+                  <Button
+                    variant={filter.iFollowing ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setFilter({ ...filter, iFollowing: !filter.iFollowing })}
+                    className="relative flex items-center justify-center text-xs h-9"
+                  >
+                    <Heart className="w-3 h-3 mr-1" />
+                    我關注的
+                    {iFollowingCount > 0 && (
+                      <Badge className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
+                        {iFollowingCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </div>
 
                 {/* 標籤篩選 */}
                 {allTags.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-2">標籤篩選</h4>
+                    <h4 className="text-xs font-medium text-gray-600 mb-2">標籤篩選</h4>
                     <div className="flex items-center space-x-1 flex-wrap gap-1">
                       {allTags.map(tag => (
                         <Button
@@ -535,24 +481,98 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   </div>
                 )}
 
-                <div className="flex items-center space-x-2 pt-2 border-t border-gray-100">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={clearFilter}
-                    className="flex-1 justify-center"
-                  >
-                    清除篩選
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setIsFilterOpen(false)}
-                    className="flex-1 justify-center"
-                  >
-                    確定
-                  </Button>
+                {/* 清除篩選按鈕 */}
+                {(filter.followingMe || filter.iFollowing || (filter.selectedTags && filter.selectedTags.length > 0)) && (
+                  <div className="flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearFilter}
+                      className="text-xs text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      清除篩選
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {activeTab === 'paper' && (
+              <div className="mt-3 space-y-3">
+                <div>
+                  <h4 className="text-xs font-medium text-gray-600 mb-2">邀請狀態</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      variant={filter.invitationStatus === 'all' || !filter.invitationStatus ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
+                      className="text-xs h-8"
+                    >
+                      全部
+                    </Button>
+                    <Button
+                      variant={filter.invitationStatus === 'invited' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ ...filter, invitationStatus: 'invited' })}
+                      className="text-xs h-8"
+                    >
+                      已邀請
+                    </Button>
+                    <Button
+                      variant={filter.invitationStatus === 'not_invited' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ ...filter, invitationStatus: 'not_invited' })}
+                      className="text-xs h-8"
+                    >
+                      未邀請
+                    </Button>
+                    <Button
+                      variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
+                      className="text-xs h-8"
+                    >
+                      邀請紀錄
+                    </Button>
+                  </div>
                 </div>
+
+                {/* 標籤篩選 */}
+                {allTags.length > 0 && (
+                  <div>
+                    <h4 className="text-xs font-medium text-gray-600 mb-2">標籤篩選</h4>
+                    <div className="flex items-center space-x-1 flex-wrap gap-1">
+                      {allTags.map(tag => (
+                        <Button
+                          key={tag}
+                          variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => toggleTagFilter(tag)}
+                          className="text-xs h-7 px-2"
+                        >
+                          <Tag className="w-3 h-3 mr-1" />
+                          {tag}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 清除篩選按鈕 */}
+                {(filter.invitationStatus !== 'all' && filter.invitationStatus) || (filter.selectedTags && filter.selectedTags.length > 0) && (
+                  <div className="flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearFilter}
+                      className="text-xs text-gray-500 hover:text-gray-700"
+                    >
+                      <X className="w-3 h-3 mr-1" />
+                      清除篩選
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -561,8 +581,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             <TabsContent value="digital" className="h-full m-0">
               <ScrollArea className="h-full">
                 <div className="p-3 space-y-2">
-                  {filteredDigitalCards.length > 0 ? (
-                    filteredDigitalCards.map(customer => (
+                  {/* 優先顯示追蹤我的新用戶 */}
+                  {filteredDigitalCards
+                    .filter(customer => customer.relationshipStatus === 'addedMe')
+                    .map(customer => (
                       <div key={customer.id} className="space-y-2">
                         <CustomerCard
                           customer={customer}
@@ -612,8 +634,64 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           </div>
                         )}
                       </div>
-                    ))
-                  ) : (
+                    ))}
+
+                  {/* 其他已收藏的名片 */}
+                  {filteredDigitalCards
+                    .filter(customer => customer.relationshipStatus !== 'addedMe')
+                    .map(customer => (
+                      <div key={customer.id} className="space-y-2">
+                        <CustomerCard
+                          customer={customer}
+                          onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
+                          onAddFollower={handleAddFollower}
+                          onPhoneClick={handlePhoneClick}
+                          onLineClick={handleLineClick}
+                          onToggleFavorite={(id) => {
+                            const updatedCustomers = localCustomers.map(c =>
+                              c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                            );
+                            updateCustomers(updatedCustomers);
+                          }}
+                        />
+                        
+                        {/* Inline Expanded Card */}
+                        {expandedCardId === customer.id && (
+                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                            <ExpandedCard
+                              customer={customer}
+                              activeSection="cards"
+                              onToggleFavorite={(id) => {
+                                const updatedCustomers = localCustomers.map(c =>
+                                  c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                                );
+                                updateCustomers(updatedCustomers);
+                              }}
+                              onAddFollower={handleAddFollower}
+                              onIgnoreFollower={() => {}}
+                              onPhoneClick={handlePhoneClick}
+                              onLineClick={handleLineClick}
+                              onSendInvitation={handleSendInvitation}
+                              onAddTag={() => {}}
+                              onRemoveTag={() => {}}
+                              onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
+                                const updatedCustomers = localCustomers.map(c =>
+                                  c.id === customerId ? { ...c, ...updates } : c
+                                );
+                                updateCustomers(updatedCustomers);
+                              }}
+                              onDeleteCustomer={(id) => {
+                                const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
+                                updateCustomers(updatedCustomers);
+                              }}
+                              onCollapse={() => setExpandedCardId(null)}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                  {filteredDigitalCards.length === 0 && (
                     <div className="text-center py-8">
                       <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500 text-sm">沒有符合條件的名片</p>
