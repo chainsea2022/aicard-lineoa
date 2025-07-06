@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -687,10 +688,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
-                      {searchTerm || activeFilter !== 'all' ? '找不到符合條件的電子名片' : '還沒有任何電子名片'}
+                      {activeFilter === 'followingMe' 
+                        ? '目前沒有人追蹤您' 
+                        : (searchTerm || activeFilter !== 'all' ? '找不到符合條件的電子名片' : '還沒有任何電子名片')
+                      }
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
-                      掃描對方的電子名片來建立人脈關係
+                      {activeFilter === 'followingMe' 
+                        ? '當有人掃描您的 QR Code 或加入您的聯絡人時，將會顯示在這裡'
+                        : '掃描對方的電子名片來建立人脈關係'
+                      }
                     </p>
                   </div>
                 )}
