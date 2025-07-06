@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award, User, Smartphone, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -49,6 +48,25 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     setShowCreateCard(true);
   };
 
+  const handleLineLogin = () => {
+    // 模擬 LINE 登入 - 生成模擬的 LINE 用戶資料
+    const mockLineUser = {
+      lineId: `line_${Math.random().toString(36).substr(2, 8)}`,
+      displayName: '王小明',
+      pictureUrl: null,
+      loginMethod: 'line',
+      registeredAt: new Date(),
+      isVerified: true
+    };
+
+    // 儲存用戶登入資訊
+    localStorage.setItem('aile-user-data', JSON.stringify(mockLineUser));
+    setUserData(mockLineUser);
+    
+    // 直接進入名片建立
+    setShowCreateCard(true);
+  };
+
   const handleCardCreated = () => {
     setShowCreateCard(false);
     // 重新載入名片資料
@@ -82,7 +100,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   }
 
   if (showCreateCard) {
-    return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userPhone={userData?.phone} />;
+    return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
   }
 
   if (showSettings) {
@@ -140,7 +158,10 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
 
           {/* 快速註冊登入選項 */}
           <div className="space-y-4 mb-6">
-            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer">
+            <Card 
+              className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer"
+              onClick={() => setShowOTPVerification(true)}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
@@ -154,7 +175,10 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
               </CardContent>
             </Card>
 
-            <Card className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer opacity-60">
+            <Card 
+              className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer"
+              onClick={handleLineLogin}
+            >
               <CardContent className="p-4">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -164,7 +188,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800">LINE 快速登入</h3>
-                    <p className="text-sm text-gray-600">即將推出 - 使用LINE帳號一鍵登入</p>
+                    <p className="text-sm text-gray-600">使用LINE帳號一鍵登入 (模擬)</p>
                   </div>
                 </div>
               </CardContent>
@@ -182,14 +206,13 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
             </Button>
 
             <Button 
-              variant="outline"
-              disabled
-              className="w-full py-3 text-lg font-medium border-2 border-gray-200 text-gray-400"
+              onClick={handleLineLogin}
+              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-lg font-medium shadow-lg"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
               </svg>
-              LINE 登入 (即將推出)
+              LINE 登入 (模擬)
             </Button>
           </div>
 

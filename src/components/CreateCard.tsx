@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,13 +10,13 @@ import CardPreview from './CardPreview';
 interface CreateCardProps {
   onClose: () => void;
   onRegistrationComplete?: () => void;
-  userPhone?: string;
+  userData?: any; // 改為接收完整的用戶資料
 }
 
-const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userPhone }) => {
+const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userData }) => {
   const [companyName, setCompanyName] = useState('');
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState(userPhone || '');
+  const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [line, setLine] = useState('');
@@ -24,6 +24,24 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [instagram, setInstagram] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+
+  // 根據登入方式自動填入資料
+  useEffect(() => {
+    if (userData) {
+      if (userData.phone) {
+        setPhone(userData.phone);
+      }
+      if (userData.lineId) {
+        setLine(userData.lineId);
+      }
+      if (userData.displayName) {
+        setName(userData.displayName);
+      }
+      if (userData.pictureUrl) {
+        setPhoto(userData.pictureUrl);
+      }
+    }
+  }, [userData]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -129,6 +147,18 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
 
       {/* Form */}
       <div className="p-6">
+        {/* 登入資訊提示 */}
+        {userData && (
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-700">
+              {userData.loginMethod === 'line' 
+                ? `✅ 已使用 LINE 登入，LINE ID 已自動填入`
+                : `✅ 已使用手機號碼登入，手機號碼已自動填入`
+              }
+            </p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="companyName">公司名稱</Label>
@@ -161,9 +191,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="請輸入手機號碼"
-              readOnly={!!userPhone}
-              className={userPhone ? 'bg-gray-100' : ''}
+              readOnly={!!(userData?.phone)}
+              className={userData?.phone ? 'bg-gray-100' : ''}
             />
+            {userData?.phone && (
+              <p className="text-xs text-gray-500 mt-1">已從登入資訊自動填入</p>
+            )}
           </div>
           
           <div>
@@ -200,7 +233,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                   value={line}
                   onChange={(e) => setLine(e.target.value)}
                   placeholder="請輸入LINE ID"
+                  readOnly={!!(userData?.lineId)}
+                  className={userData?.lineId ? 'bg-gray-100' : ''}
                 />
+                {userData?.lineId && (
+                  <p className="text-xs text-gray-500 mt-1">已從 LINE 登入資訊自動填入</p>
+                )}
               </div>
               
               <div>
@@ -241,6 +279,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                 alt="預覽"
                 className="mt-2 rounded-md w-32 h-32 object-cover border"
               />
+            )}
+            {userData?.pictureUrl && photo === userData.pictureUrl && (
+              <p className="text-xs text-gray-500 mt-1">已從 LINE 登入資訊自動填入頭像</p>
             )}
           </div>
 
