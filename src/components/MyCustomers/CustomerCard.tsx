@@ -33,6 +33,11 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
     }
   };
 
+  const handleAddFollower = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onAddFollower(customer.id);
+  };
+
   return (
     <Card className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md bg-white border border-gray-200" onClick={onClick}>
       <CardContent className="p-3">
@@ -120,15 +125,12 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
             <div className="flex items-center justify-between">
               {customer.relationshipStatus === 'addedMe' && (
                 <Button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddFollower(customer.id);
-                  }} 
+                  onClick={handleAddFollower}
                   size="sm" 
                   variant="default" 
                   className="bg-green-600 hover:bg-green-700 text-xs h-6 px-2"
                 >
-                  +
+                  + 加入
                 </Button>
               )}
             </div>

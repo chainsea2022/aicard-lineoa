@@ -126,8 +126,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     });
   };
 
-  const filteredDigitalCards = getFilteredCustomers(localCustomers.filter(customer => customer.isDigitalCard !== false));
+  const allDigitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
+  const filteredDigitalCards = getFilteredCustomers(allDigitalCards);
   const filteredPaperCards = getFilteredCustomers(localCustomers.filter(customer => customer.isDigitalCard === false));
+
+  const followingMeCount = allDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length;
 
   const handlePhoneClick = (phoneNumber: string) => {
     toast({
@@ -218,6 +221,28 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     });
   };
 
+  const handleAddFollower = (customerId: number) => {
+    const updatedCustomers = localCustomers.map(customer => {
+      if (customer.id === customerId) {
+        return { 
+          ...customer, 
+          relationshipStatus: 'collected' as CustomerRelationshipStatus,
+          isNewAddition: false
+        };
+      }
+      return customer;
+    });
+    updateCustomers(updatedCustomers);
+    
+    const customer = localCustomers.find(c => c.id === customerId);
+    if (customer) {
+      toast({
+        title: "已加入聯絡人",
+        description: `${customer.name} 已加入您的聯絡人列表`
+      });
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
@@ -234,9 +259,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="digital" className="relative">
                 我的電子名片夾
-                {filteredDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length > 0 && (
+                {followingMeCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
-                    {filteredDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length}
+                    {followingMeCount}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -264,6 +289,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   >
                     <Users className="w-3 h-3 mr-1" />
                     追蹤我
+                    {followingMeCount > 0 && !filter.followingMe && (
+                      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
+                        {followingMeCount}
+                      </Badge>
+                    )}
                   </Button>
                   <Button
                     variant={filter.iFollowing ? 'default' : 'outline'}
@@ -358,7 +388,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       <CustomerCard
                         customer={customer}
                         onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
-                        onAddFollower={() => {}}
+                        onAddFollower={handleAddFollower}
                         onPhoneClick={handlePhoneClick}
                         onLineClick={handleLineClick}
                         onToggleFavorite={(id) => {
@@ -379,7 +409,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                               );
                               updateCustomers(updatedCustomers);
                             }}
-                            onAddFollower={() => {}}
+                            onAddFollower={handleAddFollower}
                             onIgnoreFollower={() => {}}
                             onPhoneClick={handlePhoneClick}
                             onLineClick={handleLineClick}
