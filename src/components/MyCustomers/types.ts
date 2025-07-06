@@ -22,7 +22,7 @@ export interface Customer {
   isMyFriend?: boolean;
   isFollowingMe?: boolean;
   hasPendingInvitation?: boolean;
-  relationshipStatus?: 'collected' | 'addedMe';
+  relationshipStatus?: 'collected' | 'addedMe' | 'ignored';
   isNewAddition?: boolean;
 }
 
