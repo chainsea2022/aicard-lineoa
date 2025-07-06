@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star, UserCheck, UserX } from 'lucide-react';
+import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star, UserCheck, UserX, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -55,7 +55,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       jobTitle: '技術長',
       company: '科技新創公司',
       photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      mutualFriends: ['陳雅婷'],
+      mutualFriends: ['陈雅婷'],
       reason: '您和劉志明有1位共同好友'
     }
   ];
@@ -72,7 +72,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       return;
     }
 
-    // 確保每個客戶都有正確的屬性
     const updatedCustomers = savedCustomers.map((customer: any) => {
       return {
         ...customer,
@@ -89,15 +88,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
 
-  // 監聽來自 MyCard 組件的事件
   useEffect(() => {
     const handleCustomerScannedCard = (event: CustomEvent) => {
       const newCustomer = event.detail;
       
-      // 檢查是否已存在相同名稱的客戶
       const existingCustomer = localCustomers.find(c => c.name === newCustomer.name);
       if (existingCustomer) {
-        return; // 如果已存在，不重複添加
+        return;
       }
 
       const updatedCustomers = [...localCustomers, newCustomer];
@@ -119,16 +116,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
-  const getPendingFollowerRequests = () => {
-    return myBusinessCards.filter(c => 
-      c.relationshipStatus === 'addedMe' && c.hasPendingInvitation
-    );
+  // 獲取所有「加我名片」的人（類似 IG 追蹤我的邏輯）
+  const getFollowerRequests = () => {
+    return myBusinessCards.filter(c => c.relationshipStatus === 'addedMe');
   };
 
-  const getNewAdditionsCount = () => {
+  // 獲取新加入的追蹤者數量
+  const getNewFollowersCount = () => {
     return myBusinessCards.filter(c => 
       c.relationshipStatus === 'addedMe' && c.isNewAddition
     ).length;
+  };
+
+  // 獲取總追蹤者數量
+  const getTotalFollowersCount = () => {
+    return getFollowerRequests().length;
   };
 
   const getFilteredCards = () => {
@@ -136,7 +138,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     console.log('所有名片:', filteredCards);
     console.log('當前篩選條件:', activeFilter);
 
-    // 先按搜尋條件篩選
     if (searchTerm) {
       filteredCards = filteredCards.filter(customer => 
         customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -145,7 +146,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       );
     }
 
-    // 再按篩選條件篩選
     switch (activeFilter) {
       case 'followingMe':
         filteredCards = filteredCards.filter(customer => {
@@ -164,7 +164,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         break;
     }
 
-    // 排序：追蹤我列表中新加入的排在前面
     if (activeFilter === 'followingMe') {
       filteredCards.sort((a, b) => {
         if (a.isNewAddition && !b.isNewAddition) return -1;
@@ -214,7 +213,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     updateCustomers(updatedCustomers);
   };
 
-  const addFollowerToCollected = (customerId: number) => {
+  // Instagram 式加回朋友功能
+  const addFollowerBack = (customerId: number) => {
     const customer = localCustomers.find(c => c.id === customerId);
     const updatedCustomers = localCustomers.map(c => {
       if (c.id === customerId) {
@@ -230,7 +230,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
     updateCustomers(updatedCustomers);
     
-    // 發送聊天室通知
     if (customer) {
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('customerAddedNotification', {
@@ -243,77 +242,127 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       }, 500);
     }
     
-    toast({ title: "已接受", description: `${customer?.name} 已加入您的電子名片夾` });
+    toast({ 
+      title: "🙌 名片已互加成功", 
+      description: `你們已互加名片，讓交流更進一步！` 
+    });
   };
 
+  // 忽略追蹤請求
   const ignoreFollower = (customerId: number) => {
     const customer = localCustomers.find(c => c.id === customerId);
     const updatedCustomers = localCustomers.map(c => 
-      c.id === customerId ? { ...c, isFollowingMe: false, hasPendingInvitation: false, isNewAddition: false } : c
+      c.id === customerId ? { 
+        ...c, 
+        isFollowingMe: false, 
+        hasPendingInvitation: false, 
+        isNewAddition: false,
+        relationshipStatus: 'ignored' as const
+      } : c
     );
     updateCustomers(updatedCustomers);
-    toast({ title: "已拒絕", description: `已拒絕 ${customer?.name} 的追蹤請求` });
+    toast({ 
+      title: "已忽略", 
+      description: `已忽略 ${customer?.name} 的追蹤請求` 
+    });
   };
 
-  const FollowerRequestCard = ({ customer }: { customer: Customer }) => (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 mb-2 shadow-sm">
-      <div className="flex items-center space-x-3">
-        {customer.photo && (
-          <img 
-            src={customer.photo} 
-            alt={customer.name} 
-            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200" 
-          />
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center space-x-2">
-            <h3 className="font-medium text-gray-900 truncate">{customer.name}</h3>
-            {customer.isNewAddition && (
-              <span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium">
-                新
-              </span>
-            )}
+  // 全部加回功能
+  const addAllFollowersBack = () => {
+    const followerRequests = getFollowerRequests();
+    const updatedCustomers = localCustomers.map(c => {
+      if (c.relationshipStatus === 'addedMe') {
+        return {
+          ...c,
+          isMyFriend: true,
+          relationshipStatus: 'collected' as const,
+          hasPendingInvitation: false,
+          isNewAddition: false
+        };
+      }
+      return c;
+    });
+    updateCustomers(updatedCustomers);
+    
+    toast({ 
+      title: "🎉 全部加回成功", 
+      description: `已加回 ${followerRequests.length} 位朋友的名片！` 
+    });
+  };
+
+  // Instagram 式追蹤請求卡片
+  const InstagramStyleFollowerCard = ({ customer }: { customer: Customer }) => {
+    const timeAgo = () => {
+      const now = new Date();
+      const added = new Date(customer.addedDate);
+      const diffMinutes = Math.floor((now.getTime() - added.getTime()) / (1000 * 60));
+      
+      if (diffMinutes < 1) return '剛剛';
+      if (diffMinutes < 60) return `${diffMinutes} 分鐘前`;
+      if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)} 小時前`;
+      return `${Math.floor(diffMinutes / 1440)} 天前`;
+    };
+
+    return (
+      <div className="bg-white border border-gray-100 rounded-xl p-4 mb-3 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center space-x-3">
+          {customer.photo && (
+            <img 
+              src={customer.photo} 
+              alt={customer.name} 
+              className="w-14 h-14 rounded-full object-cover border-2 border-gray-100" 
+            />
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center space-x-2">
+              <h3 className="font-semibold text-gray-900 truncate">{customer.name}</h3>
+              {customer.isNewAddition && (
+                <span className="bg-gradient-to-r from-orange-400 to-orange-500 text-white text-xs px-2 py-1 rounded-full font-medium animate-pulse">
+                  新
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-gray-600 truncate">{customer.company}</p>
+            <p className="text-sm text-gray-500 truncate">{customer.jobTitle}</p>
+            <p className="text-xs text-gray-400 mt-1">
+              {timeAgo()} 加了你的名片
+            </p>
           </div>
-          <p className="text-sm text-gray-500 truncate">{customer.company}</p>
-          <p className="text-sm text-gray-500 truncate">{customer.jobTitle}</p>
-          <p className="text-xs text-gray-400 mt-1">
-            {new Date(customer.addedDate).toLocaleDateString('zh-TW')} 加入
-          </p>
+        </div>
+        
+        <div className="flex space-x-2 mt-4">
+          <Button
+            onClick={() => addFollowerBack(customer.id)}
+            size="sm"
+            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm h-9 rounded-lg font-medium"
+          >
+            <UserCheck className="w-4 h-4 mr-1" />
+            ＋加回
+          </Button>
+          <Button
+            onClick={() => ignoreFollower(customer.id)}
+            size="sm"
+            variant="outline"
+            className="flex-1 text-gray-600 border-gray-200 hover:bg-gray-50 text-sm h-9 rounded-lg"
+          >
+            <UserX className="w-4 h-4 mr-1" />
+            忽略
+          </Button>
+        </div>
+        
+        <div className="mt-3 pt-3 border-t border-gray-50">
+          <Button
+            onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+            variant="ghost"
+            size="sm"
+            className="w-full text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-lg"
+          >
+            查看詳細資料
+          </Button>
         </div>
       </div>
-      
-      <div className="flex space-x-2 mt-3">
-        <Button
-          onClick={() => addFollowerToCollected(customer.id)}
-          size="sm"
-          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
-        >
-          <UserCheck className="w-3 h-3 mr-1" />
-          接受
-        </Button>
-        <Button
-          onClick={() => ignoreFollower(customer.id)}
-          size="sm"
-          variant="outline"
-          className="flex-1 text-gray-600 border-gray-300 hover:bg-gray-50 text-xs h-8"
-        >
-          <UserX className="w-3 h-3 mr-1" />
-          拒絕
-        </Button>
-      </div>
-      
-      <div className="mt-2 pt-2 border-t border-gray-100">
-        <Button
-          onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-          variant="ghost"
-          size="sm"
-          className="w-full text-xs text-gray-500 hover:text-gray-700"
-        >
-          查看詳細資料
-        </Button>
-      </div>
-    </div>
-  );
+    );
+  };
 
   const addRecommendedContact = (contactId: number) => {
     const contact = recommendedContacts.find(c => c.id === contactId);
@@ -415,7 +464,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     toast({ title: "客戶資料已更新" });
   };
 
-  const pendingRequests = getPendingFollowerRequests();
+  const followerRequests = getFollowerRequests();
+  const newFollowersCount = getNewFollowersCount();
+  const totalFollowersCount = getTotalFollowersCount();
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
@@ -460,9 +511,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
               {myBusinessCards.length}
             </span>
-            {pendingRequests.length > 0 && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                {pendingRequests.length}
+            {/* Instagram 式紅點通知 */}
+            {totalFollowersCount > 0 && (
+              <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse">
+                {totalFollowersCount}
               </div>
             )}
           </Button>
@@ -494,27 +546,43 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           
           {showTagFilters && (
             <>
-              {activeSection === 'cards' && pendingRequests.length > 0 && (
-                <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg p-3 mb-3">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <Bell className="w-4 h-4 text-red-500" />
-                    <span className="text-sm text-red-700 font-medium">
-                      追蹤請求
-                    </span>
-                    <div className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
-                      {pendingRequests.length}
+              {/* Instagram 式置頂通知區塊 */}
+              {activeSection === 'cards' && totalFollowersCount > 0 && (
+                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-xl p-4 mb-4 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-orange-100 rounded-full -mr-8 -mt-8 opacity-50"></div>
+                  <div className="relative">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <div className="text-2xl">👋</div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-orange-800">
+                          🎉 你有 {newFollowersCount > 0 ? newFollowersCount : totalFollowersCount} 位{newFollowersCount > 0 ? '新' : ''}朋友加了你的名片
+                        </h3>
+                        <p className="text-xs text-orange-600">
+                          {newFollowersCount > 0 ? '是否也加入他們？' : '點選查看完整列表'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={() => setActiveFilter('followingMe')}
+                        size="sm"
+                        className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 rounded-lg font-medium"
+                      >
+                        <Zap className="w-3 h-3 mr-1" />
+                        查看全部
+                      </Button>
+                      {newFollowersCount > 1 && (
+                        <Button
+                          onClick={addAllFollowersBack}
+                          size="sm"
+                          variant="outline"
+                          className="text-orange-600 border-orange-300 hover:bg-orange-50 text-xs h-8 rounded-lg"
+                        >
+                          全部加回
+                        </Button>
+                      )}
                     </div>
                   </div>
-                  <p className="text-xs text-red-600 mb-2">
-                    有 {getNewAdditionsCount()} 位新朋友想要追蹤您
-                  </p>
-                  <Button
-                    onClick={() => setActiveFilter('followingMe')}
-                    size="sm"
-                    className="w-full bg-red-500 hover:bg-red-600 text-white text-xs h-7"
-                  >
-                    查看所有請求
-                  </Button>
                 </div>
               )}
               
@@ -526,13 +594,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       onClick={() => toggleFilter('followingMe')}
                       variant={activeFilter === 'followingMe' ? 'default' : 'outline'}
                       size="sm"
-                      className="flex-shrink-0 text-xs h-7 relative bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
+                      className="flex-shrink-0 text-xs h-7 relative bg-orange-50 border-orange-200 text-orange-700 hover:bg-orange-100 rounded-lg"
                     >
                       <Bell className="w-3 h-3 mr-1" />
-                      追蹤我
-                      {pendingRequests.length > 0 && (
+                      加我名片
+                      {totalFollowersCount > 0 && (
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                          {pendingRequests.length}
+                          {totalFollowersCount}
                         </div>
                       )}
                     </Button>
@@ -541,7 +609,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       onClick={() => toggleFilter('favorites')}
                       variant={activeFilter === 'favorites' ? 'default' : 'ghost'}
                       size="sm"
-                      className="flex-shrink-0 text-xs h-7 bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
+                      className="flex-shrink-0 text-xs h-7 bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100 rounded-lg"
                     >
                       <Star className="w-3 h-3 mr-1" />
                       關注
@@ -550,7 +618,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                 )}
               </div>
               
-              {/* 標籤篩選條件 - 可左右滑動 */}
+              {/* 標籤篩選條件 */}
               <div className="border-t border-gray-100 pt-2">
                 <p className="text-xs text-gray-500 mb-2">標籤分類</p>
                 <ScrollArea className="w-full">
@@ -561,7 +629,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                         onClick={() => toggleFilter(tag)}
                         variant={activeFilter === tag ? 'default' : 'outline'}
                         size="sm"
-                        className="flex-shrink-0 text-xs h-6 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 whitespace-nowrap"
+                        className="flex-shrink-0 text-xs h-6 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 whitespace-nowrap rounded-lg"
                       >
                         <Tag className="w-3 h-3 mr-1" />
                         {tag}
@@ -580,22 +648,36 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           <div className="p-3">
             {activeSection === 'cards' ? (
               <div className="space-y-0">
-                {activeFilter === 'followingMe' && pendingRequests.length > 0 && (
+                {activeFilter === 'followingMe' && (
                   <div className="mb-4">
-                    <div className="flex items-center space-x-2 mb-3">
-                      <Bell className="w-4 h-4 text-red-500" />
-                      <h3 className="font-medium text-gray-900">追蹤請求</h3>
-                      <div className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium">
-                        {pendingRequests.length}
+                    {/* Instagram 式標題 */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center space-x-2">
+                        <Bell className="w-5 h-5 text-orange-500" />
+                        <h3 className="font-semibold text-gray-900">加我名片的人</h3>
+                        <div className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full font-medium">
+                          {totalFollowersCount}
+                        </div>
                       </div>
+                      {totalFollowersCount > 1 && (
+                        <Button
+                          onClick={addAllFollowersBack}
+                          size="sm"
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs h-7 rounded-lg font-medium"
+                        >
+                          全部加回
+                        </Button>
+                      )}
                     </div>
-                    {pendingRequests.map(customer => (
-                      <FollowerRequestCard key={customer.id} customer={customer} />
+                    
+                    {/* Instagram 式追蹤請求列表 */}
+                    {followerRequests.map(customer => (
+                      <InstagramStyleFollowerCard key={customer.id} customer={customer} />
                     ))}
                   </div>
                 )}
                 
-                {getFilteredCards().length > 0 ? (
+                {activeFilter !== 'followingMe' && getFilteredCards().length > 0 ? (
                   getFilteredCards().map(customer => 
                     expandedCard === customer.id 
                       ? <ExpandedCard
@@ -603,7 +685,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           customer={customer}
                           activeSection={activeSection}
                           onToggleFavorite={toggleFavorite}
-                          onAddFollower={addFollowerToCollected}
+                          onAddFollower={addFollowerBack}
                           onIgnoreFollower={ignoreFollower}
                           onPhoneClick={handlePhoneClick}
                           onLineClick={handleLineClick}
@@ -613,31 +695,38 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           onSaveCustomer={saveCustomer}
                           onCollapse={() => setExpandedCard(null)}
                         />
-                      : activeFilter === 'followingMe' && customer.hasPendingInvitation
-                      ? null // 已在上面的請求列表中顯示
                       : <CustomerCard
                           key={customer.id}
                           customer={customer}
                           onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
-                          onAddFollower={addFollowerToCollected}
+                          onAddFollower={addFollowerBack}
                           onPhoneClick={handlePhoneClick}
                           onLineClick={handleLineClick}
                         />
                   )
-                ) : (
+                ) : activeFilter !== 'followingMe' && (
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
-                      {activeFilter === 'followingMe' 
-                        ? '目前沒有追蹤請求' 
-                        : (searchTerm || activeFilter !== 'all' ? '找不到符合條件的電子名片' : '還沒有任何電子名片')
-                      }
+                      {searchTerm || activeFilter !== 'all' ? '找不到符合條件的電子名片' : '還沒有任何電子名片'}
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
-                      {activeFilter === 'followingMe' 
-                        ? '當有人掃描您的 QR Code 或加入您的聯絡人時，將會顯示在這裡'
-                        : '掃描對方的電子名片來建立人脈關係'
-                      }
+                      掃描對方的電子名片來建立人脈關係
+                    </p>
+                  </div>
+                )}
+
+                {activeFilter === 'followingMe' && followerRequests.length === 0 && (
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Bell className="w-10 h-10 text-gray-300" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">還沒有人加你的名片</h3>
+                    <p className="text-gray-500 text-sm">
+                      當有人掃描您的 QR Code 或加入您的聯絡人時
+                    </p>
+                    <p className="text-gray-400 text-xs mt-1">
+                      將會顯示在這裡，就像 Instagram 的追蹤請求一樣
                     </p>
                   </div>
                 )}
@@ -652,7 +741,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           customer={customer}
                           activeSection={activeSection}
                           onToggleFavorite={toggleFavorite}
-                          onAddFollower={addFollowerToCollected}
+                          onAddFollower={addFollowerBack}
                           onIgnoreFollower={ignoreFollower}
                           onPhoneClick={handlePhoneClick}
                           onLineClick={handleLineClick}
