@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Star, ChevronRight, MessageSquare, Phone } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -48,29 +48,10 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
           
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between mb-1">
-              <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
-              <div className="flex items-center space-x-1 flex-shrink-0">
-                {customer.isFavorite && (
-                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                )}
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              </div>
-            </div>
-            
-            <div className="text-xs text-gray-600 truncate mb-1">
-              {customer.company && customer.jobTitle 
-                ? `${customer.company} · ${customer.jobTitle}`
-                : customer.company || customer.jobTitle || '無公司資訊'
-              }
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1">
-                <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusDisplay.className}`}>
-                  {statusDisplay.text}
-                </span>
+              <div className="flex items-center space-x-2 flex-1 min-w-0">
+                <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
                 
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center space-x-1 flex-shrink-0">
                   {customer.line && (
                     <button
                       onClick={(e) => {
@@ -98,6 +79,26 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                 </div>
               </div>
               
+              <div className="flex items-center space-x-1 flex-shrink-0">
+                {customer.relationshipStatus === 'addedMe' && (
+                  <Bell className="w-3 h-3 text-red-500" />
+                )}
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              </div>
+            </div>
+            
+            <div className="text-xs text-gray-600 truncate mb-1">
+              {customer.company && customer.jobTitle 
+                ? `${customer.company} · ${customer.jobTitle}`
+                : customer.company || customer.jobTitle || '無公司資訊'
+              }
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${statusDisplay.className}`}>
+                {statusDisplay.text}
+              </span>
+              
               {customer.relationshipStatus === 'addedMe' && (
                 <Button
                   onClick={(e) => {
@@ -108,7 +109,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                   variant="default"
                   className="bg-green-600 hover:bg-green-700 text-xs h-6 px-2"
                 >
-                  加入
+                  +
                 </Button>
               )}
             </div>

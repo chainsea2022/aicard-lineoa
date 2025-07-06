@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Star, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag } from 'lucide-react';
+import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -199,8 +199,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
       
       switch (activeFilter) {
-        case 'favorites':
-          return matchesSearch && customer.isFavorite;
         case 'addedMe':
           return matchesSearch && customer.relationshipStatus === 'addedMe';
         default:
@@ -230,8 +228,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
       
       switch (activeFilter) {
-        case 'favorites':
-          return matchesSearch && customer.isFavorite;
         default:
           if (availableTags.includes(activeFilter)) {
             return matchesSearch && customer.tags?.includes(activeFilter);
@@ -261,6 +257,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const addFollowerToCollected = (customerId: number) => {
+    const customer = localCustomers.find(c => c.id === customerId);
     const updatedCustomers = localCustomers.map(c => {
       if (c.id === customerId) {
         return { 
@@ -274,6 +271,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       return c;
     });
     updateCustomers(updatedCustomers);
+    
+    // 發送聊天室通知
+    if (customer) {
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+          detail: { 
+            customerName: customer.name, 
+            action: 'mutual_added',
+            message: `您已加入 ${customer.name} 的名片，對方將收到通知。`
+          }
+        }));
+      }, 500);
+    }
+    
     toast({ title: "已加入我的電子名片夾" });
   };
 
@@ -467,7 +478,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   <div className="flex items-center space-x-2">
                     <Bell className="w-4 h-4 text-red-500" />
                     <span className="text-sm text-red-700 font-medium">
-                      有 {getPendingNotificationCount()} 位新朋友加您
+                      有 {getPendingNotificationCount()} 位新朋友追蹤您
                     </span>
                   </div>
                   <Button
@@ -483,16 +494,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               
               <ScrollArea>
                 <div className="flex space-x-1 pb-1 min-w-max">
-                  <Button
-                    onClick={() => toggleFilter('favorites')}
-                    variant={activeFilter === 'favorites' ? 'default' : 'outline'}
-                    size="sm"
-                    className="flex-shrink-0 text-xs h-6"
-                  >
-                    <Star className="w-3 h-3 mr-1" />
-                    關注中
-                  </Button>
-
                   {activeSection === 'cards' && (
                     <Button
                       onClick={() => toggleFilter('addedMe')}
@@ -500,7 +501,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       size="sm"
                       className="flex-shrink-0 text-xs h-6 relative"
                     >
-                      ⚠️ 被加入
+                      <Bell className="w-3 h-3 mr-1" />
+                      追蹤我
                       {getPendingNotificationCount() > 0 && (
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
                           {getPendingNotificationCount()}
