@@ -28,6 +28,7 @@ export interface Customer {
   isNewAddition?: boolean;
   isPublicProfile?: boolean;
   allowDirectContact?: boolean;
+  isDigitalCard?: boolean; // true for digital cards, false for paper cards
 }
 
 export type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';

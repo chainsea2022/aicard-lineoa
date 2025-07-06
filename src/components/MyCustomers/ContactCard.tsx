@@ -1,19 +1,22 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Mail, Clock } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Mail, Clock, Send } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Customer } from './types';
 import { getRandomProfessionalAvatar } from './utils';
 
 interface ContactCardProps {
   customer: Customer;
   onClick: () => void;
+  onSendInvitation?: (customerId: number, type: 'sms' | 'email') => void;
 }
 
 export const ContactCard: React.FC<ContactCardProps> = ({
   customer,
-  onClick
+  onClick,
+  onSendInvitation
 }) => {
   const formatInvitationDate = (dateString?: string) => {
     if (!dateString) return '';
@@ -28,6 +31,13 @@ export const ContactCard: React.FC<ContactCardProps> = ({
   };
 
   const isInvited = customer.invitationSent || customer.emailInvitationSent;
+
+  const handleInvitation = (e: React.MouseEvent, type: 'sms' | 'email') => {
+    e.stopPropagation();
+    if (onSendInvitation) {
+      onSendInvitation(customer.id, type);
+    }
+  };
 
   return (
     <Card className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md bg-white border border-gray-200" onClick={onClick}>
@@ -78,25 +88,48 @@ export const ContactCard: React.FC<ContactCardProps> = ({
               }
             </div>
             
-            {/* 邀請狀態顯示 */}
-            {isInvited && (
-              <div className="flex items-center space-x-1 text-xs text-green-600">
-                <Clock className="w-3 h-3" />
-                <span>
-                  {customer.invitationSent && customer.emailInvitationSent 
-                    ? '已發送簡訊及Email邀請' 
-                    : customer.invitationSent 
-                      ? '已發送簡訊邀請' 
-                      : '已發送Email邀請'
-                  }
-                </span>
-                {(customer.invitationDate || customer.emailInvitationDate) && (
-                  <span className="text-gray-400">
-                    · {formatInvitationDate(customer.invitationDate || customer.emailInvitationDate)}
+            {/* 邀請狀態和按鈕 */}
+            <div className="flex items-center justify-between">
+              {isInvited ? (
+                <div className="flex items-center space-x-1 text-xs text-green-600">
+                  <Clock className="w-3 h-3" />
+                  <span>
+                    {customer.invitationSent && customer.emailInvitationSent 
+                      ? '已發送簡訊及Email邀請' 
+                      : customer.invitationSent 
+                        ? '已發送簡訊邀請' 
+                        : '已發送Email邀請'
+                    }
                   </span>
-                )}
-              </div>
-            )}
+                  {(customer.invitationDate || customer.emailInvitationDate) && (
+                    <span className="text-gray-400">
+                      · {formatInvitationDate(customer.invitationDate || customer.emailInvitationDate)}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center space-x-1">
+                  <Button
+                    onClick={(e) => handleInvitation(e, 'sms')}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs h-6 px-2 text-blue-600 border-blue-200 hover:bg-blue-50"
+                  >
+                    <Send className="w-3 h-3 mr-1" />
+                    簡訊邀請
+                  </Button>
+                  <Button
+                    onClick={(e) => handleInvitation(e, 'email')}
+                    size="sm"
+                    variant="outline"
+                    className="text-xs h-6 px-2 text-green-600 border-green-200 hover:bg-green-50"
+                  >
+                    <Mail className="w-3 h-3 mr-1" />
+                    Email邀請
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CardContent>

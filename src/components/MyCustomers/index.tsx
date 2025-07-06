@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,12 +8,13 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { CustomerCard } from './CustomerCard';
 import { ExpandedCard } from './ExpandedCard';
 import { ContactCard } from './ContactCard';
 import { SmartRecommendation } from './SmartRecommendation';
-import { Customer, RecommendedContact } from './types';
+import { Customer, RecommendedContact, CustomerRelationshipStatus } from './types';
 import { getRandomProfessionalAvatar } from './utils';
 
 interface MyCustomersProps {
@@ -23,12 +23,11 @@ interface MyCustomersProps {
   onCustomersUpdate?: (customers: any[]) => void;
 }
 
-type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';
-
 interface CustomerFilter {
   relationshipStatus?: CustomerRelationshipStatus | null;
   hasCard?: boolean | null;
   tags?: string[];
+  invitationStatus?: 'all' | 'invited' | 'not_invited' | 'invitation_history';
 }
 
 const generateMockRecommendedContacts = (count: number): RecommendedContact[] => {
@@ -71,7 +70,8 @@ const generateMockCustomers = (): Customer[] => {
       isFollowingMe: false,
       hasPendingInvitation: false,
       isNewAddition: false,
-      isFavorite: true
+      isFavorite: true,
+      isDigitalCard: true
     },
     {
       id: 2,
@@ -85,12 +85,49 @@ const generateMockCustomers = (): Customer[] => {
       addedDate: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       notes: '合作過的設計師夥伴',
       tags: ['工作', '合作夥伴'],
-      relationshipStatus: 'collected',
+      relationshipStatus: 'addedMe',
       isMyFriend: true,
       isFollowingMe: false,
       hasPendingInvitation: false,
-      isNewAddition: false,
-      isFavorite: false
+      isNewAddition: true,
+      isFavorite: false,
+      isDigitalCard: true
+    },
+    {
+      id: 3,
+      name: '陳美玲',
+      phone: '0923-456-789',
+      email: 'chen.meiling@example.com',
+      company: '行銷顧問公司',
+      jobTitle: '行銷經理',
+      photo: getRandomProfessionalAvatar(3),
+      hasCard: false,
+      addedDate: new Date(baseDate.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: '紙本名片掃描',
+      tags: ['行銷', '顧問'],
+      relationshipStatus: 'collected',
+      isDigitalCard: false,
+      invitationSent: false,
+      emailInvitationSent: false
+    },
+    {
+      id: 4,
+      name: '張建國',
+      phone: '0934-567-890',
+      email: 'zhang.jianguo@example.com',
+      company: '金融服務公司',
+      jobTitle: '投資顧問',
+      photo: getRandomProfessionalAvatar(4),
+      hasCard: false,
+      addedDate: new Date(baseDate.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: '會議中交換的紙本名片',
+      tags: ['金融', '投資'],
+      relationshipStatus: 'collected',
+      isDigitalCard: false,
+      invitationSent: true,
+      emailInvitationSent: true,
+      invitationDate: new Date(baseDate.getTime() - 12 * 60 * 60 * 1000).toISOString(),
+      emailInvitationDate: new Date(baseDate.getTime() - 12 * 60 * 60 * 1000).toISOString()
     }
   ];
 };
@@ -101,6 +138,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [searchQuery, setSearchQuery] = useState('');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filter, setFilter] = useState<CustomerFilter>({});
+  const [activeTab, setActiveTab] = useState<'digital' | 'paper'>('digital');
   const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(true);
   const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
   const [recommendedContacts, setRecommendedContacts] = useState<RecommendedContact[]>(mockRecommendedContacts);
@@ -126,25 +164,50 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     setLocalCustomers(updatedCustomers);
   };
 
-  const filteredCustomers = localCustomers.filter(customer => {
-    const searchRegex = new RegExp(searchQuery, 'i');
-    const matchesSearch = searchRegex.test(customer.name) || searchRegex.test(customer.company || '') || searchRegex.test(customer.jobTitle || '');
+  // 分離數位名片和紙本名片
+  const digitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
+  const paperCards = localCustomers.filter(customer => customer.isDigitalCard === false);
 
-    const matchesFilter = Object.keys(filter).every(key => {
-      if (key === 'relationshipStatus' && filter.relationshipStatus) {
-        return customer.relationshipStatus === filter.relationshipStatus;
-      }
-      if (key === 'hasCard' && filter.hasCard !== null) {
-        return customer.hasCard === filter.hasCard;
-      }
-      if (key === 'tags' && filter.tags && filter.tags.length > 0) {
-        return filter.tags.every(tag => customer.tags?.includes(tag));
-      }
-      return true;
+  // 計算加我名片的數量（紅色通知數）
+  const addedMeCount = digitalCards.filter(customer => customer.relationshipStatus === 'addedMe').length;
+
+  const getFilteredCustomers = (customerList: Customer[]) => {
+    return customerList.filter(customer => {
+      const searchRegex = new RegExp(searchQuery, 'i');
+      const matchesSearch = searchRegex.test(customer.name) || searchRegex.test(customer.company || '') || searchRegex.test(customer.jobTitle || '');
+
+      const matchesFilter = Object.keys(filter).every(key => {
+        if (key === 'relationshipStatus' && filter.relationshipStatus) {
+          return customer.relationshipStatus === filter.relationshipStatus;
+        }
+        if (key === 'hasCard' && filter.hasCard !== null) {
+          return customer.hasCard === filter.hasCard;
+        }
+        if (key === 'tags' && filter.tags && filter.tags.length > 0) {
+          return filter.tags.every(tag => customer.tags?.includes(tag));
+        }
+        if (key === 'invitationStatus' && filter.invitationStatus && filter.invitationStatus !== 'all') {
+          const isInvited = customer.invitationSent || customer.emailInvitationSent;
+          switch (filter.invitationStatus) {
+            case 'invited':
+              return isInvited;
+            case 'not_invited':
+              return !isInvited;
+            case 'invitation_history':
+              return isInvited && (customer.invitationDate || customer.emailInvitationDate);
+            default:
+              return true;
+          }
+        }
+        return true;
+      });
+
+      return matchesSearch && matchesFilter;
     });
+  };
 
-    return matchesSearch && matchesFilter;
-  });
+  const filteredDigitalCards = getFilteredCustomers(digitalCards);
+  const filteredPaperCards = getFilteredCustomers(paperCards);
 
   const handlePhoneClick = (phoneNumber: string) => {
     toast({
@@ -179,13 +242,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
       addedDate: new Date().toISOString(),
       notes: `推薦聯絡人 - ${contact.reason}`,
       tags: ['推薦聯絡人'],
-      relationshipStatus: 'collected'
+      relationshipStatus: 'collected',
+      isDigitalCard: true
     };
     
     const updatedCustomers = [...localCustomers, newCustomer];
     updateCustomers(updatedCustomers);
     
-    // Update added recommendations count
     const newCount = addedRecommendationsCount + 1;
     setAddedRecommendationsCount(newCount);
     localStorage.setItem('aile-added-recommendations-count', newCount.toString());
@@ -200,6 +263,50 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         detail: { customerName: contact.name, action: 'added' }
       }));
     }, 1000);
+  };
+
+  const handleAddFollower = (id: number) => {
+    const updatedCustomers = localCustomers.map(customer =>
+      customer.id === id ? { 
+        ...customer, 
+        relationshipStatus: 'collected' as CustomerRelationshipStatus,
+        isMyFriend: true,
+        isNewAddition: false
+      } : customer
+    );
+    updateCustomers(updatedCustomers);
+    toast({
+      title: "已加回聯絡人",
+      description: "聯絡人已成功加入"
+    });
+  };
+
+  const handleSendInvitation = (id: number, type: 'sms' | 'email') => {
+    const updatedCustomers = localCustomers.map(customer => {
+      if (customer.id === id) {
+        const now = new Date().toISOString();
+        if (type === 'sms') {
+          return { 
+            ...customer, 
+            invitationSent: true,
+            invitationDate: now
+          };
+        } else {
+          return { 
+            ...customer, 
+            emailInvitationSent: true,
+            emailInvitationDate: now
+          };
+        }
+      }
+      return customer;
+    });
+    updateCustomers(updatedCustomers);
+    
+    toast({
+      title: `已發送${type === 'sms' ? '簡訊' : 'Email'}邀請`,
+      description: `邀請已成功發送`
+    });
   };
 
   const removeCustomer = (id: number) => {
@@ -264,122 +371,191 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Search and Filter Section */}
-        <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-          <div className="flex items-center space-x-2">
-            <Input
-              type="search"
-              placeholder="搜尋聯絡人..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 rounded-full"
-            />
-            <Button onClick={() => setIsFilterOpen(!isFilterOpen)} variant="outline" size="icon" className="shrink-0">
-              <Filter className="w-4 h-4" />
-            </Button>
-          </div>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'digital' | 'paper')} className="flex-1 flex flex-col">
+          <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="digital" className="relative">
+                我的電子名片夾
+                {addedMeCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
+                    {addedMeCount}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="paper">我的聯絡人</TabsTrigger>
+            </TabsList>
 
-          {/* Filter Options */}
-          {isFilterOpen && (
-            <div className="mt-2 space-y-2">
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">關係狀態</h4>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant={filter.relationshipStatus === 'collected' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ ...filter, relationshipStatus: 'collected' })}
-                  >
-                    已收藏
-                  </Button>
-                  <Button
-                    variant={filter.relationshipStatus === 'addedMe' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ ...filter, relationshipStatus: 'addedMe' })}
-                  >
-                    加我名片
-                  </Button>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="text-sm font-medium text-gray-700">名片狀態</h4>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant={filter.hasCard === true ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ ...filter, hasCard: true })}
-                  >
-                    有名片
-                  </Button>
-                  <Button
-                    variant={filter.hasCard === false ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ ...filter, hasCard: false })}
-                  >
-                    無名片
-                  </Button>
-                </div>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setFilter({})}
-                className="w-full justify-center"
-              >
-                清除篩選
+            {/* Search and Filter */}
+            <div className="flex items-center space-x-2 mt-2">
+              <Input
+                type="search"
+                placeholder="搜尋聯絡人..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 rounded-full"
+              />
+              <Button onClick={() => setIsFilterOpen(!isFilterOpen)} variant="outline" size="icon" className="shrink-0">
+                <Filter className="w-4 h-4" />
               </Button>
             </div>
-          )}
-        </div>
 
-        <div className="flex-1 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-3 space-y-4">
-              {filteredCustomers.map(customer => (
-                <CustomerCard
-                  key={customer.id}
-                  customer={customer}
-                  onClick={() => setExpandedCardId(customer.id)}
-                  onAddFollower={() => {}}
+            {/* Filter Options */}
+            {isFilterOpen && (
+              <div className="mt-2 space-y-2">
+                {activeTab === 'digital' && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700">關係狀態</h4>
+                    <div className="flex items-center space-x-2 flex-wrap">
+                      <Button
+                        variant={filter.relationshipStatus === 'collected' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, relationshipStatus: 'collected' })}
+                      >
+                        已收藏
+                      </Button>
+                      <Button
+                        variant={filter.relationshipStatus === 'addedMe' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, relationshipStatus: 'addedMe' })}
+                      >
+                        加我名片
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === 'paper' && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700">邀請狀態</h4>
+                    <div className="flex items-center space-x-2 flex-wrap">
+                      <Button
+                        variant={filter.invitationStatus === 'all' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
+                      >
+                        全部
+                      </Button>
+                      <Button
+                        variant={filter.invitationStatus === 'invited' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, invitationStatus: 'invited' })}
+                      >
+                        已邀請
+                      </Button>
+                      <Button
+                        variant={filter.invitationStatus === 'not_invited' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, invitationStatus: 'not_invited' })}
+                      >
+                        未邀請
+                      </Button>
+                      <Button
+                        variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
+                      >
+                        邀請紀錄
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setFilter({})}
+                  className="w-full justify-center"
+                >
+                  清除篩選
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex-1 overflow-hidden">
+            <TabsContent value="digital" className="h-full m-0">
+              <ScrollArea className="h-full">
+                <div className="p-3 space-y-4">
+                  {filteredDigitalCards.map(customer => (
+                    <CustomerCard
+                      key={customer.id}
+                      customer={customer}
+                      onClick={() => setExpandedCardId(customer.id)}
+                      onAddFollower={handleAddFollower}
+                      onPhoneClick={handlePhoneClick}
+                      onLineClick={handleLineClick}
+                      onToggleFavorite={(id) => {
+                        const updatedCustomers = localCustomers.map(c =>
+                          c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                        );
+                        updateCustomers(updatedCustomers);
+                      }}
+                    />
+                  ))}
+                </div>
+
+                {/* Smart Recommendations - 固定在最下方 */}
+                <SmartRecommendation
+                  isCollapsed={isRecommendationCollapsed}
+                  onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
+                  onAddRecommendation={addRecommendedContact}
+                  recommendations={recommendedContacts}
+                  onToggleFavorite={toggleFavoriteRecommendation}
                   onPhoneClick={handlePhoneClick}
                   onLineClick={handleLineClick}
+                  favoriteIds={favoriteRecommendationIds}
+                  addedCount={addedRecommendationsCount}
                 />
-              ))}
-            </div>
+              </ScrollArea>
+            </TabsContent>
 
-            {/* Smart Recommendations */}
-            <SmartRecommendation
-              isCollapsed={isRecommendationCollapsed}
-              onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
-              onAddRecommendation={addRecommendedContact}
-              recommendations={recommendedContacts}
-              onToggleFavorite={toggleFavoriteRecommendation}
-              onPhoneClick={handlePhoneClick}
-              onLineClick={handleLineClick}
-              favoriteIds={favoriteRecommendationIds}
-              addedCount={addedRecommendationsCount}
-            />
-          </ScrollArea>
-        </div>
+            <TabsContent value="paper" className="h-full m-0">
+              <ScrollArea className="h-full">
+                <div className="p-3 space-y-4">
+                  {filteredPaperCards.map(customer => (
+                    <ContactCard
+                      key={customer.id}
+                      customer={customer}
+                      onClick={() => setExpandedCardId(customer.id)}
+                      onSendInvitation={handleSendInvitation}
+                    />
+                  ))}
+                </div>
+              </ScrollArea>
+            </TabsContent>
+          </div>
+        </Tabs>
       </div>
 
       {/* Expanded Card Modal */}
       {expandedCardId !== null && (
         <ExpandedCard
           customer={localCustomers.find(c => c.id === expandedCardId)!}
-          activeSection="cards"
-          onToggleFavorite={() => {}}
-          onAddFollower={() => {}}
+          activeSection={activeTab === 'digital' ? 'cards' : 'contacts'}
+          onToggleFavorite={(id) => {
+            const updatedCustomers = localCustomers.map(c =>
+              c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+            );
+            updateCustomers(updatedCustomers);
+          }}
+          onAddFollower={handleAddFollower}
           onIgnoreFollower={() => {}}
           onPhoneClick={handlePhoneClick}
           onLineClick={handleLineClick}
-          onSendInvitation={() => {}}
+          onSendInvitation={handleSendInvitation}
           onAddTag={() => {}}
           onRemoveTag={() => {}}
-          onSaveCustomer={editCustomer}
-          onDeleteCustomer={removeCustomer}
+          onSaveCustomer={(id, updates) => {
+            const updatedCustomers = localCustomers.map(customer =>
+              customer.id === id ? { ...customer, ...updates } : customer
+            );
+            updateCustomers(updatedCustomers);
+          }}
+          onDeleteCustomer={(id) => {
+            const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
+            updateCustomers(updatedCustomers);
+          }}
           onCollapse={() => setExpandedCardId(null)}
         />
       )}
