@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Bell, Star, Heart } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Bell, Star } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -54,20 +54,20 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
                 
-                {/* 關注按鈕 */}
+                {/* 星號關注按鈕 */}
                 <button
                   onClick={handleToggleFavorite}
                   className={`p-1 rounded-full transition-colors flex-shrink-0 ${
                     customer.isFavorite 
-                      ? 'bg-red-100 hover:bg-red-200' 
+                      ? 'bg-yellow-100 hover:bg-yellow-200' 
                       : 'bg-gray-100 hover:bg-gray-200'
                   }`}
                   title={customer.isFavorite ? '取消關注' : '關注'}
                 >
-                  <Heart 
+                  <Star 
                     className={`w-3 h-3 ${
                       customer.isFavorite 
-                        ? 'text-red-500 fill-current' 
+                        ? 'text-yellow-500 fill-current' 
                         : 'text-gray-400'
                     }`} 
                   />
