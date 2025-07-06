@@ -10,9 +10,11 @@ declare global {
     liff: any;
   }
 }
+
 interface ScannerProps {
   onClose: () => void;
 }
+
 interface CustomerData {
   name: string;
   phone: string;
@@ -25,6 +27,7 @@ interface CustomerData {
   instagram?: string;
   photo?: string;
 }
+
 const Scanner: React.FC<ScannerProps> = ({
   onClose
 }) => {
@@ -39,6 +42,7 @@ const Scanner: React.FC<ScannerProps> = ({
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
+
   useEffect(() => {
     // Initialize LIFF
     const initializeLiff = async () => {
@@ -58,10 +62,12 @@ const Scanner: React.FC<ScannerProps> = ({
     };
     initializeLiff();
   }, []);
+
   const generateInvitationUrl = () => {
     const inviteId = Math.random().toString(36).substring(2, 15);
     return `https://aipower.app/register?invite=${inviteId}`;
   };
+
   const handlePaperScan = () => {
     setScanResult('paper-card');
     setCustomerData({
@@ -73,6 +79,7 @@ const Scanner: React.FC<ScannerProps> = ({
     });
     setInvitationUrl(generateInvitationUrl());
   };
+
   const handleQRCodeScan = () => {
     setScanResult('aipower-card');
     setCustomerData({
@@ -88,6 +95,7 @@ const Scanner: React.FC<ScannerProps> = ({
       photo: '/placeholder.svg'
     });
   };
+
   const handleSendSMSInvitation = () => {
     const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
     toast({
@@ -96,6 +104,7 @@ const Scanner: React.FC<ScannerProps> = ({
     });
     console.log('SMS內容:', message);
   };
+
   const handleSendEmailInvitation = () => {
     const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
     toast({
@@ -104,6 +113,7 @@ const Scanner: React.FC<ScannerProps> = ({
     });
     console.log('Email內容:', message);
   };
+
   const handleSocialShare = () => {
     const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
     if (navigator.share) {
@@ -126,6 +136,7 @@ const Scanner: React.FC<ScannerProps> = ({
       });
     }
   };
+
   const handleAddCustomer = () => {
     const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     const newCustomer = {
@@ -141,15 +152,40 @@ const Scanner: React.FC<ScannerProps> = ({
       instagram: customerData.instagram,
       photo: customerData.photo,
       hasCard: scanResult === 'aipower-card',
-      // QR Code scans go to 名片夾, paper scans go to 聯絡人
       addedDate: new Date().toISOString(),
-      notes: '',
+      notes: scanResult === 'paper-card' ? '紙本名片掃描' : 'QR Code掃描加入',
       isInvited: scanResult === 'paper-card',
-      invitationSent: scanResult === 'paper-card'
+      invitationSent: scanResult === 'paper-card',
+      isDigitalCard: scanResult === 'aipower-card'
     };
+
     customers.push(newCustomer);
     localStorage.setItem('aile-customers', JSON.stringify(customers));
     setShowSuccessMessage(true);
+
+    // 觸發正確的事件通知給 MyCustomers 組件
+    if (scanResult === 'paper-card') {
+      // 紙本掃描 - 通知加入聯絡人列表
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: customerData.name, 
+          action: 'paper_scanned',
+          isDigitalCard: false,
+          customer: newCustomer
+        }
+      }));
+    } else if (scanResult === 'aipower-card') {
+      // QR Code 掃描 - 通知加入數位名片夾
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: customerData.name, 
+          action: 'qr_scanned',
+          isDigitalCard: true,
+          customer: newCustomer
+        }
+      }));
+    }
+
     toast({
       title: scanResult === 'paper-card' ? "聯絡人已加入！" : "名片已交換！",
       description: `${customerData.name} 已成功加入${scanResult === 'paper-card' ? '聯絡人清單' : '我的名片夾'}。`
@@ -165,6 +201,7 @@ const Scanner: React.FC<ScannerProps> = ({
         </div>
       </div>;
   }
+
   if (showSuccessMessage) {
     return <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-3 overflow-hidden">
         <div className="w-full max-w-xs mx-auto text-center h-full flex flex-col justify-center">
@@ -217,6 +254,7 @@ const Scanner: React.FC<ScannerProps> = ({
         </div>
       </div>;
   }
+
   return <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col max-w-sm mx-auto">
       {/* LIFF-optimized Header */}
       <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 shadow-lg flex-shrink-0">
@@ -407,4 +445,5 @@ const Scanner: React.FC<ScannerProps> = ({
       </div>
     </div>;
 };
+
 export default Scanner;
