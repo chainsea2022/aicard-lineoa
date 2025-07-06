@@ -65,8 +65,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     
     if (savedCustomers.length === 0) {
       const defaultCustomers = getDefaultCustomers();
-      // 確保有5個被加入的聯絡人
-      const addedMeContacts = [
+      // 確保有8個追蹤我的聯絡人 (6個已加入 + 2個新加入)
+      const followingMeContacts = [
+        // 2個新加入的聯絡人
         {
           id: 1001,
           name: '吳雅芳',
@@ -101,6 +102,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           hasPendingInvitation: true,
           isNewAddition: true
         },
+        // 6個已追蹤我的聯絡人
         {
           id: 1003,
           name: '許文華',
@@ -110,13 +112,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           jobTitle: '業務經理',
           photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
-          addedDate: new Date().toISOString(),
+          addedDate: new Date(Date.now() - 86400000).toISOString(),
           notes: '',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
           hasPendingInvitation: true,
-          isNewAddition: true
+          isNewAddition: false
         },
         {
           id: 1004,
@@ -127,13 +129,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           jobTitle: '建築師',
           photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
-          addedDate: new Date().toISOString(),
+          addedDate: new Date(Date.now() - 172800000).toISOString(),
           notes: '',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
           hasPendingInvitation: true,
-          isNewAddition: true
+          isNewAddition: false
         },
         {
           id: 1005,
@@ -144,17 +146,68 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           jobTitle: '理財顧問',
           photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
-          addedDate: new Date().toISOString(),
+          addedDate: new Date(Date.now() - 259200000).toISOString(),
           notes: '',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
           hasPendingInvitation: true,
-          isNewAddition: true
+          isNewAddition: false
+        },
+        {
+          id: 1006,
+          name: '陳建華',
+          phone: '0967-890-123',
+          email: 'chen.jianhua@email.com',
+          company: '媒體公司',
+          jobTitle: '編輯',
+          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date(Date.now() - 345600000).toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: false
+        },
+        {
+          id: 1007,
+          name: '張婷婷',
+          phone: '0978-901-234',
+          email: 'zhang.tingting@email.com',
+          company: '教育機構',
+          jobTitle: '講師',
+          photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date(Date.now() - 432000000).toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: false
+        },
+        {
+          id: 1008,
+          name: '李明達',
+          phone: '0989-012-345',
+          email: 'li.mingda@email.com',
+          company: '零售業',
+          jobTitle: '店長',
+          photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
+          hasCard: true,
+          addedDate: new Date(Date.now() - 518400000).toISOString(),
+          notes: '',
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: false
         }
       ];
       
-      const allCustomers = [...defaultCustomers, ...addedMeContacts];
+      const allCustomers = [...defaultCustomers, ...followingMeContacts];
       setLocalCustomers(allCustomers);
       localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
       onCustomersUpdate(allCustomers);
@@ -233,6 +286,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     ).length;
   };
 
+  const getNewAdditionsCount = () => {
+    return myBusinessCards.filter(c => 
+      c.relationshipStatus === 'addedMe' && c.isNewAddition
+    ).length;
+  };
+
   const getFilteredCards = () => {
     let filteredCards = myBusinessCards.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -252,7 +311,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       }
     });
 
-    // Sort followingMe cards with newest first
+    // Sort followingMe cards with new additions first
     if (activeFilter === 'followingMe') {
       filteredCards.sort((a, b) => {
         if (a.isNewAddition && !b.isNewAddition) return -1;
@@ -521,7 +580,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   <div className="flex items-center space-x-2">
                     <Bell className="w-4 h-4 text-red-500" />
                     <span className="text-sm text-red-700 font-medium">
-                      有 {getPendingNotificationCount()} 位新朋友追蹤您
+                      有 {getNewAdditionsCount()} 位新朋友追蹤您
                     </span>
                   </div>
                   <Button
@@ -561,24 +620,24 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       className="flex-shrink-0 text-xs h-7 bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
                     >
                       <Star className="w-3 h-3 mr-1" />
-                      關注我
+                      關注
                     </Button>
                   </div>
                 )}
               </div>
               
-              {/* 標籤篩選條件 */}
+              {/* 標籤篩選條件 - 可左右滑動 */}
               <div className="border-t border-gray-100 pt-2">
                 <p className="text-xs text-gray-500 mb-2">標籤分類</p>
-                <ScrollArea>
-                  <div className="flex space-x-1 pb-1 min-w-max">
+                <ScrollArea className="w-full">
+                  <div className="flex space-x-1 pb-1" style={{ minWidth: 'max-content' }}>
                     {availableTags.map(tag => (
                       <Button
                         key={tag}
                         onClick={() => toggleFilter(tag)}
                         variant={activeFilter === tag ? 'default' : 'outline'}
                         size="sm"
-                        className="flex-shrink-0 text-xs h-6 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                        className="flex-shrink-0 text-xs h-6 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 whitespace-nowrap"
                       >
                         <Tag className="w-3 h-3 mr-1" />
                         {tag}
