@@ -351,7 +351,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
           <div className="flex-1 min-h-0 relative">
             <TabsContent value="digital" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ paddingBottom: '280px', WebkitOverflowScrolling: 'touch' }}>
+              <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ paddingBottom: '120px', WebkitOverflowScrolling: 'touch' }}>
                 <div className="p-3 space-y-2">
                   {filteredDigitalCards.map(customer => (
                     <div key={customer.id} className="space-y-2">
@@ -471,7 +471,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             {activeTab === 'digital' && (
               <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
                 <SmartRecommendation
-                  isCollapsed={false}
+                  isCollapsed={isRecommendationCollapsed}
                   onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
                   onAddRecommendation={addRecommendedContact}
                   recommendations={recommendedContacts}
