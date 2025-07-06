@@ -132,19 +132,13 @@ const MyCard: React.FC<MyCardProps> = ({
 
     // 模擬 QR Code 被掃描的情況 (測試用)
     setTimeout(() => {
-      const mockCustomer = {
-        id: Date.now(),
-        name: generateRandomCustomerName(),
-        lineId: '@testuser123',
-        phone: '0912345678',
-        email: 'test@example.com',
-        company: '測試公司',
-        photo: null,
-        isAileUser: Math.random() > 0.5,
-        addedVia: 'qrcode'
-      };
-      const event = new CustomEvent('customerScannedCard', {
-        detail: mockCustomer
+      const customerName = generateRandomCustomerName();
+      const event = new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName, 
+          action: 'qrcode_scanned',
+          message: `${customerName} 透過掃描您的 QR Code 加入聯絡人`
+        }
       });
       window.dispatchEvent(event);
     }, 3000);
@@ -164,6 +158,17 @@ const MyCard: React.FC<MyCardProps> = ({
       timestamp: new Date()
     };
     setMessages(prev => [...prev, newMessage]);
+    
+    // 發送到名片人脈夾的通知
+    const event = new CustomEvent('customerAddedNotification', {
+      detail: { 
+        customerName, 
+        action: 'contact_added',
+        message: `${customerName} 透過加入聯絡人功能加入您的名片`
+      }
+    });
+    window.dispatchEvent(event);
+    
     toast({
       title: "已加入聯絡人",
       description: "名片已成功加入聯絡人清單。"

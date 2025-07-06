@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag } from 'lucide-react';
+import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -183,6 +183,47 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
 
+  // 監聽來自 MyCard 組件的事件
+  useEffect(() => {
+    const handleCustomerAddedNotification = (event: CustomEvent) => {
+      const { customerName, action, message } = event.detail;
+      
+      if (action === 'qrcode_scanned' || action === 'contact_added') {
+        // 創建新的追蹤者
+        const newFollower: Customer = {
+          id: Date.now(),
+          name: customerName,
+          phone: '0912-000-000',
+          email: `${customerName.toLowerCase()}@example.com`,
+          company: '未知公司',
+          jobTitle: '未知職位',
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: message || `透過 ${action === 'qrcode_scanned' ? 'QR Code' : '加入聯絡人'} 加入`,
+          relationshipStatus: 'addedMe' as const,
+          isMyFriend: false,
+          isFollowingMe: true,
+          hasPendingInvitation: true,
+          isNewAddition: true
+        };
+
+        const updatedCustomers = [...localCustomers, newFollower];
+        updateCustomers(updatedCustomers);
+        
+        toast({
+          title: "新的追蹤者！",
+          description: `${customerName} 已加入您的名片，請查看追蹤我列表`
+        });
+      }
+    };
+
+    window.addEventListener('customerAddedNotification', handleCustomerAddedNotification as EventListener);
+    
+    return () => {
+      window.removeEventListener('customerAddedNotification', handleCustomerAddedNotification as EventListener);
+    };
+  }, [localCustomers, onCustomersUpdate]);
+
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
@@ -199,8 +240,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase());
       
       switch (activeFilter) {
-        case 'addedMe':
+        case 'followingMe':
           return matchesSearch && customer.relationshipStatus === 'addedMe';
+        case 'favorites':
+          return matchesSearch && customer.isFavorite;
         default:
           if (availableTags.includes(activeFilter)) {
             return matchesSearch && customer.tags?.includes(activeFilter);
@@ -209,8 +252,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       }
     });
 
-    // Sort addedMe cards with newest first
-    if (activeFilter === 'addedMe') {
+    // Sort followingMe cards with newest first
+    if (activeFilter === 'followingMe') {
       filteredCards.sort((a, b) => {
         if (a.isNewAddition && !b.isNewAddition) return -1;
         if (!a.isNewAddition && b.isNewAddition) return 1;
@@ -474,7 +517,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           {showTagFilters && (
             <>
               {activeSection === 'cards' && getPendingNotificationCount() > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-2 flex items-center justify-between">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-3 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Bell className="w-4 h-4 text-red-500" />
                     <span className="text-sm text-red-700 font-medium">
@@ -482,7 +525,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                     </span>
                   </div>
                   <Button
-                    onClick={() => setActiveFilter('addedMe')}
+                    onClick={() => setActiveFilter('followingMe')}
                     size="sm"
                     variant="outline"
                     className="text-xs h-6 border-red-300 text-red-600 hover:bg-red-100"
@@ -492,14 +535,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                 </div>
               )}
               
-              <ScrollArea>
-                <div className="flex space-x-1 pb-1 min-w-max">
-                  {activeSection === 'cards' && (
+              {/* 特殊篩選條件 */}
+              <div className="space-y-2 mb-3">
+                {activeSection === 'cards' && (
+                  <div className="flex space-x-2">
                     <Button
-                      onClick={() => toggleFilter('addedMe')}
-                      variant={activeFilter === 'addedMe' ? 'default' : 'outline'}
+                      onClick={() => toggleFilter('followingMe')}
+                      variant={activeFilter === 'followingMe' ? 'default' : 'outline'}
                       size="sm"
-                      className="flex-shrink-0 text-xs h-6 relative"
+                      className="flex-shrink-0 text-xs h-7 relative bg-red-50 border-red-200 text-red-700 hover:bg-red-100"
                     >
                       <Bell className="w-3 h-3 mr-1" />
                       追蹤我
@@ -509,22 +553,40 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                         </div>
                       )}
                     </Button>
-                  )}
-                  
-                  {availableTags.map(tag => (
+                    
                     <Button
-                      key={tag}
-                      onClick={() => toggleFilter(tag)}
-                      variant={activeFilter === tag ? 'default' : 'outline'}
+                      onClick={() => toggleFilter('favorites')}
+                      variant={activeFilter === 'favorites' ? 'default' : 'outline'}
                       size="sm"
-                      className="flex-shrink-0 text-xs h-6"
+                      className="flex-shrink-0 text-xs h-7 bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
                     >
-                      <Tag className="w-3 h-3 mr-1" />
-                      {tag}
+                      <Star className="w-3 h-3 mr-1" />
+                      關注我
                     </Button>
-                  ))}
-                </div>
-              </ScrollArea>
+                  </div>
+                )}
+              </div>
+              
+              {/* 標籤篩選條件 */}
+              <div className="border-t border-gray-100 pt-2">
+                <p className="text-xs text-gray-500 mb-2">標籤分類</p>
+                <ScrollArea>
+                  <div className="flex space-x-1 pb-1 min-w-max">
+                    {availableTags.map(tag => (
+                      <Button
+                        key={tag}
+                        onClick={() => toggleFilter(tag)}
+                        variant={activeFilter === tag ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-shrink-0 text-xs h-6 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                      >
+                        <Tag className="w-3 h-3 mr-1" />
+                        {tag}
+                      </Button>
+                    ))}
+                  </div>
+                </ScrollArea>
+              </div>
             </>
           )}
         </div>
