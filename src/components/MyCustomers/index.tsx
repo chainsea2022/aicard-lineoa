@@ -65,7 +65,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     
     if (savedCustomers.length === 0) {
       const defaultCustomers = getDefaultCustomers();
-      // 確保有8個追蹤我的聯絡人 (6個已加入 + 2個新加入)
+      // 確保有8個追蹤我的聯絡人 - 預設建立追蹤我列表
       const followingMeContacts = [
         // 2個新加入的聯絡人
         {
@@ -78,7 +78,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date().toISOString(),
-          notes: '',
+          notes: '透過掃描您的 QR Code 加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -95,7 +95,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date().toISOString(),
-          notes: '',
+          notes: '透過加入聯絡人功能加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -113,7 +113,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date(Date.now() - 86400000).toISOString(),
-          notes: '',
+          notes: '透過掃描您的 QR Code 加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -130,7 +130,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date(Date.now() - 172800000).toISOString(),
-          notes: '',
+          notes: '透過加入聯絡人功能加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -147,7 +147,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date(Date.now() - 259200000).toISOString(),
-          notes: '',
+          notes: '透過掃描您的 QR Code 加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -164,7 +164,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date(Date.now() - 345600000).toISOString(),
-          notes: '',
+          notes: '透過加入聯絡人功能加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -181,7 +181,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date(Date.now() - 432000000).toISOString(),
-          notes: '',
+          notes: '透過掃描您的 QR Code 加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -198,7 +198,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
           hasCard: true,
           addedDate: new Date(Date.now() - 518400000).toISOString(),
-          notes: '',
+          notes: '透過加入聯絡人功能加入',
           relationshipStatus: 'addedMe' as const,
           isMyFriend: false,
           isFollowingMe: true,
@@ -214,24 +214,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       return;
     }
 
+    // 確保每個客戶都有正確的屬性
     const updatedCustomers = savedCustomers.map((customer: any) => {
-      let relationshipStatus: 'collected' | 'addedMe' = 'collected';
-      
-      if (!customer.isMyFriend && customer.isFollowingMe) {
-        relationshipStatus = 'addedMe';
-      } else {
-        relationshipStatus = 'collected';
-      }
-
       return {
         ...customer,
-        isMyFriend: customer.isMyFriend || customer.hasCard,
-        isFollowingMe: customer.isFollowingMe || false,
-        hasPendingInvitation: customer.hasPendingInvitation || false,
-        relationshipStatus,
-        isNewAddition: customer.isNewAddition || false
+        isMyFriend: customer.isMyFriend ?? (customer.relationshipStatus !== 'addedMe'),
+        isFollowingMe: customer.isFollowingMe ?? (customer.relationshipStatus === 'addedMe'),
+        hasPendingInvitation: customer.hasPendingInvitation ?? (customer.relationshipStatus === 'addedMe'),
+        relationshipStatus: customer.relationshipStatus ?? (customer.hasCard ? 'collected' : 'addedMe'),
+        isNewAddition: customer.isNewAddition ?? false
       } as Customer;
     });
+    
     setLocalCustomers(updatedCustomers);
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
@@ -279,25 +273,33 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const getFilteredCards = () => {
-    let filteredCards = myBusinessCards.filter(customer => {
-      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      switch (activeFilter) {
-        case 'followingMe':
-          return matchesSearch && customer.relationshipStatus === 'addedMe';
-        case 'favorites':
-          return matchesSearch && customer.isFavorite;
-        default:
-          if (availableTags.includes(activeFilter)) {
-            return matchesSearch && customer.tags?.includes(activeFilter);
-          }
-          return matchesSearch;
-      }
-    });
+    let filteredCards = myBusinessCards;
 
-    // Sort followingMe cards with new additions first
+    // 先按搜尋條件篩選
+    if (searchTerm) {
+      filteredCards = filteredCards.filter(customer => 
+        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // 再按篩選條件篩選
+    switch (activeFilter) {
+      case 'followingMe':
+        filteredCards = filteredCards.filter(customer => customer.relationshipStatus === 'addedMe');
+        break;
+      case 'favorites':
+        filteredCards = filteredCards.filter(customer => customer.isFavorite);
+        break;
+      default:
+        if (availableTags.includes(activeFilter)) {
+          filteredCards = filteredCards.filter(customer => customer.tags?.includes(activeFilter));
+        }
+        break;
+    }
+
+    // 排序：追蹤我列表中新加入的排在前面
     if (activeFilter === 'followingMe') {
       filteredCards.sort((a, b) => {
         if (a.isNewAddition && !b.isNewAddition) return -1;
@@ -484,6 +486,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     toast({ title: "客戶資料已更新" });
   };
 
+  console.log('追蹤我列表資料:', myBusinessCards.filter(c => c.relationshipStatus === 'addedMe'));
+  console.log('過濾後的名片:', getFilteredCards());
+  console.log('當前篩選條件:', activeFilter);
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
       <div className="flex-shrink-0">
@@ -601,7 +607,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                     
                     <Button
                       onClick={() => toggleFilter('favorites')}
-                      variant={activeFilter === 'favorites' ? 'default' : 'outline'}
+                      variant={activeFilter === 'favorites' ? 'default' : 'ghost'}
                       size="sm"
                       className="flex-shrink-0 text-xs h-7 bg-yellow-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100"
                     >
