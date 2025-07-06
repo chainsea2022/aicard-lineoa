@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award, User, Smartphone, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -92,11 +93,10 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     return <Points onClose={() => setShowPoints(false)} />;
   }
 
-  // 如果沒有用戶資料或名片資料，顯示快速註冊登入介面
-  if (!userData || !cardData) {
-    return (
-      <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
-        <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
+  return (
+    <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
+      <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
@@ -106,10 +106,26 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">快速註冊登入</h1>
+            <h1 className="font-bold text-lg">
+              {userData && cardData ? '我的電子名片' : '快速註冊登入'}
+            </h1>
           </div>
+          {userData && cardData && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-white hover:bg-white/20"
+            >
+              <LogOut className="w-4 h-4 mr-1" />
+              登出
+            </Button>
+          )}
         </div>
+      </div>
 
+      {/* 如果沒有用戶資料或名片資料，顯示快速註冊登入介面 */}
+      {(!userData || !cardData) && (
         <div className="p-6">
           {/* 歡迎區塊 */}
           <div className="text-center mb-8">
@@ -326,30 +342,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
             </CardContent>
           </Card>
         </div>
-      )}
-
-      {/* OTP驗證和其他彈窗 */}
-      {showOTPVerification && (
-        <OTPVerification 
-          onClose={() => setShowOTPVerification(false)} 
-          onVerificationComplete={handleVerificationComplete} 
-        />
-      )}
-
-      {showCreateCard && (
-        <CreateCard 
-          onClose={() => setShowCreateCard(false)} 
-          onRegistrationComplete={handleCardCreated} 
-          userPhone={userData?.phone} 
-        />
-      )}
-
-      {showSettings && (
-        <ProfileSettings onClose={() => setShowSettings(false)} />
-      )}
-
-      {showPoints && (
-        <Points onClose={() => setShowPoints(false)} />
       )}
     </div>
   );
