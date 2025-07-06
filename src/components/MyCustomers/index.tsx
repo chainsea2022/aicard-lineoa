@@ -99,6 +99,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
     
     console.log('載入的客戶資料:', updatedCustomers);
+    console.log('加我名片的客戶:', updatedCustomers.filter(c => c.relationshipStatus === 'addedMe'));
     setLocalCustomers(updatedCustomers);
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
@@ -132,7 +133,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
   const getFollowerRequests = () => {
-    return myBusinessCards.filter(c => c.relationshipStatus === 'addedMe');
+    const followers = myBusinessCards.filter(c => c.relationshipStatus === 'addedMe');
+    console.log('追蹤請求:', followers);
+    return followers;
   };
 
   const getNewFollowersCount = () => {
@@ -176,12 +179,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
         break;
     }
 
+    // 智能推薦的名片顯示在最上方
+    const recommendedCards = filteredCards.filter(c => c.tags?.includes('推薦聯絡人'));
+    const normalCards = filteredCards.filter(c => !c.tags?.includes('推薦聯絡人'));
+
     if (activeFilter === 'followingMe') {
       filteredCards.sort((a, b) => {
         if (a.isNewAddition && !b.isNewAddition) return -1;
         if (!a.isNewAddition && b.isNewAddition) return 1;
         return new Date(b.addedDate).getTime() - new Date(a.addedDate).getTime();
       });
+    } else {
+      filteredCards = [...recommendedCards, ...normalCards];
     }
 
     console.log('篩選後的名片:', filteredCards);
@@ -475,6 +484,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const followerRequests = getFollowerRequests();
   const newFollowersCount = getNewFollowersCount();
   const totalFollowersCount = getTotalFollowersCount();
+
+  console.log('最終追蹤請求列表:', followerRequests);
+  console.log('新追蹤者數量:', newFollowersCount);
+  console.log('總追蹤者數量:', totalFollowersCount);
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
