@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Users, Mail, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -284,7 +285,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   <Button
                     variant={filter.followingMe ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setFilter({ ...filter, followingMe: !filter.followingMe })}
+                    onClick={() => setFilter({ 
+                      ...filter, 
+                      followingMe: !filter.followingMe,
+                      iFollowing: filter.followingMe ? filter.iFollowing : false
+                    })}
                     className="relative flex items-center justify-center text-xs h-9"
                   >
                     <Users className="w-3 h-3 mr-1" />
@@ -298,7 +303,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   <Button
                     variant={filter.iFollowing ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setFilter({ ...filter, iFollowing: !filter.iFollowing })}
+                    onClick={() => setFilter({ 
+                      ...filter, 
+                      iFollowing: !filter.iFollowing,
+                      followingMe: filter.iFollowing ? filter.followingMe : false
+                    })}
                     className="relative flex items-center justify-center text-xs h-9"
                   >
                     <Users className="w-3 h-3 mr-1" />
