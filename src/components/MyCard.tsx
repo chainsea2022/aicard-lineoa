@@ -1,387 +1,215 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Share2, QrCode, Download, Zap, Bot, Plus, UserPlus, Edit } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from '@/hooks/use-toast';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import CreateCard from './CreateCard';
+import { ProfileSettings } from './MyCustomers/ProfileSettings';
 
 interface MyCardProps {
   onClose: () => void;
-  onCustomerAdded?: (customer: any) => void;
 }
 
-interface CardData {
-  companyName: string;
-  name: string;
-  phone: string;
-  email: string;
-  website: string;
-  line: string;
-  facebook: string;
-  instagram: string;
-  photo: string | null;
-}
-
-interface ChatMessage {
-  id: number;
-  text: string;
-  isBot: boolean;
-  timestamp: Date;
-  isCard?: boolean;
-  cardData?: CardData;
-}
-
-// 模擬客戶名稱生成器
-const generateRandomCustomerName = () => {
-  const surnames = ['王', '李', '張', '陳', '林', '黃', '吳', '劉', '蔡', '楊'];
-  const names = ['小明', '大頭', '美麗', '志強', '淑芬', '建國', '雅婷', '俊傑', '麗華', '文雄'];
-  const surname = surnames[Math.floor(Math.random() * surnames.length)];
-  const name = names[Math.floor(Math.random() * names.length)];
-  return surname + name;
-};
-
-const MyCard: React.FC<MyCardProps> = ({
-  onClose,
-  onCustomerAdded
-}) => {
-  const [cardData, setCardData] = useState<CardData | null>(null);
-  const [showQR, setShowQR] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
+  const [cardData, setCardData] = useState<any>(null);
+  const [showCreateCard, setShowCreateCard] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [profileSettings, setProfileSettings] = useState({
+    isPublicProfile: false,
+    allowDirectContact: true
+  });
 
   useEffect(() => {
     const savedData = localStorage.getItem('aile-card-data');
     if (savedData) {
-      const data = JSON.parse(savedData);
-      setCardData(data);
+      setCardData(JSON.parse(savedData));
+    }
 
-      // 初始化聊天訊息，包含電子名片預覽
-      const initialMessages: ChatMessage[] = [{
-        id: 1,
-        text: "這是您的電子名片預覽：",
-        isBot: true,
-        timestamp: new Date()
-      }, {
-        id: 2,
-        text: "",
-        isBot: true,
-        timestamp: new Date(),
-        isCard: true,
-        cardData: data
-      }];
-      setMessages(initialMessages);
+    const savedSettings = localStorage.getItem('aile-profile-settings');
+    if (savedSettings) {
+      setProfileSettings(JSON.parse(savedSettings));
     }
   }, []);
 
-  const handleShare = () => {
-    const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
+  if (showCreateCard) {
+    return <CreateCard onClose={() => setShowCreateCard(false)} />;
+  }
 
-    if (navigator.share) {
-      navigator.share({
-        title: `${cardData?.name} 的電子名片`,
-        text: `查看 ${cardData?.name} 的電子名片`,
-        url: shareUrl
-      });
-    } else {
-      navigator.clipboard.writeText(shareUrl);
-    }
-
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      text: "您的電子名片分享連結已準備好！當有人透過此連結查看您的名片時，將會自動加入您的人脈列表。",
-      isBot: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, newMessage]);
-    toast({
-      title: "分享成功！",
-      description: "您的電子名片已準備好分享。"
-    });
-  };
-
-  const generateQRCode = () => {
-    setShowQR(true);
-    const customerName = generateRandomCustomerName();
-    
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      text: `QR Code 已生成！${customerName} 已掃描您的 QR Code 並加入您的名片。`,
-      isBot: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, newMessage]);
-
-    // 立即發送通知到名片人脈夾
-    const event = new CustomEvent('customerScannedCard', {
-      detail: {
-        id: Date.now(),
-        name: customerName,
-        phone: '0912-000-000',
-        email: `${customerName.toLowerCase()}@example.com`,
-        company: '未知公司',
-        jobTitle: '未知職位',
-        hasCard: true,
-        addedDate: new Date().toISOString(),
-        notes: `透過掃描您的 QR Code 加入`,
-        relationshipStatus: 'addedMe',
-        isMyFriend: false,
-        isFollowingMe: true,
-        hasPendingInvitation: true,
-        isNewAddition: true
-      }
-    });
-    window.dispatchEvent(event);
-
-    toast({
-      title: "QR Code 已生成！",
-      description: `${customerName} 已掃描您的 QR Code 並加入名片人脈夾。`
-    });
-  };
-
-  const handleAddContact = () => {
-    const customerName = generateRandomCustomerName();
-    
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      text: `🎉 ${customerName} 已透過加入聯絡人功能加入您的名片！`,
-      isBot: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, newMessage]);
-    
-    // 立即發送通知到名片人脈夾
-    const event = new CustomEvent('customerScannedCard', {
-      detail: {
-        id: Date.now(),
-        name: customerName,
-        phone: '0912-000-000',
-        email: `${customerName.toLowerCase()}@example.com`,
-        company: '未知公司',
-        jobTitle: '未知職位',
-        hasCard: true,
-        addedDate: new Date().toISOString(),
-        notes: `透過加入聯絡人功能加入`,
-        relationshipStatus: 'addedMe',
-        isMyFriend: false,
-        isFollowingMe: true,
-        hasPendingInvitation: true,
-        isNewAddition: true
-      }
-    });
-    window.dispatchEvent(event);
-    
-    toast({
-      title: "已加入聯絡人",
-      description: `${customerName} 已加入您的名片人脈夾。`
-    });
-  };
-
-  const handleCreateCard = () => {
-    const newMessage: ChatMessage = {
-      id: messages.length + 1,
-      text: "正在為您建立電子名片模板，您可以編輯個人資訊和自訂設計。",
-      isBot: true,
-      timestamp: new Date()
-    };
-    setMessages(prev => [...prev, newMessage]);
-  };
+  if (showSettings) {
+    return <ProfileSettings onClose={() => setShowSettings(false)} />;
+  }
 
   if (!cardData) {
-    return <div className="absolute inset-0 bg-white z-50">
+    return (
+      <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
         <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg">
           <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-white hover:bg-white/20"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="font-bold text-lg">我的電子名片</h1>
           </div>
         </div>
-        
-        <div className="flex flex-col items-center justify-center h-full p-6 text-center">
-          <div className="text-gray-400 mb-4">
-            <QrCode className="w-16 h-16 mx-auto mb-4" />
+
+        <div className="p-6 text-center">
+          <div className="mb-6">
+            <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <QrCode className="w-10 h-10 text-gray-400" />
+            </div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">尚未建立電子名片</h2>
+            <p className="text-gray-600">建立您的專屬電子名片，讓更多人認識您</p>
           </div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">尚未建立名片</h2>
-          <p className="text-gray-600 mb-6">請先建立您的電子名片，才能在此查看和分享。</p>
-          <Button onClick={onClose} className="bg-green-500 hover:bg-green-600">
-            返回建立名片
+
+          <Button 
+            onClick={() => setShowCreateCard(true)}
+            className="bg-green-500 hover:bg-green-600 text-white"
+          >
+            建立我的名片
           </Button>
         </div>
-      </div>;
+      </div>
+    );
   }
-  return <div className="absolute inset-0 bg-gradient-to-b from-gray-50 to-white z-50 overflow-hidden flex flex-col">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg flex-shrink-0">
-        <div className="flex items-center space-x-3">
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <h1 className="font-bold text-lg">我的電子名片</h1>
+
+  return (
+    <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-white hover:bg-white/20"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="font-bold text-lg">我的電子名片</h1>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSettings(true)}
+              className="text-white hover:bg-white/20"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Chat Messages */}
-      <div className="flex-1 p-4 overflow-y-auto space-y-4 min-h-0 bg-gray-50" style={{
-        backgroundImage: 'linear-gradient(45deg, #f8f9fa 25%, transparent 25%), linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8f9fa 75%), linear-gradient(-45deg, transparent 75%, #f8f9fa 75%)',
-        backgroundSize: '20px 20px',
-        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
-      }}>
-        {messages.map(message => (
-          <div key={message.id} className="flex justify-start">
-            <div className="max-w-[90%] w-full">
-              {/* Bot Avatar */}
-              <div className="flex items-start space-x-3">
-                <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Bot className="w-5 h-5 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  {message.isCard && message.cardData ? (
-                    /* LINE Flex Message Style Card */
-                    <div className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden max-w-[280px]">
-                      {/* Business Card Header */}
-                      <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
-                        <div className="flex items-center space-x-3 mb-2">
-                          {message.cardData.photo && (
-                            <img 
-                              src={message.cardData.photo} 
-                              alt="照片" 
-                              className="w-10 h-10 rounded-full object-cover border-2 border-white flex-shrink-0" 
-                            />
-                          )}
-                          <div className="min-w-0 flex-1">
-                            <h3 className="text-base font-bold truncate">{message.cardData.name}</h3>
-                            <p className="text-blue-100 text-xs truncate">{message.cardData.companyName}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-1 text-xs">
-                          {message.cardData.phone && (
-                            <div className="flex items-center space-x-2">
-                              <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                              <span className="truncate">{message.cardData.phone}</span>
-                            </div>
-                          )}
-                          {message.cardData.email && (
-                            <div className="flex items-center space-x-2">
-                              <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                              <span className="truncate">{message.cardData.email}</span>
-                            </div>
-                          )}
-                          {message.cardData.website && (
-                            <div className="flex items-center space-x-2">
-                              <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                              <span className="truncate">{message.cardData.website}</span>
-                            </div>
-                          )}
-                        </div>
+      <div className="p-6">
+        {/* 公開狀態顯示 */}
+        <div className="mb-4">
+          <Badge 
+            variant={profileSettings.isPublicProfile ? "default" : "secondary"}
+            className={`${
+              profileSettings.isPublicProfile 
+                ? 'bg-green-100 text-green-800 border-green-200' 
+                : 'bg-gray-100 text-gray-600 border-gray-200'
+            }`}
+          >
+            {profileSettings.isPublicProfile ? (
+              <>
+                <Eye className="w-3 h-3 mr-1" />
+                公開名片
+              </>
+            ) : (
+              <>
+                <EyeOff className="w-3 h-3 mr-1" />
+                私人名片
+              </>
+            )}
+          </Badge>
+        </div>
 
-                        {/* Social Media Links */}
-                        {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
-                          <div className="mt-2 pt-2 border-t border-white/20">
-                            <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                            <div className="space-y-1 text-xs">
-                              {message.cardData.line && <div className="truncate">LINE: {message.cardData.line}</div>}
-                              {message.cardData.facebook && <div className="truncate">Facebook: {message.cardData.facebook}</div>}
-                              {message.cardData.instagram && <div className="truncate">Instagram: {message.cardData.instagram}</div>}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* QR Code Section */}
-                      {showQR && (
-                        <div className="p-3 text-center bg-gray-50 border-b border-gray-100">
-                          <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg mx-auto mb-1 flex items-center justify-center">
-                            <QrCode className="w-12 h-12 text-gray-400" />
-                          </div>
-                          <p className="text-xs text-gray-600">掃描獲取名片</p>
-                        </div>
-                      )}
-
-                      {/* Action Buttons */}
-                      <div className="p-3 bg-white space-y-2">
-                        <Button 
-                          onClick={generateQRCode} 
-                          size="sm" 
-                          className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
-                        >
-                          <QrCode className="w-3 h-3 mr-2" />
-                          QR Code
-                        </Button>
-                        
-                        <Button 
-                          onClick={handleAddContact} 
-                          size="sm" 
-                          className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8"
-                        >
-                          <UserPlus className="w-3 h-3 mr-2" />
-                          加入聯絡人
-                        </Button>
-                        
-                        <Button 
-                          onClick={handleCreateCard} 
-                          size="sm" 
-                          className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
-                        >
-                          <Edit className="w-3 h-3 mr-2" />
-                          建立我的名片
-                        </Button>
-                        
-                        <Button 
-                          onClick={handleShare} 
-                          size="sm" 
-                          className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8"
-                        >
-                          <Share2 className="w-3 h-3 mr-2" />
-                          分享
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    /* Regular Chat Message */
-                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
-                      <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
-                    </div>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1 ml-2">
-                    {message.timestamp.toLocaleTimeString('zh-TW', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </p>
+        {/* 名片預覽 */}
+        <Card className="mb-6 shadow-lg border-2 border-green-200">
+          <CardContent className="p-0">
+            <div className="bg-gradient-to-br from-green-500 to-blue-600 p-6 text-white">
+              <div className="flex items-center space-x-4 mb-4">
+                {cardData.photo && (
+                  <Avatar className="w-16 h-16 border-2 border-white">
+                    <AvatarImage src={cardData.photo} alt="照片" />
+                    <AvatarFallback className="bg-white text-green-600 font-bold">
+                      {cardData.name?.charAt(0) || 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold">{cardData.name}</h2>
+                  <p className="text-green-100">{cardData.companyName}</p>
                 </div>
               </div>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* LINE 風格圖文選單 - 預設收起 */}
-      {isMenuOpen && (
-        <div className="bg-white border-t border-gray-200 flex-shrink-0 p-4">
-          <div className="text-center mb-3">
-            <p className="text-sm text-gray-600">快速功能選單</p>
-          </div>
+              <div className="space-y-2 text-sm">
+                {cardData.phone && <div>📱 {cardData.phone}</div>}
+                {cardData.email && <div>✉️ {cardData.email}</div>}
+                {cardData.website && <div>🌐 {cardData.website}</div>}
+                {cardData.line && <div>💬 LINE: {cardData.line}</div>}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 操作按鈕 */}
+        <div className="space-y-3">
+          <Button 
+            onClick={() => setShowCreateCard(true)}
+            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+          >
+            <Edit className="w-4 h-4 mr-2" />
+            編輯名片
+          </Button>
+
+          <Button 
+            onClick={() => setShowSettings(true)}
+            className="w-full bg-green-500 hover:bg-green-600 text-white"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            公開設定
+          </Button>
+
           <div className="grid grid-cols-2 gap-3">
-            <Button onClick={() => setIsMenuOpen(false)} className="bg-blue-500 hover:bg-blue-600 text-white text-sm py-3">
-              編輯名片
+            <Button 
+              variant="outline"
+              className="border-gray-300"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              分享
             </Button>
-            <Button onClick={() => setIsMenuOpen(false)} className="bg-green-500 hover:bg-green-600 text-white text-sm py-3">
-              查看分析
+            <Button 
+              variant="outline"
+              className="border-gray-300"
+            >
+              <QrCode className="w-4 h-4 mr-2" />
+              QR Code
             </Button>
           </div>
         </div>
-      )}
 
-      {/* Floating + Button - LINE 風格 */}
-      <div className="absolute bottom-4 right-4 z-20">
-        <Button
-          onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg active:scale-95 transition-transform"
-          size="sm"
-        >
-          <Plus className="w-5 h-5" />
-        </Button>
+        {/* 設定說明 */}
+        <Card className="mt-6 bg-blue-50 border border-blue-200">
+          <CardContent className="p-4">
+            <h4 className="font-medium text-blue-800 mb-2">名片公開說明</h4>
+            <ul className="text-xs text-blue-700 space-y-1">
+              <li>• 公開名片：其他用戶可以在智能推薦中找到您</li>
+              <li>• 私人名片：僅限您主動分享的人可以查看</li>
+              <li>• 可隨時在公開設定中調整</li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default MyCard;

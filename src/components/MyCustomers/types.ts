@@ -26,6 +26,8 @@ export interface Customer {
   hasPendingInvitation?: boolean;
   relationshipStatus?: 'collected' | 'addedMe' | 'ignored';
   isNewAddition?: boolean;
+  isPublicProfile?: boolean;
+  allowDirectContact?: boolean;
 }
 
 export interface RecommendedContact {
@@ -36,6 +38,8 @@ export interface RecommendedContact {
   photo: string;
   mutualFriends: string[];
   reason: string;
+  isPublicProfile?: boolean;
+  allowDirectContact?: boolean;
 }
 
 export interface MyCustomersProps {

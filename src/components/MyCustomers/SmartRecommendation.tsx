@@ -1,147 +1,128 @@
 
 import React from 'react';
-import { TrendingUp, Crown, Minimize2, Maximize2 } from 'lucide-react';
+import { UserPlus, MessageSquare, Phone, Star } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { RecommendedContact } from './types';
-import { professionalAvatars } from './utils';
-import { toast } from '@/hooks/use-toast';
+import { getRandomProfessionalAvatar } from './utils';
 
 interface SmartRecommendationProps {
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-  onAddRecommendedContact: (contactId: number) => void;
-  recommendedContacts: RecommendedContact[];
+  recommendations: RecommendedContact[];
+  onAddRecommendation: (contact: RecommendedContact) => void;
+  onToggleFavorite: (contactId: number) => void;
+  onPhoneClick: (phoneNumber: string) => void;
+  onLineClick: (lineId: string) => void;
+  favoriteIds: number[];
 }
 
 export const SmartRecommendation: React.FC<SmartRecommendationProps> = ({
-  isCollapsed,
-  onToggleCollapse,
-  onAddRecommendedContact,
-  recommendedContacts
+  recommendations,
+  onAddRecommendation,
+  onToggleFavorite,
+  onPhoneClick,
+  onLineClick,
+  favoriteIds
 }) => {
-  const showUpgradePrompt = () => {
-    toast({
-      title: "升級至 Aile 商務版",
-      description: "解鎖專業商務管理功能，享受更多進階服務",
-      duration: 3000,
-    });
-  };
-
-  const renderSmartRecommendationCard = (contact: RecommendedContact, index: number) => {
-    if (index >= 10) {
-      return (
-        <Card key="upgrade" className="w-24 h-16 bg-gradient-to-br from-purple-100 to-blue-100 border-2 border-dashed border-purple-300 flex-shrink-0">
-          <CardContent className="p-1 h-full">
-            <button 
-              onClick={showUpgradePrompt}
-              className="w-full h-full flex flex-col items-center justify-center space-y-0.5 text-purple-600 hover:text-purple-700"
-            >
-              <Crown className="w-3 h-3" />
-              <span className="text-xs font-medium text-center leading-tight">升級<br />解鎖</span>
-            </button>
-          </CardContent>
-        </Card>
-      );
-    }
-
+  if (recommendations.length === 0) {
     return (
-      <Card key={contact.id} className="w-24 h-16 bg-white border border-orange-200 flex-shrink-0">
-        <CardContent className="p-1">
-          <div className="flex flex-col h-full">
-            <div className="flex items-center space-x-1 mb-0.5">
-              <Avatar className="w-4 h-4 border border-orange-300 flex-shrink-0">
-                <AvatarImage src={contact.photo} alt={contact.name} />
-                <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
+      <div className="text-center py-8 text-gray-500">
+        <UserPlus className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+        <p className="text-sm">暫無推薦聯絡人</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {recommendations.map((contact) => (
+        <Card key={contact.id} className="shadow-sm bg-white border border-purple-200">
+          <CardContent className="p-3">
+            <div className="flex items-center space-x-3">
+              <Avatar className="w-10 h-10 flex-shrink-0 border border-purple-300">
+                <AvatarImage src={contact.photo || getRandomProfessionalAvatar(contact.id)} alt={contact.name} />
+                <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white font-bold text-sm">
                   {contact.name.charAt(0)}
                 </AvatarFallback>
               </Avatar>
+              
               <div className="flex-1 min-w-0">
-                <h3 className="font-bold text-xs text-gray-800 truncate">{contact.name}</h3>
-              </div>
-            </div>
-            <p className="text-xs text-gray-600 truncate mb-1">{contact.jobTitle}</p>
-            <Button
-              onClick={() => onAddRecommendedContact(contact.id)}
-              size="sm"
-              variant="outline"
-              className="border-orange-300 text-orange-600 hover:bg-orange-100 text-xs h-4 px-1 mt-auto"
-            >
-              加入
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
-
-  return (
-    <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-t border-orange-200 flex-shrink-0">
-      <div className={`transition-all duration-300 ${isCollapsed ? 'p-2' : 'p-2'}`}>
-        {!isCollapsed ? (
-          <>
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="w-4 h-4 text-orange-600" />
-                <span className="text-sm font-medium text-orange-700">智能推薦</span>
-              </div>
-              <Button
-                onClick={onToggleCollapse}
-                variant="ghost"
-                size="sm"
-                className="p-1 h-6 w-6 text-orange-600 hover:bg-orange-100"
-              >
-                <Minimize2 className="w-3 h-3" />
-              </Button>
-            </div>
-            
-            <div className="relative">
-              <div className="flex space-x-2 overflow-x-auto pb-2 scrollbar-hide">
-                {recommendedContacts.concat(Array(10).fill(null)).map((contact, index) => 
-                  contact ? renderSmartRecommendationCard(contact, index) : renderSmartRecommendationCard({
-                    id: 100 + index,
-                    name: `推薦聯絡人 ${index + 5}`,
-                    jobTitle: '專業人士',
-                    company: '知名企業',
-                    photo: professionalAvatars[index % professionalAvatars.length],
-                    mutualFriends: [],
-                    reason: '系統推薦'
-                  }, index + 4)
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="w-4 h-4 text-orange-600" />
-              <span className="text-sm font-medium text-orange-700">智能推薦</span>
-              <div className="flex space-x-1">
-                {recommendedContacts.slice(0, 3).map((contact, index) => (
-                  <Avatar key={contact.id} className="w-6 h-6 border border-orange-300">
-                    <AvatarImage src={contact.photo} alt={contact.name} />
-                    <AvatarFallback className="bg-gradient-to-br from-orange-500 to-yellow-600 text-white font-bold text-xs">
-                      {contact.name.charAt(0)}
-                    </AvatarFallback>
-                  </Avatar>
-                ))}
-                <div className="w-6 h-6 border border-orange-300 rounded-full bg-orange-100 flex items-center justify-center">
-                  <span className="text-xs text-orange-600 font-medium">+</span>
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center space-x-2 flex-1 min-w-0">
+                    <h3 className="font-bold text-sm text-gray-800 truncate">{contact.name}</h3>
+                    
+                    {/* 星號關注按鈕 */}
+                    <button
+                      onClick={() => onToggleFavorite(contact.id)}
+                      className={`p-1 rounded-full transition-colors flex-shrink-0 ${
+                        favoriteIds.includes(contact.id) 
+                          ? 'bg-yellow-100 hover:bg-yellow-200' 
+                          : 'bg-gray-100 hover:bg-gray-200'
+                      }`}
+                      title={favoriteIds.includes(contact.id) ? '取消關注' : '關注'}
+                    >
+                      <Star 
+                        className={`w-3 h-3 ${
+                          favoriteIds.includes(contact.id) 
+                            ? 'text-yellow-500 fill-current' 
+                            : 'text-gray-400'
+                        }`} 
+                      />
+                    </button>
+                    
+                    {/* 聯絡按鈕 - 根據公開設定顯示 */}
+                    {contact.isPublicProfile && contact.allowDirectContact && (
+                      <div className="flex items-center space-x-1 flex-shrink-0">
+                        <button 
+                          onClick={() => onLineClick(`${contact.name}-line`)} 
+                          className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" 
+                          title="開啟 LINE"
+                        >
+                          <MessageSquare className="w-3 h-3 text-green-600" />
+                        </button>
+                        <button 
+                          onClick={() => onPhoneClick(`09${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`)} 
+                          className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" 
+                          title="撥打電話"
+                        >
+                          <Phone className="w-3 h-3 text-blue-600" />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="text-xs text-gray-600 truncate mb-1">
+                  {contact.company} · {contact.jobTitle}
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-1">
+                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                      {contact.reason}
+                    </Badge>
+                    {contact.mutualFriends?.length > 0 && (
+                      <span className="text-xs text-gray-500">
+                        {contact.mutualFriends.length} 位共同朋友
+                      </span>
+                    )}
+                  </div>
+                  
+                  <Button
+                    onClick={() => onAddRecommendation(contact)}
+                    size="sm"
+                    className="bg-purple-600 hover:bg-purple-700 text-xs h-6 px-2"
+                  >
+                    <UserPlus className="w-3 h-3 mr-1" />
+                    加入
+                  </Button>
                 </div>
               </div>
             </div>
-            <Button
-              onClick={onToggleCollapse}
-              variant="ghost"
-              size="sm"
-              className="p-1 h-6 w-6 text-orange-600 hover:bg-orange-100"
-            >
-              <Maximize2 className="w-3 h-3" />
-            </Button>
-          </div>
-        )}
-      </div>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 };
