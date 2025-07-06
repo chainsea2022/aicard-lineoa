@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -500,7 +501,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col h-full" style={{ maxWidth: '375px', margin: '0 auto' }}>
+    <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <Button onClick={onClose} variant="ghost" size="sm">
@@ -510,9 +511,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         <div></div>
       </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* 主要內容容器 */}
+      <div className="flex-1 flex flex-col min-h-0 relative">
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'digital' | 'paper')} className="flex-1 flex flex-col">
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'digital' | 'paper')} className="flex-1 flex flex-col min-h-0">
+          {/* 搜索和篩選區域 */}
           <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="digital" className="relative">
@@ -689,11 +692,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             )}
           </div>
 
-          {/* 主要內容區域 - 修正滑動問題，預留智能推薦空間 */}
+          {/* 主要內容區域 - 使用原生滾動 */}
           <div className="flex-1 min-h-0 relative">
             <TabsContent value="digital" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <ScrollArea className="flex-1">
-                <div className="p-3 space-y-2" style={{ paddingBottom: '200px' }}>
+              {/* 使用原生滾動容器 */}
+              <div 
+                className="flex-1 overflow-y-auto overflow-x-hidden"
+                style={{ 
+                  paddingBottom: isRecommendationCollapsed ? '80px' : '280px',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                <div className="p-3 space-y-2">
                   {/* 優先顯示追蹤我的新用戶 */}
                   {filteredDigitalCards
                     .filter(customer => customer.relationshipStatus === 'addedMe')
@@ -713,7 +723,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           }}
                         />
                         
-                        {/* Inline Expanded Card - 改善顯示 */}
+                        {/* Inline Expanded Card */}
                         {expandedCardId === customer.id && (
                           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
@@ -768,7 +778,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           }}
                         />
                         
-                        {/* Inline Expanded Card - 改善顯示 */}
+                        {/* Inline Expanded Card */}
                         {expandedCardId === customer.id && (
                           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
@@ -810,26 +820,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       <p className="text-gray-500 text-sm">沒有符合條件的名片</p>
                     </div>
                   )}
-
-                  {/* Smart Recommendations */}
-                  <SmartRecommendation
-                    isCollapsed={isRecommendationCollapsed}
-                    onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
-                    onAddRecommendation={addRecommendedContact}
-                    recommendations={recommendedContacts}
-                    onToggleFavorite={toggleFavoriteRecommendation}
-                    onPhoneClick={handlePhoneClick}
-                    onLineClick={handleLineClick}
-                    favoriteIds={favoriteRecommendationIds}
-                    addedCount={addedRecommendationsCount}
-                  />
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
 
             <TabsContent value="paper" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <ScrollArea className="flex-1">
-                <div className="p-3 space-y-2" style={{ paddingBottom: '200px' }}>
+              {/* 使用原生滾動容器 */}
+              <div 
+                className="flex-1 overflow-y-auto overflow-x-hidden"
+                style={{ 
+                  paddingBottom: '20px',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
+                <div className="p-3 space-y-2">
                   {filteredPaperCards.length > 0 ? (
                     filteredPaperCards.map(customer => (
                       <div key={customer.id} className="space-y-2">
@@ -839,7 +843,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           onSendInvitation={handleSendInvitation}
                         />
                         
-                        {/* Inline Expanded Card - 改善顯示 */}
+                        {/* Inline Expanded Card */}
                         {expandedCardId === customer.id && (
                           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
@@ -882,12 +886,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
 
             {/* 固定在底部的智能推薦區域 - 僅在數位名片夾頁面顯示 */}
             {activeTab === 'digital' && (
-              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
                 <SmartRecommendation
                   isCollapsed={isRecommendationCollapsed}
                   onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
