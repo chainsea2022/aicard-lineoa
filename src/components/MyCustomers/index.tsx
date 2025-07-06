@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart } from 'lucide-react';
+import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -28,6 +28,9 @@ interface CustomerFilter {
   hasCard?: boolean | null;
   tags?: string[];
   invitationStatus?: 'all' | 'invited' | 'not_invited' | 'invitation_history';
+  followingMe?: boolean;
+  iFollowing?: boolean;
+  selectedTags?: string[];
 }
 
 const generateMockRecommendedContacts = (count: number): RecommendedContact[] => {
@@ -64,10 +67,10 @@ const generateMockCustomers = (): Customer[] => {
       hasCard: true,
       addedDate: new Date(baseDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
       notes: '在技術研討會認識的朋友',
-      tags: ['工作', '朋友'],
+      tags: ['工作', '朋友', '技術'],
       relationshipStatus: 'collected',
       isMyFriend: true,
-      isFollowingMe: false,
+      isFollowingMe: true,
       hasPendingInvitation: false,
       isNewAddition: false,
       isFavorite: true,
@@ -84,7 +87,7 @@ const generateMockCustomers = (): Customer[] => {
       hasCard: true,
       addedDate: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
       notes: '合作過的設計師夥伴',
-      tags: ['工作', '合作夥伴'],
+      tags: ['工作', '合作夥伴', '設計'],
       relationshipStatus: 'addedMe',
       isMyFriend: true,
       isFollowingMe: false,
@@ -153,6 +156,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     return saved ? parseInt(saved, 10) : 0;
   });
 
+  // 所有可用標籤
+  const allTags = Array.from(new Set(localCustomers.flatMap(customer => customer.tags || [])));
+
   useEffect(() => {
     localStorage.setItem('aile-customers', JSON.stringify(localCustomers));
     if (onCustomersUpdate) {
@@ -185,6 +191,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         }
         if (key === 'tags' && filter.tags && filter.tags.length > 0) {
           return filter.tags.every(tag => customer.tags?.includes(tag));
+        }
+        if (key === 'selectedTags' && filter.selectedTags && filter.selectedTags.length > 0) {
+          return filter.selectedTags.some(tag => customer.tags?.includes(tag));
+        }
+        if (key === 'followingMe' && filter.followingMe) {
+          return customer.isFollowingMe === true;
+        }
+        if (key === 'iFollowing' && filter.iFollowing) {
+          return customer.isFavorite === true; // 用 isFavorite 代表我關注的
         }
         if (key === 'invitationStatus' && filter.invitationStatus && filter.invitationStatus !== 'all') {
           const isInvited = customer.invitationSent || customer.emailInvitationSent;
@@ -359,6 +374,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     }
   };
 
+  const clearFilter = () => {
+    setFilter({});
+  };
+
+  const toggleTagFilter = (tag: string) => {
+    const currentTags = filter.selectedTags || [];
+    const newTags = currentTags.includes(tag) 
+      ? currentTags.filter(t => t !== tag)
+      : [...currentTags, tag];
+    
+    setFilter({ ...filter, selectedTags: newTags });
+  };
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header */}
@@ -402,35 +430,57 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
             {/* Filter Options */}
             {isFilterOpen && (
-              <div className="mt-2 space-y-2">
+              <div className="mt-2 space-y-3 p-3 bg-white border border-gray-200 rounded-lg">
                 {activeTab === 'digital' && (
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700">關係狀態</h4>
-                    <div className="flex items-center space-x-2 flex-wrap">
-                      <Button
-                        variant={filter.relationshipStatus === 'collected' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter({ ...filter, relationshipStatus: 'collected' })}
-                      >
-                        已收藏
-                      </Button>
-                      <Button
-                        variant={filter.relationshipStatus === 'addedMe' ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setFilter({ ...filter, relationshipStatus: 'addedMe' })}
-                      >
-                        加我名片
-                      </Button>
+                  <>
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">關係狀態</h4>
+                      <div className="flex items-center space-x-2 flex-wrap gap-2">
+                        <Button
+                          variant={filter.relationshipStatus === 'collected' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, relationshipStatus: filter.relationshipStatus === 'collected' ? null : 'collected' })}
+                        >
+                          已收藏
+                        </Button>
+                        <Button
+                          variant={filter.relationshipStatus === 'addedMe' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, relationshipStatus: filter.relationshipStatus === 'addedMe' ? null : 'addedMe' })}
+                        >
+                          加我名片
+                        </Button>
+                      </div>
                     </div>
-                  </div>
+
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">互動關係</h4>
+                      <div className="flex items-center space-x-2 flex-wrap gap-2">
+                        <Button
+                          variant={filter.followingMe ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, followingMe: !filter.followingMe })}
+                        >
+                          追蹤我
+                        </Button>
+                        <Button
+                          variant={filter.iFollowing ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, iFollowing: !filter.iFollowing })}
+                        >
+                          我關注的
+                        </Button>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 {activeTab === 'paper' && (
                   <div>
-                    <h4 className="text-sm font-medium text-gray-700">邀請狀態</h4>
-                    <div className="flex items-center space-x-2 flex-wrap">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">邀請狀態</h4>
+                    <div className="flex items-center space-x-2 flex-wrap gap-2">
                       <Button
-                        variant={filter.invitationStatus === 'all' ? 'default' : 'outline'}
+                        variant={filter.invitationStatus === 'all' || !filter.invitationStatus ? 'default' : 'outline'}
                         size="sm"
                         onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
                       >
@@ -461,14 +511,45 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   </div>
                 )}
 
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setFilter({})}
-                  className="w-full justify-center"
-                >
-                  清除篩選
-                </Button>
+                {/* 標籤篩選 */}
+                {allTags.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">標籤篩選</h4>
+                    <div className="flex items-center space-x-1 flex-wrap gap-1">
+                      {allTags.map(tag => (
+                        <Button
+                          key={tag}
+                          variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => toggleTagFilter(tag)}
+                          className="text-xs h-7 px-2"
+                        >
+                          <Tag className="w-3 h-3 mr-1" />
+                          {tag}
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-2 pt-2 border-t border-gray-100">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilter}
+                    className="flex-1 justify-center"
+                  >
+                    清除篩選
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsFilterOpen(false)}
+                    className="flex-1 justify-center"
+                  >
+                    確定
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -476,23 +557,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           <div className="flex-1 overflow-hidden">
             <TabsContent value="digital" className="h-full m-0">
               <ScrollArea className="h-full">
-                <div className="p-3 space-y-4">
-                  {filteredDigitalCards.map(customer => (
-                    <CustomerCard
-                      key={customer.id}
-                      customer={customer}
-                      onClick={() => setExpandedCardId(customer.id)}
-                      onAddFollower={handleAddFollower}
-                      onPhoneClick={handlePhoneClick}
-                      onLineClick={handleLineClick}
-                      onToggleFavorite={(id) => {
-                        const updatedCustomers = localCustomers.map(c =>
-                          c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                        );
-                        updateCustomers(updatedCustomers);
-                      }}
-                    />
-                  ))}
+                <div className="p-3 space-y-2">
+                  {filteredDigitalCards.length > 0 ? (
+                    filteredDigitalCards.map(customer => (
+                      <CustomerCard
+                        key={customer.id}
+                        customer={customer}
+                        onClick={() => setExpandedCardId(customer.id)}
+                        onAddFollower={handleAddFollower}
+                        onPhoneClick={handlePhoneClick}
+                        onLineClick={handleLineClick}
+                        onToggleFavorite={(id) => {
+                          const updatedCustomers = localCustomers.map(c =>
+                            c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                          );
+                          updateCustomers(updatedCustomers);
+                        }}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">沒有符合條件的名片</p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Smart Recommendations - 固定在最下方 */}
@@ -512,15 +600,23 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
             <TabsContent value="paper" className="h-full m-0">
               <ScrollArea className="h-full">
-                <div className="p-3 space-y-4">
-                  {filteredPaperCards.map(customer => (
-                    <ContactCard
-                      key={customer.id}
-                      customer={customer}
-                      onClick={() => setExpandedCardId(customer.id)}
-                      onSendInvitation={handleSendInvitation}
-                    />
-                  ))}
+                <div className="p-3 space-y-2">
+                  {filteredPaperCards.length > 0 ? (
+                    filteredPaperCards.map(customer => (
+                      <ContactCard
+                        key={customer.id}
+                        customer={customer}
+                        onClick={() => setExpandedCardId(customer.id)}
+                        onSendInvitation={handleSendInvitation}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500 text-sm">沒有符合條件的聯絡人</p>
+                      <p className="text-gray-400 text-xs mt-1">使用掃描功能來新增紙本名片</p>
+                    </div>
+                  )}
                 </div>
               </ScrollArea>
             </TabsContent>
@@ -546,9 +642,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           onSendInvitation={handleSendInvitation}
           onAddTag={() => {}}
           onRemoveTag={() => {}}
-          onSaveCustomer={(id, updates) => {
-            const updatedCustomers = localCustomers.map(customer =>
-              customer.id === id ? { ...customer, ...updates } : customer
+          onSaveCustomer={(customer: Customer) => {
+            const updatedCustomers = localCustomers.map(c =>
+              c.id === customer.id ? customer : c
             );
             updateCustomers(updatedCustomers);
           }}
