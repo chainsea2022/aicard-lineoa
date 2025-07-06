@@ -1,3 +1,4 @@
+
 import { Customer } from './types';
 
 export const getRandomProfessionalAvatar = (id: number): string => {
@@ -139,7 +140,7 @@ export const getDefaultCustomers = (): Customer[] => {
       isFavorite: false
     },
     
-    // 追蹤我的名片 (8筆 - 2筆新加入 + 6筆已存在)
+    // 加我名片的人 (8筆 - 2筆新加入 + 6筆已存在)
     {
       id: 6,
       name: '黃建國',

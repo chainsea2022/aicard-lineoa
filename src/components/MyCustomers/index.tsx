@@ -116,19 +116,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
-  // 獲取所有「加我名片」的人（類似 IG 追蹤我的邏輯）
   const getFollowerRequests = () => {
     return myBusinessCards.filter(c => c.relationshipStatus === 'addedMe');
   };
 
-  // 獲取新加入的追蹤者數量
   const getNewFollowersCount = () => {
     return myBusinessCards.filter(c => 
       c.relationshipStatus === 'addedMe' && c.isNewAddition
     ).length;
   };
 
-  // 獲取總追蹤者數量
   const getTotalFollowersCount = () => {
     return getFollowerRequests().length;
   };
@@ -213,7 +210,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     updateCustomers(updatedCustomers);
   };
 
-  // Instagram 式加回朋友功能
   const addFollowerBack = (customerId: number) => {
     const customer = localCustomers.find(c => c.id === customerId);
     const updatedCustomers = localCustomers.map(c => {
@@ -248,7 +244,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
-  // 忽略追蹤請求
   const ignoreFollower = (customerId: number) => {
     const customer = localCustomers.find(c => c.id === customerId);
     const updatedCustomers = localCustomers.map(c => 
@@ -267,7 +262,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
-  // 全部加回功能
   const addAllFollowersBack = () => {
     const followerRequests = getFollowerRequests();
     const updatedCustomers = localCustomers.map(c => {
@@ -290,7 +284,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
-  // Instagram 式追蹤請求卡片
   const InstagramStyleFollowerCard = ({ customer }: { customer: Customer }) => {
     const timeAgo = () => {
       const now = new Date();
@@ -618,11 +611,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                 )}
               </div>
               
-              {/* 標籤篩選條件 */}
+              {/* 標籤篩選條件 - 可左右滑動 */}
               <div className="border-t border-gray-100 pt-2">
                 <p className="text-xs text-gray-500 mb-2">標籤分類</p>
-                <ScrollArea className="w-full">
-                  <div className="flex space-x-1 pb-1" style={{ minWidth: 'max-content' }}>
+                <div className="overflow-x-auto">
+                  <div className="flex space-x-2 pb-2" style={{ minWidth: 'max-content' }}>
                     {availableTags.map(tag => (
                       <Button
                         key={tag}
@@ -636,7 +629,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       </Button>
                     ))}
                   </div>
-                </ScrollArea>
+                </div>
               </div>
             </>
           )}
@@ -726,7 +719,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       當有人掃描您的 QR Code 或加入您的聯絡人時
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
-                      將會顯示在這裡，就像 Instagram 的追蹤請求一樣
+                      將會顯示在這裡
                     </p>
                   </div>
                 )}
