@@ -17,6 +17,8 @@ export interface Customer {
   isInvited?: boolean;
   invitationSent?: boolean;
   emailInvitationSent?: boolean;
+  invitationDate?: string;
+  emailInvitationDate?: string;
   tags?: string[];
   isFavorite?: boolean;
   isMyFriend?: boolean;
