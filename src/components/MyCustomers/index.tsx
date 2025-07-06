@@ -1,14 +1,8 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
-import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart, Tag, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Users, Mail, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { CustomerCard } from './CustomerCard';
@@ -52,89 +46,6 @@ const generateMockRecommendedContacts = (count: number): RecommendedContact[] =>
   }));
 };
 
-const generateMockCustomers = (): Customer[] => {
-  const baseDate = new Date();
-  
-  return [
-    {
-      id: 1,
-      name: '王小明',
-      phone: '0912-345-678',
-      email: 'wang.xiaoming@example.com',
-      company: '台北科技公司',
-      jobTitle: '軟體工程師',
-      photo: getRandomProfessionalAvatar(1),
-      hasCard: true,
-      addedDate: new Date(baseDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: '在技術研討會認識的朋友',
-      tags: ['工作', '朋友', '技術'],
-      relationshipStatus: 'collected',
-      isMyFriend: true,
-      isFollowingMe: true,
-      hasPendingInvitation: false,
-      isNewAddition: false,
-      isFavorite: true,
-      isDigitalCard: true
-    },
-    {
-      id: 2,
-      name: '李大華',
-      phone: '0987-654-321',
-      email: 'li.dahua@example.com',
-      company: '創新設計工作室',
-      jobTitle: '設計總監',
-      photo: getRandomProfessionalAvatar(2),
-      hasCard: true,
-      addedDate: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: '合作過的設計師夥伴',
-      tags: ['工作', '合作夥伴', '設計'],
-      relationshipStatus: 'addedMe',
-      isMyFriend: true,
-      isFollowingMe: false,
-      hasPendingInvitation: false,
-      isNewAddition: true,
-      isFavorite: false,
-      isDigitalCard: true
-    },
-    {
-      id: 3,
-      name: '陳美玲',
-      phone: '0923-456-789',
-      email: 'chen.meiling@example.com',
-      company: '行銷顧問公司',
-      jobTitle: '行銷經理',
-      photo: getRandomProfessionalAvatar(3),
-      hasCard: false,
-      addedDate: new Date(baseDate.getTime() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: '紙本名片掃描',
-      tags: ['行銷', '顧問'],
-      relationshipStatus: 'collected',
-      isDigitalCard: false,
-      invitationSent: false,
-      emailInvitationSent: false
-    },
-    {
-      id: 4,
-      name: '張建國',
-      phone: '0934-567-890',
-      email: 'zhang.jianguo@example.com',
-      company: '金融服務公司',
-      jobTitle: '投資顧問',
-      photo: getRandomProfessionalAvatar(4),
-      hasCard: false,
-      addedDate: new Date(baseDate.getTime() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: '會議中交換的紙本名片',
-      tags: ['金融', '投資'],
-      relationshipStatus: 'collected',
-      isDigitalCard: false,
-      invitationSent: true,
-      emailInvitationSent: true,
-      invitationDate: new Date(baseDate.getTime() - 12 * 60 * 60 * 1000).toISOString(),
-      emailInvitationDate: new Date(baseDate.getTime() - 12 * 60 * 60 * 1000).toISOString()
-    }
-  ];
-};
-
 const mockRecommendedContacts: RecommendedContact[] = generateMockRecommendedContacts(5);
 
 const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCustomersUpdate }) => {
@@ -155,143 +66,22 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     return saved ? parseInt(saved, 10) : 0;
   });
 
-  // 所有可用標籤
-  const allTags = Array.from(new Set(localCustomers.flatMap(customer => customer.tags || [])));
+  const [invitationHistory, setInvitationHistory] = useState<{[key: number]: Array<{type: 'sms' | 'email', date: string, status: 'sent' | 'joined'}>}>(() => {
+    const saved = localStorage.getItem('aile-invitation-history');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   useEffect(() => {
     localStorage.setItem('aile-customers', JSON.stringify(localCustomers));
+    localStorage.setItem('aile-invitation-history', JSON.stringify(invitationHistory));
     if (onCustomersUpdate) {
       onCustomersUpdate(localCustomers);
     }
-  }, [localCustomers, onCustomersUpdate]);
-
-  // 監聽來自聊天室和掃描器的通知
-  useEffect(() => {
-    const handleCustomerNotification = (event: CustomEvent) => {
-      const { customerName, action, relationshipStatus, isDigitalCard, customer } = event.detail;
-      
-      console.log('收到客戶通知:', { customerName, action, isDigitalCard, customer });
-      
-      if (action === 'paper_scanned' && isDigitalCard === false) {
-        // 紙本掃描操作 - 直接使用傳遞過來的完整客戶資料
-        let newPaperContact;
-        
-        if (customer) {
-          // 使用完整的客戶資料
-          newPaperContact = {
-            ...customer,
-            isDigitalCard: false,  // 確保標記為紙本聯絡人
-            relationshipStatus: 'collected',
-            invitationSent: customer.invitationSent || false,
-            emailInvitationSent: customer.emailInvitationSent || false
-          };
-        } else {
-          // 備用方案：創建基本客戶資料
-          newPaperContact = {
-            id: Date.now(),
-            name: customerName,
-            phone: '0912-345-678',
-            email: `${customerName.toLowerCase()}@example.com`,
-            company: '紙本名片公司',
-            jobTitle: '職位',
-            photo: getRandomProfessionalAvatar(Date.now()),
-            hasCard: false,
-            addedDate: new Date().toISOString(),
-            notes: '紙本名片掃描',
-            tags: ['紙本掃描'],
-            relationshipStatus: 'collected',
-            isDigitalCard: false,
-            invitationSent: false,
-            emailInvitationSent: false
-          };
-        }
-        
-        setLocalCustomers(prev => [...prev, newPaperContact]);
-        
-        toast({
-          title: "紙本名片已加入",
-          description: `${customerName} 已加入您的聯絡人列表`
-        });
-        
-      } else if (action === 'qr_scanned' && isDigitalCard === true) {
-        // QR Code 掃描其他人的數位名片
-        let newDigitalContact;
-        
-        if (customer) {
-          newDigitalContact = {
-            ...customer,
-            isDigitalCard: true,  // 確保標記為數位名片
-            relationshipStatus: 'collected',
-            isMyFriend: true
-          };
-        } else {
-          newDigitalContact = {
-            id: Date.now(),
-            name: customerName,
-            phone: '0912-345-678',
-            email: `${customerName.toLowerCase()}@example.com`,
-            company: 'QR掃描公司',
-            jobTitle: '職位',
-            photo: getRandomProfessionalAvatar(Date.now()),
-            hasCard: true,
-            addedDate: new Date().toISOString(),
-            notes: 'QR Code掃描加入',
-            tags: ['QR掃描'],
-            relationshipStatus: 'collected',
-            isDigitalCard: true,
-            isMyFriend: true
-          };
-        }
-        
-        setLocalCustomers(prev => [...prev, newDigitalContact]);
-        
-        toast({
-          title: "數位名片已加入",
-          description: `${customerName} 已加入您的名片夾`
-        });
-        
-      } else if (action === 'qr_scanned_me' || action === 'mutual_add') {
-        // 數位名片相關操作 - 別人掃描我的名片
-        const newCustomer = {
-          id: Date.now(),
-          name: customerName,
-          phone: '0912-345-678',
-          email: `${customerName.toLowerCase()}@example.com`,
-          company: '新加入的公司',
-          jobTitle: '職位',
-          photo: getRandomProfessionalAvatar(Date.now()),
-          hasCard: true,
-          addedDate: new Date().toISOString(),
-          notes: action === 'qr_scanned_me' ? '掃描我的QR Code加入' : '互相加入',
-          tags: ['新加入'],
-          relationshipStatus: relationshipStatus || 'addedMe',
-          isDigitalCard: true,
-          isNewAddition: action === 'qr_scanned_me',
-          isFollowingMe: action === 'qr_scanned_me'
-        };
-        
-        setLocalCustomers(prev => [...prev, newCustomer]);
-      }
-    };
-
-    window.addEventListener('customerAddedNotification', handleCustomerNotification as EventListener);
-    
-    return () => {
-      window.removeEventListener('customerAddedNotification', handleCustomerNotification as EventListener);
-    };
-  }, []);
+  }, [localCustomers, invitationHistory, onCustomersUpdate]);
 
   const updateCustomers = (updatedCustomers: Customer[]) => {
     setLocalCustomers(updatedCustomers);
   };
-
-  // 分離數位名片和紙本名片
-  const digitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
-  const paperCards = localCustomers.filter(customer => customer.isDigitalCard === false);
-
-  // 計算各種通知數量
-  const followingMeCount = digitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length;
-  const iFollowingCount = digitalCards.filter(customer => customer.isFavorite).length;
 
   const getFilteredCustomers = (customerList: Customer[]) => {
     return customerList.filter(customer => {
@@ -316,13 +106,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         }
         if (key === 'invitationStatus' && filter.invitationStatus && filter.invitationStatus !== 'all') {
           const isInvited = customer.invitationSent || customer.emailInvitationSent;
+          const hasHistory = invitationHistory[customer.id] && invitationHistory[customer.id].length > 0;
           switch (filter.invitationStatus) {
             case 'invited':
               return isInvited;
             case 'not_invited':
               return !isInvited;
             case 'invitation_history':
-              return isInvited && (customer.invitationDate || customer.emailInvitationDate);
+              return hasHistory;
             default:
               return true;
           }
@@ -334,8 +125,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     });
   };
 
-  const filteredDigitalCards = getFilteredCustomers(digitalCards);
-  const filteredPaperCards = getFilteredCustomers(paperCards);
+  const filteredDigitalCards = getFilteredCustomers(localCustomers.filter(customer => customer.isDigitalCard !== false));
+  const filteredPaperCards = getFilteredCustomers(localCustomers.filter(customer => customer.isDigitalCard === false));
 
   const handlePhoneClick = (phoneNumber: string) => {
     toast({
@@ -393,22 +184,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     }, 1000);
   };
 
-  const handleAddFollower = (id: number) => {
-    const updatedCustomers = localCustomers.map(customer =>
-      customer.id === id ? { 
-        ...customer, 
-        relationshipStatus: 'collected' as CustomerRelationshipStatus,
-        isMyFriend: true,
-        isNewAddition: false
-      } : customer
-    );
-    updateCustomers(updatedCustomers);
-    toast({
-      title: "已加回聯絡人",
-      description: "聯絡人已成功加入"
-    });
-  };
-
   const handleSendInvitation = (id: number, type: 'sms' | 'email') => {
     const updatedCustomers = localCustomers.map(customer => {
       if (customer.id === id) {
@@ -431,78 +206,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     });
     updateCustomers(updatedCustomers);
     
+    setInvitationHistory(prev => ({
+      ...prev,
+      [id]: [...(prev[id] || []), { type, date: new Date().toISOString(), status: 'sent' }]
+    }));
+    
     toast({
       title: `已發送${type === 'sms' ? '簡訊' : 'Email'}邀請`,
       description: `邀請已成功發送`
     });
   };
 
-  const removeCustomer = (id: number) => {
-    const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
-    updateCustomers(updatedCustomers);
-    toast({
-      title: "已移除聯絡人",
-      description: "聯絡人已從您的列表中移除"
-    });
-  };
-
-  const archiveCustomer = (id: number) => {
-    const updatedCustomers = localCustomers.map(customer =>
-      customer.id === id ? { ...customer, relationshipStatus: 'archived' as CustomerRelationshipStatus } : customer
-    );
-    updateCustomers(updatedCustomers);
-    toast({
-      title: "已封存聯絡人",
-      description: "聯絡人已封存"
-    });
-  };
-
-  const editCustomer = (id: number, updates: Partial<Customer>) => {
-    const updatedCustomers = localCustomers.map(customer =>
-      customer.id === id ? { ...customer, ...updates } : customer
-    );
-    updateCustomers(updatedCustomers);
-    toast({
-      title: "已編輯聯絡人",
-      description: "聯絡人資訊已更新"
-    });
-  };
-
-  const handleCardAction = (action: string, customer: Customer) => {
-    switch (action) {
-      case 'message':
-        toast({ title: "傳送訊息", description: `傳送訊息給 ${customer.name}` });
-        break;
-      case 'phone':
-        toast({ title: "撥打電話", description: `撥打電話給 ${customer.name}` });
-        break;
-      case 'mail':
-        toast({ title: "傳送郵件", description: `傳送郵件給 ${customer.name}` });
-        break;
-      case 'calendar':
-        toast({ title: "新增行程", description: `新增與 ${customer.name} 的行程` });
-        break;
-      default:
-        break;
-    }
-  };
-
-  const clearFilter = () => {
-    setFilter({});
-  };
-
-  const toggleTagFilter = (tag: string) => {
-    const currentTags = filter.selectedTags || [];
-    const newTags = currentTags.includes(tag) 
-      ? currentTags.filter(t => t !== tag)
-      : [...currentTags, tag];
-    
-    setFilter({ ...filter, selectedTags: newTags });
-  };
-
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <Button onClick={onClose} variant="ghost" size="sm">
           <ArrowLeft className="w-5 h-5" />
@@ -511,25 +227,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         <div></div>
       </div>
 
-      {/* 主要內容容器 */}
       <div className="flex-1 flex flex-col min-h-0 relative">
-        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'digital' | 'paper')} className="flex-1 flex flex-col min-h-0">
-          {/* 搜索和篩選區域 */}
           <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="digital" className="relative">
                 我的電子名片夾
-                {followingMeCount > 0 && (
+                {filteredDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
-                    {followingMeCount}
+                    {filteredDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length}
                   </Badge>
                 )}
               </TabsTrigger>
               <TabsTrigger value="paper">我的聯絡人</TabsTrigger>
             </TabsList>
 
-            {/* Search */}
             <div className="mt-2">
               <Input
                 type="search"
@@ -540,10 +252,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               />
             </div>
 
-            {/* Enhanced Filter Options */}
             {activeTab === 'digital' && (
               <div className="mt-3 space-y-3">
-                {/* 互動關係篩選 - 兩排排列 */}
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     variant={filter.followingMe ? 'default' : 'outline'}
@@ -551,13 +261,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     onClick={() => setFilter({ ...filter, followingMe: !filter.followingMe })}
                     className="relative flex items-center justify-center text-xs h-9"
                   >
-                    <Eye className="w-3 h-3 mr-1" />
+                    <Users className="w-3 h-3 mr-1" />
                     追蹤我
-                    {followingMeCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
-                        {followingMeCount}
-                      </Badge>
-                    )}
                   </Button>
                   <Button
                     variant={filter.iFollowing ? 'default' : 'outline'}
@@ -565,44 +270,17 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     onClick={() => setFilter({ ...filter, iFollowing: !filter.iFollowing })}
                     className="relative flex items-center justify-center text-xs h-9"
                   >
-                    <Heart className="w-3 h-3 mr-1" />
+                    <Users className="w-3 h-3 mr-1" />
                     我關注的
-                    {iFollowingCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
-                        {iFollowingCount}
-                      </Badge>
-                    )}
                   </Button>
                 </div>
 
-                {/* 標籤篩選 */}
-                {allTags.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-medium text-gray-600 mb-2">標籤篩選</h4>
-                    <div className="flex items-center space-x-1 flex-wrap gap-1">
-                      {allTags.map(tag => (
-                        <Button
-                          key={tag}
-                          variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => toggleTagFilter(tag)}
-                          className="text-xs h-7 px-2"
-                        >
-                          <Tag className="w-3 h-3 mr-1" />
-                          {tag}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 清除篩選按鈕 */}
-                {(filter.followingMe || filter.iFollowing || (filter.selectedTags && filter.selectedTags.length > 0)) && (
+                {Object.keys(filter).some(key => filter[key]) && (
                   <div className="flex justify-center">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={clearFilter}
+                      onClick={() => setFilter({})}
                       className="text-xs text-gray-500 hover:text-gray-700"
                     >
                       <X className="w-3 h-3 mr-1" />
@@ -653,34 +331,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   </div>
                 </div>
 
-                {/* 標籤篩選 */}
-                {allTags.length > 0 && (
-                  <div>
-                    <h4 className="text-xs font-medium text-gray-600 mb-2">標籤篩選</h4>
-                    <div className="flex items-center space-x-1 flex-wrap gap-1">
-                      {allTags.map(tag => (
-                        <Button
-                          key={tag}
-                          variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
-                          size="sm"
-                          onClick={() => toggleTagFilter(tag)}
-                          className="text-xs h-7 px-2"
-                        >
-                          <Tag className="w-3 h-3 mr-1" />
-                          {tag}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* 清除篩選按鈕 */}
-                {(filter.invitationStatus !== 'all' && filter.invitationStatus) || (filter.selectedTags && filter.selectedTags.length > 0) && (
+                {Object.keys(filter).some(key => filter[key]) && (
                   <div className="flex justify-center">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={clearFilter}
+                      onClick={() => setFilter({})}
                       className="text-xs text-gray-500 hover:text-gray-700"
                     >
                       <X className="w-3 h-3 mr-1" />
@@ -692,128 +348,59 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             )}
           </div>
 
-          {/* 主要內容區域 - 使用原生滾動 */}
           <div className="flex-1 min-h-0 relative">
             <TabsContent value="digital" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              {/* 使用原生滾動容器 */}
-              <div 
-                className="flex-1 overflow-y-auto overflow-x-hidden"
-                style={{ 
-                  paddingBottom: isRecommendationCollapsed ? '80px' : '280px',
-                  WebkitOverflowScrolling: 'touch'
-                }}
-              >
+              <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ paddingBottom: '280px', WebkitOverflowScrolling: 'touch' }}>
                 <div className="p-3 space-y-2">
-                  {/* 優先顯示追蹤我的新用戶 */}
-                  {filteredDigitalCards
-                    .filter(customer => customer.relationshipStatus === 'addedMe')
-                    .map(customer => (
-                      <div key={customer.id} className="space-y-2">
-                        <CustomerCard
-                          customer={customer}
-                          onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
-                          onAddFollower={handleAddFollower}
-                          onPhoneClick={handlePhoneClick}
-                          onLineClick={handleLineClick}
-                          onToggleFavorite={(id) => {
-                            const updatedCustomers = localCustomers.map(c =>
-                              c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                            );
-                            updateCustomers(updatedCustomers);
-                          }}
-                        />
-                        
-                        {/* Inline Expanded Card */}
-                        {expandedCardId === customer.id && (
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
-                            <ExpandedCard
-                              customer={customer}
-                              activeSection="cards"
-                              onToggleFavorite={(id) => {
-                                const updatedCustomers = localCustomers.map(c =>
-                                  c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                                );
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onAddFollower={handleAddFollower}
-                              onIgnoreFollower={() => {}}
-                              onPhoneClick={handlePhoneClick}
-                              onLineClick={handleLineClick}
-                              onSendInvitation={handleSendInvitation}
-                              onAddTag={() => {}}
-                              onRemoveTag={() => {}}
-                              onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
-                                const updatedCustomers = localCustomers.map(c =>
-                                  c.id === customerId ? { ...c, ...updates } : c
-                                );
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onDeleteCustomer={(id) => {
-                                const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onCollapse={() => setExpandedCardId(null)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
-                  {/* 其他已收藏的名片 */}
-                  {filteredDigitalCards
-                    .filter(customer => customer.relationshipStatus !== 'addedMe')
-                    .map(customer => (
-                      <div key={customer.id} className="space-y-2">
-                        <CustomerCard
-                          customer={customer}
-                          onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
-                          onAddFollower={handleAddFollower}
-                          onPhoneClick={handlePhoneClick}
-                          onLineClick={handleLineClick}
-                          onToggleFavorite={(id) => {
-                            const updatedCustomers = localCustomers.map(c =>
-                              c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                            );
-                            updateCustomers(updatedCustomers);
-                          }}
-                        />
-                        
-                        {/* Inline Expanded Card */}
-                        {expandedCardId === customer.id && (
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
-                            <ExpandedCard
-                              customer={customer}
-                              activeSection="cards"
-                              onToggleFavorite={(id) => {
-                                const updatedCustomers = localCustomers.map(c =>
-                                  c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                                );
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onAddFollower={handleAddFollower}
-                              onIgnoreFollower={() => {}}
-                              onPhoneClick={handlePhoneClick}
-                              onLineClick={handleLineClick}
-                              onSendInvitation={handleSendInvitation}
-                              onAddTag={() => {}}
-                              onRemoveTag={() => {}}
-                              onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
-                                const updatedCustomers = localCustomers.map(c =>
-                                  c.id === customerId ? { ...c, ...updates } : c
-                                );
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onDeleteCustomer={(id) => {
-                                const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onCollapse={() => setExpandedCardId(null)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    ))}
-
+                  {filteredDigitalCards.map(customer => (
+                    <div key={customer.id} className="space-y-2">
+                      <CustomerCard
+                        customer={customer}
+                        onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
+                        onAddFollower={() => {}}
+                        onPhoneClick={handlePhoneClick}
+                        onLineClick={handleLineClick}
+                        onToggleFavorite={(id) => {
+                          const updatedCustomers = localCustomers.map(c =>
+                            c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                          );
+                          updateCustomers(updatedCustomers);
+                        }}
+                      />
+                      {expandedCardId === customer.id && (
+                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
+                          <ExpandedCard
+                            customer={customer}
+                            activeSection="cards"
+                            onToggleFavorite={(id) => {
+                              const updatedCustomers = localCustomers.map(c =>
+                                c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                              );
+                              updateCustomers(updatedCustomers);
+                            }}
+                            onAddFollower={() => {}}
+                            onIgnoreFollower={() => {}}
+                            onPhoneClick={handlePhoneClick}
+                            onLineClick={handleLineClick}
+                            onSendInvitation={handleSendInvitation}
+                            onAddTag={() => {}}
+                            onRemoveTag={() => {}}
+                            onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
+                              const updatedCustomers = localCustomers.map(c =>
+                                c.id === customerId ? { ...c, ...updates } : c
+                              );
+                              updateCustomers(updatedCustomers);
+                            }}
+                            onDeleteCustomer={(id) => {
+                              const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
+                              updateCustomers(updatedCustomers);
+                            }}
+                            onCollapse={() => setExpandedCardId(null)}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  ))}
                   {filteredDigitalCards.length === 0 && (
                     <div className="text-center py-8">
                       <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
@@ -825,14 +412,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             </TabsContent>
 
             <TabsContent value="paper" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              {/* 使用原生滾動容器 */}
-              <div 
-                className="flex-1 overflow-y-auto overflow-x-hidden"
-                style={{ 
-                  paddingBottom: '20px',
-                  WebkitOverflowScrolling: 'touch'
-                }}
-              >
+              <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ paddingBottom: '20px', WebkitOverflowScrolling: 'touch' }}>
                 <div className="p-3 space-y-2">
                   {filteredPaperCards.length > 0 ? (
                     filteredPaperCards.map(customer => (
@@ -842,8 +422,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
                           onSendInvitation={handleSendInvitation}
                         />
-                        
-                        {/* Inline Expanded Card */}
                         {expandedCardId === customer.id && (
                           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
@@ -855,7 +433,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                                 );
                                 updateCustomers(updatedCustomers);
                               }}
-                              onAddFollower={handleAddFollower}
+                              onAddFollower={() => {}}
                               onIgnoreFollower={() => {}}
                               onPhoneClick={handlePhoneClick}
                               onLineClick={handleLineClick}
@@ -889,11 +467,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               </div>
             </TabsContent>
 
-            {/* 固定在底部的智能推薦區域 - 僅在數位名片夾頁面顯示 */}
             {activeTab === 'digital' && (
               <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-10">
                 <SmartRecommendation
-                  isCollapsed={isRecommendationCollapsed}
+                  isCollapsed={false}
                   onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
                   onAddRecommendation={addRecommendedContact}
                   recommendations={recommendedContacts}
