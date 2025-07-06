@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ChevronUp, Phone, MessageSquare, Mail, Trash2, Save, Plus, X, Star, UserCheck, UserX, Tag as TagIcon } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -22,7 +21,7 @@ interface ExpandedCardProps {
   onSendInvitation: (customerId: number, type: 'sms' | 'email') => void;
   onAddTag: (customerId: number, tag: string) => void;
   onRemoveTag: (customerId: number, tag: string) => void;
-  onSaveCustomer: (customer: Customer) => void;
+  onSaveCustomer: (customerId: number, updates: Partial<Customer>) => void;
   onDeleteCustomer?: (customerId: number) => void;
   onCollapse: () => void;
 }
@@ -47,7 +46,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [isEditing, setIsEditing] = useState(false);
 
   const handleSave = () => {
-    onSaveCustomer(editedCustomer);
+    onSaveCustomer(customer.id, editedCustomer);
     setIsEditing(false);
   };
 
