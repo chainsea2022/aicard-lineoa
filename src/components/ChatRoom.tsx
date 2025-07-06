@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, QrCode, UserPlus, Edit, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -82,10 +81,10 @@ const ChatRoom = () => {
       setMessages(prev => [...prev, newMessage]);
     };
 
-    // 監聽QR掃描事件
+    // 監聽QR掃描事件 - 數位名片
     const handleQRScanned = (event: CustomEvent) => {
       const { customer } = event.detail;
-      // 觸發名片人脈夾更新
+      // 觸發名片人脈夾更新 - 加入到數位名片夾
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: customer.name, 
@@ -95,15 +94,15 @@ const ChatRoom = () => {
       }));
     };
 
-    // 監聽紙本掃描事件
+    // 監聽紙本掃描事件 - 紙本聯絡人
     const handlePaperScanned = (event: CustomEvent) => {
       const { customer } = event.detail;
-      // 觸發名片人脈夾更新
+      // 觸發名片人脈夾更新 - 加入到聯絡人列表（紙本）
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: customer.name, 
           action: 'paper_scanned',
-          isDigitalCard: false 
+          isDigitalCard: false  // 明確標示為紙本聯絡人
         }
       }));
     };
@@ -215,7 +214,7 @@ const ChatRoom = () => {
         };
         setMessages(prev => [...prev, qrMessage]);
         
-        // 模擬 QR Code 被掃描 - 同步到名片人脈夾
+        // 模擬 QR Code 被掃描 - 同步到名片人脈夾（數位名片夾）
         setTimeout(() => {
           const scanMessage: Message = {
             id: Date.now(),
@@ -225,12 +224,13 @@ const ChatRoom = () => {
           };
           setMessages(prev => [...prev, scanMessage]);
           
-          // 觸發名片人脈夾更新 - 顯示在追蹤我的列表
+          // 觸發名片人脈夾更新 - 顯示在追蹤我的列表（數位名片夾）
           window.dispatchEvent(new CustomEvent('customerAddedNotification', {
             detail: { 
               customerName, 
               action: 'qr_scanned_me',
-              relationshipStatus: 'addedMe'
+              relationshipStatus: 'addedMe',
+              isDigitalCard: true  // 數位名片
             }
           }));
         }, 3000);
@@ -250,12 +250,13 @@ const ChatRoom = () => {
         };
         setMessages(prev => [...prev, addMessage]);
         
-        // 觸發名片人脈夾同步更新
+        // 觸發名片人脈夾同步更新（數位名片夾）
         window.dispatchEvent(new CustomEvent('customerAddedNotification', {
           detail: { 
             customerName, 
             action: 'mutual_add',
-            relationshipStatus: 'collected'
+            relationshipStatus: 'collected',
+            isDigitalCard: true  // 數位名片
           }
         }));
         

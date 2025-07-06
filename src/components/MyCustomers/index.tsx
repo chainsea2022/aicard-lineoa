@@ -168,9 +168,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   // 監聽來自聊天室的通知
   useEffect(() => {
     const handleCustomerNotification = (event: CustomEvent) => {
-      const { customerName, action, relationshipStatus } = event.detail;
+      const { customerName, action, relationshipStatus, isDigitalCard } = event.detail;
       
       if (action === 'qr_scanned_me' || action === 'mutual_add') {
+        // 數位名片相關操作
         const newCustomer: Customer = {
           id: Date.now(),
           name: customerName,
@@ -184,12 +185,65 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           notes: action === 'qr_scanned_me' ? '掃描我的QR Code加入' : '互相加入',
           tags: ['新加入'],
           relationshipStatus: relationshipStatus || 'addedMe',
-          isDigitalCard: true,
+          isDigitalCard: true,  // 數位名片
           isNewAddition: action === 'qr_scanned_me',
           isFollowingMe: action === 'qr_scanned_me'
         };
         
         setLocalCustomers(prev => [...prev, newCustomer]);
+      } else if (action === 'paper_scanned' && isDigitalCard === false) {
+        // 紙本掃描操作 - 加入到聯絡人列表
+        const newPaperContact: Customer = {
+          id: Date.now(),
+          name: customerName,
+          phone: '0912-345-678',
+          email: `${customerName.toLowerCase()}@example.com`,
+          company: '紙本名片公司',
+          jobTitle: '職位',
+          photo: getRandomProfessionalAvatar(Date.now()),
+          hasCard: false,  // 紙本名片沒有數位卡片
+          addedDate: new Date().toISOString(),
+          notes: '紙本名片掃描',
+          tags: ['紙本掃描'],
+          relationshipStatus: 'collected',
+          isDigitalCard: false,  // 明確標示為紙本聯絡人
+          invitationSent: false,
+          emailInvitationSent: false
+        };
+        
+        setLocalCustomers(prev => [...prev, newPaperContact]);
+        
+        // 顯示成功訊息
+        toast({
+          title: "紙本名片已加入",
+          description: `${customerName} 已加入您的聯絡人列表`
+        });
+      } else if (action === 'qr_scanned' && isDigitalCard === true) {
+        // QR Code 掃描其他人的數位名片
+        const newDigitalContact: Customer = {
+          id: Date.now(),
+          name: customerName,
+          phone: '0912-345-678',
+          email: `${customerName.toLowerCase()}@example.com`,
+          company: 'QR掃描公司',
+          jobTitle: '職位',
+          photo: getRandomProfessionalAvatar(Date.now()),
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: 'QR Code掃描加入',
+          tags: ['QR掃描'],
+          relationshipStatus: 'collected',
+          isDigitalCard: true,  // 數位名片
+          isMyFriend: true
+        };
+        
+        setLocalCustomers(prev => [...prev, newDigitalContact]);
+        
+        // 顯示成功訊息
+        toast({
+          title: "數位名片已加入",
+          description: `${customerName} 已加入您的名片夾`
+        });
       }
     };
 
