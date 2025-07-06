@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Bell, Star } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Bell, Star, Heart } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,6 +13,7 @@ interface CustomerCardProps {
   onAddFollower: (customerId: number) => void;
   onPhoneClick: (phoneNumber: string) => void;
   onLineClick: (lineId: string) => void;
+  onToggleFavorite?: (customerId: number) => void;
 }
 
 export const CustomerCard: React.FC<CustomerCardProps> = ({
@@ -20,9 +21,17 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onClick,
   onAddFollower,
   onPhoneClick,
-  onLineClick
+  onLineClick,
+  onToggleFavorite
 }) => {
   const statusDisplay = getRelationshipStatusDisplay(customer.relationshipStatus);
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(customer.id);
+    }
+  };
 
   return (
     <Card className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md bg-white border border-gray-200" onClick={onClick}>
@@ -45,10 +54,24 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
                 
-                {/* Show favorite star before expansion */}
-                {customer.isFavorite && (
-                  <Star className="w-3 h-3 text-yellow-500 fill-current flex-shrink-0" />
-                )}
+                {/* 關注按鈕 */}
+                <button
+                  onClick={handleToggleFavorite}
+                  className={`p-1 rounded-full transition-colors flex-shrink-0 ${
+                    customer.isFavorite 
+                      ? 'bg-red-100 hover:bg-red-200' 
+                      : 'bg-gray-100 hover:bg-gray-200'
+                  }`}
+                  title={customer.isFavorite ? '取消關注' : '關注'}
+                >
+                  <Heart 
+                    className={`w-3 h-3 ${
+                      customer.isFavorite 
+                        ? 'text-red-500 fill-current' 
+                        : 'text-gray-400'
+                    }`} 
+                  />
+                </button>
                 
                 <div className="flex items-center space-x-1 flex-shrink-0">
                   {customer.line && (
