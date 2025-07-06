@@ -165,7 +165,11 @@ const ChatRoom = () => {
   };
 
   const handleMenuItemClick = (itemId: string) => {
-    if (itemId === 'my-card') {
+    if (itemId === 'create-card') {
+      // 直接進入設置電子名片頁面，會自動判斷是否需要註冊
+      setActiveView(itemId);
+      setIsMenuOpen(false);
+    } else if (itemId === 'my-card') {
       // 檢查是否有名片資料
       const savedData = localStorage.getItem('aile-card-data');
       if (savedData) {
@@ -324,11 +328,7 @@ const ChatRoom = () => {
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
-        return <CreateCard onClose={handleCloseView} onRegistrationComplete={() => {
-          // Force re-render of menu items after registration
-          setActiveView(null);
-          setIsMenuOpen(true);
-        }} />;
+        return <MyCard onClose={handleCloseView} />;
       case 'scanner':
         return <Scanner onClose={handleCloseView} />;
       case 'customers':
