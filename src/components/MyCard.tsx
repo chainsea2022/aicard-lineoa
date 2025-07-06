@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award, User, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -73,10 +73,11 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     return <Points onClose={() => setShowPoints(false)} />;
   }
 
-  if (!cardData) {
+  // 如果沒有用戶資料或名片資料，顯示快速註冊登入介面
+  if (!userData || !cardData) {
     return (
       <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 shadow-lg">
+        <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
           <div className="flex items-center space-x-3">
             <Button
               variant="ghost"
@@ -86,33 +87,111 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">設置電子名片</h1>
+            <h1 className="font-bold text-lg">快速註冊登入</h1>
           </div>
         </div>
 
-        <div className="p-6 text-center">
-          <div className="mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <QrCode className="w-10 h-10 text-white" />
+        <div className="p-6">
+          {/* 歡迎區塊 */}
+          <div className="text-center mb-8">
+            <div className="w-24 h-24 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
+              <User className="w-12 h-12 text-white" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">歡迎使用電子名片</h2>
-            <p className="text-gray-600 mb-4">
-              {!userData ? '首次使用需要手機驗證註冊' : '建立您的專屬電子名片'}
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">歡迎使用電子名片</h2>
+            <p className="text-gray-600 text-sm">
+              建立您的專屬電子名片，輕鬆分享聯絡資訊
             </p>
           </div>
 
-          <Button 
-            onClick={() => {
-              if (!userData) {
-                setShowOTPVerification(true);
-              } else {
-                setShowCreateCard(true);
-              }
-            }}
-            className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white px-8 py-3 text-lg"
-          >
-            {!userData ? '手機驗證註冊' : '建立我的名片'}
-          </Button>
+          {/* 快速註冊登入選項 */}
+          <div className="space-y-4 mb-6">
+            <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                    <Smartphone className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-800">手機號碼註冊</h3>
+                    <p className="text-sm text-gray-600">使用手機號碼快速註冊，安全可靠</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer opacity-60">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-gray-800">LINE 快速登入</h3>
+                    <p className="text-sm text-gray-600">即將推出 - 使用LINE帳號一鍵登入</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* 註冊按鈕 */}
+          <div className="space-y-3">
+            <Button 
+              onClick={() => setShowOTPVerification(true)}
+              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-lg font-medium shadow-lg"
+            >
+              <Smartphone className="w-5 h-5 mr-2" />
+              開始手機註冊
+            </Button>
+
+            <Button 
+              variant="outline"
+              disabled
+              className="w-full py-3 text-lg font-medium border-2 border-gray-200 text-gray-400"
+            >
+              <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
+              </svg>
+              LINE 登入 (即將推出)
+            </Button>
+          </div>
+
+          {/* 功能說明 */}
+          <Card className="mt-6 bg-blue-50 border border-blue-200">
+            <CardContent className="p-4">
+              <h4 className="font-medium text-blue-800 mb-3">註冊後您可以：</h4>
+              <ul className="text-sm text-blue-700 space-y-2">
+                <li className="flex items-center">
+                  <QrCode className="w-4 h-4 mr-2" />
+                  建立專屬電子名片
+                </li>
+                <li className="flex items-center">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  快速分享聯絡資訊
+                </li>
+                <li className="flex items-center">
+                  <Award className="w-4 h-4 mr-2" />
+                  獲得會員點數獎勵
+                </li>
+                <li className="flex items-center">
+                  <Settings className="w-4 h-4 mr-2" />
+                  管理個人資料設定
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          {/* 服務條款 */}
+          <div className="mt-6 text-center">
+            <p className="text-xs text-gray-500">
+              註冊即表示您同意我們的
+              <span className="text-blue-500 underline cursor-pointer mx-1">服務條款</span>
+              和
+              <span className="text-blue-500 underline cursor-pointer mx-1">隱私政策</span>
+            </p>
+          </div>
         </div>
       </div>
     );
