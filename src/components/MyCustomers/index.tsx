@@ -868,10 +868,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
         {activeSection === 'cards' && (
           <SmartRecommendation
+            recommendations={recommendedContacts}
+            onAddRecommendation={addRecommendedContact}
+            onToggleFavorite={toggleFavorite}
+            onPhoneClick={handlePhoneClick}
+            onLineClick={handleLineClick}
+            favoriteIds={localCustomers.filter(c => c.isFavorite).map(c => c.id)}
             isCollapsed={isRecommendationCollapsed}
             onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
-            onAddRecommendedContact={addRecommendedContact}
-            recommendedContacts={recommendedContacts}
           />
         )}
       </div>
