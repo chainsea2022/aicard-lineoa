@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star } from 'lucide-react';
+import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star, UserCheck, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -119,10 +119,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
-  const getPendingNotificationCount = () => {
-    const followingMeCards = myBusinessCards.filter(c => c.relationshipStatus === 'addedMe' && c.hasPendingInvitation);
-    console.log('計算通知數量:', followingMeCards.length, followingMeCards);
-    return followingMeCards.length;
+  const getPendingFollowerRequests = () => {
+    return myBusinessCards.filter(c => 
+      c.relationshipStatus === 'addedMe' && c.hasPendingInvitation
+    );
   };
 
   const getNewAdditionsCount = () => {
@@ -243,16 +243,77 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       }, 500);
     }
     
-    toast({ title: "已加入我的電子名片夾" });
+    toast({ title: "已接受", description: `${customer?.name} 已加入您的電子名片夾` });
   };
 
   const ignoreFollower = (customerId: number) => {
+    const customer = localCustomers.find(c => c.id === customerId);
     const updatedCustomers = localCustomers.map(c => 
       c.id === customerId ? { ...c, isFollowingMe: false, hasPendingInvitation: false, isNewAddition: false } : c
     );
     updateCustomers(updatedCustomers);
-    toast({ title: "已忽略此追蹤者" });
+    toast({ title: "已拒絕", description: `已拒絕 ${customer?.name} 的追蹤請求` });
   };
+
+  const FollowerRequestCard = ({ customer }: { customer: Customer }) => (
+    <div className="bg-white border border-gray-200 rounded-lg p-3 mb-2 shadow-sm">
+      <div className="flex items-center space-x-3">
+        {customer.photo && (
+          <img 
+            src={customer.photo} 
+            alt={customer.name} 
+            className="w-12 h-12 rounded-full object-cover border-2 border-gray-200" 
+          />
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center space-x-2">
+            <h3 className="font-medium text-gray-900 truncate">{customer.name}</h3>
+            {customer.isNewAddition && (
+              <span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                新
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-gray-500 truncate">{customer.company}</p>
+          <p className="text-sm text-gray-500 truncate">{customer.jobTitle}</p>
+          <p className="text-xs text-gray-400 mt-1">
+            {new Date(customer.addedDate).toLocaleDateString('zh-TW')} 加入
+          </p>
+        </div>
+      </div>
+      
+      <div className="flex space-x-2 mt-3">
+        <Button
+          onClick={() => addFollowerToCollected(customer.id)}
+          size="sm"
+          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+        >
+          <UserCheck className="w-3 h-3 mr-1" />
+          接受
+        </Button>
+        <Button
+          onClick={() => ignoreFollower(customer.id)}
+          size="sm"
+          variant="outline"
+          className="flex-1 text-gray-600 border-gray-300 hover:bg-gray-50 text-xs h-8"
+        >
+          <UserX className="w-3 h-3 mr-1" />
+          拒絕
+        </Button>
+      </div>
+      
+      <div className="mt-2 pt-2 border-t border-gray-100">
+        <Button
+          onClick={() => setExpandedCard(expandedCard === customer.id ? null : customer.id)}
+          variant="ghost"
+          size="sm"
+          className="w-full text-xs text-gray-500 hover:text-gray-700"
+        >
+          查看詳細資料
+        </Button>
+      </div>
+    </div>
+  );
 
   const addRecommendedContact = (contactId: number) => {
     const contact = recommendedContacts.find(c => c.id === contactId);
@@ -354,6 +415,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     toast({ title: "客戶資料已更新" });
   };
 
+  const pendingRequests = getPendingFollowerRequests();
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
       <div className="flex-shrink-0">
@@ -397,9 +460,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             <span className="ml-1 bg-white/20 text-white text-xs px-1.5 py-0.5 rounded-full">
               {myBusinessCards.length}
             </span>
-            {getPendingNotificationCount() > 0 && (
+            {pendingRequests.length > 0 && (
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                {getPendingNotificationCount()}
+                {pendingRequests.length}
               </div>
             )}
           </Button>
@@ -431,21 +494,26 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           
           {showTagFilters && (
             <>
-              {activeSection === 'cards' && getPendingNotificationCount() > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-2 mb-3 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
+              {activeSection === 'cards' && pendingRequests.length > 0 && (
+                <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-lg p-3 mb-3">
+                  <div className="flex items-center space-x-2 mb-2">
                     <Bell className="w-4 h-4 text-red-500" />
                     <span className="text-sm text-red-700 font-medium">
-                      有 {getNewAdditionsCount()} 位新朋友追蹤您
+                      追蹤請求
                     </span>
+                    <div className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                      {pendingRequests.length}
+                    </div>
                   </div>
+                  <p className="text-xs text-red-600 mb-2">
+                    有 {getNewAdditionsCount()} 位新朋友想要追蹤您
+                  </p>
                   <Button
                     onClick={() => setActiveFilter('followingMe')}
                     size="sm"
-                    variant="outline"
-                    className="text-xs h-6 border-red-300 text-red-600 hover:bg-red-100"
+                    className="w-full bg-red-500 hover:bg-red-600 text-white text-xs h-7"
                   >
-                    查看
+                    查看所有請求
                   </Button>
                 </div>
               )}
@@ -462,9 +530,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                     >
                       <Bell className="w-3 h-3 mr-1" />
                       追蹤我
-                      {getPendingNotificationCount() > 0 && (
+                      {pendingRequests.length > 0 && (
                         <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
-                          {getPendingNotificationCount()}
+                          {pendingRequests.length}
                         </div>
                       )}
                     </Button>
@@ -512,6 +580,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           <div className="p-3">
             {activeSection === 'cards' ? (
               <div className="space-y-0">
+                {activeFilter === 'followingMe' && pendingRequests.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Bell className="w-4 h-4 text-red-500" />
+                      <h3 className="font-medium text-gray-900">追蹤請求</h3>
+                      <div className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                        {pendingRequests.length}
+                      </div>
+                    </div>
+                    {pendingRequests.map(customer => (
+                      <FollowerRequestCard key={customer.id} customer={customer} />
+                    ))}
+                  </div>
+                )}
+                
                 {getFilteredCards().length > 0 ? (
                   getFilteredCards().map(customer => 
                     expandedCard === customer.id 
@@ -530,6 +613,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           onSaveCustomer={saveCustomer}
                           onCollapse={() => setExpandedCard(null)}
                         />
+                      : activeFilter === 'followingMe' && customer.hasPendingInvitation
+                      ? null // 已在上面的請求列表中顯示
                       : <CustomerCard
                           key={customer.id}
                           customer={customer}
@@ -544,7 +629,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
                       {activeFilter === 'followingMe' 
-                        ? '目前沒有人追蹤您' 
+                        ? '目前沒有追蹤請求' 
                         : (searchTerm || activeFilter !== 'all' ? '找不到符合條件的電子名片' : '還沒有任何電子名片')
                       }
                     </p>
