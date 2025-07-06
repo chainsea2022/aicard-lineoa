@@ -642,9 +642,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           onSendInvitation={handleSendInvitation}
           onAddTag={() => {}}
           onRemoveTag={() => {}}
-          onSaveCustomer={(customer: Customer) => {
+          onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
             const updatedCustomers = localCustomers.map(c =>
-              c.id === customer.id ? customer : c
+              c.id === customerId ? { ...c, ...updates } : c
             );
             updateCustomers(updatedCustomers);
           }}
