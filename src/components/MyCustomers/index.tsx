@@ -411,38 +411,35 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     );
   };
 
-  const addRecommendedContact = (contactId: number) => {
-    const contact = recommendedContacts.find(c => c.id === contactId);
-    if (contact) {
-      const newCustomer: Customer = {
-        id: Date.now(),
-        name: contact.name,
-        phone: '',
-        email: '',
-        company: contact.company,
-        jobTitle: contact.jobTitle,
-        photo: contact.photo,
-        hasCard: true,
-        addedDate: new Date().toISOString(),
-        notes: `推薦聯絡人 - ${contact.reason}`,
-        tags: ['推薦聯絡人'],
-        relationshipStatus: 'collected'
-      };
-      
-      const updatedCustomers = [...localCustomers, newCustomer];
-      updateCustomers(updatedCustomers);
-      
-      toast({ 
-        title: "已加入聯絡人", 
-        description: `${contact.name} 已加入您的聯絡人列表` 
-      });
+  const addRecommendedContact = (contact: RecommendedContact) => {
+    const newCustomer: Customer = {
+      id: Date.now(),
+      name: contact.name,
+      phone: '',
+      email: '',
+      company: contact.company,
+      jobTitle: contact.jobTitle,
+      photo: contact.photo,
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: `推薦聯絡人 - ${contact.reason}`,
+      tags: ['推薦聯絡人'],
+      relationshipStatus: 'collected'
+    };
+    
+    const updatedCustomers = [...localCustomers, newCustomer];
+    updateCustomers(updatedCustomers);
+    
+    toast({ 
+      title: "已加入聯絡人", 
+      description: `${contact.name} 已加入您的聯絡人列表` 
+    });
 
-      setTimeout(() => {
-        window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-          detail: { customerName: contact.name, action: 'added' }
-        }));
-      }, 1000);
-    }
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { customerName: contact.name, action: 'added' }
+      }));
+    }, 1000);
   };
 
   const addTag = (customerId: number, tag: string) => {
