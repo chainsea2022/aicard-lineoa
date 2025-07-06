@@ -11,6 +11,7 @@ import { ContactCard } from './ContactCard';
 import { SmartRecommendation } from './SmartRecommendation';
 import { Customer, RecommendedContact, CustomerRelationshipStatus } from './types';
 import { getRandomProfessionalAvatar } from './utils';
+import { generateMockCustomers } from './mockData';
 
 interface MyCustomersProps {
   onClose: () => void;
