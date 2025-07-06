@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star, UserCheck, UserX, Zap } from 'lucide-react';
+import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star, UserCheck, UserX, Zap, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -129,7 +130,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     };
   }, [localCustomers]);
 
+  // 我的電子名片夾區塊（數位電子名片專區）
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
+  
+  // 我的聯絡人區塊（紙本掃描名片專區）
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
   const getFollowerRequests = () => {
@@ -198,19 +202,41 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const getFilteredContacts = () => {
-    return myContacts.filter(customer => {
-      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.email.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      switch (activeFilter) {
-        default:
-          if (availableTags.includes(activeFilter)) {
-            return matchesSearch && customer.tags?.includes(activeFilter);
-          }
-          return matchesSearch;
-      }
-    });
+    let filteredContacts = myContacts;
+
+    if (searchTerm) {
+      filteredContacts = filteredContacts.filter(customer => 
+        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // 聯絡人篩選邏輯
+    switch (activeFilter) {
+      case 'invited':
+        filteredContacts = filteredContacts.filter(customer => 
+          customer.invitationSent || customer.emailInvitationSent
+        );
+        break;
+      case 'notInvited':
+        filteredContacts = filteredContacts.filter(customer => 
+          !customer.invitationSent && !customer.emailInvitationSent
+        );
+        break;
+      case 'inviteHistory':
+        filteredContacts = filteredContacts.filter(customer => 
+          customer.invitationSent || customer.emailInvitationSent
+        );
+        break;
+      default:
+        if (availableTags.includes(activeFilter)) {
+          filteredContacts = filteredContacts.filter(customer => customer.tags?.includes(activeFilter));
+        }
+        break;
+    }
+
+    return filteredContacts;
   };
 
   const toggleFilter = (filter: string) => {
@@ -540,7 +566,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
             )}
           </Button>
           <Button
-            onClick={() => setActiveSection('contacts')}
+            onClick={() => {
+              setActiveSection('contacts');
+              setActiveFilter('all');
+            }}
             variant={activeSection === 'contacts' ? 'default' : 'ghost'}
             className="flex-1 rounded-none text-xs"
           >
@@ -609,7 +638,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
               
               {/* 特殊篩選條件 */}
               <div className="space-y-2 mb-3">
-                {activeSection === 'cards' && (
+                {activeSection === 'cards' ? (
                   <div className="flex space-x-2">
                     <Button
                       onClick={() => toggleFilter('followingMe')}
@@ -635,6 +664,39 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                       <Star className="w-3 h-3 mr-1" />
                       關注
                     </Button>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <div className="flex space-x-2 pb-2" style={{ minWidth: 'max-content' }}>
+                      <Button
+                        onClick={() => toggleFilter('invited')}
+                        variant={activeFilter === 'invited' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-shrink-0 text-xs h-7 bg-green-50 border-green-200 text-green-700 hover:bg-green-100 rounded-lg"
+                      >
+                        <Mail className="w-3 h-3 mr-1" />
+                        已邀請
+                      </Button>
+                      
+                      <Button
+                        onClick={() => toggleFilter('notInvited')}
+                        variant={activeFilter === 'notInvited' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-shrink-0 text-xs h-7 bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100 rounded-lg"
+                      >
+                        <MessageSquare className="w-3 h-3 mr-1" />
+                        未邀請
+                      </Button>
+                      
+                      <Button
+                        onClick={() => toggleFilter('inviteHistory')}
+                        variant={activeFilter === 'inviteHistory' ? 'default' : 'outline'}
+                        size="sm"
+                        className="flex-shrink-0 text-xs h-7 bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 rounded-lg"
+                      >
+                        邀請紀錄
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -782,7 +844,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                   <div className="text-center py-8">
                     <Users className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                     <p className="text-gray-500 text-sm">
-                      {searchTerm ? '找不到符合條件的聯絡人' : '還沒有任何聯絡人'}
+                      {searchTerm || activeFilter !== 'all' ? '找不到符合條件的聯絡人' : '還沒有任何聯絡人'}
                     </p>
                     <p className="text-gray-400 text-xs mt-1">
                       掃描紙本名片來新增聯絡人
@@ -794,12 +856,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
           </div>
         </ScrollArea>
 
-        <SmartRecommendation
-          isCollapsed={isRecommendationCollapsed}
-          onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
-          onAddRecommendedContact={addRecommendedContact}
-          recommendedContacts={recommendedContacts}
-        />
+        {activeSection === 'cards' && (
+          <SmartRecommendation
+            isCollapsed={isRecommendationCollapsed}
+            onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
+            onAddRecommendedContact={addRecommendedContact}
+            recommendedContacts={recommendedContacts}
+          />
+        )}
       </div>
     </div>
   );
