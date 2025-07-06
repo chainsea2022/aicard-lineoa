@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChevronUp, Phone, MessageSquare, Mail, Trash2, Save, Plus, X, Star, UserCheck, UserX, Tag as TagIcon } from 'lucide-react';
+import { ChevronUp, Phone, MessageSquare, Mail, Trash2, Save, Plus, X, Star, UserCheck, UserX, Tag as TagIcon, Globe } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -57,7 +57,8 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       }
       toast({
         title: "已刪除",
-        description: `${customer.name} 的資料已被刪除`
+        description: `${customer.name} 的資料已被刪除`,
+        className: "max-w-[280px] mx-auto"
       });
     }
   };
@@ -194,15 +195,26 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           {customer.line && (
             <div className="flex items-center space-x-2">
               <MessageSquare className="w-4 h-4 text-green-600" />
-              <span className="text-sm text-gray-700">{customer.line}</span>
-              <Button
-                onClick={() => onLineClick(customer.line!)}
-                variant="ghost"
-                size="sm"
-                className="text-green-600 hover:bg-green-50 p-1"
-              >
-                開啟 LINE
-              </Button>
+              {isEditing ? (
+                <Input
+                  value={editedCustomer.line || ''}
+                  onChange={(e) => setEditedCustomer({...editedCustomer, line: e.target.value})}
+                  placeholder="LINE ID"
+                  className="text-sm flex-1"
+                />
+              ) : (
+                <>
+                  <span className="text-sm text-gray-700">{customer.line}</span>
+                  <Button
+                    onClick={() => onLineClick(customer.line!)}
+                    variant="ghost"
+                    size="sm"
+                    className="text-green-600 hover:bg-green-50 p-1"
+                  >
+                    開啟 LINE
+                  </Button>
+                </>
+              )}
             </div>
           )}
 
@@ -219,7 +231,102 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               <span className="text-sm text-gray-700">{customer.email}</span>
             )}
           </div>
+
+          {/* 官網資訊 */}
+          {(customer.website || isEditing) && (
+            <div className="flex items-center space-x-2">
+              <Globe className="w-4 h-4 text-purple-600" />
+              {isEditing ? (
+                <Input
+                  value={editedCustomer.website || ''}
+                  onChange={(e) => setEditedCustomer({...editedCustomer, website: e.target.value})}
+                  placeholder="官網網址"
+                  className="text-sm flex-1"
+                />
+              ) : (
+                <>
+                  <span className="text-sm text-gray-700">{customer.website}</span>
+                  {customer.website && (
+                    <Button
+                      onClick={() => window.open(customer.website, '_blank')}
+                      variant="ghost"
+                      size="sm"
+                      className="text-purple-600 hover:bg-purple-50 p-1"
+                    >
+                      開啟
+                    </Button>
+                  )}
+                </>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* 社群媒體資訊 */}
+        {(customer.facebook || customer.instagram || isEditing) && (
+          <div className="mb-4">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">社群媒體</h4>
+            <div className="space-y-2">
+              {/* Facebook */}
+              {(customer.facebook || isEditing) && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">f</div>
+                  {isEditing ? (
+                    <Input
+                      value={editedCustomer.facebook || ''}
+                      onChange={(e) => setEditedCustomer({...editedCustomer, facebook: e.target.value})}
+                      placeholder="Facebook 帳號"
+                      className="text-sm flex-1"
+                    />
+                  ) : (
+                    <>
+                      <span className="text-sm text-gray-700">{customer.facebook}</span>
+                      {customer.facebook && (
+                        <Button
+                          onClick={() => window.open(`https://facebook.com/${customer.facebook}`, '_blank')}
+                          variant="ghost"
+                          size="sm"
+                          className="text-blue-600 hover:bg-blue-50 p-1"
+                        >
+                          開啟
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+              
+              {/* Instagram */}
+              {(customer.instagram || isEditing) && (
+                <div className="flex items-center space-x-2">
+                  <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded text-white text-xs flex items-center justify-center font-bold">@</div>
+                  {isEditing ? (
+                    <Input
+                      value={editedCustomer.instagram || ''}
+                      onChange={(e) => setEditedCustomer({...editedCustomer, instagram: e.target.value})}
+                      placeholder="Instagram 帳號"
+                      className="text-sm flex-1"
+                    />
+                  ) : (
+                    <>
+                      <span className="text-sm text-gray-700">{customer.instagram}</span>
+                      {customer.instagram && (
+                        <Button
+                          onClick={() => window.open(`https://instagram.com/${customer.instagram}`, '_blank')}
+                          variant="ghost"
+                          size="sm"
+                          className="text-pink-600 hover:bg-pink-50 p-1"
+                        >
+                          開啟
+                        </Button>
+                      )}
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* 標籤管理 */}
         <div className="mb-4">

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Bell, Star } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Bell, Star, Globe } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -50,7 +50,9 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               </AvatarFallback>
             </Avatar>
             {customer.isNewAddition && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white"></div>
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border border-white flex items-center justify-center">
+                <span className="text-white text-xs font-bold leading-none" style={{ fontSize: '8px' }}>N</span>
+              </div>
             )}
           </div>
           
@@ -59,7 +61,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
                 
-                {/* 星號關注按鈕 - 所有名片都顯示 */}
+                {/* 星號關注按鈕 - 所有電子名片都顯示 */}
                 {onToggleFavorite && (
                   <button
                     onClick={handleToggleFavorite}
@@ -80,8 +82,22 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                   </button>
                 )}
                 
-                {/* LINE 和電話按鈕 - 所有名片都顯示 */}
+                {/* 聯絡方式按鈕 - 所有電子名片都顯示 */}
                 <div className="flex items-center space-x-1 flex-shrink-0">
+                  {/* 官網按鈕 */}
+                  {customer.website && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(customer.website, '_blank');
+                      }} 
+                      className="p-1 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors" 
+                      title="開啟官網"
+                    >
+                      <Globe className="w-3 h-3 text-purple-600" />
+                    </button>
+                  )}
+                  {/* LINE 按鈕 */}
                   {customer.line && (
                     <button 
                       onClick={(e) => {
@@ -94,6 +110,7 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                       <MessageSquare className="w-3 h-3 text-green-600" />
                     </button>
                   )}
+                  {/* 電話按鈕 */}
                   {customer.phone && (
                     <button 
                       onClick={(e) => {
