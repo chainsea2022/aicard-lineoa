@@ -69,6 +69,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       setLocalCustomers(defaultCustomers);
       localStorage.setItem('aile-customers', JSON.stringify(defaultCustomers));
       onCustomersUpdate(defaultCustomers);
+      
+      // 檢查是否有新的追蹤者並顯示通知
+      const newFollowers = defaultCustomers.filter(c => 
+        c.relationshipStatus === 'addedMe' && c.isNewAddition
+      );
+      
+      if (newFollowers.length > 0) {
+        setTimeout(() => {
+          toast({
+            title: "🎉 有新朋友加了你的名片！",
+            description: `${newFollowers.length} 位朋友剛加入你的名片，快去查看吧！`
+          });
+        }, 1000);
+      }
+      
       return;
     }
 
