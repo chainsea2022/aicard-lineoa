@@ -429,7 +429,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               </Button>
             </div>
 
-            {/* Filter Options */}
+            {/* Enhanced Filter Options */}
             {isFilterOpen && (
               <div className="mt-2 space-y-3 p-3 bg-white border border-gray-200 rounded-lg">
                 {activeTab === 'digital' && (
@@ -462,6 +462,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           size="sm"
                           onClick={() => setFilter({ ...filter, followingMe: !filter.followingMe })}
                         >
+                          <Eye className="w-3 h-3 mr-1" />
                           追蹤我
                         </Button>
                         <Button
@@ -469,6 +470,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           size="sm"
                           onClick={() => setFilter({ ...filter, iFollowing: !filter.iFollowing })}
                         >
+                          <Heart className="w-3 h-3 mr-1" />
                           我關注的
                         </Button>
                       </div>
@@ -561,7 +563,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 <div className="p-3 space-y-2">
                   {filteredDigitalCards.length > 0 ? (
                     filteredDigitalCards.map(customer => (
-                      <div key={customer.id}>
+                      <div key={customer.id} className="space-y-2">
                         <CustomerCard
                           customer={customer}
                           onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
@@ -578,7 +580,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                         
                         {/* Inline Expanded Card */}
                         {expandedCardId === customer.id && (
-                          <div className="mt-2">
+                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                             <ExpandedCard
                               customer={customer}
                               activeSection="cards"
@@ -619,7 +621,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                   )}
                 </div>
 
-                {/* Smart Recommendations - 固定在最下方 */}
+                {/* Smart Recommendations */}
                 <SmartRecommendation
                   isCollapsed={isRecommendationCollapsed}
                   onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
@@ -639,7 +641,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 <div className="p-3 space-y-2">
                   {filteredPaperCards.length > 0 ? (
                     filteredPaperCards.map(customer => (
-                      <div key={customer.id}>
+                      <div key={customer.id} className="space-y-2">
                         <ContactCard
                           customer={customer}
                           onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
@@ -648,7 +650,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                         
                         {/* Inline Expanded Card */}
                         {expandedCardId === customer.id && (
-                          <div className="mt-2">
+                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                             <ExpandedCard
                               customer={customer}
                               activeSection="contacts"
