@@ -65,152 +65,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     
     if (savedCustomers.length === 0) {
       const defaultCustomers = getDefaultCustomers();
-      // 確保有8個追蹤我的聯絡人 - 預設建立追蹤我列表
-      const followingMeContacts = [
-        // 2個新加入的聯絡人
-        {
-          id: 1001,
-          name: '吳雅芳',
-          phone: '0912-345-678',
-          email: 'wu.yafang@email.com',
-          company: '科技公司',
-          jobTitle: '產品經理',
-          photo: 'https://images.unsplash.com/photo-1494790108755-2616b612b1b4?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date().toISOString(),
-          notes: '透過掃描您的 QR Code 加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: true
-        },
-        {
-          id: 1002,
-          name: '劉志明',
-          phone: '0923-456-789',
-          email: 'liu.zhiming@email.com',
-          company: '設計工作室',
-          jobTitle: '創意總監',
-          photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date().toISOString(),
-          notes: '透過加入聯絡人功能加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: true
-        },
-        // 6個已追蹤我的聯絡人
-        {
-          id: 1003,
-          name: '許文華',
-          phone: '0934-567-890',
-          email: 'xu.wenhua@email.com',
-          company: '行銷公司',
-          jobTitle: '業務經理',
-          photo: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date(Date.now() - 86400000).toISOString(),
-          notes: '透過掃描您的 QR Code 加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: false
-        },
-        {
-          id: 1004,
-          name: '黃志成',
-          phone: '0945-678-901',
-          email: 'huang.zhicheng@email.com',
-          company: '建築事務所',
-          jobTitle: '建築師',
-          photo: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date(Date.now() - 172800000).toISOString(),
-          notes: '透過加入聯絡人功能加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: false
-        },
-        {
-          id: 1005,
-          name: '蔡雅玲',
-          phone: '0956-789-012',
-          email: 'cai.yaling@email.com',
-          company: '金融服務',
-          jobTitle: '理財顧問',
-          photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date(Date.now() - 259200000).toISOString(),
-          notes: '透過掃描您的 QR Code 加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: false
-        },
-        {
-          id: 1006,
-          name: '陳建華',
-          phone: '0967-890-123',
-          email: 'chen.jianhua@email.com',
-          company: '媒體公司',
-          jobTitle: '編輯',
-          photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date(Date.now() - 345600000).toISOString(),
-          notes: '透過加入聯絡人功能加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: false
-        },
-        {
-          id: 1007,
-          name: '張婷婷',
-          phone: '0978-901-234',
-          email: 'zhang.tingting@email.com',
-          company: '教育機構',
-          jobTitle: '講師',
-          photo: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date(Date.now() - 432000000).toISOString(),
-          notes: '透過掃描您的 QR Code 加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: false
-        },
-        {
-          id: 1008,
-          name: '李明達',
-          phone: '0989-012-345',
-          email: 'li.mingda@email.com',
-          company: '零售業',
-          jobTitle: '店長',
-          photo: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face',
-          hasCard: true,
-          addedDate: new Date(Date.now() - 518400000).toISOString(),
-          notes: '透過加入聯絡人功能加入',
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: false
-        }
-      ];
-      
-      const allCustomers = [...defaultCustomers, ...followingMeContacts];
-      setLocalCustomers(allCustomers);
-      localStorage.setItem('aile-customers', JSON.stringify(allCustomers));
-      onCustomersUpdate(allCustomers);
+      console.log('設定預設客戶資料:', defaultCustomers);
+      setLocalCustomers(defaultCustomers);
+      localStorage.setItem('aile-customers', JSON.stringify(defaultCustomers));
+      onCustomersUpdate(defaultCustomers);
       return;
     }
 
@@ -226,6 +84,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       } as Customer;
     });
     
+    console.log('載入的客戶資料:', updatedCustomers);
     setLocalCustomers(updatedCustomers);
     onCustomersUpdate(updatedCustomers);
   }, [onCustomersUpdate]);
@@ -261,9 +120,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   const myContacts = localCustomers.filter(c => !c.hasCard);
 
   const getPendingNotificationCount = () => {
-    return myBusinessCards.filter(c => 
-      c.relationshipStatus === 'addedMe' && c.hasPendingInvitation
-    ).length;
+    const followingMeCards = myBusinessCards.filter(c => c.relationshipStatus === 'addedMe' && c.hasPendingInvitation);
+    console.log('計算通知數量:', followingMeCards.length, followingMeCards);
+    return followingMeCards.length;
   };
 
   const getNewAdditionsCount = () => {
@@ -274,6 +133,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   const getFilteredCards = () => {
     let filteredCards = myBusinessCards;
+    console.log('所有名片:', filteredCards);
+    console.log('當前篩選條件:', activeFilter);
 
     // 先按搜尋條件篩選
     if (searchTerm) {
@@ -287,7 +148,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     // 再按篩選條件篩選
     switch (activeFilter) {
       case 'followingMe':
-        filteredCards = filteredCards.filter(customer => customer.relationshipStatus === 'addedMe');
+        filteredCards = filteredCards.filter(customer => {
+          const isFollowingMe = customer.relationshipStatus === 'addedMe';
+          console.log(`${customer.name} - relationshipStatus: ${customer.relationshipStatus}, isFollowingMe: ${isFollowingMe}`);
+          return isFollowingMe;
+        });
         break;
       case 'favorites':
         filteredCards = filteredCards.filter(customer => customer.isFavorite);
@@ -308,6 +173,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
       });
     }
 
+    console.log('篩選後的名片:', filteredCards);
     return filteredCards;
   };
 
@@ -328,10 +194,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const toggleFilter = (filter: string) => {
+    console.log('切換篩選條件:', filter);
     setActiveFilter(activeFilter === filter ? 'all' : filter);
   };
 
   const updateCustomers = (updatedCustomers: Customer[]) => {
+    console.log('更新客戶資料:', updatedCustomers);
     setLocalCustomers(updatedCustomers);
     localStorage.setItem('aile-customers', JSON.stringify(updatedCustomers));
     onCustomersUpdate(updatedCustomers);
@@ -485,10 +353,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     updateCustomers(updatedCustomers);
     toast({ title: "客戶資料已更新" });
   };
-
-  console.log('追蹤我列表資料:', myBusinessCards.filter(c => c.relationshipStatus === 'addedMe'));
-  console.log('過濾後的名片:', getFilteredCards());
-  console.log('當前篩選條件:', activeFilter);
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto">
