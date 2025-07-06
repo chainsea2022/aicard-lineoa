@@ -86,7 +86,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   };
 
   const getFilteredCustomers = (customerList: Customer[]) => {
-    return customerList.filter(customer => {
+    let filtered = customerList.filter(customer => {
       const searchRegex = new RegExp(searchQuery, 'i');
       const matchesSearch = searchRegex.test(customer.name) || searchRegex.test(customer.company || '') || searchRegex.test(customer.jobTitle || '');
 
@@ -125,6 +125,18 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
       return matchesSearch && matchesFilter;
     });
+
+    // Sort customers: new additions first, then by added date (newest first)
+    return filtered.sort((a, b) => {
+      // First, prioritize new additions
+      if (a.isNewAddition && !b.isNewAddition) return -1;
+      if (!a.isNewAddition && b.isNewAddition) return 1;
+      
+      // Then sort by added date (newest first)
+      const dateA = new Date(a.addedDate || 0).getTime();
+      const dateB = new Date(b.addedDate || 0).getTime();
+      return dateB - dateA;
+    });
   };
 
   const allDigitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
@@ -136,14 +148,16 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const handlePhoneClick = (phoneNumber: string) => {
     toast({
       title: "撥打電話",
-      description: `撥打電話給 ${phoneNumber}`
+      description: `撥打電話給 ${phoneNumber}`,
+      className: "max-w-[280px] mx-auto"
     });
   };
 
   const handleLineClick = (lineId: string) => {
     toast({
       title: "開啟 LINE",
-      description: `開啟 LINE ID: ${lineId}`
+      description: `開啟 LINE ID: ${lineId}`,
+      className: "max-w-[280px] mx-auto"
     });
   };
 
@@ -167,7 +181,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
       notes: `推薦聯絡人 - ${contact.reason}`,
       tags: ['推薦聯絡人'],
       relationshipStatus: 'collected',
-      isDigitalCard: true
+      isDigitalCard: true,
+      isNewAddition: true // Mark as new addition
     };
     
     const updatedCustomers = [...localCustomers, newCustomer];
@@ -179,7 +194,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     
     toast({ 
       title: "已加入聯絡人", 
-      description: `${contact.name} 已加入您的聯絡人列表` 
+      description: `${contact.name} 已加入您的聯絡人列表`,
+      className: "max-w-[280px] mx-auto"
     });
 
     setTimeout(() => {
@@ -218,7 +234,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     
     toast({
       title: `已發送${type === 'sms' ? '簡訊' : 'Email'}邀請`,
-      description: `邀請已成功發送`
+      description: `邀請已成功發送`,
+      className: "max-w-[280px] mx-auto"
     });
   };
 
@@ -239,13 +256,32 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     if (customer) {
       toast({
         title: "已加入聯絡人",
-        description: `${customer.name} 已加入您的聯絡人列表`
+        description: `${customer.name} 已加入您的聯絡人列表`,
+        className: "max-w-[280px] mx-auto"
       });
+    }
+  };
+
+  // Handle card expansion - remove new addition indicator when expanded
+  const handleCardClick = (customerId: number) => {
+    const isExpanding = expandedCardId !== customerId;
+    setExpandedCardId(isExpanding ? customerId : null);
+    
+    // If expanding a new addition, remove the new indicator
+    if (isExpanding) {
+      const updatedCustomers = localCustomers.map(customer => {
+        if (customer.id === customerId && customer.isNewAddition) {
+          return { ...customer, isNewAddition: false };
+        }
+        return customer;
+      });
+      updateCustomers(updatedCustomers);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
+      {/* Header - LINE style */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
         <Button onClick={onClose} variant="ghost" size="sm">
           <ArrowLeft className="w-5 h-5" />
@@ -396,7 +432,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     <div key={customer.id} className="space-y-2">
                       <CustomerCard
                         customer={customer}
-                        onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
+                        onClick={() => handleCardClick(customer.id)}
                         onAddFollower={handleAddFollower}
                         onPhoneClick={handlePhoneClick}
                         onLineClick={handleLineClick}
