@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart, Tag, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -24,7 +25,6 @@ interface MyCustomersProps {
 }
 
 interface CustomerFilter {
-  relationshipStatus?: CustomerRelationshipStatus | null;
   hasCard?: boolean | null;
   tags?: string[];
   invitationStatus?: 'all' | 'invited' | 'not_invited' | 'invitation_history';
@@ -165,6 +165,41 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     }
   }, [localCustomers, onCustomersUpdate]);
 
+  // 監聽來自聊天室的通知
+  useEffect(() => {
+    const handleCustomerNotification = (event: CustomEvent) => {
+      const { customerName, action, relationshipStatus } = event.detail;
+      
+      if (action === 'qr_scanned_me' || action === 'mutual_add') {
+        const newCustomer: Customer = {
+          id: Date.now(),
+          name: customerName,
+          phone: '0912-345-678',
+          email: `${customerName.toLowerCase()}@example.com`,
+          company: '新加入的公司',
+          jobTitle: '職位',
+          photo: getRandomProfessionalAvatar(Date.now()),
+          hasCard: true,
+          addedDate: new Date().toISOString(),
+          notes: action === 'qr_scanned_me' ? '掃描我的QR Code加入' : '互相加入',
+          tags: ['新加入'],
+          relationshipStatus: relationshipStatus || 'addedMe',
+          isDigitalCard: true,
+          isNewAddition: action === 'qr_scanned_me',
+          isFollowingMe: action === 'qr_scanned_me'
+        };
+        
+        setLocalCustomers(prev => [...prev, newCustomer]);
+      }
+    };
+
+    window.addEventListener('customerAddedNotification', handleCustomerNotification as EventListener);
+    
+    return () => {
+      window.removeEventListener('customerAddedNotification', handleCustomerNotification as EventListener);
+    };
+  }, []);
+
   const updateCustomers = (updatedCustomers: Customer[]) => {
     setLocalCustomers(updatedCustomers);
   };
@@ -183,9 +218,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
       const matchesSearch = searchRegex.test(customer.name) || searchRegex.test(customer.company || '') || searchRegex.test(customer.jobTitle || '');
 
       const matchesFilter = Object.keys(filter).every(key => {
-        if (key === 'relationshipStatus' && filter.relationshipStatus) {
-          return customer.relationshipStatus === filter.relationshipStatus;
-        }
         if (key === 'hasCard' && filter.hasCard !== null) {
           return customer.hasCard === filter.hasCard;
         }
@@ -199,7 +231,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           return customer.isFollowingMe === true;
         }
         if (key === 'iFollowing' && filter.iFollowing) {
-          return customer.isFavorite === true; // 用 isFavorite 代表我關注的
+          return customer.isFavorite === true;
         }
         if (key === 'invitationStatus' && filter.invitationStatus && filter.invitationStatus !== 'all') {
           const isInvited = customer.invitationSent || customer.emailInvitationSent;
@@ -425,7 +457,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               />
             </div>
 
-            {/* Enhanced Filter Options - 移到上方並優化排列 */}
+            {/* Enhanced Filter Options */}
             {activeTab === 'digital' && (
               <div className="mt-3 space-y-3">
                 {/* 互動關係篩選 - 兩排排列 */}
@@ -577,10 +609,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             )}
           </div>
 
-          <div className="flex-1 overflow-hidden">
-            <TabsContent value="digital" className="h-full m-0">
-              <ScrollArea className="h-full">
-                <div className="p-3 space-y-2">
+          {/* 主要內容區域 - 修正滑動問題 */}
+          <div className="flex-1 min-h-0">
+            <TabsContent value="digital" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-3 space-y-2 pb-20">
                   {/* 優先顯示追蹤我的新用戶 */}
                   {filteredDigitalCards
                     .filter(customer => customer.relationshipStatus === 'addedMe')
@@ -600,9 +633,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           }}
                         />
                         
-                        {/* Inline Expanded Card */}
+                        {/* Inline Expanded Card - 改善顯示 */}
                         {expandedCardId === customer.id && (
-                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
                               customer={customer}
                               activeSection="cards"
@@ -655,9 +688,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           }}
                         />
                         
-                        {/* Inline Expanded Card */}
+                        {/* Inline Expanded Card - 改善顯示 */}
                         {expandedCardId === customer.id && (
-                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
                               customer={customer}
                               activeSection="cards"
@@ -697,26 +730,26 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       <p className="text-gray-500 text-sm">沒有符合條件的名片</p>
                     </div>
                   )}
-                </div>
 
-                {/* Smart Recommendations */}
-                <SmartRecommendation
-                  isCollapsed={isRecommendationCollapsed}
-                  onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
-                  onAddRecommendation={addRecommendedContact}
-                  recommendations={recommendedContacts}
-                  onToggleFavorite={toggleFavoriteRecommendation}
-                  onPhoneClick={handlePhoneClick}
-                  onLineClick={handleLineClick}
-                  favoriteIds={favoriteRecommendationIds}
-                  addedCount={addedRecommendationsCount}
-                />
-              </ScrollArea>
+                  {/* Smart Recommendations */}
+                  <SmartRecommendation
+                    isCollapsed={isRecommendationCollapsed}
+                    onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
+                    onAddRecommendation={addRecommendedContact}
+                    recommendations={recommendedContacts}
+                    onToggleFavorite={toggleFavoriteRecommendation}
+                    onPhoneClick={handlePhoneClick}
+                    onLineClick={handleLineClick}
+                    favoriteIds={favoriteRecommendationIds}
+                    addedCount={addedRecommendationsCount}
+                  />
+                </div>
+              </div>
             </TabsContent>
 
-            <TabsContent value="paper" className="h-full m-0">
-              <ScrollArea className="h-full">
-                <div className="p-3 space-y-2">
+            <TabsContent value="paper" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <div className="p-3 space-y-2 pb-20">
                   {filteredPaperCards.length > 0 ? (
                     filteredPaperCards.map(customer => (
                       <div key={customer.id} className="space-y-2">
@@ -726,9 +759,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           onSendInvitation={handleSendInvitation}
                         />
                         
-                        {/* Inline Expanded Card */}
+                        {/* Inline Expanded Card - 改善顯示 */}
                         {expandedCardId === customer.id && (
-                          <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
                             <ExpandedCard
                               customer={customer}
                               activeSection="contacts"
@@ -769,7 +802,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     </div>
                   )}
                 </div>
-              </ScrollArea>
+              </div>
             </TabsContent>
           </div>
         </Tabs>

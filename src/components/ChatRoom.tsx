@@ -67,14 +67,11 @@ const ChatRoom = () => {
   const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
-    // 監聽客戶加入事件
+    // 監聽各種客戶事件
     const handleCustomerAdded = (event: CustomEvent) => {
       const newCustomer = event.detail;
-      
-      // 添加新客戶到列表
       setCustomers(prev => [...prev, newCustomer]);
       
-      // 添加聊天通知
       const customerName = generateRandomCustomerName();
       const newMessage = {
         id: Date.now(),
@@ -82,14 +79,43 @@ const ChatRoom = () => {
         isBot: true,
         timestamp: new Date()
       };
-      
       setMessages(prev => [...prev, newMessage]);
     };
 
+    // 監聽QR掃描事件
+    const handleQRScanned = (event: CustomEvent) => {
+      const { customer } = event.detail;
+      // 觸發名片人脈夾更新
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: customer.name, 
+          action: 'qr_scanned',
+          isDigitalCard: true 
+        }
+      }));
+    };
+
+    // 監聽紙本掃描事件
+    const handlePaperScanned = (event: CustomEvent) => {
+      const { customer } = event.detail;
+      // 觸發名片人脈夾更新
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: customer.name, 
+          action: 'paper_scanned',
+          isDigitalCard: false 
+        }
+      }));
+    };
+
     window.addEventListener('customerScannedCard', handleCustomerAdded as EventListener);
+    window.addEventListener('qrCodeScanned', handleQRScanned as EventListener);
+    window.addEventListener('paperCardScanned', handlePaperScanned as EventListener);
     
     return () => {
       window.removeEventListener('customerScannedCard', handleCustomerAdded as EventListener);
+      window.removeEventListener('qrCodeScanned', handleQRScanned as EventListener);
+      window.removeEventListener('paperCardScanned', handlePaperScanned as EventListener);
     };
   }, []);
 
@@ -189,15 +215,24 @@ const ChatRoom = () => {
         };
         setMessages(prev => [...prev, qrMessage]);
         
-        // 模擬 QR Code 被掃描
+        // 模擬 QR Code 被掃描 - 同步到名片人脈夾
         setTimeout(() => {
           const scanMessage: Message = {
             id: Date.now(),
-            text: `🎉 ${customerName}已加入您的人脈列表！`,
+            text: `🎉 ${customerName}掃描了您的QR Code並想要加入您的聯絡人！`,
             isBot: true,
             timestamp: new Date()
           };
           setMessages(prev => [...prev, scanMessage]);
+          
+          // 觸發名片人脈夾更新 - 顯示在追蹤我的列表
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: { 
+              customerName, 
+              action: 'qr_scanned_me',
+              relationshipStatus: 'addedMe'
+            }
+          }));
         }, 3000);
         
         toast({
@@ -214,6 +249,16 @@ const ChatRoom = () => {
           timestamp: new Date()
         };
         setMessages(prev => [...prev, addMessage]);
+        
+        // 觸發名片人脈夾同步更新
+        window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+          detail: { 
+            customerName, 
+            action: 'mutual_add',
+            relationshipStatus: 'collected'
+          }
+        }));
+        
         toast({
           title: "已加入聯絡人",
           description: "名片已成功加入聯絡人清單。"
@@ -239,7 +284,6 @@ const ChatRoom = () => {
             text: `查看 ${cardData?.name} 的電子名片`,
             url: shareUrl
           }).catch(() => {
-            // 如果分享失敗，複製到剪貼板
             navigator.clipboard.writeText(shareUrl);
           });
         } else {
