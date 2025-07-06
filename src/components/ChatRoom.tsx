@@ -38,7 +38,7 @@ interface CardData {
 }
 
 const menuItems: MenuItem[] = [
-  { id: 'create-card', title: '建立電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
+  { id: 'create-card', title: '註冊電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
   { id: 'my-card', title: '我的電子名片', icon: Zap, color: 'bg-gradient-to-br from-green-500 to-green-600' },
   { id: 'scanner', title: '掃描', icon: Scan, color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
   { id: 'customers', title: '名片人脈夾', icon: Users, color: 'bg-gradient-to-br from-orange-500 to-orange-600' },
@@ -147,6 +147,21 @@ const ChatRoom = () => {
     if (e.key === 'Enter') {
       handleSendMessage();
     }
+  };
+
+  // Check if user is registered
+  const isRegistered = () => {
+    const savedData = localStorage.getItem('aile-card-data');
+    return !!savedData;
+  };
+
+  // Get dynamic menu items based on registration status
+  const getDynamicMenuItems = () => {
+    const baseItems = [...menuItems];
+    if (isRegistered()) {
+      baseItems[0] = { id: 'create-card', title: '設置電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' };
+    }
+    return baseItems;
   };
 
   const handleMenuItemClick = (itemId: string) => {
@@ -309,7 +324,11 @@ const ChatRoom = () => {
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
-        return <CreateCard onClose={handleCloseView} />;
+        return <CreateCard onClose={handleCloseView} onRegistrationComplete={() => {
+          // Force re-render of menu items after registration
+          setActiveView(null);
+          setIsMenuOpen(true);
+        }} />;
       case 'scanner':
         return <Scanner onClose={handleCloseView} />;
       case 'customers':
@@ -525,7 +544,7 @@ const ChatRoom = () => {
               
               {/* Menu Grid - 3x2 layout for mobile */}
               <div className="grid grid-cols-3 gap-2">
-                {menuItems.map((item) => (
+                {getDynamicMenuItems().map((item) => (
                   <button
                     key={item.id}
                     onClick={() => handleMenuItemClick(item.id)}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import CreateCard from './CreateCard';
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
+import Points from './Points';
 
 interface MyCardProps {
   onClose: () => void;
@@ -20,6 +20,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     isPublicProfile: false,
     allowDirectContact: true
   });
+  const [showPoints, setShowPoints] = useState(false);
 
   useEffect(() => {
     const savedData = localStorage.getItem('aile-card-data');
@@ -39,6 +40,10 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
 
   if (showSettings) {
     return <ProfileSettings onClose={() => setShowSettings(false)} />;
+  }
+
+  if (showPoints) {
+    return <Points onClose={() => setShowPoints(false)} />;
   }
 
   if (!cardData) {
@@ -176,6 +181,14 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
           >
             <Settings className="w-4 h-4 mr-2" />
             公開設定
+          </Button>
+
+          <Button 
+            onClick={() => setShowPoints(true)}
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
+          >
+            <Award className="w-4 h-4 mr-2" />
+            會員點數
           </Button>
 
           <div className="grid grid-cols-2 gap-3">
