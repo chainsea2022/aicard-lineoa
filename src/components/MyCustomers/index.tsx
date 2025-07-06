@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -239,44 +238,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
 
   // 監聽來自 MyCard 組件的事件
   useEffect(() => {
-    const handleCustomerAddedNotification = (event: CustomEvent) => {
-      const { customerName, action, message } = event.detail;
+    const handleCustomerScannedCard = (event: CustomEvent) => {
+      const newCustomer = event.detail;
       
-      if (action === 'qrcode_scanned' || action === 'contact_added') {
-        // 創建新的追蹤者
-        const newFollower: Customer = {
-          id: Date.now(),
-          name: customerName,
-          phone: '0912-000-000',
-          email: `${customerName.toLowerCase()}@example.com`,
-          company: '未知公司',
-          jobTitle: '未知職位',
-          hasCard: true,
-          addedDate: new Date().toISOString(),
-          notes: message || `透過 ${action === 'qrcode_scanned' ? 'QR Code' : '加入聯絡人'} 加入`,
-          relationshipStatus: 'addedMe' as const,
-          isMyFriend: false,
-          isFollowingMe: true,
-          hasPendingInvitation: true,
-          isNewAddition: true
-        };
-
-        const updatedCustomers = [...localCustomers, newFollower];
-        updateCustomers(updatedCustomers);
-        
-        toast({
-          title: "新的追蹤者！",
-          description: `${customerName} 已加入您的名片，請查看追蹤我列表`
-        });
+      // 檢查是否已存在相同名稱的客戶
+      const existingCustomer = localCustomers.find(c => c.name === newCustomer.name);
+      if (existingCustomer) {
+        return; // 如果已存在，不重複添加
       }
+
+      const updatedCustomers = [...localCustomers, newCustomer];
+      updateCustomers(updatedCustomers);
+      
+      toast({
+        title: "新的追蹤者！",
+        description: `${newCustomer.name} 已加入您的名片，請查看追蹤我列表`
+      });
     };
 
-    window.addEventListener('customerAddedNotification', handleCustomerAddedNotification as EventListener);
+    window.addEventListener('customerScannedCard', handleCustomerScannedCard as EventListener);
     
     return () => {
-      window.removeEventListener('customerAddedNotification', handleCustomerAddedNotification as EventListener);
+      window.removeEventListener('customerScannedCard', handleCustomerScannedCard as EventListener);
     };
-  }, [localCustomers, onCustomersUpdate]);
+  }, [localCustomers]);
 
   const myBusinessCards = localCustomers.filter(c => c.hasCard);
   const myContacts = localCustomers.filter(c => !c.hasCard);

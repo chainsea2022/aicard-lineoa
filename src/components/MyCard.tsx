@@ -45,7 +45,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [cardData, setCardData] = useState<CardData | null>(null);
   const [showQR, setShowQR] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isMenuOpen, setIsMenuOpen] = useState(false); // 預設關閉選單
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const savedData = localStorage.getItem('aile-card-data');
@@ -69,33 +69,11 @@ const MyCard: React.FC<MyCardProps> = ({
       }];
       setMessages(initialMessages);
     }
-
-    // 監聽來自其他組件的客戶加入事件
-    const handleCustomerScan = (event: CustomEvent) => {
-      const newCustomer = event.detail;
-      const customerName = generateRandomCustomerName();
-      const newMessage: ChatMessage = {
-        id: messages.length + 1,
-        text: `🎉 ${customerName}已加入您的人脈列表！`,
-        isBot: true,
-        timestamp: new Date()
-      };
-      setMessages(prev => [...prev, newMessage]);
-      if (onCustomerAdded) {
-        onCustomerAdded(newCustomer);
-      }
-    };
-
-    window.addEventListener('customerScannedCard', handleCustomerScan as EventListener);
-    return () => {
-      window.removeEventListener('customerScannedCard', handleCustomerScan as EventListener);
-    };
-  }, [messages.length, onCustomerAdded]);
+  }, []);
 
   const handleShare = () => {
     const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
 
-    // 模擬分享功能
     if (navigator.share) {
       navigator.share({
         title: `${cardData?.name} 的電子名片`,
@@ -103,7 +81,6 @@ const MyCard: React.FC<MyCardProps> = ({
         url: shareUrl
       });
     } else {
-      // 複製到剪貼板作為備用方案
       navigator.clipboard.writeText(shareUrl);
     }
 
@@ -122,56 +99,78 @@ const MyCard: React.FC<MyCardProps> = ({
 
   const generateQRCode = () => {
     setShowQR(true);
+    const customerName = generateRandomCustomerName();
+    
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片並自動加入您的人脈列表。",
+      text: `QR Code 已生成！${customerName} 已掃描您的 QR Code 並加入您的名片。`,
       isBot: true,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, newMessage]);
 
-    // 模擬 QR Code 被掃描的情況 (測試用)
-    setTimeout(() => {
-      const customerName = generateRandomCustomerName();
-      const event = new CustomEvent('customerAddedNotification', {
-        detail: { 
-          customerName, 
-          action: 'qrcode_scanned',
-          message: `${customerName} 透過掃描您的 QR Code 加入聯絡人`
-        }
-      });
-      window.dispatchEvent(event);
-    }, 3000);
+    // 立即發送通知到名片人脈夾
+    const event = new CustomEvent('customerScannedCard', {
+      detail: {
+        id: Date.now(),
+        name: customerName,
+        phone: '0912-000-000',
+        email: `${customerName.toLowerCase()}@example.com`,
+        company: '未知公司',
+        jobTitle: '未知職位',
+        hasCard: true,
+        addedDate: new Date().toISOString(),
+        notes: `透過掃描您的 QR Code 加入`,
+        relationshipStatus: 'addedMe',
+        isMyFriend: false,
+        isFollowingMe: true,
+        hasPendingInvitation: true,
+        isNewAddition: true
+      }
+    });
+    window.dispatchEvent(event);
 
     toast({
       title: "QR Code 已生成！",
-      description: "其他人可以掃描此 QR Code 來獲取您的名片。"
+      description: `${customerName} 已掃描您的 QR Code 並加入名片人脈夾。`
     });
   };
 
   const handleAddContact = () => {
     const customerName = generateRandomCustomerName();
+    
     const newMessage: ChatMessage = {
       id: messages.length + 1,
-      text: `🎉 ${customerName}已加入您的人脈列表！`,
+      text: `🎉 ${customerName} 已透過加入聯絡人功能加入您的名片！`,
       isBot: true,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, newMessage]);
     
-    // 發送到名片人脈夾的通知
-    const event = new CustomEvent('customerAddedNotification', {
-      detail: { 
-        customerName, 
-        action: 'contact_added',
-        message: `${customerName} 透過加入聯絡人功能加入您的名片`
+    // 立即發送通知到名片人脈夾
+    const event = new CustomEvent('customerScannedCard', {
+      detail: {
+        id: Date.now(),
+        name: customerName,
+        phone: '0912-000-000',
+        email: `${customerName.toLowerCase()}@example.com`,
+        company: '未知公司',
+        jobTitle: '未知職位',
+        hasCard: true,
+        addedDate: new Date().toISOString(),
+        notes: `透過加入聯絡人功能加入`,
+        relationshipStatus: 'addedMe',
+        isMyFriend: false,
+        isFollowingMe: true,
+        hasPendingInvitation: true,
+        isNewAddition: true
       }
     });
     window.dispatchEvent(event);
     
     toast({
       title: "已加入聯絡人",
-      description: "名片已成功加入聯絡人清單。"
+      description: `${customerName} 已加入您的名片人脈夾。`
     });
   };
 
