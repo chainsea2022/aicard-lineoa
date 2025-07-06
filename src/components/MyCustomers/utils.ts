@@ -25,14 +25,16 @@ export const professionalAvatars = [
   'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&h=150&fit=crop&crop=face',
 ];
 
-export const getRelationshipStatusDisplay = (status?: 'collected' | 'addedMe'): string => {
+export const getRelationshipStatusDisplay = (status?: 'collected' | 'addedMe' | 'ignored') => {
   switch (status) {
     case 'collected':
-      return '已收藏';
+      return { text: '已收藏', color: 'text-green-600' };
     case 'addedMe':
-      return '追蹤我';
+      return { text: '加我名片', color: 'text-orange-600' };
+    case 'ignored':
+      return { text: '已忽略', color: 'text-gray-500' };
     default:
-      return '一般聯絡人';
+      return { text: '未知狀態', color: 'text-gray-400' };
   }
 };
 
