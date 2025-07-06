@@ -140,7 +140,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<CustomerFilter>({});
   const [activeTab, setActiveTab] = useState<'digital' | 'paper'>('digital');
-  const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(true);
+  const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(false);
   const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
   const [recommendedContacts, setRecommendedContacts] = useState<RecommendedContact[]>(mockRecommendedContacts);
   const [favoriteRecommendationIds, setFavoriteRecommendationIds] = useState<number[]>([]);
@@ -689,11 +689,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             )}
           </div>
 
-          {/* 主要內容區域 - 修正滑動問題 */}
-          <div className="flex-1 min-h-0">
+          {/* 主要內容區域 - 修正滑動問題，預留智能推薦空間 */}
+          <div className="flex-1 min-h-0 relative">
             <TabsContent value="digital" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-3 space-y-2 pb-20">
+              <ScrollArea className="flex-1">
+                <div className="p-3 space-y-2" style={{ paddingBottom: '200px' }}>
                   {/* 優先顯示追蹤我的新用戶 */}
                   {filteredDigitalCards
                     .filter(customer => customer.relationshipStatus === 'addedMe')
@@ -824,12 +824,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     addedCount={addedRecommendationsCount}
                   />
                 </div>
-              </div>
+              </ScrollArea>
             </TabsContent>
 
             <TabsContent value="paper" className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col">
-              <div className="flex-1 overflow-y-auto">
-                <div className="p-3 space-y-2 pb-20">
+              <ScrollArea className="flex-1">
+                <div className="p-3 space-y-2" style={{ paddingBottom: '200px' }}>
                   {filteredPaperCards.length > 0 ? (
                     filteredPaperCards.map(customer => (
                       <div key={customer.id} className="space-y-2">
@@ -882,8 +882,25 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     </div>
                   )}
                 </div>
-              </div>
+              </ScrollArea>
             </TabsContent>
+
+            {/* 固定在底部的智能推薦區域 - 僅在數位名片夾頁面顯示 */}
+            {activeTab === 'digital' && (
+              <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg">
+                <SmartRecommendation
+                  isCollapsed={isRecommendationCollapsed}
+                  onToggleCollapse={() => setIsRecommendationCollapsed(!isRecommendationCollapsed)}
+                  onAddRecommendation={addRecommendedContact}
+                  recommendations={recommendedContacts}
+                  onToggleFavorite={toggleFavoriteRecommendation}
+                  onPhoneClick={handlePhoneClick}
+                  onLineClick={handleLineClick}
+                  favoriteIds={favoriteRecommendationIds}
+                  addedCount={addedRecommendationsCount}
+                />
+              </div>
+            )}
           </div>
         </Tabs>
       </div>
