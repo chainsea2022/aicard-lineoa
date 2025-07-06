@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import CreateCard from './CreateCard';
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 import Points from './Points';
+import OTPVerification from './OTPVerification';
 
 interface MyCardProps {
   onClose: () => void;
@@ -15,18 +15,26 @@ interface MyCardProps {
 
 const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [cardData, setCardData] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
   const [showCreateCard, setShowCreateCard] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [showPoints, setShowPoints] = useState(false);
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [profileSettings, setProfileSettings] = useState({
     isPublicProfile: false,
     allowDirectContact: true
   });
-  const [showPoints, setShowPoints] = useState(false);
 
   useEffect(() => {
-    const savedData = localStorage.getItem('aile-card-data');
-    if (savedData) {
-      setCardData(JSON.parse(savedData));
+    const savedCardData = localStorage.getItem('aile-card-data');
+    const savedUserData = localStorage.getItem('aile-user-data');
+    
+    if (savedCardData) {
+      setCardData(JSON.parse(savedCardData));
+    }
+    
+    if (savedUserData) {
+      setUserData(JSON.parse(savedUserData));
     }
 
     const savedSettings = localStorage.getItem('aile-profile-settings');
@@ -35,8 +43,26 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     }
   }, []);
 
+  const handleVerificationComplete = (phone: string) => {
+    setShowOTPVerification(false);
+    setShowCreateCard(true);
+  };
+
+  const handleCardCreated = () => {
+    setShowCreateCard(false);
+    // 重新載入名片資料
+    const savedCardData = localStorage.getItem('aile-card-data');
+    if (savedCardData) {
+      setCardData(JSON.parse(savedCardData));
+    }
+  };
+
+  if (showOTPVerification) {
+    return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
+  }
+
   if (showCreateCard) {
-    return <CreateCard onClose={() => setShowCreateCard(false)} />;
+    return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userPhone={userData?.phone} />;
   }
 
   if (showSettings) {
@@ -60,24 +86,32 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">我的電子名片</h1>
+            <h1 className="font-bold text-lg">設置電子名片</h1>
           </div>
         </div>
 
         <div className="p-6 text-center">
           <div className="mb-6">
-            <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <QrCode className="w-10 h-10 text-gray-400" />
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <QrCode className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">尚未建立電子名片</h2>
-            <p className="text-gray-600">建立您的專屬電子名片，讓更多人認識您</p>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">歡迎使用電子名片</h2>
+            <p className="text-gray-600 mb-4">
+              {!userData ? '首次使用需要手機驗證註冊' : '建立您的專屬電子名片'}
+            </p>
           </div>
 
           <Button 
-            onClick={() => setShowCreateCard(true)}
-            className="bg-green-500 hover:bg-green-600 text-white"
+            onClick={() => {
+              if (!userData) {
+                setShowOTPVerification(true);
+              } else {
+                setShowCreateCard(true);
+              }
+            }}
+            className="bg-gradient-to-r from-blue-500 to-green-500 hover:from-blue-600 hover:to-green-600 text-white px-8 py-3 text-lg"
           >
-            建立我的名片
+            {!userData ? '手機驗證註冊' : '建立我的名片'}
           </Button>
         </div>
       </div>

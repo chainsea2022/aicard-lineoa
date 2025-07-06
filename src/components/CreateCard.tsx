@@ -1,26 +1,29 @@
+
 import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from '@/hooks/use-toast';
+import CardPreview from './CardPreview';
 
 interface CreateCardProps {
   onClose: () => void;
   onRegistrationComplete?: () => void;
+  userPhone?: string;
 }
 
-const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete }) => {
+const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userPhone }) => {
   const [companyName, setCompanyName] = useState('');
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(userPhone || '');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [line, setLine] = useState('');
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -33,20 +36,28 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     }
   };
 
+  const cardData = {
+    companyName,
+    name,
+    phone,
+    email,
+    website,
+    line,
+    facebook,
+    instagram,
+    photo
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    const cardData = {
-      companyName,
-      name,
-      phone,
-      email,
-      website,
-      line,
-      facebook,
-      instagram,
-      photo
-    };
+    if (!name) {
+      toast({
+        title: "請輸入姓名",
+        description: "姓名為必填欄位",
+      });
+      return;
+    }
 
     // Save to localStorage
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
@@ -67,12 +78,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     }
     
     toast({
-      title: "電子名片註冊成功！",
+      title: "電子名片建立成功！",
       description: "您的名片已經建立完成，獲得 100 點數獎勵！",
-      className: "max-w-xs"
     });
 
-    // Call registration complete callback
     if (onRegistrationComplete) {
       onRegistrationComplete();
     } else {
@@ -80,20 +89,41 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     }
   };
 
+  if (showPreview) {
+    return (
+      <CardPreview
+        cardData={cardData}
+        onClose={() => setShowPreview(false)}
+        onEdit={() => setShowPreview(false)}
+      />
+    );
+  }
+
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 shadow-lg">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-white hover:bg-white/20"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="font-bold text-lg">建立電子名片</h1>
+          </div>
           <Button
             variant="ghost"
             size="sm"
-            onClick={onClose}
+            onClick={() => setShowPreview(true)}
             className="text-white hover:bg-white/20"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <Eye className="w-4 h-4 mr-1" />
+            預覽
           </Button>
-          <h1 className="font-bold text-lg">建立電子名片</h1>
         </div>
       </div>
 
@@ -110,8 +140,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               placeholder="請輸入公司名稱"
             />
           </div>
+          
           <div>
-            <Label htmlFor="name">姓名</Label>
+            <Label htmlFor="name">姓名 *</Label>
             <Input
               type="text"
               id="name"
@@ -121,68 +152,83 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               required
             />
           </div>
+          
           <div>
-            <Label htmlFor="phone">電話</Label>
+            <Label htmlFor="phone">手機號碼</Label>
             <Input
               type="tel"
               id="phone"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="請輸入電話"
+              placeholder="請輸入手機號碼"
+              readOnly={!!userPhone}
+              className={userPhone ? 'bg-gray-100' : ''}
             />
           </div>
+          
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">電子信箱</Label>
             <Input
               type="email"
               id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="請輸入Email"
+              placeholder="請輸入電子信箱"
             />
           </div>
+          
           <div>
-            <Label htmlFor="website">網站</Label>
+            <Label htmlFor="website">公司官網</Label>
             <Input
               type="url"
               id="website"
               value={website}
               onChange={(e) => setWebsite(e.target.value)}
-              placeholder="請輸入網站"
+              placeholder="請輸入公司官網"
             />
           </div>
-          <div>
-            <Label htmlFor="line">Line</Label>
-            <Input
-              type="text"
-              id="line"
-              value={line}
-              onChange={(e) => setLine(e.target.value)}
-              placeholder="請輸入Line"
-            />
+
+          {/* 社群設置區塊 */}
+          <div className="border-t pt-4">
+            <h3 className="font-medium text-gray-800 mb-3">社群設置</h3>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="line">LINE ID</Label>
+                <Input
+                  type="text"
+                  id="line"
+                  value={line}
+                  onChange={(e) => setLine(e.target.value)}
+                  placeholder="請輸入LINE ID"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="facebook">Facebook</Label>
+                <Input
+                  type="text"
+                  id="facebook"
+                  value={facebook}
+                  onChange={(e) => setFacebook(e.target.value)}
+                  placeholder="請輸入Facebook帳號或網址"
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="instagram">Instagram</Label>
+                <Input
+                  type="text"
+                  id="instagram"
+                  value={instagram}
+                  onChange={(e) => setInstagram(e.target.value)}
+                  placeholder="請輸入Instagram帳號"
+                />
+              </div>
+            </div>
           </div>
+
           <div>
-            <Label htmlFor="facebook">Facebook</Label>
-            <Input
-              type="text"
-              id="facebook"
-              value={facebook}
-              onChange={(e) => setFacebook(e.target.value)}
-              placeholder="請輸入Facebook"
-            />
-          </div>
-          <div>
-            <Label htmlFor="instagram">Instagram</Label>
-            <Input
-              type="text"
-              id="instagram"
-              value={instagram}
-              onChange={(e) => setInstagram(e.target.value)}
-              placeholder="請輸入Instagram"
-            />
-          </div>
-          <div>
-            <Label htmlFor="photo">照片</Label>
+            <Label htmlFor="photo">上傳照片</Label>
             <Input
               type="file"
               id="photo"
@@ -192,14 +238,29 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             {photo && (
               <img
                 src={photo}
-                alt="Preview"
-                className="mt-2 rounded-md w-32 h-32 object-cover"
+                alt="預覽"
+                className="mt-2 rounded-md w-32 h-32 object-cover border"
               />
             )}
           </div>
-          <Button type="submit" className="w-full bg-blue-500 hover:bg-blue-600 text-white">
-            建立名片
-          </Button>
+
+          <div className="flex space-x-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowPreview(true)}
+              className="flex-1"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              預覽名片
+            </Button>
+            <Button 
+              type="submit" 
+              className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              建立名片
+            </Button>
+          </div>
         </form>
       </div>
     </div>
