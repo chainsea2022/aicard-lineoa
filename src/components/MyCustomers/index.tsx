@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Users, UserPlus, Heart, Bell, ChevronDown, ChevronRight, Tag, Star, UserCheck, UserX, Zap, Mail, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -334,6 +333,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
     });
   };
 
+  const deleteCustomer = (customerId: number) => {
+    const updatedCustomers = localCustomers.filter(c => c.id !== customerId);
+    updateCustomers(updatedCustomers);
+  };
+
   const InstagramStyleFollowerCard = ({ customer }: { customer: Customer }) => {
     const timeAgo = () => {
       const now = new Date();
@@ -481,12 +485,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
   };
 
   const sendInvitation = (customerId: number, type: 'sms' | 'email') => {
+    const currentDate = new Date().toISOString();
     const updatedCustomers = localCustomers.map(customer => 
       customer.id === customerId 
         ? { 
             ...customer, 
             invitationSent: type === 'sms' ? true : customer.invitationSent,
-            emailInvitationSent: type === 'email' ? true : customer.emailInvitationSent
+            emailInvitationSent: type === 'email' ? true : customer.emailInvitationSent,
+            invitationDate: type === 'sms' ? currentDate : customer.invitationDate,
+            emailInvitationDate: type === 'email' ? currentDate : customer.emailInvitationDate
           }
         : customer
     );
@@ -776,6 +783,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           onAddTag={addTag}
                           onRemoveTag={removeTag}
                           onSaveCustomer={saveCustomer}
+                          onDeleteCustomer={deleteCustomer}
                           onCollapse={() => setExpandedCard(null)}
                         />
                       : <CustomerCard
@@ -785,6 +793,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           onAddFollower={addFollowerBack}
                           onPhoneClick={handlePhoneClick}
                           onLineClick={handleLineClick}
+                          onToggleFavorite={toggleFavorite}
                         />
                   )
                 ) : activeFilter !== 'followingMe' && (
@@ -832,6 +841,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers, onCustome
                           onAddTag={addTag}
                           onRemoveTag={removeTag}
                           onSaveCustomer={saveCustomer}
+                          onDeleteCustomer={deleteCustomer}
                           onCollapse={() => setExpandedCard(null)}
                         />
                       : <ContactCard

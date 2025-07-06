@@ -54,25 +54,28 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
                 
-                {/* 星號關注按鈕 */}
-                <button
-                  onClick={handleToggleFavorite}
-                  className={`p-1 rounded-full transition-colors flex-shrink-0 ${
-                    customer.isFavorite 
-                      ? 'bg-yellow-100 hover:bg-yellow-200' 
-                      : 'bg-gray-100 hover:bg-gray-200'
-                  }`}
-                  title={customer.isFavorite ? '取消關注' : '關注'}
-                >
-                  <Star 
-                    className={`w-3 h-3 ${
+                {/* 星號關注按鈕 - 所有名片都顯示 */}
+                {onToggleFavorite && (
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`p-1 rounded-full transition-colors flex-shrink-0 ${
                       customer.isFavorite 
-                        ? 'text-yellow-500 fill-current' 
-                        : 'text-gray-400'
-                    }`} 
-                  />
-                </button>
+                        ? 'bg-yellow-100 hover:bg-yellow-200' 
+                        : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                    title={customer.isFavorite ? '取消關注' : '關注'}
+                  >
+                    <Star 
+                      className={`w-3 h-3 ${
+                        customer.isFavorite 
+                          ? 'text-yellow-500 fill-current' 
+                          : 'text-gray-400'
+                      }`} 
+                    />
+                  </button>
+                )}
                 
+                {/* LINE 和電話按鈕 - 所有名片都顯示 */}
                 <div className="flex items-center space-x-1 flex-shrink-0">
                   {customer.line && (
                     <button 
