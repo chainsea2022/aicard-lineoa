@@ -24,11 +24,13 @@ export interface Customer {
   isMyFriend?: boolean;
   isFollowingMe?: boolean;
   hasPendingInvitation?: boolean;
-  relationshipStatus?: 'collected' | 'addedMe' | 'ignored';
+  relationshipStatus?: 'collected' | 'addedMe' | 'ignored' | 'archived';
   isNewAddition?: boolean;
   isPublicProfile?: boolean;
   allowDirectContact?: boolean;
 }
+
+export type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';
 
 export interface RecommendedContact {
   id: number;

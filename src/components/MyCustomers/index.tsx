@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Search, Filter, Users, Star, Plus, MessageSquare, Phone, Mail, Calendar, UserPlus, Bell, Settings, Eye, EyeOff, MoreVertical, Trash2, Edit, Archive, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,12 +10,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
-import CustomerCard from './CustomerCard';
-import ExpandedCard from './ExpandedCard';
-import ContactCard from './ContactCard';
+import { CustomerCard } from './CustomerCard';
+import { ExpandedCard } from './ExpandedCard';
+import { ContactCard } from './ContactCard';
 import { SmartRecommendation } from './SmartRecommendation';
-import { Customer, RecommendedContact, CustomerRelationshipStatus } from './types';
-import { getRandomProfessionalAvatar, generateMockCustomers, generateMockRecommendedContacts } from './utils';
+import { Customer, RecommendedContact } from './types';
+import { getRandomProfessionalAvatar } from './utils';
 
 interface MyCustomersProps {
   onClose: () => void;
@@ -22,11 +23,77 @@ interface MyCustomersProps {
   onCustomersUpdate?: (customers: any[]) => void;
 }
 
+type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';
+
 interface CustomerFilter {
   relationshipStatus?: CustomerRelationshipStatus | null;
   hasCard?: boolean | null;
   tags?: string[];
 }
+
+const generateMockRecommendedContacts = (count: number): RecommendedContact[] => {
+  const names = ['張志明', '李小美', '王大偉', '陳雅婷', '林俊傑'];
+  const companies = ['科技公司', '貿易公司', '設計工作室', '顧問公司', '媒體公司'];
+  const jobTitles = ['產品經理', '設計師', '工程師', '業務經理', '行銷專員'];
+  const reasons = ['共同朋友', '同行業', '附近地區', '相似興趣', '專業推薦'];
+
+  return Array.from({ length: count }, (_, i) => ({
+    id: 1000 + i,
+    name: names[i % names.length],
+    company: companies[i % companies.length],
+    jobTitle: jobTitles[i % jobTitles.length],
+    photo: getRandomProfessionalAvatar(1000 + i),
+    mutualFriends: ['共同朋友1', '共同朋友2'],
+    reason: reasons[i % reasons.length],
+    isPublicProfile: Math.random() > 0.3,
+    allowDirectContact: Math.random() > 0.5
+  }));
+};
+
+const generateMockCustomers = (): Customer[] => {
+  const baseDate = new Date();
+  
+  return [
+    {
+      id: 1,
+      name: '王小明',
+      phone: '0912-345-678',
+      email: 'wang.xiaoming@example.com',
+      company: '台北科技公司',
+      jobTitle: '軟體工程師',
+      photo: getRandomProfessionalAvatar(1),
+      hasCard: true,
+      addedDate: new Date(baseDate.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: '在技術研討會認識的朋友',
+      tags: ['工作', '朋友'],
+      relationshipStatus: 'collected',
+      isMyFriend: true,
+      isFollowingMe: false,
+      hasPendingInvitation: false,
+      isNewAddition: false,
+      isFavorite: true
+    },
+    {
+      id: 2,
+      name: '李大華',
+      phone: '0987-654-321',
+      email: 'li.dahua@example.com',
+      company: '創新設計工作室',
+      jobTitle: '設計總監',
+      photo: getRandomProfessionalAvatar(2),
+      hasCard: true,
+      addedDate: new Date(baseDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: '合作過的設計師夥伴',
+      tags: ['工作', '合作夥伴'],
+      relationshipStatus: 'collected',
+      isMyFriend: true,
+      isFollowingMe: false,
+      hasPendingInvitation: false,
+      isNewAddition: false,
+      isFavorite: false
+    }
+  ];
+};
 
 const mockRecommendedContacts: RecommendedContact[] = generateMockRecommendedContacts(5);
 
@@ -61,7 +128,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
   const filteredCustomers = localCustomers.filter(customer => {
     const searchRegex = new RegExp(searchQuery, 'i');
-    const matchesSearch = searchRegex.test(customer.name) || searchRegex.test(customer.company) || searchRegex.test(customer.jobTitle);
+    const matchesSearch = searchRegex.test(customer.name) || searchRegex.test(customer.company || '') || searchRegex.test(customer.jobTitle || '');
 
     const matchesFilter = Object.keys(filter).every(key => {
       if (key === 'relationshipStatus' && filter.relationshipStatus) {
@@ -212,38 +279,29 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             </Button>
           </div>
 
-          {/* Filter Options (Conditionally Rendered) */}
+          {/* Filter Options */}
           {isFilterOpen && (
             <div className="mt-2 space-y-2">
-              {/* Relationship Status Filter */}
               <div>
                 <h4 className="text-sm font-medium text-gray-700">關係狀態</h4>
                 <div className="flex items-center space-x-2">
                   <Button
-                    variant={filter.relationshipStatus === 'lead' ? 'default' : 'outline'}
+                    variant={filter.relationshipStatus === 'collected' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setFilter({ ...filter, relationshipStatus: 'lead' })}
+                    onClick={() => setFilter({ ...filter, relationshipStatus: 'collected' })}
                   >
-                    潛在客戶
+                    已收藏
                   </Button>
                   <Button
-                    variant={filter.relationshipStatus === 'prospect' ? 'default' : 'outline'}
+                    variant={filter.relationshipStatus === 'addedMe' ? 'default' : 'outline'}
                     size="sm"
-                    onClick={() => setFilter({ ...filter, relationshipStatus: 'prospect' })}
+                    onClick={() => setFilter({ ...filter, relationshipStatus: 'addedMe' })}
                   >
-                    機會客戶
-                  </Button>
-                  <Button
-                    variant={filter.relationshipStatus === 'customer' ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ ...filter, relationshipStatus: 'customer' })}
-                  >
-                    正式客戶
+                    加我名片
                   </Button>
                 </div>
               </div>
 
-              {/* Has Card Filter */}
               <div>
                 <h4 className="text-sm font-medium text-gray-700">名片狀態</h4>
                 <div className="flex items-center space-x-2">
@@ -264,7 +322,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 </div>
               </div>
 
-              {/* Clear Filter Button */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -284,11 +341,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 <CustomerCard
                   key={customer.id}
                   customer={customer}
-                  onCardClick={() => setExpandedCardId(customer.id)}
-                  onMessage={() => handleCardAction('message', customer)}
-                  onPhone={() => handleCardAction('phone', customer)}
-                  onMail={() => handleCardAction('mail', customer)}
-                  onCalendar={() => handleCardAction('calendar', customer)}
+                  onClick={() => setExpandedCardId(customer.id)}
+                  onAddFollower={() => {}}
+                  onPhoneClick={handlePhoneClick}
+                  onLineClick={handleLineClick}
                 />
               ))}
             </div>
@@ -312,11 +368,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
       {/* Expanded Card Modal */}
       {expandedCardId !== null && (
         <ExpandedCard
-          customer={localCustomers.find(c => c.id === expandedCardId)}
-          onClose={() => setExpandedCardId(null)}
-          onRemove={removeCustomer}
-          onArchive={archiveCustomer}
-          onEdit={editCustomer}
+          customer={localCustomers.find(c => c.id === expandedCardId)!}
+          activeSection="cards"
+          onToggleFavorite={() => {}}
+          onAddFollower={() => {}}
+          onIgnoreFollower={() => {}}
+          onPhoneClick={handlePhoneClick}
+          onLineClick={handleLineClick}
+          onSendInvitation={() => {}}
+          onAddTag={() => {}}
+          onRemoveTag={() => {}}
+          onSaveCustomer={editCustomer}
+          onDeleteCustomer={removeCustomer}
+          onCollapse={() => setExpandedCardId(null)}
         />
       )}
     </div>
