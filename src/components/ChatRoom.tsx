@@ -60,20 +60,45 @@ const generateRandomCustomerName = () => {
 const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClose: () => void; cardOwnerName: string }) => {
   const [step, setStep] = useState(1);
 
-  const handleAddLineOA = () => {
+  const handleAddCardDirectly = () => {
     setStep(2);
-    // 模擬加入 LINE OA
+    // 模擬直接加入電子名片
     setTimeout(() => {
       setStep(3);
+      // 觸發名片夾更新
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: cardOwnerName, 
+          action: 'direct_add',
+          isDigitalCard: true
+        }
+      }));
+    }, 1500);
+  };
+
+  const handleJoinAipowerNetwork = () => {
+    setStep(4);
+    // 模擬加入 Aipower 名片人脈圈
+    setTimeout(() => {
+      setStep(5);
     }, 2000);
   };
 
-  const handleAddBusinessCard = () => {
-    setStep(4);
-    // 模擬加入電子名片
+  const handleFinalAddCard = () => {
+    setStep(6);
+    // 模擬最終加入電子名片
     setTimeout(() => {
       onClose();
       setStep(1);
+      
+      // 觸發名片夾更新
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: cardOwnerName, 
+          action: 'network_add',
+          isDigitalCard: true
+        }
+      }));
     }, 1500);
   };
 
@@ -82,35 +107,70 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
       <DialogContent className="max-w-sm mx-auto p-0 bg-white rounded-2xl overflow-hidden">
         {step === 1 && (
           <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
               <User className="w-8 h-8 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">
-              加入 {cardOwnerName} 的電子名片
+            <h3 className="text-lg font-bold text-gray-800 mb-4">
+              選擇加入方式
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
-              要完成加入流程，快速註冊電子名片
+            
+            <div className="space-y-3">
+              <Button 
+                onClick={handleAddCardDirectly}
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl"
+              >
+                加入 {cardOwnerName} 的電子名片
+              </Button>
+              
+              <Button 
+                onClick={handleJoinAipowerNetwork}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl"
+              >
+                加入 Aipower 名片人脈圈
+              </Button>
+            </div>
+            
+            <p className="text-xs text-gray-500 mt-4">
+              選擇您偏好的加入方式
             </p>
-            <Button 
-              onClick={handleAddLineOA}
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl"
-            >
-              加入 Aipower 名片人脈圈
-            </Button>
           </div>
         )}
 
         {step === 2 && (
           <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
-              <Zap className="w-8 h-8 text-green-500" />
+            <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
+              <UserPlus className="w-8 h-8 text-blue-500" />
             </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">正在加入...</h3>
-            <p className="text-sm text-gray-600">請稍候，正在為您加入官方帳號</p>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">正在加入電子名片...</h3>
+            <p className="text-sm text-gray-600">請稍候，正在將 {cardOwnerName} 的電子名片加入您的名片夾</p>
           </div>
         )}
 
         {step === 3 && (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-green-800 mb-2">加入成功！</h3>
+            <p className="text-sm text-gray-600">
+              {cardOwnerName} 的電子名片已加入您的電子名片夾
+            </p>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
+              <Zap className="w-8 h-8 text-green-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">正在加入...</h3>
+            <p className="text-sm text-gray-600">請稍候，正在為您加入 Aipower 名片人脈圈</p>
+          </div>
+        )}
+
+        {step === 5 && (
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <QrCode className="w-8 h-8 text-blue-500" />
@@ -122,7 +182,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
               現在可以加入 {cardOwnerName} 的電子名片到您的電子名片夾中！
             </p>
             <Button 
-              onClick={handleAddBusinessCard}
+              onClick={handleFinalAddCard}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl"
             >
               加入電子名片
@@ -130,7 +190,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
           </div>
         )}
 
-        {step === 4 && (
+        {step === 6 && (
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -318,47 +378,15 @@ const ChatRoom = () => {
     
     switch (action) {
       case 'qrcode':
-        // 直接顯示 LIFF 彈跳介面，不再顯示 QR Code 已生成訊息
+        // 直接顯示 LIFF 彈跳介面
         setCurrentCardOwner(cardData?.name || '用戶');
         setShowLIFFPopup(true);
-        
-        // 模擬 QR Code 被掃描後的流程
-        setTimeout(() => {
-          // 模擬加入 LINE OA 後在聊天室彈出 Flex message
-          const flexMessage: Message = {
-            id: Date.now(),
-            text: `🎉 歡迎加入 Aipower 名片人脈圈！請點擊加入 ${cardData?.name || '用戶'} 的電子名片。`,
-            isBot: true,
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, flexMessage]);
-        }, 5000);
         break;
         
       case 'addContact':
         // 直接觸發 LIFF 彈跳介面
         setCurrentCardOwner(cardData?.name || '用戶');
         setShowLIFFPopup(true);
-        
-        setTimeout(() => {
-          const addMessage: Message = {
-            id: Date.now(),
-            text: `🎉 ${customerName}已加入您的人脈列表！`,
-            isBot: true,
-            timestamp: new Date()
-          };
-          setMessages(prev => [...prev, addMessage]);
-          
-          // 觸發名片人脈夾同步更新（數位名片夾）
-          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-            detail: { 
-              customerName, 
-              action: 'mutual_add',
-              relationshipStatus: 'collected',
-              isDigitalCard: true
-            }
-          }));
-        }, 3000);
         break;
         
       case 'createCard':
