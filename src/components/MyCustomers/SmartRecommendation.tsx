@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { UserPlus, MessageSquare, Phone, Star, ChevronDown, ChevronRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { UserPlus, MessageSquare, Phone, Star, ChevronDown, ChevronRight, Eye } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { RecommendedContact } from './types';
 import { getRandomProfessionalAvatar } from './utils';
+import { RecommendationDetailView } from './RecommendationDetailView';
 
 interface SmartRecommendationProps {
   recommendations: RecommendedContact[];
@@ -32,10 +33,36 @@ export const SmartRecommendation: React.FC<SmartRecommendationProps> = ({
   onToggleCollapse,
   addedCount = 0
 }) => {
+  const [selectedContact, setSelectedContact] = useState<RecommendedContact | null>(null);
+  const [skippedContactIds, setSkippedContactIds] = useState<number[]>([]);
+  
   const showUpgradePrompt = addedCount >= 5;
+  const filteredRecommendations = recommendations.filter(contact => !skippedContactIds.includes(contact.id));
 
-  if (recommendations.length === 0) {
+  const handleViewContact = (contact: RecommendedContact) => {
+    setSelectedContact(contact);
+  };
+
+  const handleSkipContact = async (contactId: number) => {
+    setSkippedContactIds(prev => [...prev, contactId]);
+  };
+
+  if (filteredRecommendations.length === 0 && !showUpgradePrompt) {
     return null;
+  }
+
+  // Show detail view if a contact is selected
+  if (selectedContact) {
+    return (
+      <RecommendationDetailView
+        contact={selectedContact}
+        onClose={() => setSelectedContact(null)}
+        onAddContact={onAddRecommendation}
+        onSkipContact={handleSkipContact}
+        onToggleFavorite={onToggleFavorite}
+        isFavorite={favoriteIds.includes(selectedContact.id)}
+      />
+    );
   }
 
   return (
@@ -46,7 +73,7 @@ export const SmartRecommendation: React.FC<SmartRecommendationProps> = ({
           <div className="flex items-center space-x-2">
             <span className="text-sm font-medium text-gray-700">智能推薦</span>
             <Badge variant="secondary" className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5">
-              {recommendations.length}
+              {filteredRecommendations.length}
             </Badge>
           </div>
           {onToggleCollapse && (
@@ -68,7 +95,7 @@ export const SmartRecommendation: React.FC<SmartRecommendationProps> = ({
           <div className="relative">
             <Carousel className="w-full" opts={{ align: "start", dragFree: true }}>
               <CarouselContent className="-ml-1">
-                {recommendations.slice(0, 5).map((contact, index) => (
+                {filteredRecommendations.slice(0, 5).map((contact, index) => (
                   <CarouselItem key={contact.id} className="pl-1 basis-[160px] flex-shrink-0">
                     <Card className="shadow-sm bg-white border border-purple-200 h-16">
                       <CardContent className="p-2">
@@ -110,20 +137,20 @@ export const SmartRecommendation: React.FC<SmartRecommendationProps> = ({
                               {contact.company}
                             </div>
 
-                            {/* 推薦原因和加入按鈕 */}
+                            {/* 推薦原因和查看按鈕 */}
                             <div className="flex items-center justify-between space-x-1">
                               <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700 px-1 py-0 flex-shrink-0">
                                 {contact.reason}
                               </Badge>
                               
                               <Button
-                                onClick={() => onAddRecommendation(contact)}
+                                onClick={() => handleViewContact(contact)}
                                 size="sm"
                                 className="bg-purple-600 hover:bg-purple-700 text-xs h-4 px-1.5 flex-shrink-0"
                                 disabled={showUpgradePrompt && index >= 4}
                               >
-                                <UserPlus className="w-2 h-2 mr-0.5" />
-                                加入
+                                <Eye className="w-2 h-2 mr-0.5" />
+                                查看
                               </Button>
                             </div>
                           </div>
