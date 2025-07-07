@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, QrCode, UserPlus, Edit, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -89,7 +90,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
               加入 {cardOwnerName} 的電子名片
             </h3>
             <p className="text-sm text-gray-600 mb-6">
-              要完成加入流程，請先加入 Aipower 名片人脈圈 LINE 官方帳號
+              要完成加入流程，快速註冊電子名片
             </p>
             <Button 
               onClick={handleAddLineOA}
@@ -119,7 +120,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
               加入 {cardOwnerName} 的名片
             </h3>
             <p className="text-sm text-gray-600 mb-6">
-              現在可以加入 {cardOwnerName} 的電子名片到您的聯絡人中
+              現在可以加入 {cardOwnerName} 的電子名片到您的電子名片夾中！
             </p>
             <Button 
               onClick={handleAddBusinessCard}
@@ -139,7 +140,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
             </div>
             <h3 className="text-lg font-bold text-green-800 mb-2">加入成功！</h3>
             <p className="text-sm text-gray-600">
-              {cardOwnerName} 的電子名片已加入您的聯絡人
+              {cardOwnerName} 的電子名片已加入您的電子名片夾
             </p>
           </div>
         )}
