@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { ArrowLeft, Edit, Share2, Download, QrCode } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowLeft, Edit, Share2, Download, QrCode, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -22,7 +22,33 @@ interface CardPreviewProps {
 }
 
 const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) => {
-  const generateQRCode = () => {
+  const [showQRCode, setShowQRCode] = useState(true); // 預設展開
+
+  const generateQRCode = (data: string) => {
+    // 創建簡單的QR Code視覺化
+    const size = 8; // 8x8的簡化QR Code
+    const squares = [];
+    
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const isBlack = (i + j + data.length) % 3 === 0;
+        squares.push(
+          <div
+            key={`${i}-${j}`}
+            className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`}
+          />
+        );
+      }
+    }
+    
+    return (
+      <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
+        {squares}
+      </div>
+    );
+  };
+
+  const handleGenerateQRCode = () => {
     // 模擬生成QR Code
     const cardInfo = `名片資訊\n姓名: ${cardData.name}\n公司: ${cardData.companyName}\n電話: ${cardData.phone}\nEmail: ${cardData.email}`;
     console.log('生成QR Code:', cardInfo);
@@ -45,6 +71,15 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
     // 模擬下載名片
     console.log('下載名片');
   };
+
+  // 生成QR Code資料
+  const qrCodeData = `名片資訊
+姓名: ${cardData.name || ''}
+公司: ${cardData.companyName || ''}
+電話: ${cardData.phone || ''}
+Email: ${cardData.email || ''}
+LINE: ${cardData.line || ''}
+網站: ${cardData.website || ''}`;
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
@@ -135,6 +170,34 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
           </CardContent>
         </Card>
 
+        {/* QR Code 區塊 - 預設展開 */}
+        <Card className="mb-6 shadow-lg">
+          <CardContent className="p-4">
+            <Button
+              variant="ghost"
+              onClick={() => setShowQRCode(!showQRCode)}
+              className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
+            >
+              <div className="flex items-center">
+                <QrCode className="w-4 h-4 mr-2" />
+                <span className="font-semibold text-gray-800">我的名片 QR Code</span>
+              </div>
+              {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+            
+            {showQRCode && (
+              <div className="mt-3 text-center">
+                <div className="flex justify-center mb-3">
+                  {generateQRCode(qrCodeData)}
+                </div>
+                <p className="text-xs text-gray-600">
+                  掃描此QR Code即可獲得我的聯絡資訊
+                </p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* 操作按鈕 */}
         <div className="space-y-3">
           <Button
@@ -147,7 +210,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
 
           <div className="grid grid-cols-2 gap-3">
             <Button
-              onClick={generateQRCode}
+              onClick={handleGenerateQRCode}
               variant="outline"
               className="border-green-500 text-green-600 hover:bg-green-50"
             >
