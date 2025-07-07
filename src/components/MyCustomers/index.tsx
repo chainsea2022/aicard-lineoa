@@ -170,11 +170,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   };
 
   const addRecommendedContact = (contact: RecommendedContact) => {
+    // Generate mock public contact information for registered digital cards
+    const publicContactInfo = contact.isPublicProfile ? {
+      phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+      line: `line_${contact.name.toLowerCase()}`,
+      website: Math.random() > 0.5 ? `https://www.${contact.company?.toLowerCase().replace(/\s+/g, '')}.com` : undefined,
+      email: `${contact.name.toLowerCase()}@${contact.company?.toLowerCase().replace(/\s+/g, '')}.com`
+    } : {};
+
     const newCustomer: Customer = {
       id: Date.now(),
       name: contact.name,
-      phone: '',
-      email: '',
+      phone: publicContactInfo.phone || '',
+      email: publicContactInfo.email || '',
+      line: publicContactInfo.line || '',
+      website: publicContactInfo.website || '',
       company: contact.company,
       jobTitle: contact.jobTitle,
       photo: contact.photo,
@@ -196,7 +206,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     
     toast({ 
       title: "已加入聯絡人", 
-      description: `${contact.name} 已加入您的聯絡人列表`,
+      description: `${contact.name} 已加入您的名片夾`,
       className: "max-w-[280px] mx-auto"
     });
 

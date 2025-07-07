@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, UserPlus, Users, Building, MapPin, MessageSquare, Star, UserX } from 'lucide-react';
+import { X, UserPlus, Users, Building, MapPin, MessageSquare, Star, UserX, Phone, Globe } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -51,6 +51,14 @@ export const RecommendationDetailView: React.FC<RecommendationDetailViewProps> =
     }
   };
 
+  // Mock public contact information for registered digital cards
+  const publicContactInfo = {
+    phone: contact.isPublicProfile ? `09${Math.floor(10000000 + Math.random() * 90000000)}` : null,
+    line: contact.isPublicProfile ? `line_${contact.name.toLowerCase()}` : null,
+    website: contact.isPublicProfile && Math.random() > 0.5 ? `https://www.${contact.company?.toLowerCase().replace(/\s+/g, '')}.com` : null,
+    email: contact.isPublicProfile ? `${contact.name.toLowerCase()}@${contact.company?.toLowerCase().replace(/\s+/g, '')}.com` : null
+  };
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header */}
@@ -96,6 +104,65 @@ export const RecommendationDetailView: React.FC<RecommendationDetailViewProps> =
             </div>
           )}
         </div>
+
+        {/* Public Digital Card Information */}
+        {contact.isPublicProfile && (
+          <div className="bg-blue-50 rounded-lg p-4 mb-6">
+            <h4 className="font-semibold text-blue-800 mb-3">公開電子名片資訊</h4>
+            
+            <div className="space-y-3">
+              {/* Contact Methods */}
+              <div className="flex items-center justify-center space-x-4">
+                {publicContactInfo.website && (
+                  <div className="flex items-center space-x-1 text-purple-600">
+                    <Globe className="w-4 h-4" />
+                    <span className="text-sm">官網</span>
+                  </div>
+                )}
+                {publicContactInfo.line && (
+                  <div className="flex items-center space-x-1 text-green-600">
+                    <MessageSquare className="w-4 h-4" />
+                    <span className="text-sm">LINE</span>
+                  </div>
+                )}
+                {publicContactInfo.phone && (
+                  <div className="flex items-center space-x-1 text-blue-600">
+                    <Phone className="w-4 h-4" />
+                    <span className="text-sm">電話</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Contact Details */}
+              <div className="space-y-2 text-sm text-blue-700">
+                {publicContactInfo.phone && (
+                  <div className="flex items-center justify-between">
+                    <span>電話：</span>
+                    <span className="font-medium">{publicContactInfo.phone}</span>
+                  </div>
+                )}
+                {publicContactInfo.line && (
+                  <div className="flex items-center justify-between">
+                    <span>LINE ID：</span>
+                    <span className="font-medium">{publicContactInfo.line}</span>
+                  </div>
+                )}
+                {publicContactInfo.email && (
+                  <div className="flex items-center justify-between">
+                    <span>Email：</span>
+                    <span className="font-medium text-xs">{publicContactInfo.email}</span>
+                  </div>
+                )}
+                {publicContactInfo.website && (
+                  <div className="flex items-center justify-between">
+                    <span>網站：</span>
+                    <span className="font-medium text-xs">{publicContactInfo.website}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Recommendation Reason */}
         <div className="bg-purple-50 rounded-lg p-4 mb-6">
@@ -144,7 +211,7 @@ export const RecommendationDetailView: React.FC<RecommendationDetailViewProps> =
             <div className="space-y-2">
               <div className="flex items-center text-green-600 text-sm">
                 <Users className="w-4 h-4 mr-2" />
-                <span>公開個人檔案</span>
+                <span>已註冊電子名片</span>
               </div>
               
               {contact.allowDirectContact && (
@@ -170,8 +237,11 @@ export const RecommendationDetailView: React.FC<RecommendationDetailViewProps> =
             )}
             <p>• 先發送連結邀請，建立初步聯繫</p>
             <p>• 在專業場合或活動中自然交流</p>
-            {contact.allowDirectContact && (
-              <p>• 可直接發送訊息表達合作或交流意願</p>
+            {contact.allowDirectContact && publicContactInfo.line && (
+              <p>• 可透過 LINE 直接發送訊息表達合作意願</p>
+            )}
+            {contact.allowDirectContact && publicContactInfo.phone && (
+              <p>• 可直接撥打電話進行商務洽談</p>
             )}
           </div>
         </div>
