@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Mail, X } from 'lucide-react';
+import { ArrowLeft, Users, Mail, X, Plus, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +8,7 @@ import { toast } from '@/hooks/use-toast';
 import { CustomerCard } from './CustomerCard';
 import { ExpandedCard } from './ExpandedCard';
 import { ContactCard } from './ContactCard';
+import { ContactForm } from './ContactForm';
 import { SmartRecommendation } from './SmartRecommendation';
 import { Customer, RecommendedContact, CustomerRelationshipStatus } from './types';
 import { getRandomProfessionalAvatar } from './utils';
@@ -58,6 +58,8 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
   const [recommendedContacts, setRecommendedContacts] = useState<RecommendedContact[]>(mockRecommendedContacts);
   const [favoriteRecommendationIds, setFavoriteRecommendationIds] = useState<number[]>([]);
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<Customer | null>(null);
   const [localCustomers, setLocalCustomers] = useState<Customer[]>(() => {
     const savedCustomers = localStorage.getItem('aile-customers');
     return savedCustomers ? JSON.parse(savedCustomers) : [...customers, ...generateMockCustomers()];
@@ -262,7 +264,30 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
     }
   };
 
-  // Handle card expansion - remove new addition indicator when expanded
+  const handleCreateContact = () => {
+    setEditingContact(null);
+    setIsContactFormOpen(true);
+  };
+
+  const handleEditContact = (customer: Customer) => {
+    setEditingContact(customer);
+    setIsContactFormOpen(true);
+  };
+
+  const handleSaveContact = (customer: Customer) => {
+    if (editingContact) {
+      // Update existing contact
+      const updatedCustomers = localCustomers.map(c => 
+        c.id === editingContact.id ? { ...customer, id: editingContact.id } : c
+      );
+      updateCustomers(updatedCustomers);
+    } else {
+      // Add new contact
+      const updatedCustomers = [...localCustomers, customer];
+      updateCustomers(updatedCustomers);
+    }
+  };
+
   const handleCardClick = (customerId: number) => {
     const isExpanding = expandedCardId !== customerId;
     setExpandedCardId(isExpanding ? customerId : null);
@@ -314,6 +339,19 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 className="w-full rounded-full"
               />
             </div>
+
+            {activeTab === 'paper' && (
+              <div className="mt-3">
+                <Button
+                  onClick={handleCreateContact}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm h-8"
+                  size="sm"
+                >
+                  <Plus className="w-3 h-3 mr-2" />
+                  手動建立名片
+                </Button>
+              </div>
+            )}
 
             {activeTab === 'digital' && (
               <div className="mt-3 space-y-3">
@@ -497,6 +535,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                           customer={customer}
                           onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
                           onSendInvitation={handleSendInvitation}
+                          onEdit={() => handleEditContact(customer)}
                         />
                         {expandedCardId === customer.id && (
                           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
@@ -536,7 +575,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                     <div className="text-center py-8">
                       <Mail className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500 text-sm">沒有符合條件的聯絡人</p>
-                      <p className="text-gray-400 text-xs mt-1">使用掃描功能來新增紙本名片</p>
+                      <p className="text-gray-400 text-xs mt-1">點擊上方按鈕來建立新的聯絡人</p>
+                      <Button
+                        onClick={handleCreateContact}
+                        className="mt-3 bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                        size="sm"
+                      >
+                        <UserPlus className="w-4 h-4 mr-2" />
+                        建立第一個聯絡人
+                      </Button>
                     </div>
                   )}
                 </div>
@@ -561,6 +608,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           </div>
         </Tabs>
       </div>
+
+      {/* Contact Form Dialog */}
+      <ContactForm
+        isOpen={isContactFormOpen}
+        onClose={() => setIsContactFormOpen(false)}
+        onSave={handleSaveContact}
+        editingCustomer={editingContact}
+      />
     </div>
   );
 };
