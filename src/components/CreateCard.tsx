@@ -24,10 +24,29 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [instagram, setInstagram] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  // 在組件載入時檢查是否有現有的名片資料
+  useEffect(() => {
+    const savedCardData = localStorage.getItem('aile-card-data');
+    if (savedCardData) {
+      const cardData = JSON.parse(savedCardData);
+      setCompanyName(cardData.companyName || '');
+      setName(cardData.name || '');
+      setPhone(cardData.phone || '');
+      setEmail(cardData.email || '');
+      setWebsite(cardData.website || '');
+      setLine(cardData.line || '');
+      setFacebook(cardData.facebook || '');
+      setInstagram(cardData.instagram || '');
+      setPhoto(cardData.photo || null);
+      setIsEditing(true);
+    }
+  }, []);
 
   // 根據登入方式自動填入資料
   useEffect(() => {
-    if (userData) {
+    if (userData && !isEditing) {
       if (userData.phone) {
         setPhone(userData.phone);
       }
@@ -41,7 +60,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
         setPhoto(userData.pictureUrl);
       }
     }
-  }, [userData]);
+  }, [userData, isEditing]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -81,25 +100,33 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
     
     // Award registration points if this is first time registration
-    const existingPoints = localStorage.getItem('aile-user-points');
-    if (!existingPoints) {
-      const registrationTransaction = {
-        id: Date.now(),
-        type: 'earn',
-        points: 100,
-        description: '註冊電子名片',
-        date: new Date()
-      };
-      
-      localStorage.setItem('aile-user-points', '100');
-      localStorage.setItem('aile-points-history', JSON.stringify([registrationTransaction]));
+    if (!isEditing) {
+      const existingPoints = localStorage.getItem('aile-user-points');
+      if (!existingPoints) {
+        const registrationTransaction = {
+          id: Date.now(),
+          type: 'earn',
+          points: 100,
+          description: '註冊電子名片',
+          date: new Date()
+        };
+        
+        localStorage.setItem('aile-user-points', '100');
+        localStorage.setItem('aile-points-history', JSON.stringify([registrationTransaction]));
+      }
     }
     
     toast({
-      title: "電子名片建立成功！",
-      description: "您的名片已經建立完成，獲得 100 點數獎勵！",
+      title: isEditing ? "電子名片更新成功！" : "電子名片建立成功！",
+      description: isEditing ? "您的名片已經更新完成" : "您的名片已經建立完成，獲得 100 點數獎勵！",
     });
 
+    // 儲存後自動顯示完整預覽
+    setShowPreview(true);
+  };
+
+  const handlePreviewClose = () => {
+    setShowPreview(false);
     if (onRegistrationComplete) {
       onRegistrationComplete();
     } else {
@@ -111,7 +138,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     return (
       <CardPreview
         cardData={cardData}
-        onClose={() => setShowPreview(false)}
+        onClose={handlePreviewClose}
         onEdit={() => setShowPreview(false)}
       />
     );
@@ -131,7 +158,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">建立電子名片</h1>
+            <h1 className="font-bold text-lg">
+              {isEditing ? '編輯電子名片' : '建立電子名片'}
+            </h1>
           </div>
           <Button
             variant="ghost"
@@ -148,13 +177,22 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       {/* Form */}
       <div className="p-6">
         {/* 登入資訊提示 */}
-        {userData && (
+        {userData && !isEditing && (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-700">
               {userData.loginMethod === 'line' 
                 ? `✅ 已使用 LINE 登入，LINE ID 已自動填入`
                 : `✅ 已使用手機號碼登入，手機號碼已自動填入`
               }
+            </p>
+          </div>
+        )}
+
+        {/* 編輯模式提示 */}
+        {isEditing && (
+          <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            <p className="text-sm text-green-700">
+              📝 正在編輯您的電子名片，修改後請點擊儲存
             </p>
           </div>
         )}
@@ -191,10 +229,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="請輸入手機號碼"
-              readOnly={!!(userData?.phone)}
-              className={userData?.phone ? 'bg-gray-100' : ''}
+              readOnly={!!(userData?.phone && !isEditing)}
+              className={userData?.phone && !isEditing ? 'bg-gray-100' : ''}
             />
-            {userData?.phone && (
+            {userData?.phone && !isEditing && (
               <p className="text-xs text-gray-500 mt-1">已從登入資訊自動填入</p>
             )}
           </div>
@@ -233,10 +271,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                   value={line}
                   onChange={(e) => setLine(e.target.value)}
                   placeholder="請輸入LINE ID"
-                  readOnly={!!(userData?.lineId)}
-                  className={userData?.lineId ? 'bg-gray-100' : ''}
+                  readOnly={!!(userData?.lineId && !isEditing)}
+                  className={userData?.lineId && !isEditing ? 'bg-gray-100' : ''}
                 />
-                {userData?.lineId && (
+                {userData?.lineId && !isEditing && (
                   <p className="text-xs text-gray-500 mt-1">已從 LINE 登入資訊自動填入</p>
                 )}
               </div>
@@ -280,7 +318,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                 className="mt-2 rounded-md w-32 h-32 object-cover border"
               />
             )}
-            {userData?.pictureUrl && photo === userData.pictureUrl && (
+            {userData?.pictureUrl && photo === userData.pictureUrl && !isEditing && (
               <p className="text-xs text-gray-500 mt-1">已從 LINE 登入資訊自動填入頭像</p>
             )}
           </div>
@@ -299,7 +337,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               type="submit" 
               className="flex-1 bg-blue-500 hover:bg-blue-600 text-white"
             >
-              建立名片
+              {isEditing ? '儲存修改' : '建立名片'}
             </Button>
           </div>
         </form>
