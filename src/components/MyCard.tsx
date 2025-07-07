@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award, User, Smartphone, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -443,6 +444,26 @@ LINE: ${cardInfo.line || ''}
                     <div className="text-green-100 text-xs">請編輯名片新增聯絡資訊</div>
                   )}
                 </div>
+
+                {/* 社群資訊 */}
+                {(cardData.facebook || cardData.instagram) && (
+                  <div className="mt-3 pt-3 border-t border-green-300/50">
+                    <div className="flex flex-wrap gap-2">
+                      {cardData.facebook && (
+                        <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                          <span className="mr-1">📘</span>
+                          <span>FB: {cardData.facebook}</span>
+                        </div>
+                      )}
+                      {cardData.instagram && (
+                        <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                          <span className="mr-1">📷</span>
+                          <span>IG: {cardData.instagram}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
