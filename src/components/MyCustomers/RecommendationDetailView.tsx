@@ -212,7 +212,7 @@ export const RecommendationDetailView: React.FC<RecommendationDetailViewProps> =
             ) : (
               <>
                 <UserPlus className="w-4 h-4 mr-2" />
-                加入聯絡人
+                加入我的名片夾
               </>
             )}
           </Button>
