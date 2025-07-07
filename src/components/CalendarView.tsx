@@ -1,59 +1,41 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Plus, Clock, Users } from 'lucide-react';
+import { ArrowLeft, Calendar, ChevronLeft, ChevronRight, Plus, Clock, Users, Edit, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
 
-interface CalendarViewProps {
-  onClose: () => void;
+interface Attendee {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  relationship?: string;
+  cardId?: string;
 }
 
-interface CalendarEvent {
+interface Meeting {
   id: number;
   title: string;
   date: string;
   time: string;
+  location?: string;
+  attendees: Attendee[];
   type: 'meeting' | 'call' | 'email';
   status: 'scheduled' | 'completed' | 'cancelled';
+  description?: string;
 }
 
-const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
+interface CalendarViewProps {
+  onClose: () => void;
+  meetings: Meeting[];
+  onDateSelect: (date: string) => void;
+  onEditMeeting: (meeting: Meeting) => void;
+}
+
+const CalendarView: React.FC<CalendarViewProps> = ({ onClose, meetings, onDateSelect, onEditMeeting }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [events] = useState<CalendarEvent[]>([
-    {
-      id: 1,
-      title: '產品介紹會議',
-      date: '2024-01-15',
-      time: '14:00',
-      type: 'meeting',
-      status: 'scheduled'
-    },
-    {
-      id: 2,
-      title: '客戶電話訪談',
-      date: '2024-01-16',
-      time: '10:30',
-      type: 'call',
-      status: 'scheduled'
-    },
-    {
-      id: 3,
-      title: '跟進信件發送',
-      date: '2024-01-17',
-      time: '09:00',
-      type: 'email',
-      status: 'completed'
-    },
-    {
-      id: 4,
-      title: '月會',
-      date: '2024-01-20',
-      time: '15:00',
-      type: 'meeting',
-      status: 'scheduled'
-    }
-  ]);
 
   const monthNames = [
     '一月', '二月', '三月', '四月', '五月', '六月',
@@ -88,7 +70,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
   const getEventsForDate = (date: Date | null) => {
     if (!date) return [];
     const dateString = date.toISOString().split('T')[0];
-    return events.filter(event => event.date === dateString);
+    return meetings.filter(meeting => meeting.date === dateString);
   };
 
   const navigateMonth = (direction: 'prev' | 'next') => {
@@ -118,12 +100,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
     return getEventsForDate(date).length > 0;
   };
 
-  const getEventTypeColor = (type: CalendarEvent['type']) => {
+  const getEventTypeColor = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return 'bg-blue-500';
       case 'call': return 'bg-green-500';
       case 'email': return 'bg-purple-500';
     }
+  };
+
+  const handleDateClick = (date: Date) => {
+    setSelectedDate(date);
+  };
+
+  const handleAddMeetingToDate = (date: Date) => {
+    const dateString = date.toISOString().split('T')[0];
+    onDateSelect(dateString);
   };
 
   const days = getDaysInMonth(currentDate);
@@ -149,6 +140,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
             variant="ghost"
             size="sm"
             className="text-white hover:bg-white/20"
+            onClick={() => selectedDate && handleAddMeetingToDate(selectedDate)}
           >
             <Plus className="w-5 h-5" />
           </Button>
@@ -202,7 +194,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
                   ${isSelected(day) ? 'bg-blue-100 text-blue-700' : ''}
                   ${!day ? 'cursor-default' : ''}
                 `}
-                onClick={() => day && setSelectedDate(day)}
+                onClick={() => day && handleDateClick(day)}
               >
                 {day && (
                   <div className="h-full flex flex-col">
@@ -234,9 +226,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
         {/* Selected Date Events */}
         {selectedDate && (
           <div className="bg-white border border-gray-200 rounded-xl p-4">
-            <h3 className="font-bold text-gray-800 mb-4">
-              {selectedDate.toLocaleDateString('zh-TW')} 的行程
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-gray-800">
+                {selectedDate.toLocaleDateString('zh-TW')} 的行程
+              </h3>
+              <Button
+                size="sm"
+                onClick={() => handleAddMeetingToDate(selectedDate)}
+                className="bg-blue-500 hover:bg-blue-600"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                新增會議
+              </Button>
+            </div>
             
             {selectedDateEvents.length === 0 ? (
               <p className="text-gray-500 text-center py-4">此日期沒有安排行程</p>
@@ -245,21 +247,61 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
                 {selectedDateEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
+                    className="p-3 bg-gray-50 rounded-lg"
                   >
-                    <div className={`w-3 h-3 rounded-full ${getEventTypeColor(event.type)}`} />
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-800">{event.title}</h4>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Clock className="w-3 h-3" />
-                        <span>{event.time}</span>
-                        <span className="capitalize">
-                          {event.type === 'meeting' ? '會議' : event.type === 'call' ? '通話' : '信件'}
-                        </span>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-3">
+                        <div className={`w-3 h-3 rounded-full ${getEventTypeColor(event.type)}`} />
+                        <div>
+                          <h4 className="font-medium text-gray-800">{event.title}</h4>
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Clock className="w-3 h-3" />
+                            <span>{event.time}</span>
+                            {event.location && (
+                              <>
+                                <MapPin className="w-3 h-3" />
+                                <span>{event.location}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
                       </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onEditMeeting(event)}
+                      >
+                        <Edit className="w-3 h-3" />
+                      </Button>
                     </div>
+                    
+                    {event.attendees.length > 0 && (
+                      <div className="mt-2">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Users className="w-3 h-3" />
+                          <span>{event.attendees.length} 位參與者</span>
+                        </div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {event.attendees.map((attendee, index) => (
+                            <span
+                              key={index}
+                              className="bg-blue-100 text-blue-700 px-2 py-1 rounded-full text-xs"
+                            >
+                              {attendee.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {event.description && (
+                      <div className="mt-2 text-sm text-gray-600">
+                        {event.description}
+                      </div>
+                    )}
+                    
                     <div className={`
-                      px-2 py-1 rounded-full text-xs font-medium
+                      mt-2 px-2 py-1 rounded-full text-xs font-medium inline-block
                       ${event.status === 'scheduled' ? 'bg-yellow-100 text-yellow-700' : ''}
                       ${event.status === 'completed' ? 'bg-green-100 text-green-700' : ''}
                       ${event.status === 'cancelled' ? 'bg-red-100 text-red-700' : ''}
@@ -278,6 +320,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
           <Button
             variant="outline"
             className="h-16 flex flex-col items-center justify-center space-y-1"
+            onClick={() => selectedDate && handleAddMeetingToDate(selectedDate)}
           >
             <Users className="w-5 h-5" />
             <span className="text-xs">新增會議</span>
@@ -305,19 +348,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose }) => {
           <div className="grid grid-cols-3 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-blue-600">
-                {events.filter(e => e.type === 'meeting').length}
+                {meetings.filter(e => e.type === 'meeting').length}
               </div>
               <div className="text-xs text-gray-600">會議</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
-                {events.filter(e => e.type === 'call').length}
+                {meetings.filter(e => e.type === 'call').length}
               </div>
               <div className="text-xs text-gray-600">通話</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-purple-600">
-                {events.filter(e => e.type === 'email').length}
+                {meetings.filter(e => e.type === 'email').length}
               </div>
               <div className="text-xs text-gray-600">信件</div>
             </div>

@@ -91,6 +91,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const [showEmailComposer, setShowEmailComposer] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showReminder, setShowReminder] = useState<Meeting | null>(null);
+  const [calendarSelectedDate, setCalendarSelectedDate] = useState<string>('');
 
   const handleCreateMeeting = () => {
     if (newMeeting.title && newMeeting.date && newMeeting.time) {
@@ -180,6 +181,13 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     });
   };
 
+  const handleCalendarDateSelect = (date: string) => {
+    setCalendarSelectedDate(date);
+    setNewMeeting(prev => ({ ...prev, date }));
+    setShowCalendar(false);
+    setShowNewMeeting(true);
+  };
+
   const handleShowReminder = (meeting: Meeting) => {
     setShowReminder(meeting);
   };
@@ -235,7 +243,14 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   }
 
   if (showCalendar) {
-    return <CalendarView onClose={() => setShowCalendar(false)} />;
+    return (
+      <CalendarView 
+        onClose={() => setShowCalendar(false)} 
+        meetings={meetings}
+        onDateSelect={handleCalendarDateSelect}
+        onEditMeeting={handleEditMeeting}
+      />
+    );
   }
 
   if (showReminder) {
