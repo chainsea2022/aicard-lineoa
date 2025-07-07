@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Search, Mail, Users, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -143,7 +142,7 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({ onClose, onRecipi
         </div>
       </div>
 
-      <div className="p-3 space-y-3 pb-20">
+      <div className="p-3 space-y-3 pb-24">
         {/* 已選收件人 */}
         {selectedRecipients.length > 0 && (
           <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
@@ -316,20 +315,20 @@ const RecipientSelector: React.FC<RecipientSelectorProps> = ({ onClose, onRecipi
         </div>
       )}
 
-      {/* 底部確認按鈕 - 優化手機版 */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 safe-area-pb">
-        <div className="flex space-x-2">
+      {/* 底部確認按鈕 - 手機版優化 */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 shadow-lg">
+        <div className="flex space-x-2 max-w-sm mx-auto">
           <Button
             variant="outline"
             onClick={onClose}
-            className="flex-1 h-11 text-sm font-medium"
+            className="flex-1 h-10 text-sm font-medium border-gray-300"
           >
             取消
           </Button>
           <Button
             onClick={handleConfirm}
             disabled={selectedRecipients.length === 0}
-            className="flex-1 bg-purple-500 hover:bg-purple-600 h-11 text-sm font-medium"
+            className="flex-1 bg-purple-500 hover:bg-purple-600 h-10 text-sm font-medium"
           >
             確認選擇 ({selectedRecipients.length})
           </Button>
