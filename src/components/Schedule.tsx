@@ -7,6 +7,7 @@ import EmailComposer from './EmailComposer';
 import CalendarView from './CalendarView';
 import AttendeeManager from './AttendeeManager';
 import MeetingReminder from './MeetingReminder';
+import RecipientSelector from './RecipientSelector';
 
 interface ScheduleProps {
   onClose: () => void;
@@ -89,14 +90,60 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     description: ''
   });
   const [showEmailComposer, setShowEmailComposer] = useState(false);
+  const [showRecipientSelector, setShowRecipientSelector] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
   const [showReminder, setShowReminder] = useState<Meeting | null>(null);
   const [calendarSelectedDate, setCalendarSelectedDate] = useState<string>('');
 
+  const generateMeetingSuggestions = (attendees: Attendee[]) => {
+    if (attendees.length === 0) return { title: '', description: '' };
+
+    const companies = [...new Set(attendees.map(a => a.company).filter(Boolean))];
+    const relationships = [...new Set(attendees.map(a => a.relationship).filter(Boolean))];
+    
+    let suggestedTitle = '';
+    let suggestedDescription = '';
+
+    if (companies.length === 1) {
+      suggestedTitle = `與 ${companies[0]} 的會議`;
+    } else if (attendees.length === 1) {
+      suggestedTitle = `與 ${attendees[0].name} 的會議`;
+    } else {
+      suggestedTitle = `多方會議 (${attendees.length} 位參與者)`;
+    }
+
+    if (relationships.includes('潛在客戶')) {
+      suggestedDescription = '產品介紹與需求了解會議';
+    } else if (relationships.includes('現有客戶')) {
+      suggestedDescription = '客戶關係維護與服務討論';
+    } else if (relationships.includes('決策者')) {
+      suggestedDescription = '重要決策討論會議';
+    } else {
+      suggestedDescription = `與 ${attendees.map(a => a.name).join('、')} 的商務會議`;
+    }
+
+    return { title: suggestedTitle, description: suggestedDescription };
+  };
+
+  const handleAttendeesChange = (attendees: Attendee[]) => {
+    setNewMeeting(prev => ({ ...prev, attendees }));
+    
+    if (!newMeeting.title && !newMeeting.description) {
+      const suggestions = generateMeetingSuggestions(attendees);
+      setNewMeeting(prev => ({
+        ...prev,
+        attendees,
+        title: suggestions.title,
+        description: suggestions.description
+      }));
+    } else {
+      setNewMeeting(prev => ({ ...prev, attendees }));
+    }
+  };
+
   const handleCreateMeeting = () => {
     if (newMeeting.title && newMeeting.date && newMeeting.time) {
       if (editingMeeting) {
-        // Update existing meeting
         const updatedMeeting: Meeting = {
           ...editingMeeting,
           title: newMeeting.title,
@@ -119,7 +166,6 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
         
         setEditingMeeting(null);
       } else {
-        // Create new meeting
         const meeting: Meeting = {
           id: meetings.length + 1,
           title: newMeeting.title,
@@ -242,6 +288,18 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     return <EmailComposer onClose={() => setShowEmailComposer(false)} />;
   }
 
+  if (showRecipientSelector) {
+    return (
+      <RecipientSelector 
+        onClose={() => setShowRecipientSelector(false)}
+        onRecipientsSelected={(recipients) => {
+          setShowRecipientSelector(false);
+          setShowEmailComposer(true);
+        }}
+      />
+    );
+  }
+
   if (showCalendar) {
     return (
       <CalendarView 
@@ -313,7 +371,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             <span className="text-xs">新增會議</span>
           </Button>
           <Button
-            onClick={() => setShowEmailComposer(true)}
+            onClick={() => setShowRecipientSelector(true)}
             variant="outline"
             className="h-16 flex flex-col items-center justify-center space-y-1"
           >
@@ -460,6 +518,32 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             </h3>
             
             <div className="space-y-4">
+              <AttendeeManager
+                attendees={newMeeting.attendees}
+                onAttendeesChange={handleAttendeesChange}
+              />
+
+              {newMeeting.attendees.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <p className="text-sm text-blue-700 mb-2">💡 根據參與者建議：</p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      const suggestions = generateMeetingSuggestions(newMeeting.attendees);
+                      setNewMeeting(prev => ({
+                        ...prev,
+                        title: suggestions.title,
+                        description: suggestions.description
+                      }));
+                    }}
+                    className="text-xs"
+                  >
+                    使用建議標題與描述
+                  </Button>
+                </div>
+              )}
+              
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   會議標題
@@ -468,6 +552,19 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   value={newMeeting.title}
                   onChange={(e) => setNewMeeting(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="輸入會議標題"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  會議描述
+                </label>
+                <textarea
+                  value={newMeeting.description}
+                  onChange={(e) => setNewMeeting(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="描述會議目的、議程等"
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  rows={3}
                 />
               </div>
               
@@ -504,24 +601,6 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   placeholder="會議地點或線上會議連結"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  會議描述 (選填)
-                </label>
-                <textarea
-                  value={newMeeting.description}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="描述會議目的、議程等"
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={3}
-                />
-              </div>
-              
-              <AttendeeManager
-                attendees={newMeeting.attendees}
-                onAttendeesChange={(attendees) => setNewMeeting(prev => ({ ...prev, attendees }))}
-              />
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
