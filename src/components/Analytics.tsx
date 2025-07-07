@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, TrendingUp, Users, Eye, Share2, Calendar, QrCode, Nfc, UserPlus, MousePointer, Network } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -57,6 +56,31 @@ const Analytics: React.FC<AnalyticsProps> = ({ onClose }) => {
       { name: '產品發表會', participants: 67, connections: 34 },
       { name: '行銷研討會', participants: 32, connections: 18 },
     ]
+  };
+
+  // Calculate total for percentage calculation
+  const totalSourceValue = sourceData.reduce((sum, item) => sum + item.value, 0);
+
+  // Custom label function for pie chart
+  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="white" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central"
+        fontSize="12"
+        fontWeight="bold"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
   };
 
   const getPeriodText = () => {
@@ -153,44 +177,109 @@ const Analytics: React.FC<AnalyticsProps> = ({ onClose }) => {
               </div>
             </div>
 
-            {/* Charts Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
+            {/* Charts Overview - Mobile Optimized */}
+            <div className="space-y-6">
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">名片來源比例</h3>
-                <ChartContainer config={{}} className="h-48">
-                  <PieChart>
-                    <Pie
-                      data={sourceData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={40}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {sourceData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                  <div className="flex-1">
+                    <ChartContainer config={{}} className="h-56 w-full">
+                      <PieChart>
+                        <Pie
+                          data={sourceData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={renderCustomLabel}
+                          outerRadius={80}
+                          innerRadius={30}
+                          paddingAngle={2}
+                          dataKey="value"
+                        >
+                          {sourceData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip 
+                          content={({ active, payload }) => {
+                            if (active && payload && payload.length) {
+                              const data = payload[0];
+                              const percentage = ((data.value as number) / totalSourceValue * 100).toFixed(1);
+                              return (
+                                <div className="bg-white p-2 border border-gray-200 rounded shadow-lg">
+                                  <p className="font-medium">{data.name}</p>
+                                  <p className="text-blue-600">{data.value} 張 ({percentage}%)</p>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                      </PieChart>
+                    </ChartContainer>
+                  </div>
+                  <div className="lg:w-48">
+                    <div className="space-y-2">
+                      {sourceData.map((source, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center space-x-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: source.color }}></div>
+                            <span className="text-gray-700">{source.name}</span>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-bold">{source.value}</div>
+                            <div className="text-xs text-gray-500">{((source.value / totalSourceValue) * 100).toFixed(1)}%</div>
+                          </div>
+                        </div>
                       ))}
-                    </Pie>
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                  </PieChart>
-                </ChartContainer>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-xl p-6">
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
                 <h3 className="text-lg font-bold text-gray-800 mb-4">每日新增趨勢</h3>
-                <ChartContainer config={{}} className="h-48">
-                  <LineChart data={dailyNewCards}>
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Line type="monotone" dataKey="cards" stroke="#3B82F6" strokeWidth={2} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartContainer config={{}} className="h-64 w-full">
+                  <LineChart data={dailyNewCards} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                    <XAxis 
+                      dataKey="date" 
+                      tick={{ fontSize: 12 }}
+                      axisLine={{ stroke: '#e5e7eb' }}
+                      tickLine={{ stroke: '#e5e7eb' }}
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      axisLine={{ stroke: '#e5e7eb' }}
+                      tickLine={{ stroke: '#e5e7eb' }}
+                    />
+                    <Line 
+                      type="monotone" 
+                      dataKey="cards" 
+                      stroke="#3B82F6" 
+                      strokeWidth={3}
+                      dot={{ fill: '#3B82F6', strokeWidth: 2, r: 4 }}
+                      activeDot={{ r: 6, stroke: '#3B82F6', strokeWidth: 2, fill: '#fff' }}
+                    />
+                    <ChartTooltip 
+                      content={({ active, payload, label }) => {
+                        if (active && payload && payload.length) {
+                          return (
+                            <div className="bg-white p-3 border border-gray-200 rounded shadow-lg">
+                              <p className="font-medium text-gray-800">{label}</p>
+                              <p className="text-blue-600 font-bold">{payload[0].value} 張新增名片</p>
+                            </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
                   </LineChart>
                 </ChartContainer>
               </div>
             </div>
           </TabsContent>
 
+          {/* 名片數據 */}
           <TabsContent value="cards" className="space-y-6">
             <div className="bg-white border border-gray-200 rounded-xl p-6">
               <h3 className="text-lg font-bold text-gray-800 mb-4">名片來源詳細分析</h3>
