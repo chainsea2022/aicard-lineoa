@@ -1,12 +1,10 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Customer } from './types';
-import { getRandomProfessionalAvatar } from './utils';
 
 interface ContactCardProps {
   customer: Customer;
@@ -47,15 +45,9 @@ export const ContactCard: React.FC<ContactCardProps> = ({
   return (
     <Card className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md bg-white border border-gray-200" onClick={onClick}>
       <CardContent className="p-3">
-        <div className="flex items-center space-x-3">
-          <Avatar className="w-10 h-10 flex-shrink-0 border border-gray-300">
-            <AvatarImage src={customer.photo || getRandomProfessionalAvatar(customer.id)} alt={customer.name} />
-            <AvatarFallback className="bg-gradient-to-br from-gray-500 to-gray-600 text-white font-bold text-sm">
-              {customer.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          
+        <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
+            {/* First line: Name and tags */}
             <div className="flex items-center justify-between mb-1">
               <div className="flex items-center space-x-2 flex-1 min-w-0">
                 <h3 className="font-bold text-sm text-gray-800 truncate">{customer.name}</h3>
@@ -84,41 +76,30 @@ export const ContactCard: React.FC<ContactCardProps> = ({
                   </button>
                 )}
                 
-                {/* Contact buttons */}
+                {/* Invitation status symbols */}
                 <div className="flex items-center space-x-1">
-                  {customer.website && (
+                  {customer.phone && !customer.invitationSent && (
                     <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.open(customer.website, '_blank');
-                      }} 
-                      className="p-1 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors" 
-                      title="開啟官網"
-                    >
-                      <Globe className="w-3 h-3 text-purple-600" />
-                    </button>
-                  )}
-                  {customer.line && (
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }} 
-                      className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" 
-                      title="開啟 LINE"
-                    >
-                      <MessageSquare className="w-3 h-3 text-green-600" />
-                    </button>
-                  )}
-                  {customer.phone && (
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }} 
+                      onClick={handleSendSMS}
                       className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" 
-                      title="撥打電話"
+                      title="發送簡訊邀請"
                     >
-                      <Phone className="w-3 h-3 text-blue-600" />
+                      <Smartphone className="w-3 h-3 text-blue-600" />
                     </button>
+                  )}
+                  {customer.email && !customer.emailInvitationSent && (
+                    <button 
+                      onClick={handleSendEmail}
+                      className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" 
+                      title="發送Email邀請"
+                    >
+                      <Mail className="w-3 h-3 text-green-600" />
+                    </button>
+                  )}
+                  {isInvited && (
+                    <div className="p-1" title="已邀請">
+                      <CheckCircle className="w-3 h-3 text-green-600" />
+                    </div>
                   )}
                 </div>
                 
@@ -126,60 +107,17 @@ export const ContactCard: React.FC<ContactCardProps> = ({
               </div>
             </div>
             
-            <div className="text-xs text-gray-600 truncate mb-2">
+            {/* Second line: Company info and contact info */}
+            <div className="text-xs text-gray-600 truncate">
               {customer.company && customer.jobTitle 
                 ? `${customer.company} · ${customer.jobTitle}` 
                 : customer.company || customer.jobTitle || '無公司資訊'
               }
-            </div>
-            
-            {/* Contact information */}
-            <div className="space-y-1 mb-2">
-              {customer.phone && (
-                <div className="flex items-center text-xs text-gray-500">
-                  <Phone className="w-3 h-3 mr-1" />
-                  <span className="truncate">{customer.phone}</span>
-                </div>
-              )}
-              {customer.email && (
-                <div className="flex items-center text-xs text-gray-500">
-                  <Mail className="w-3 h-3 mr-1" />
-                  <span className="truncate">{customer.email}</span>
-                </div>
-              )}
-            </div>
-            
-            {/* Invitation buttons */}
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-2">
-                {customer.phone && !customer.invitationSent && (
-                  <Button 
-                    onClick={handleSendSMS}
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs h-6 px-2 border-blue-300 text-blue-600 hover:bg-blue-50"
-                  >
-                    <Smartphone className="w-3 h-3 mr-1" />
-                    邀請簡訊
-                  </Button>
-                )}
-                {customer.email && !customer.emailInvitationSent && (
-                  <Button 
-                    onClick={handleSendEmail}
-                    size="sm" 
-                    variant="outline" 
-                    className="text-xs h-6 px-2 border-green-300 text-green-600 hover:bg-green-50"
-                  >
-                    <Mail className="w-3 h-3 mr-1" />
-                    邀請Email
-                  </Button>
-                )}
-              </div>
-              
-              {isInvited && (
-                <Badge variant="secondary" className="text-xs px-2 py-0 h-5 bg-green-100 text-green-700">
-                  已邀請
-                </Badge>
+              {(customer.phone || customer.email) && (
+                <span className="ml-2 text-gray-400">
+                  {customer.phone && <Phone className="inline w-3 h-3 mr-1" />}
+                  {customer.email && <Mail className="inline w-3 h-3 mr-1" />}
+                </span>
               )}
             </div>
           </div>
