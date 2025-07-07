@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, QrCode, UserPlus, Edit, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -153,7 +152,7 @@ const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [activeView, setActiveView] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: '歡迎使用 AILE！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
+    { id: 1, text: '歡迎使用 Aipower！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
   ]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
