@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
 import EmailComposer from './EmailComposer';
 import CalendarView from './CalendarView';
+import AttendeeManager from './AttendeeManager';
+import MeetingReminder from './MeetingReminder';
 
 interface ScheduleProps {
   onClose: () => void;
+}
+
+interface Attendee {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  company?: string;
+  relationship?: string;
+  cardId?: string;
 }
 
 interface Meeting {
@@ -15,9 +27,12 @@ interface Meeting {
   title: string;
   date: string;
   time: string;
-  attendees: string[];
+  location?: string;
+  attendees: Attendee[];
   type: 'meeting' | 'call' | 'email';
   status: 'scheduled' | 'completed' | 'cancelled';
+  description?: string;
+  reminderSent?: boolean;
 }
 
 const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
@@ -27,25 +42,36 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       title: '產品介紹會議',
       date: '2024-01-15',
       time: '14:00',
-      attendees: ['張小明', '李小華'],
+      location: '台北辦公室會議室A',
+      attendees: [
+        { id: '1', name: '張小明', email: 'zhang@example.com', company: 'ABC公司', relationship: '潛在客戶' },
+        { id: '2', name: '李小華', email: 'li@example.com', company: 'ABC公司', relationship: '決策者' }
+      ],
       type: 'meeting',
-      status: 'scheduled'
+      status: 'scheduled',
+      description: '向客戶介紹我們的新產品功能和優勢'
     },
     {
       id: 2,
       title: '客戶電話訪談',
       date: '2024-01-16',
       time: '10:30',
-      attendees: ['王大成'],
+      attendees: [
+        { id: '3', name: '王大成', email: 'wang@example.com', company: 'XYZ企業', relationship: '現有客戶' }
+      ],
       type: 'call',
-      status: 'scheduled'
+      status: 'scheduled',
+      description: '了解客戶需求並討論合作方案'
     },
     {
       id: 3,
       title: '跟進信件發送',
       date: '2024-01-17',
       time: '09:00',
-      attendees: ['陳小美', '林志明'],
+      attendees: [
+        { id: '4', name: '陳小美', email: 'chen@example.com', company: '123科技', relationship: '聯絡人' },
+        { id: '5', name: '林志明', email: 'lin@example.com', company: '123科技', relationship: '主管' }
+      ],
       type: 'email',
       status: 'completed'
     }
@@ -57,11 +83,14 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     title: '',
     date: '',
     time: '',
-    attendees: '',
-    type: 'meeting' as Meeting['type']
+    location: '',
+    attendees: [] as Attendee[],
+    type: 'meeting' as Meeting['type'],
+    description: ''
   });
   const [showEmailComposer, setShowEmailComposer] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showReminder, setShowReminder] = useState<Meeting | null>(null);
 
   const handleCreateMeeting = () => {
     if (newMeeting.title && newMeeting.date && newMeeting.time) {
@@ -72,8 +101,10 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
           title: newMeeting.title,
           date: newMeeting.date,
           time: newMeeting.time,
-          attendees: newMeeting.attendees.split(',').map(name => name.trim()).filter(name => name),
-          type: newMeeting.type
+          location: newMeeting.location,
+          attendees: newMeeting.attendees,
+          type: newMeeting.type,
+          description: newMeeting.description
         };
         
         setMeetings(prev => prev.map(meeting => 
@@ -93,9 +124,11 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
           title: newMeeting.title,
           date: newMeeting.date,
           time: newMeeting.time,
-          attendees: newMeeting.attendees.split(',').map(name => name.trim()).filter(name => name),
+          location: newMeeting.location,
+          attendees: newMeeting.attendees,
           type: newMeeting.type,
-          status: 'scheduled'
+          status: 'scheduled',
+          description: newMeeting.description
         };
         
         setMeetings([...meetings, meeting]);
@@ -106,7 +139,15 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
         });
       }
       
-      setNewMeeting({ title: '', date: '', time: '', attendees: '', type: 'meeting' });
+      setNewMeeting({ 
+        title: '', 
+        date: '', 
+        time: '', 
+        location: '', 
+        attendees: [], 
+        type: 'meeting',
+        description: ''
+      });
       setShowNewMeeting(false);
     }
   };
@@ -117,8 +158,10 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       title: meeting.title,
       date: meeting.date,
       time: meeting.time,
-      attendees: meeting.attendees.join(', '),
-      type: meeting.type
+      location: meeting.location || '',
+      attendees: meeting.attendees,
+      type: meeting.type,
+      description: meeting.description || ''
     });
     setShowNewMeeting(true);
   };
@@ -126,7 +169,41 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const handleCloseModal = () => {
     setShowNewMeeting(false);
     setEditingMeeting(null);
-    setNewMeeting({ title: '', date: '', time: '', attendees: '', type: 'meeting' });
+    setNewMeeting({ 
+      title: '', 
+      date: '', 
+      time: '', 
+      location: '', 
+      attendees: [], 
+      type: 'meeting',
+      description: ''
+    });
+  };
+
+  const handleShowReminder = (meeting: Meeting) => {
+    setShowReminder(meeting);
+  };
+
+  const handleViewCard = (cardId: string) => {
+    toast({
+      title: "開啟電子名片",
+      description: `查看 ${cardId} 的電子名片資訊`,
+    });
+    // Here you would navigate to the card view
+  };
+
+  const handleSendReminder = (attendeeId: string, type: 'email' | 'sms') => {
+    toast({
+      title: `已發送${type === 'email' ? '郵件' : '簡訊'}提醒`,
+      description: "提醒已成功發送給參與者",
+    });
+  };
+
+  const sendMeetingInvite = (meeting: Meeting) => {
+    toast({
+      title: "會議邀請已發送",
+      description: `已向 ${meeting.attendees.length} 位參與者發送會議邀請`,
+    });
   };
 
   const getTypeIcon = (type: Meeting['type']) => {
@@ -153,20 +230,23 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     }
   };
 
-  const handleSendEmail = () => {
-    setShowEmailComposer(true);
-  };
-
-  const handleViewCalendar = () => {
-    setShowCalendar(true);
-  };
-
   if (showEmailComposer) {
     return <EmailComposer onClose={() => setShowEmailComposer(false)} />;
   }
 
   if (showCalendar) {
     return <CalendarView onClose={() => setShowCalendar(false)} />;
+  }
+
+  if (showReminder) {
+    return (
+      <MeetingReminder
+        meeting={showReminder}
+        onClose={() => setShowReminder(null)}
+        onViewCard={handleViewCard}
+        onSendReminder={handleSendReminder}
+      />
+    );
   }
 
   return (
@@ -218,7 +298,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             <span className="text-xs">新增會議</span>
           </Button>
           <Button
-            onClick={handleSendEmail}
+            onClick={() => setShowEmailComposer(true)}
             variant="outline"
             className="h-16 flex flex-col items-center justify-center space-y-1"
           >
@@ -226,7 +306,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             <span className="text-xs">發送信件</span>
           </Button>
           <Button
-            onClick={handleViewCalendar}
+            onClick={() => setShowCalendar(true)}
             variant="outline"
             className="h-16 flex flex-col items-center justify-center space-y-1"
           >
@@ -256,6 +336,12 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                       <span>{meeting.time}</span>
                     </div>
                   </div>
+                  {meeting.location && (
+                    <div className="flex items-center space-x-1 text-sm text-gray-600 mt-1">
+                      <MapPin className="w-4 h-4" />
+                      <span>{meeting.location}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="flex space-x-2">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(meeting.type)}`}>
@@ -277,16 +363,46 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     {meeting.attendees.map((attendee, index) => (
                       <span
                         key={index}
-                        className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs"
+                        className="bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs flex items-center space-x-1"
                       >
-                        {attendee}
+                        <span>{attendee.name}</span>
+                        {attendee.relationship && (
+                          <span className="bg-blue-500 text-white px-1 rounded-full text-xs">
+                            {attendee.relationship}
+                          </span>
+                        )}
                       </span>
                     ))}
                   </div>
                 </div>
               )}
+
+              {meeting.description && (
+                <div className="mb-3">
+                  <p className="text-sm text-gray-600 mb-1">會議描述：</p>
+                  <p className="text-sm text-gray-700">{meeting.description}</p>
+                </div>
+              )}
               
-              <div className="flex justify-end">
+              <div className="flex justify-between">
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleShowReminder(meeting)}
+                  >
+                    <Bell className="w-4 h-4 mr-1" />
+                    提醒
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => sendMeetingInvite(meeting)}
+                  >
+                    <Mail className="w-4 h-4 mr-1" />
+                    邀請
+                  </Button>
+                </div>
                 <Button 
                   size="sm" 
                   variant="outline"
@@ -323,7 +439,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       {/* New/Edit Meeting Modal */}
       {showNewMeeting && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold text-gray-800 mb-4">
               {editingMeeting ? '編輯行程' : '新增行程'}
             </h3>
@@ -362,17 +478,35 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   />
                 </div>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  參與者 (用逗號分隔)
+                  地點 (選填)
                 </label>
                 <Input
-                  value={newMeeting.attendees}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, attendees: e.target.value }))}
-                  placeholder="張小明, 李小華"
+                  value={newMeeting.location}
+                  onChange={(e) => setNewMeeting(prev => ({ ...prev, location: e.target.value }))}
+                  placeholder="會議地點或線上會議連結"
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  會議描述 (選填)
+                </label>
+                <textarea
+                  value={newMeeting.description}
+                  onChange={(e) => setNewMeeting(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="描述會議目的、議程等"
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                  rows={3}
+                />
+              </div>
+              
+              <AttendeeManager
+                attendees={newMeeting.attendees}
+                onAttendeesChange={(attendees) => setNewMeeting(prev => ({ ...prev, attendees }))}
+              />
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
