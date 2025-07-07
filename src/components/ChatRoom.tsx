@@ -59,33 +59,52 @@ const generateRandomCustomerName = () => {
 // 新增 LIFF 彈跳介面元件
 const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClose: () => void; cardOwnerName: string }) => {
   const [step, setStep] = useState(1);
+  
+  // 檢查用戶是否已加入
+  const isUserAdded = () => {
+    const addedUsers = JSON.parse(localStorage.getItem('addedDigitalCards') || '[]');
+    return addedUsers.includes(cardOwnerName);
+  };
 
   const handleAddCardDirectly = () => {
+    if (isUserAdded()) {
+      return; // 已加入，不做任何操作
+    }
+    
+    // 加入用戶到已加入列表
+    const addedUsers = JSON.parse(localStorage.getItem('addedDigitalCards') || '[]');
+    addedUsers.push(cardOwnerName);
+    localStorage.setItem('addedDigitalCards', JSON.stringify(addedUsers));
+    
+    // 顯示加入成功並關閉
     setStep(2);
-    // 模擬直接加入電子名片
     setTimeout(() => {
-      setStep(3);
-      // 觸發名片夾更新
+      onClose();
+      setStep(1);
+      
+      // 觸發名片夾更新 - 加到電子名片夾列表上方
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: cardOwnerName, 
           action: 'direct_add',
-          isDigitalCard: true
+          isDigitalCard: true,
+          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${cardOwnerName.charAt(0)}`,
+          lineAccount: `@${cardOwnerName.toLowerCase()}`
         }
       }));
     }, 1500);
   };
 
   const handleJoinAipowerNetwork = () => {
-    setStep(4);
+    setStep(3);
     // 模擬加入 Aipower 名片人脈圈
     setTimeout(() => {
-      setStep(5);
+      setStep(4);
     }, 2000);
   };
 
   const handleFinalAddCard = () => {
-    setStep(6);
+    setStep(5);
     // 模擬最終加入電子名片
     setTimeout(() => {
       onClose();
@@ -96,7 +115,9 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
         detail: { 
           customerName: cardOwnerName, 
           action: 'network_add',
-          isDigitalCard: true
+          isDigitalCard: true,
+          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${cardOwnerName.charAt(0)}`,
+          lineAccount: `@${cardOwnerName.toLowerCase()}`
         }
       }));
     }, 1500);
@@ -117,9 +138,17 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
             <div className="space-y-3">
               <Button 
                 onClick={handleAddCardDirectly}
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl"
+                className={`w-full py-3 rounded-xl ${
+                  isUserAdded() 
+                    ? 'bg-gray-400 text-white cursor-not-allowed' 
+                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                }`}
+                disabled={isUserAdded()}
               >
-                加入 {cardOwnerName} 的電子名片
+                {isUserAdded() 
+                  ? `已加入成功！` 
+                  : `加入 ${cardOwnerName} 的電子名片`
+                }
               </Button>
               
               <Button 
@@ -148,20 +177,6 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
 
         {step === 3 && (
           <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-green-800 mb-2">加入成功！</h3>
-            <p className="text-sm text-gray-600">
-              {cardOwnerName} 的電子名片已加入您的電子名片夾
-            </p>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
               <Zap className="w-8 h-8 text-green-500" />
             </div>
@@ -170,7 +185,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
           </div>
         )}
 
-        {step === 5 && (
+        {step === 4 && (
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <QrCode className="w-8 h-8 text-blue-500" />
@@ -190,7 +205,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
           </div>
         )}
 
-        {step === 6 && (
+        {step === 5 && (
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
