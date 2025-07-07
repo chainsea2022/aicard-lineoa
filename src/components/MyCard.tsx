@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award, User, Smartphone, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     isPublicProfile: false,
     allowDirectContact: true
   });
+  const [isNewUser, setIsNewUser] = useState(false);
 
   useEffect(() => {
     const savedCardData = localStorage.getItem('aile-card-data');
@@ -59,8 +59,51 @@ LINE: ${cardInfo.line || ''}
   }, []);
 
   const handleVerificationComplete = (phone: string) => {
+    // 手機驗證完成後創建用戶資料
+    const phoneUser = {
+      phone: phone,
+      displayName: '',
+      pictureUrl: null,
+      loginMethod: 'phone',
+      registeredAt: new Date(),
+      isVerified: true
+    };
+
+    // 儲存用戶登入資訊
+    localStorage.setItem('aile-user-data', JSON.stringify(phoneUser));
+    setUserData(phoneUser);
+    
+    // 創建預設名片資料（只包含手機號碼）
+    const defaultCardData = {
+      companyName: '',
+      name: '',
+      phone: phone,
+      email: '',
+      website: '',
+      line: '',
+      facebook: '',
+      instagram: '',
+      photo: null
+    };
+    
+    // 儲存預設名片資料
+    localStorage.setItem('aile-card-data', JSON.stringify(defaultCardData));
+    setCardData(defaultCardData);
+    
+    // 生成QR Code資料
+    const qrInfo = `名片資訊
+姓名: ${defaultCardData.name || ''}
+公司: ${defaultCardData.companyName || ''}
+電話: ${defaultCardData.phone || ''}
+Email: ${defaultCardData.email || ''}
+LINE: ${defaultCardData.line || ''}
+網站: ${defaultCardData.website || ''}`;
+    
+    setQrCodeData(qrInfo);
+    
+    // 標記為新用戶並關閉驗證界面
+    setIsNewUser(true);
     setShowOTPVerification(false);
-    setShowCreateCard(true);
   };
 
   const handleLineLogin = () => {
@@ -78,12 +121,41 @@ LINE: ${cardInfo.line || ''}
     localStorage.setItem('aile-user-data', JSON.stringify(mockLineUser));
     setUserData(mockLineUser);
     
-    // 直接進入名片建立
-    setShowCreateCard(true);
+    // 創建預設名片資料（包含LINE ID和顯示名稱）
+    const defaultCardData = {
+      companyName: '',
+      name: mockLineUser.displayName,
+      phone: '',
+      email: '',
+      website: '',
+      line: mockLineUser.lineId,
+      facebook: '',
+      instagram: '',
+      photo: mockLineUser.pictureUrl
+    };
+    
+    // 儲存預設名片資料
+    localStorage.setItem('aile-card-data', JSON.stringify(defaultCardData));
+    setCardData(defaultCardData);
+    
+    // 生成QR Code資料
+    const qrInfo = `名片資訊
+姓名: ${defaultCardData.name || ''}
+公司: ${defaultCardData.companyName || ''}
+電話: ${defaultCardData.phone || ''}
+Email: ${defaultCardData.email || ''}
+LINE: ${defaultCardData.line || ''}
+網站: ${defaultCardData.website || ''}`;
+    
+    setQrCodeData(qrInfo);
+    
+    // 標記為新用戶
+    setIsNewUser(true);
   };
 
   const handleCardCreated = () => {
     setShowCreateCard(false);
+    setIsNewUser(false);
     // 重新載入名片資料
     const savedCardData = localStorage.getItem('aile-card-data');
     if (savedCardData) {
@@ -118,6 +190,7 @@ LINE: ${cardInfo.line || ''}
     setShowSettings(false);
     setShowPoints(false);
     setShowOTPVerification(false);
+    setIsNewUser(false);
     setProfileSettings({
       isPublicProfile: false,
       allowDirectContact: true
@@ -309,6 +382,15 @@ LINE: ${cardInfo.line || ''}
       {/* 已登入用戶的名片管理介面 */}
       {userData && cardData && (
         <div className="p-4">
+          {/* 新用戶提示 */}
+          {isNewUser && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm text-green-700 font-medium">
+                🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
+              </p>
+            </div>
+          )}
+
           {/* 公開狀態顯示 */}
           <div className="mb-4">
             <Badge 
@@ -347,8 +429,8 @@ LINE: ${cardInfo.line || ''}
                     </Avatar>
                   )}
                   <div className="flex-1">
-                    <h2 className="text-lg font-bold">{cardData.name}</h2>
-                    <p className="text-green-100 text-sm">{cardData.companyName}</p>
+                    <h2 className="text-lg font-bold">{cardData.name || '請編輯名片完善資訊'}</h2>
+                    <p className="text-green-100 text-sm">{cardData.companyName || '尚未設定公司'}</p>
                   </div>
                 </div>
 
@@ -357,6 +439,9 @@ LINE: ${cardInfo.line || ''}
                   {cardData.email && <div>✉️ {cardData.email}</div>}
                   {cardData.website && <div>🌐 {cardData.website}</div>}
                   {cardData.line && <div>💬 LINE: {cardData.line}</div>}
+                  {!cardData.phone && !cardData.email && !cardData.website && !cardData.line && (
+                    <div className="text-green-100 text-xs">請編輯名片新增聯絡資訊</div>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -386,10 +471,14 @@ LINE: ${cardInfo.line || ''}
           <div className="space-y-3">
             <Button 
               onClick={() => setShowCreateCard(true)}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+              className={`w-full text-white ${
+                isNewUser 
+                  ? 'bg-green-500 hover:bg-green-600 animate-pulse' 
+                  : 'bg-blue-500 hover:bg-blue-600'
+              }`}
             >
               <Edit className="w-4 h-4 mr-2" />
-              編輯名片
+              {isNewUser ? '完善名片資訊' : '編輯名片'}
             </Button>
 
             <Button 
