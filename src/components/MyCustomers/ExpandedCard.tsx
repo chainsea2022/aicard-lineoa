@@ -18,13 +18,15 @@ import {
   Briefcase,
   Clock,
   User,
-  X
+  X,
+  Brain
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
+import { SmartRelationshipAnalysis } from './SmartRelationshipAnalysis';
 
 interface ExpandedCardProps {
   customer: Customer;
@@ -61,6 +63,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 }) => {
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
+  const [showSmartAnalysis, setShowSmartAnalysis] = useState(false);
 
   const handleSaveNotes = () => {
     onSaveCustomer(customer.id, { notes: editedNotes });
@@ -75,6 +78,16 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       day: 'numeric'
     });
   };
+
+  // 如果顯示智慧分析，返回智慧分析組件
+  if (showSmartAnalysis) {
+    return (
+      <SmartRelationshipAnalysis 
+        customer={customer} 
+        onClose={() => setShowSmartAnalysis(false)} 
+      />
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -175,6 +188,23 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           </div>
         )}
       </div>
+
+      {/* Smart Analysis Button - 只對有電子名片的聯絡人顯示 */}
+      {customer.hasCard && (
+        <div className="bg-purple-50 rounded-lg p-3">
+          <Button 
+            onClick={() => setShowSmartAnalysis(true)}
+            className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+            size="sm"
+          >
+            <Brain className="w-4 h-4 mr-2" />
+            智慧人脈分析
+          </Button>
+          <p className="text-xs text-purple-600 text-center mt-1">
+            分析關係脈絡，生成見面話題建議
+          </p>
+        </div>
+      )}
 
       {/* For paper contacts (activeSection === 'contacts'), show invitation section */}
       {activeSection === 'contacts' && (
