@@ -57,7 +57,12 @@ const generateRandomCustomerName = () => {
 };
 
 // 新增 LIFF 彈跳介面元件
-const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClose: () => void; cardOwnerName: string }) => {
+const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  cardOwnerName: string;
+  onUserJoined: (userName: string) => void;
+}) => {
   const [step, setStep] = useState(1);
   
   // 檢查用戶是否已加入
@@ -82,14 +87,18 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
       onClose();
       setStep(1);
       
+      // 生成加入者名稱並觸發聊天室訊息
+      const joinerName = generateRandomCustomerName();
+      onUserJoined(joinerName);
+      
       // 觸發名片夾更新 - 加到電子名片夾列表上方
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
-          customerName: cardOwnerName, 
+          customerName: joinerName,
           action: 'direct_add',
           isDigitalCard: true,
-          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${cardOwnerName.charAt(0)}`,
-          lineAccount: `@${cardOwnerName.toLowerCase()}`
+          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${joinerName.charAt(0)}`,
+          lineAccount: `@${joinerName.toLowerCase()}`
         }
       }));
     }, 1500);
@@ -110,14 +119,18 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClos
       onClose();
       setStep(1);
       
+      // 生成加入者名稱並觸發聊天室訊息
+      const joinerName = generateRandomCustomerName();
+      onUserJoined(joinerName);
+      
       // 觸發名片夾更新
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
-          customerName: cardOwnerName, 
+          customerName: joinerName,
           action: 'network_add',
           isDigitalCard: true,
-          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${cardOwnerName.charAt(0)}`,
-          lineAccount: `@${cardOwnerName.toLowerCase()}`
+          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${joinerName.charAt(0)}`,
+          lineAccount: `@${joinerName.toLowerCase()}`
         }
       }));
     }, 1500);
@@ -385,6 +398,17 @@ const ChatRoom = () => {
 
   const handleCustomerAdded = (customer: any) => {
     setCustomers(prev => [...prev, customer]);
+  };
+
+  // 新增處理用戶加入的函數
+  const handleUserJoined = (joinerName: string) => {
+    const joinMessage: Message = {
+      id: Date.now(),
+      text: `🎉 ${joinerName} 已加入您的電子名片！`,
+      isBot: true,
+      timestamp: new Date()
+    };
+    setMessages(prev => [...prev, joinMessage]);
   };
 
   // 處理名片內的操作
@@ -729,6 +753,7 @@ const ChatRoom = () => {
         isOpen={showLIFFPopup} 
         onClose={() => setShowLIFFPopup(false)} 
         cardOwnerName={currentCardOwner}
+        onUserJoined={handleUserJoined}
       />
     </div>
   );
