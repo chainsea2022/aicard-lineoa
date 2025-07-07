@@ -23,6 +23,15 @@ interface Attendee {
   cardId?: string;
 }
 
+interface Recipient {
+  id: string;
+  name: string;
+  email: string;
+  company?: string;
+  relationship?: string;
+  source: 'customer' | 'contact' | 'manual';
+}
+
 interface Meeting {
   id: number;
   title: string;
@@ -94,6 +103,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showReminder, setShowReminder] = useState<Meeting | null>(null);
   const [calendarSelectedDate, setCalendarSelectedDate] = useState<string>('');
+  const [selectedEmailRecipients, setSelectedEmailRecipients] = useState<Recipient[]>([]);
 
   const generateMeetingSuggestions = (attendees: Attendee[]) => {
     if (attendees.length === 0) return { title: '', description: '' };
@@ -285,7 +295,12 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   };
 
   if (showEmailComposer) {
-    return <EmailComposer onClose={() => setShowEmailComposer(false)} />;
+    return (
+      <EmailComposer 
+        onClose={() => setShowEmailComposer(false)} 
+        selectedRecipients={selectedEmailRecipients}
+      />
+    );
   }
 
   if (showRecipientSelector) {
@@ -293,6 +308,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       <RecipientSelector 
         onClose={() => setShowRecipientSelector(false)}
         onRecipientsSelected={(recipients) => {
+          setSelectedEmailRecipients(recipients);
           setShowRecipientSelector(false);
           setShowEmailComposer(true);
         }}

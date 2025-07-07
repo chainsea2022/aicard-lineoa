@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Send, Paperclip, Users, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,11 +6,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 
-interface EmailComposerProps {
-  onClose: () => void;
+interface Recipient {
+  id: string;
+  name: string;
+  email: string;
+  company?: string;
+  relationship?: string;
+  source: 'customer' | 'contact' | 'manual';
 }
 
-const EmailComposer: React.FC<EmailComposerProps> = ({ onClose }) => {
+interface EmailComposerProps {
+  onClose: () => void;
+  selectedRecipients?: Recipient[];
+}
+
+const EmailComposer: React.FC<EmailComposerProps> = ({ onClose, selectedRecipients = [] }) => {
   const [emailData, setEmailData] = useState({
     to: '',
     cc: '',
@@ -21,6 +30,24 @@ const EmailComposer: React.FC<EmailComposerProps> = ({ onClose }) => {
   });
 
   const [showCc, setShowCc] = useState(false);
+
+  // 自動填入選取的收件人電子信箱
+  useEffect(() => {
+    if (selectedRecipients.length > 0) {
+      const primaryRecipient = selectedRecipients[0].email;
+      const ccRecipients = selectedRecipients.slice(1).map(r => r.email).join(', ');
+      
+      setEmailData(prev => ({
+        ...prev,
+        to: primaryRecipient,
+        cc: ccRecipients
+      }));
+      
+      if (ccRecipients) {
+        setShowCc(true);
+      }
+    }
+  }, [selectedRecipients]);
 
   const handleSendEmail = () => {
     if (!emailData.to || !emailData.subject || !emailData.body) {
@@ -92,6 +119,24 @@ const EmailComposer: React.FC<EmailComposerProps> = ({ onClose }) => {
       </div>
 
       <div className="p-6 space-y-6">
+        {/* 顯示已選取的收件人 */}
+        {selectedRecipients.length > 0 && (
+          <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+            <h3 className="font-bold text-purple-800 mb-3 flex items-center space-x-2">
+              <Users className="w-5 h-5" />
+              <span>已選取收件人 ({selectedRecipients.length})</span>
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              {selectedRecipients.map((recipient) => (
+                <div key={recipient.id} className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm flex items-center space-x-2">
+                  <span>{recipient.name}</span>
+                  <span className="text-xs text-purple-500">({recipient.email})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Quick Templates */}
         <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
           <h3 className="font-bold text-purple-800 mb-3 flex items-center space-x-2">
