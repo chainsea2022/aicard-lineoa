@@ -7,6 +7,7 @@ import Scanner from './Scanner';
 import MyCustomers from './MyCustomers';
 import Analytics from './Analytics';
 import Schedule from './Schedule';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 
 interface MenuItem {
@@ -55,6 +56,98 @@ const generateRandomCustomerName = () => {
   return surname + name;
 };
 
+// 新增 LIFF 彈跳介面元件
+const LIFFPopup = ({ isOpen, onClose, cardOwnerName }: { isOpen: boolean; onClose: () => void; cardOwnerName: string }) => {
+  const [step, setStep] = useState(1);
+
+  const handleAddLineOA = () => {
+    setStep(2);
+    // 模擬加入 LINE OA
+    setTimeout(() => {
+      setStep(3);
+    }, 2000);
+  };
+
+  const handleAddBusinessCard = () => {
+    setStep(4);
+    // 模擬加入電子名片
+    setTimeout(() => {
+      onClose();
+      setStep(1);
+    }, 1500);
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-sm mx-auto p-0 bg-white rounded-2xl overflow-hidden">
+        {step === 1 && (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-blue-500 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <User className="w-8 h-8 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              加入 {cardOwnerName} 的電子名片
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              要完成加入流程，請先加入 Aipower 名片人脈圈 LINE 官方帳號
+            </p>
+            <Button 
+              onClick={handleAddLineOA}
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl"
+            >
+              加入 Aipower 名片人脈圈
+            </Button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
+              <Zap className="w-8 h-8 text-green-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">正在加入...</h3>
+            <p className="text-sm text-gray-600">請稍候，正在為您加入官方帳號</p>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <QrCode className="w-8 h-8 text-blue-500" />
+            </div>
+            <h3 className="text-lg font-bold text-gray-800 mb-2">
+              加入 {cardOwnerName} 的名片
+            </h3>
+            <p className="text-sm text-gray-600 mb-6">
+              現在可以加入 {cardOwnerName} 的電子名片到您的聯絡人中
+            </p>
+            <Button 
+              onClick={handleAddBusinessCard}
+              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl"
+            >
+              加入電子名片
+            </Button>
+          </div>
+        )}
+
+        {step === 4 && (
+          <div className="p-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h3 className="text-lg font-bold text-green-800 mb-2">加入成功！</h3>
+            <p className="text-sm text-gray-600">
+              {cardOwnerName} 的電子名片已加入您的聯絡人
+            </p>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [activeView, setActiveView] = useState<string | null>(null);
@@ -63,7 +156,8 @@ const ChatRoom = () => {
   ]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
-  const [showQR, setShowQR] = useState(false);
+  const [showLIFFPopup, setShowLIFFPopup] = useState(false);
+  const [currentCardOwner, setCurrentCardOwner] = useState('');
 
   useEffect(() => {
     // 監聽各種客戶事件
@@ -224,65 +318,47 @@ const ChatRoom = () => {
     
     switch (action) {
       case 'qrcode':
-        setShowQR(true);
-        const qrMessage: Message = {
-          id: Date.now(),
-          text: "QR Code 已生成！其他人可以掃描此 QR Code 來獲取您的名片。",
-          isBot: true,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, qrMessage]);
+        // 直接顯示 LIFF 彈跳介面，不再顯示 QR Code 已生成訊息
+        setCurrentCardOwner(cardData?.name || '用戶');
+        setShowLIFFPopup(true);
         
-        // 模擬 QR Code 被掃描 - 同步到名片人脈夾（數位名片夾）
+        // 模擬 QR Code 被掃描後的流程
         setTimeout(() => {
-          const scanMessage: Message = {
+          // 模擬加入 LINE OA 後在聊天室彈出 Flex message
+          const flexMessage: Message = {
             id: Date.now(),
-            text: `🎉 ${customerName}掃描了您的QR Code並想要加入您的聯絡人！`,
+            text: `🎉 歡迎加入 Aipower 名片人脈圈！請點擊加入 ${cardData?.name || '用戶'} 的電子名片。`,
             isBot: true,
             timestamp: new Date()
           };
-          setMessages(prev => [...prev, scanMessage]);
-          
-          // 觸發名片人脈夾更新 - 顯示在追蹤我的列表（數位名片夾）
-          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-            detail: { 
-              customerName, 
-              action: 'qr_scanned_me',
-              relationshipStatus: 'addedMe',
-              isDigitalCard: true  // 數位名片
-            }
-          }));
-        }, 3000);
-        
-        toast({
-          title: "QR Code 已生成！",
-          description: "其他人可以掃描此 QR Code 來獲取您的名片。"
-        });
+          setMessages(prev => [...prev, flexMessage]);
+        }, 5000);
         break;
         
       case 'addContact':
-        const addMessage: Message = {
-          id: Date.now(),
-          text: `🎉 ${customerName}已加入您的人脈列表！`,
-          isBot: true,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, addMessage]);
+        // 直接觸發 LIFF 彈跳介面
+        setCurrentCardOwner(cardData?.name || '用戶');
+        setShowLIFFPopup(true);
         
-        // 觸發名片人脈夾同步更新（數位名片夾）
-        window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-          detail: { 
-            customerName, 
-            action: 'mutual_add',
-            relationshipStatus: 'collected',
-            isDigitalCard: true  // 數位名片
-          }
-        }));
-        
-        toast({
-          title: "已加入聯絡人",
-          description: "名片已成功加入聯絡人清單。"
-        });
+        setTimeout(() => {
+          const addMessage: Message = {
+            id: Date.now(),
+            text: `🎉 ${customerName}已加入您的人脈列表！`,
+            isBot: true,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, addMessage]);
+          
+          // 觸發名片人脈夾同步更新（數位名片夾）
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: { 
+              customerName, 
+              action: 'mutual_add',
+              relationshipStatus: 'collected',
+              isDigitalCard: true
+            }
+          }));
+        }, 3000);
         break;
         
       case 'createCard':
@@ -323,6 +399,30 @@ const ChatRoom = () => {
         });
         break;
     }
+  };
+
+  // 生成簡化的 QR Code 視覺效果
+  const generateQRCode = (data: string) => {
+    const size = 8;
+    const squares = [];
+    
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const isBlack = (i + j + data.length) % 3 === 0;
+        squares.push(
+          <div
+            key={`${i}-${j}`}
+            className={`w-2 h-2 ${isBlack ? 'bg-black' : 'bg-white'}`}
+          />
+        );
+      }
+    }
+    
+    return (
+      <div className="grid grid-cols-8 gap-0 p-2 bg-white border border-gray-300 rounded-lg">
+        {squares}
+      </div>
+    );
   };
 
   const renderActiveView = () => {
@@ -381,7 +481,7 @@ const ChatRoom = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           {message.isCard && message.cardData ? (
-                            /* LINE Flex Message Style Card */
+                            /* LINE Flex Message Style Card with integrated QR Code */
                             <div className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden max-w-[280px]">
                               {/* Business Card Header */}
                               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
@@ -433,15 +533,13 @@ const ChatRoom = () => {
                                 )}
                               </div>
 
-                              {/* QR Code Section */}
-                              {showQR && (
-                                <div className="p-3 text-center bg-gray-50 border-b border-gray-100">
-                                  <div className="w-16 h-16 bg-white border border-gray-200 rounded-lg mx-auto mb-1 flex items-center justify-center">
-                                    <QrCode className="w-12 h-12 text-gray-400" />
-                                  </div>
-                                  <p className="text-xs text-gray-600">掃描獲取名片</p>
+                              {/* 直接顯示 QR Code */}
+                              <div className="p-3 text-center bg-gray-50 border-b border-gray-100">
+                                <div className="flex justify-center mb-2">
+                                  {generateQRCode(JSON.stringify(message.cardData))}
                                 </div>
-                              )}
+                                <p className="text-xs text-gray-600">掃描獲取名片</p>
+                              </div>
 
                               {/* Action Buttons */}
                               <div className="p-3 bg-white space-y-2">
@@ -451,7 +549,7 @@ const ChatRoom = () => {
                                   className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
                                 >
                                   <QrCode className="w-3 h-3 mr-2" />
-                                  QR Code
+                                  分享 QR Code
                                 </Button>
                                 
                                 <Button 
@@ -582,6 +680,13 @@ const ChatRoom = () => {
           </div>
         )}
       </div>
+
+      {/* LIFF 彈跳介面 */}
+      <LIFFPopup 
+        isOpen={showLIFFPopup} 
+        onClose={() => setShowLIFFPopup(false)} 
+        cardOwnerName={currentCardOwner}
+      />
     </div>
   );
 };
