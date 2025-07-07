@@ -79,22 +79,14 @@ export const ContactCard: React.FC<ContactCardProps> = ({
                 {/* Invitation status symbols */}
                 <div className="flex items-center space-x-1">
                   {customer.phone && !customer.invitationSent && (
-                    <button 
-                      onClick={handleSendSMS}
-                      className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" 
-                      title="發送簡訊邀請"
-                    >
+                    <div className="p-1" title="可發送簡訊邀請">
                       <Smartphone className="w-3 h-3 text-blue-600" />
-                    </button>
+                    </div>
                   )}
                   {customer.email && !customer.emailInvitationSent && (
-                    <button 
-                      onClick={handleSendEmail}
-                      className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" 
-                      title="發送Email邀請"
-                    >
+                    <div className="p-1" title="可發送Email邀請">
                       <Mail className="w-3 h-3 text-green-600" />
-                    </button>
+                    </div>
                   )}
                   {isInvited && (
                     <div className="p-1" title="已邀請">

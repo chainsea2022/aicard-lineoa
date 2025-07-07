@@ -45,6 +45,12 @@ export interface RecommendedContact {
   allowDirectContact?: boolean;
 }
 
+export interface InvitationRecord {
+  type: 'sms' | 'email';
+  date: string;
+  status: 'sent' | 'joined';
+}
+
 export interface MyCustomersProps {
   onClose: () => void;
   customers: any[];

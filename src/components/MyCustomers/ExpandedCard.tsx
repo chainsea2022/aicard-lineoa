@@ -1,29 +1,46 @@
+
 import React, { useState } from 'react';
-import { ChevronUp, Phone, MessageSquare, Mail, Trash2, Save, Plus, X, Star, UserCheck, UserX, Tag as TagIcon, Globe } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { 
+  ChevronDown, 
+  Phone, 
+  Mail, 
+  MessageSquare, 
+  Globe, 
+  Facebook, 
+  Instagram, 
+  Star, 
+  StarOff, 
+  Trash2, 
+  Edit, 
+  Calendar,
+  MapPin,
+  Building,
+  Briefcase,
+  Clock,
+  User,
+  X
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { Customer } from './types';
-import { getRandomProfessionalAvatar } from './utils';
-import { toast } from '@/hooks/use-toast';
+import { InvitationSection } from './InvitationSection';
 
 interface ExpandedCardProps {
   customer: Customer;
   activeSection: 'cards' | 'contacts';
-  onToggleFavorite: (customerId: number) => void;
-  onAddFollower: (customerId: number) => void;
-  onIgnoreFollower: (customerId: number) => void;
-  onPhoneClick: (phoneNumber: string) => void;
+  onToggleFavorite: (id: number) => void;
+  onAddFollower: (id: number) => void;
+  onIgnoreFollower: (id: number) => void;
+  onPhoneClick: (phone: string) => void;
   onLineClick: (lineId: string) => void;
-  onSendInvitation: (customerId: number, type: 'sms' | 'email') => void;
-  onAddTag: (customerId: number, tag: string) => void;
-  onRemoveTag: (customerId: number, tag: string) => void;
-  onSaveCustomer: (customerId: number, updates: Partial<Customer>) => void;
-  onDeleteCustomer?: (customerId: number) => void;
+  onSendInvitation: (id: number, type: 'sms' | 'email') => void;
+  onAddTag: (id: number, tag: string) => void;
+  onRemoveTag: (id: number, tag: string) => void;
+  onSaveCustomer: (id: number, updates: Partial<Customer>) => void;
+  onDeleteCustomer: (id: number) => void;
   onCollapse: () => void;
+  invitationHistory?: Array<{type: 'sms' | 'email', date: string, status: 'sent' | 'joined'}>;
 }
 
 export const ExpandedCard: React.FC<ExpandedCardProps> = ({
@@ -39,406 +56,230 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   onRemoveTag,
   onSaveCustomer,
   onDeleteCustomer,
-  onCollapse
+  onCollapse,
+  invitationHistory = []
 }) => {
-  const [editedCustomer, setEditedCustomer] = useState<Customer>(customer);
-  const [newTag, setNewTag] = useState('');
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const [editedNotes, setEditedNotes] = useState(customer.notes || '');
 
-  const handleSave = () => {
-    onSaveCustomer(customer.id, editedCustomer);
-    setIsEditing(false);
-  };
-
-  const handleDelete = () => {
-    if (window.confirm(`確定要刪除 ${customer.name} 的資料嗎？`)) {
-      if (onDeleteCustomer) {
-        onDeleteCustomer(customer.id);
-      }
-      toast({
-        title: "已刪除",
-        description: `${customer.name} 的資料已被刪除`,
-        className: "max-w-[280px] mx-auto"
-      });
-    }
-  };
-
-  const handleAddTag = () => {
-    if (newTag.trim()) {
-      onAddTag(customer.id, newTag.trim());
-      setNewTag('');
-    }
+  const handleSaveNotes = () => {
+    onSaveCustomer(customer.id, { notes: editedNotes });
+    setIsEditingNotes(false);
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('zh-TW') + ' ' + date.toLocaleTimeString('zh-TW', { 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return date.toLocaleDateString('zh-TW', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
     });
   };
 
   return (
-    <Card className="mb-2 shadow-md bg-white border-2 border-blue-200">
-      <CardContent className="p-4">
-        {/* 頂部操作區 */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <Button
-              onClick={() => onToggleFavorite(customer.id)}
-              variant="ghost"
-              size="sm"
-              className={`p-2 ${customer.isFavorite ? 'text-yellow-500' : 'text-gray-400'}`}
-            >
-              <Star className={`w-4 h-4 ${customer.isFavorite ? 'fill-current' : ''}`} />
-            </Button>
-            <h3 className="font-bold text-lg text-gray-800">{customer.name}</h3>
+    <div className="space-y-4">
+      {/* Header with collapse button */}
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-base text-gray-800">{customer.name}</h3>
+        <Button onClick={onCollapse} variant="ghost" size="sm">
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+
+      {/* Basic Info */}
+      <div className="space-y-3">
+        {(customer.company || customer.jobTitle) && (
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Building className="w-4 h-4 flex-shrink-0" />
+            <span>{customer.company} {customer.jobTitle && `· ${customer.jobTitle}`}</span>
           </div>
-          <div className="flex items-center space-x-2">
+        )}
+
+        {customer.addedDate && (
+          <div className="flex items-center space-x-2 text-sm text-gray-600">
+            <Calendar className="w-4 h-4 flex-shrink-0" />
+            <span>加入日期：{formatDate(customer.addedDate)}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Contact Information */}
+      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+        <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
+        
+        {customer.phone && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Phone className="w-4 h-4 text-gray-500" />
+              <span className="text-sm">{customer.phone}</span>
+            </div>
             <Button
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={() => onPhoneClick(customer.phone)}
               variant="outline"
               size="sm"
               className="text-xs"
             >
-              {isEditing ? '取消編輯' : '編輯'}
+              撥打
             </Button>
-            {onDeleteCustomer && (
-              <Button
-                onClick={handleDelete}
-                variant="outline"
-                size="sm"
-                className="text-red-600 border-red-200 hover:bg-red-50 text-xs"
-              >
-                <Trash2 className="w-3 h-3" />
-              </Button>
-            )}
-            <Button
-              onClick={onCollapse}
-              variant="ghost"
-              size="sm"
-              className="p-2"
-            >
-              <ChevronUp className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* 頭像和基本信息 */}
-        <div className="flex items-start space-x-4 mb-4">
-          <Avatar className="w-16 h-16 border-2 border-blue-300">
-            <AvatarImage src={customer.photo || getRandomProfessionalAvatar(customer.id)} alt={customer.name} />
-            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold text-lg">
-              {customer.name.charAt(0)}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 space-y-2">
-            {isEditing ? (
-              <>
-                <Input
-                  value={editedCustomer.name}
-                  onChange={(e) => setEditedCustomer({...editedCustomer, name: e.target.value})}
-                  placeholder="姓名"
-                  className="text-sm"
-                />
-                <Input
-                  value={editedCustomer.company || ''}
-                  onChange={(e) => setEditedCustomer({...editedCustomer, company: e.target.value})}
-                  placeholder="公司"
-                  className="text-sm"
-                />
-                <Input
-                  value={editedCustomer.jobTitle || ''}
-                  onChange={(e) => setEditedCustomer({...editedCustomer, jobTitle: e.target.value})}
-                  placeholder="職稱"
-                  className="text-sm"
-                />
-              </>
-            ) : (
-              <>
-                <p className="text-sm text-gray-600">{customer.company}</p>
-                <p className="text-sm text-gray-600">{customer.jobTitle}</p>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* 聯絡信息 */}
-        <div className="space-y-3 mb-4">
-          <div className="flex items-center space-x-2">
-            <Phone className="w-4 h-4 text-blue-600" />
-            {isEditing ? (
-              <Input
-                value={editedCustomer.phone}
-                onChange={(e) => setEditedCustomer({...editedCustomer, phone: e.target.value})}
-                placeholder="電話號碼"
-                className="text-sm flex-1"
-              />
-            ) : (
-              <>
-                <span className="text-sm text-gray-700">{customer.phone}</span>
-                {customer.phone && (
-                  <Button
-                    onClick={() => onPhoneClick(customer.phone)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-600 hover:bg-blue-50 p-1"
-                  >
-                    撥打
-                  </Button>
-                )}
-              </>
-            )}
-          </div>
-
-          {customer.line && (
-            <div className="flex items-center space-x-2">
-              <MessageSquare className="w-4 h-4 text-green-600" />
-              {isEditing ? (
-                <Input
-                  value={editedCustomer.line || ''}
-                  onChange={(e) => setEditedCustomer({...editedCustomer, line: e.target.value})}
-                  placeholder="LINE ID"
-                  className="text-sm flex-1"
-                />
-              ) : (
-                <>
-                  <span className="text-sm text-gray-700">{customer.line}</span>
-                  <Button
-                    onClick={() => onLineClick(customer.line!)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-green-600 hover:bg-green-50 p-1"
-                  >
-                    開啟 LINE
-                  </Button>
-                </>
-              )}
-            </div>
-          )}
-
-          <div className="flex items-center space-x-2">
-            <Mail className="w-4 h-4 text-gray-600" />
-            {isEditing ? (
-              <Input
-                value={editedCustomer.email}
-                onChange={(e) => setEditedCustomer({...editedCustomer, email: e.target.value})}
-                placeholder="Email"
-                className="text-sm flex-1"
-              />
-            ) : (
-              <span className="text-sm text-gray-700">{customer.email}</span>
-            )}
-          </div>
-
-          {/* 官網資訊 */}
-          {(customer.website || isEditing) && (
-            <div className="flex items-center space-x-2">
-              <Globe className="w-4 h-4 text-purple-600" />
-              {isEditing ? (
-                <Input
-                  value={editedCustomer.website || ''}
-                  onChange={(e) => setEditedCustomer({...editedCustomer, website: e.target.value})}
-                  placeholder="官網網址"
-                  className="text-sm flex-1"
-                />
-              ) : (
-                <>
-                  <span className="text-sm text-gray-700">{customer.website}</span>
-                  {customer.website && (
-                    <Button
-                      onClick={() => window.open(customer.website, '_blank')}
-                      variant="ghost"
-                      size="sm"
-                      className="text-purple-600 hover:bg-purple-50 p-1"
-                    >
-                      開啟
-                    </Button>
-                  )}
-                </>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* 社群媒體資訊 */}
-        {(customer.facebook || customer.instagram || isEditing) && (
-          <div className="mb-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">社群媒體</h4>
-            <div className="space-y-2">
-              {/* Facebook */}
-              {(customer.facebook || isEditing) && (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-blue-600 rounded text-white text-xs flex items-center justify-center font-bold">f</div>
-                  {isEditing ? (
-                    <Input
-                      value={editedCustomer.facebook || ''}
-                      onChange={(e) => setEditedCustomer({...editedCustomer, facebook: e.target.value})}
-                      placeholder="Facebook 帳號"
-                      className="text-sm flex-1"
-                    />
-                  ) : (
-                    <>
-                      <span className="text-sm text-gray-700">{customer.facebook}</span>
-                      {customer.facebook && (
-                        <Button
-                          onClick={() => window.open(`https://facebook.com/${customer.facebook}`, '_blank')}
-                          variant="ghost"
-                          size="sm"
-                          className="text-blue-600 hover:bg-blue-50 p-1"
-                        >
-                          開啟
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-              
-              {/* Instagram */}
-              {(customer.instagram || isEditing) && (
-                <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded text-white text-xs flex items-center justify-center font-bold">@</div>
-                  {isEditing ? (
-                    <Input
-                      value={editedCustomer.instagram || ''}
-                      onChange={(e) => setEditedCustomer({...editedCustomer, instagram: e.target.value})}
-                      placeholder="Instagram 帳號"
-                      className="text-sm flex-1"
-                    />
-                  ) : (
-                    <>
-                      <span className="text-sm text-gray-700">{customer.instagram}</span>
-                      {customer.instagram && (
-                        <Button
-                          onClick={() => window.open(`https://instagram.com/${customer.instagram}`, '_blank')}
-                          variant="ghost"
-                          size="sm"
-                          className="text-pink-600 hover:bg-pink-50 p-1"
-                        >
-                          開啟
-                        </Button>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
           </div>
         )}
 
-        {/* 標籤管理 */}
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
-            <TagIcon className="w-4 h-4 mr-1" />
-            標籤
-          </h4>
-          <div className="flex flex-wrap gap-2 mb-2">
-            {customer.tags?.map(tag => (
-              <Badge key={tag} variant="secondary" className="text-xs">
+        {customer.email && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Mail className="w-4 h-4 text-gray-500" />
+              <span className="text-sm">{customer.email}</span>
+            </div>
+            <Button
+              onClick={() => window.open(`mailto:${customer.email}`)}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              寄信
+            </Button>
+          </div>
+        )}
+
+        {customer.line && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <MessageSquare className="w-4 h-4 text-gray-500" />
+              <span className="text-sm">LINE: {customer.line}</span>
+            </div>
+            <Button
+              onClick={() => onLineClick(customer.line)}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              開啟
+            </Button>
+          </div>
+        )}
+
+        {customer.website && (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Globe className="w-4 h-4 text-gray-500" />
+              <span className="text-sm">{customer.website}</span>
+            </div>
+            <Button
+              onClick={() => window.open(customer.website, '_blank')}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              開啟
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* For paper contacts (activeSection === 'contacts'), show invitation section */}
+      {activeSection === 'contacts' && (
+        <InvitationSection
+          customer={customer}
+          onSendInvitation={onSendInvitation}
+          invitationHistory={invitationHistory}
+        />
+      )}
+
+      {/* Tags */}
+      {customer.tags && customer.tags.length > 0 && (
+        <div className="space-y-2">
+          <h4 className="font-medium text-sm text-gray-800">標籤</h4>
+          <div className="flex flex-wrap gap-1">
+            {customer.tags.map((tag, index) => (
+              <Badge key={index} variant="secondary" className="text-xs">
                 {tag}
-                <button
-                  onClick={() => onRemoveTag(customer.id, tag)}
-                  className="ml-1 text-gray-500 hover:text-red-500"
-                >
-                  <X className="w-3 h-3" />
-                </button>
               </Badge>
             ))}
           </div>
-          <div className="flex space-x-2">
-            <Input
-              value={newTag}
-              onChange={(e) => setNewTag(e.target.value)}
-              placeholder="新增標籤"
-              className="text-xs flex-1"
-              onKeyPress={(e) => e.key === 'Enter' && handleAddTag()}
-            />
-            <Button onClick={handleAddTag} size="sm" variant="outline" className="text-xs">
-              <Plus className="w-3 h-3" />
-            </Button>
-          </div>
         </div>
+      )}
 
-        {/* 備註 */}
-        <div className="mb-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">備註</h4>
-          {isEditing ? (
+      {/* Notes */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium text-sm text-gray-800">備註</h4>
+          {!isEditingNotes && (
+            <Button
+              onClick={() => setIsEditingNotes(true)}
+              variant="ghost"
+              size="sm"
+              className="text-xs"
+            >
+              <Edit className="w-3 h-3 mr-1" />
+              編輯
+            </Button>
+          )}
+        </div>
+        
+        {isEditingNotes ? (
+          <div className="space-y-2">
             <Textarea
-              value={editedCustomer.notes || ''}
-              onChange={(e) => setEditedCustomer({...editedCustomer, notes: e.target.value})}
+              value={editedNotes}
+              onChange={(e) => setEditedNotes(e.target.value)}
               placeholder="輸入備註..."
-              className="text-sm resize-none"
               rows={3}
+              className="text-sm"
             />
+            <div className="flex space-x-2">
+              <Button onClick={handleSaveNotes} size="sm" className="text-xs">
+                儲存
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsEditingNotes(false);
+                  setEditedNotes(customer.notes || '');
+                }}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 bg-gray-50 rounded p-2 min-h-[2.5rem]">
+            {customer.notes || '無備註'}
+          </p>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex space-x-2 pt-2 border-t border-gray-200">
+        <Button
+          onClick={() => onToggleFavorite(customer.id)}
+          variant="outline"
+          size="sm"
+          className="flex-1 text-xs"
+        >
+          {customer.isFavorite ? (
+            <>
+              <StarOff className="w-3 h-3 mr-1" />
+              取消關注
+            </>
           ) : (
-            <p className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
-              {customer.notes || '無備註'}
-            </p>
+            <>
+              <Star className="w-3 h-3 mr-1" />
+              關注
+            </>
           )}
-        </div>
-
-        {/* 操作按鈕區 */}
-        <div className="space-y-3">
-          {/* 保存按鈕 */}
-          {isEditing && (
-            <Button onClick={handleSave} className="w-full bg-blue-600 hover:bg-blue-700 text-sm">
-              <Save className="w-4 h-4 mr-2" />
-              保存變更
-            </Button>
-          )}
-
-          {/* 電子名片夾特定操作 */}
-          {activeSection === 'cards' && customer.relationshipStatus === 'addedMe' && (
-            <div className="flex space-x-2">
-              <Button
-                onClick={() => onAddFollower(customer.id)}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-sm"
-              >
-                <UserCheck className="w-4 h-4 mr-1" />
-                加回
-              </Button>
-              <Button
-                onClick={() => onIgnoreFollower(customer.id)}
-                variant="outline"
-                className="flex-1 text-gray-600 border-gray-200 hover:bg-gray-50 text-sm"
-              >
-                <UserX className="w-4 h-4 mr-1" />
-                忽略
-              </Button>
-            </div>
-          )}
-
-          {/* 聯絡人特定操作 */}
-          {activeSection === 'contacts' && !customer.invitationSent && !customer.emailInvitationSent && (
-            <div className="flex space-x-2">
-              <Button
-                onClick={() => onSendInvitation(customer.id, 'sms')}
-                variant="outline"
-                className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50 text-sm"
-              >
-                簡訊邀請
-              </Button>
-              <Button
-                onClick={() => onSendInvitation(customer.id, 'email')}
-                variant="outline"
-                className="flex-1 text-green-600 border-green-200 hover:bg-green-50 text-sm"
-              >
-                Email邀請
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* 日期信息 */}
-        <div className="mt-4 pt-3 border-t border-gray-100 text-xs text-gray-500">
-          <p>加入時間: {formatDate(customer.addedDate)}</p>
-          {(customer.invitationDate || customer.emailInvitationDate) && (
-            <p>邀請時間: {formatDate(customer.invitationDate || customer.emailInvitationDate || '')}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </Button>
+        
+        <Button
+          onClick={() => onDeleteCustomer(customer.id)}
+          variant="outline"
+          size="sm"
+          className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+        >
+          <Trash2 className="w-3 h-3 mr-1" />
+          刪除
+        </Button>
+      </div>
+    </div>
   );
 };
