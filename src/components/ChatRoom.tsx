@@ -136,41 +136,55 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-sm mx-auto p-0 bg-white rounded-2xl overflow-hidden">
-        {step === 1 && (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
+      <DialogContent className="fixed inset-0 max-w-none max-h-none w-full h-full bg-white rounded-none overflow-hidden p-0 border-0">
+        <div className="h-full flex flex-col">
+          {step === 1 && (
+            <div className="flex-1 flex flex-col justify-center items-center p-6 text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <User className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                請加入此{cardOwnerName}電子名片卡
+              </h3>
+              <p className="text-gray-600 mb-8 text-base">
+                加入後即可獲得完整的電子名片資訊
+              </p>
+              
+              <Button 
+                onClick={handleJoinAipowerNetwork}
+                className="w-full max-w-xs bg-green-500 hover:bg-green-600 text-white py-4 rounded-xl text-base font-medium"
+              >
+                加入 Aipower 名片人脈圈
+              </Button>
             </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-4">
-              請加入此{cardOwnerName}電子名片卡
-            </h3>
-            <p className="text-sm text-gray-600 mb-6">
-              加入後即可獲得完整的電子名片資訊
-            </p>
-            
-            <Button 
-              onClick={handleJoinAipowerNetwork}
-              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl"
+          )}
+
+          {step === 2 && (
+            <div className="flex-1 flex flex-col justify-center items-center p-6 text-center">
+              <div className="w-20 h-20 bg-green-100 rounded-full mx-auto mb-6 flex items-center justify-center">
+                <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-green-800 mb-4">加LINE成功！</h3>
+              <p className="text-gray-600 text-base">
+                已成功加入 Aipower 名片人脈圈，完整電子名片已發送至您的LINE聊天室
+              </p>
+            </div>
+          )}
+          
+          {/* 關閉按鈕 */}
+          <div className="absolute top-4 right-4">
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="sm"
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200"
             >
-              加入 Aipower 名片人脈圈
+              <X className="w-4 h-4" />
             </Button>
           </div>
-        )}
-
-        {step === 2 && (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-              </svg>
-            </div>
-            <h3 className="text-lg font-bold text-green-800 mb-2">加LINE成功！</h3>
-            <p className="text-sm text-gray-600">
-              已成功加入 Aipower 名片人脈圈，完整電子名片已發送至您的LINE聊天室
-            </p>
-          </div>
-        )}
+        </div>
       </DialogContent>
     </Dialog>
   );
