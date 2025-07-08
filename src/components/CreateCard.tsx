@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, Info, ChevronDown, ChevronUp, EyeOff, Edit, Briefcase } from 'lucide-react';
+import { ArrowLeft, Eye, Info, ChevronDown, ChevronUp, EyeOff, Edit, Briefcase, MapPin, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
 import CardPreview from './CardPreview';
+import Points from './Points';
+import PointsWidget from './PointsWidget';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
@@ -24,11 +25,14 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
+  const [address, setAddress] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [line, setLine] = useState('');
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
+  const [showPoints, setShowPoints] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [showLineInstructions, setShowLineInstructions] = useState(false);
 
@@ -40,6 +44,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     phone: true,
     email: true,
     website: true,
+    address: true,
+    birthday: true,
     line: true,
     facebook: true,
     instagram: true,
@@ -110,6 +116,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       phone: fieldVisibility.phone ? phone : '',
       email: fieldVisibility.email ? email : '',
       website: fieldVisibility.website ? website : '',
+      address: fieldVisibility.address ? address : '',
+      birthday: fieldVisibility.birthday ? birthday : '',
       line: fieldVisibility.line ? line : '',
       facebook: fieldVisibility.facebook ? facebook : '',
       instagram: fieldVisibility.instagram ? instagram : '',
@@ -155,6 +163,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       phone,
       email,
       website,
+      address,
+      birthday,
       line,
       facebook,
       instagram,
@@ -204,8 +214,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     }
   };
 
+  if (showPoints) {
+    return <Points onClose={() => setShowPoints(false)} />;
+  }
+
   if (showPreview) {
-    // 使用與 MyCard 相同的名片預覽格式
     return (
       <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
         <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
@@ -274,6 +287,18 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                     <div className="flex items-center">
                       <span className="mr-2">🌐</span>
                       <span>{getFilteredCardData().website}</span>
+                    </div>
+                  )}
+                  {getFilteredCardData().address && (
+                    <div className="flex items-center">
+                      <span className="mr-2">📍</span>
+                      <span>{getFilteredCardData().address}</span>
+                    </div>
+                  )}
+                  {getFilteredCardData().birthday && (
+                    <div className="flex items-center">
+                      <span className="mr-2">🎂</span>
+                      <span>{new Date(getFilteredCardData().birthday).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}</span>
                     </div>
                   )}
                 </div>
@@ -365,6 +390,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
 
       {/* Form */}
       <div className="p-6">
+        {/* Points Widget */}
+        <PointsWidget onPointsClick={() => setShowPoints(true)} />
+
         {/* 登入資訊提示 */}
         {userData && !isEditing && (
           <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -584,6 +612,59 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               onChange={(e) => setWebsite(e.target.value)}
               placeholder="請輸入公司官網"
             />
+          </div>
+
+          {/* 地址欄位 - 新增 */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="address">地址</Label>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-500">公開</span>
+                <Switch
+                  checked={fieldVisibility.address}
+                  onCheckedChange={() => toggleFieldVisibility('address')}
+                />
+                {fieldVisibility.address ? (
+                  <Eye className="w-4 h-4 text-green-600" />
+                ) : (
+                  <EyeOff className="w-4 h-4 text-gray-400" />
+                )}
+              </div>
+            </div>
+            <Input
+              type="text"
+              id="address"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="請輸入地址"
+            />
+          </div>
+
+          {/* 生日欄位 - 新增 */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="birthday">生日 (只顯示月日)</Label>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-500">公開</span>
+                <Switch
+                  checked={fieldVisibility.birthday}
+                  onCheckedChange={() => toggleFieldVisibility('birthday')}
+                />
+                {fieldVisibility.birthday ? (
+                  <Eye className="w-4 h-4 text-green-600" />
+                ) : (
+                  <EyeOff className="w-4 h-4 text-gray-400" />
+                )}
+              </div>
+            </div>
+            <Input
+              type="date"
+              id="birthday"
+              value={birthday}
+              onChange={(e) => setBirthday(e.target.value)}
+              placeholder="請選擇生日"
+            />
+            <p className="text-xs text-gray-500">預覽時只會顯示月份和日期，不會顯示年份</p>
           </div>
 
           {/* 社群設置區塊 */}

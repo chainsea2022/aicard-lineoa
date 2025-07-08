@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ArrowLeft, Edit, Share2, Download, QrCode, ChevronUp, ChevronDown, Eye, EyeOff, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,8 @@ interface CardPreviewProps {
     phone: string;
     email: string;
     website: string;
+    address?: string;
+    birthday?: string;
     line: string;
     facebook: string;
     instagram: string;
@@ -125,6 +128,8 @@ ${cardData.jobTitle ? `職稱: ${cardData.jobTitle}` : ''}
 公司: ${cardData.companyName || ''}
 電話: ${cardData.phone || ''}
 Email: ${cardData.email || ''}
+${cardData.address ? `地址: ${cardData.address}` : ''}
+${cardData.birthday ? `生日: ${new Date(cardData.birthday).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}` : ''}
 LINE: ${cardData.line || ''}
 網站: ${cardData.website || ''}`;
 
@@ -187,6 +192,18 @@ LINE: ${cardData.line || ''}
                   <div className="flex items-center">
                     <span className="mr-2">🌐</span>
                     <span>{cardData.website}</span>
+                  </div>
+                )}
+                {cardData.address && (
+                  <div className="flex items-center">
+                    <span className="mr-2">📍</span>
+                    <span>{cardData.address}</span>
+                  </div>
+                )}
+                {cardData.birthday && (
+                  <div className="flex items-center">
+                    <span className="mr-2">🎂</span>
+                    <span>{new Date(cardData.birthday).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}</span>
                   </div>
                 )}
               </div>
