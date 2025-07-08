@@ -399,14 +399,11 @@ const ChatRoom = () => {
     setShowLIFFPopup(true);
   };
 
-  const handleCardAction = (action: string, cardData: any) => {
-    const customerName = generateRandomCustomerName();
-    
+  const handleCardAction = (action: string, cardData: any, customerName?: string) => {
     switch (action) {
       case 'saveToContacts':
         // 模擬儲存到手機聯絡人
         if (cardData?.name && cardData?.phone) {
-          // 在實際應用中，這裡會調用原生 API 來儲存聯絡人
           console.log('Saving to contacts:', {
             name: cardData.name,
             phone: cardData.phone,
@@ -416,6 +413,33 @@ const ChatRoom = () => {
           toast({
             title: "已儲存到聯絡人！",
             description: `${cardData.name} 的聯絡資訊已儲存到您的手機聯絡人中。`
+          });
+        }
+        break;
+        
+      case 'addToContacts':
+        // 處理加入聯絡人按鈕點擊
+        if (customerName) {
+          // 生成 LINE userId (scope ID)
+          const lineUserId = `U${Math.random().toString(36).substr(2, 32)}`;
+          
+          // 通知名片人脈夾新增客戶到電子名片列表
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: { 
+              customerName: customerName,
+              action: 'add_to_contacts_from_flex',
+              isDigitalCard: true,
+              profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${customerName.charAt(0)}`,
+              lineAccount: `@${customerName.toLowerCase()}`,
+              lineUserId: lineUserId, // LINE userId (scope ID)
+              hasBusinessCard: false,
+              isLineContact: true // 標記為 LINE 聯絡人
+            }
+          }));
+          
+          toast({
+            title: "已加入聯絡人！",
+            description: `${customerName} 已加入您的名片人脈夾電子名片列表。`
           });
         }
         break;
@@ -662,6 +686,7 @@ LINE: ${message.cardData.line || ''}
                                       儲存聯絡人
                                     </Button>
                                     <Button 
+                                      onClick={() => handleCardAction('addToContacts', message.cardData, (message as any).customerName)}
                                       size="sm" 
                                       className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs h-8 font-medium"
                                     >
