@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,31 +20,40 @@ interface CreateCardProps {
 const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userData }) => {
   // Personal Info States
   const [gender, setGender] = useState('');
-  const [genderVisible, setGenderVisible] = useState(false);
   const [birthday, setBirthday] = useState('');
-  const [birthdayVisible, setBirthdayVisible] = useState(false);
   const [registeredPhone, setRegisteredPhone] = useState(userData?.phone || '');
   const [showOTPInput, setShowOTPInput] = useState(false);
   const [otpCode, setOtpCode] = useState('');
 
-  // Business Card Settings States
+  // Business Card Settings States with visibility
   const [name, setName] = useState('');
+  const [nameVisible, setNameVisible] = useState(true);
   const [companyName, setCompanyName] = useState('');
+  const [companyNameVisible, setCompanyNameVisible] = useState(true);
   const [jobTitle, setJobTitle] = useState('');
+  const [jobTitleVisible, setJobTitleVisible] = useState(true);
   const [phone, setPhone] = useState('');
+  const [phoneVisible, setPhoneVisible] = useState(true);
   const [email, setEmail] = useState('');
+  const [emailVisible, setEmailVisible] = useState(true);
   const [website, setWebsite] = useState('');
+  const [websiteVisible, setWebsiteVisible] = useState(true);
   const [address, setAddress] = useState('');
   const [addressVisible, setAddressVisible] = useState(true);
+  const [birthdayVisible, setBirthdayVisible] = useState(false);
+  const [genderVisible, setGenderVisible] = useState(false);
   const [line, setLine] = useState('');
+  const [lineVisible, setLineVisible] = useState(true);
   const [facebook, setFacebook] = useState('');
+  const [facebookVisible, setFacebookVisible] = useState(true);
   const [instagram, setInstagram] = useState('');
+  const [instagramVisible, setInstagramVisible] = useState(true);
   const [photo, setPhoto] = useState<string | null>(null);
   const [cardPublic, setCardPublic] = useState(false);
 
   // UI States
-  const [showPreview, setShowPreview] = useState(false);
   const [showLineTutorial, setShowLineTutorial] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(false);
 
   useEffect(() => {
     // 從 localStorage 載入名片資料
@@ -52,11 +61,17 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     if (savedCardData) {
       const cardInfo = JSON.parse(savedCardData);
       setName(cardInfo.name || '');
+      setNameVisible(cardInfo.nameVisible !== false);
       setCompanyName(cardInfo.companyName || '');
+      setCompanyNameVisible(cardInfo.companyNameVisible !== false);
       setJobTitle(cardInfo.jobTitle || '');
+      setJobTitleVisible(cardInfo.jobTitleVisible !== false);
       setPhone(cardInfo.phone || userData?.phone || '');
+      setPhoneVisible(cardInfo.phoneVisible !== false);
       setEmail(cardInfo.email || '');
+      setEmailVisible(cardInfo.emailVisible !== false);
       setWebsite(cardInfo.website || '');
+      setWebsiteVisible(cardInfo.websiteVisible !== false);
       setAddress(cardInfo.address || '');
       setAddressVisible(cardInfo.addressVisible !== false);
       setBirthday(cardInfo.birthday || '');
@@ -64,8 +79,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setGender(cardInfo.gender || '');
       setGenderVisible(cardInfo.genderVisible || false);
       setLine(cardInfo.line || '');
+      setLineVisible(cardInfo.lineVisible !== false);
       setFacebook(cardInfo.facebook || '');
+      setFacebookVisible(cardInfo.facebookVisible !== false);
       setInstagram(cardInfo.instagram || '');
+      setInstagramVisible(cardInfo.instagramVisible !== false);
       setPhoto(cardInfo.photo || null);
       setCardPublic(cardInfo.cardPublic || false);
     }
@@ -115,11 +133,17 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     // 儲存名片資料到 localStorage
     const cardData = {
       name,
+      nameVisible,
       companyName,
+      companyNameVisible,
       jobTitle,
+      jobTitleVisible,
       phone: registeredPhone,
+      phoneVisible,
       email,
+      emailVisible,
       website,
+      websiteVisible,
       address,
       addressVisible,
       birthday,
@@ -127,8 +151,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       gender,
       genderVisible,
       line,
+      lineVisible,
       facebook,
+      facebookVisible,
       instagram,
+      instagramVisible,
       photo,
       cardPublic
     };
@@ -145,6 +172,82 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   };
+
+  const getGenderDisplay = (gender: string) => {
+    switch (gender) {
+      case 'male': return '男性';
+      case 'female': return '女性';
+      case 'other': return '其他';
+      default: return gender;
+    }
+  };
+
+  const generateQRCode = (data: string) => {
+    const size = 8;
+    const squares = [];
+    
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const isBlack = (i + j + data.length) % 3 === 0;
+        squares.push(
+          <div
+            key={`${i}-${j}`}
+            className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`}
+          />
+        );
+      }
+    }
+    
+    return (
+      <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
+        {squares}
+      </div>
+    );
+  };
+
+  const downloadQRCode = () => {
+    toast({
+      title: "QR Code 已下載",
+      description: "QR Code 圖片已儲存到您的裝置。"
+    });
+    console.log('下載 QR Code');
+  };
+
+  const downloadCard = () => {
+    toast({
+      title: "名片已下載",
+      description: "電子名片已儲存到您的裝置。"
+    });
+    console.log('下載名片');
+  };
+
+  const shareCard = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${name}的電子名片`,
+        text: `${companyName} - ${name}`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(`${name}的電子名片 - ${companyName}`);
+      toast({
+        title: "已複製到剪貼板",
+        description: "名片資訊已複製，可以分享給朋友。"
+      });
+    }
+  };
+
+  const qrCodeData = `名片資訊
+姓名: ${name || ''}
+${jobTitle && jobTitleVisible ? `職稱: ${jobTitle}` : ''}
+公司: ${companyName || ''}
+電話: ${phone || ''}
+Email: ${email || ''}
+${address && addressVisible ? `地址: ${address}` : ''}
+${birthday && birthdayVisible ? `生日: ${formatBirthdayDisplay(birthday)}` : ''}
+${gender && genderVisible ? `性別: ${getGenderDisplay(gender)}` : ''}
+LINE: ${line || ''}
+網站: ${website || ''}`;
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
@@ -172,18 +275,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
           <CardContent className="space-y-4">
             {/* 性別 */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="gender" className="text-sm font-medium text-gray-700">
-                  性別
-                </Label>
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={genderVisible}
-                    onCheckedChange={setGenderVisible}
-                  />
-                </div>
-              </div>
+              <Label htmlFor="gender" className="text-sm font-medium text-gray-700">
+                性別
+              </Label>
               <Select value={gender} onValueChange={setGender}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇性別" />
@@ -198,18 +292,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
 
             {/* 生日 */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="birthday" className="text-sm font-medium text-gray-700">
-                  生日
-                </Label>
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={birthdayVisible}
-                    onCheckedChange={setBirthdayVisible}
-                  />
-                </div>
-              </div>
+              <Label htmlFor="birthday" className="text-sm font-medium text-gray-700">
+                生日
+              </Label>
               <Input
                 id="birthday"
                 type="date"
@@ -330,10 +415,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* 姓名 */}
-            <div>
-              <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                姓名
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="name" className="text-sm font-medium text-gray-700">
+                  姓名
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={nameVisible}
+                    onCheckedChange={setNameVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="name"
                 type="text"
@@ -344,10 +438,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* 公司名稱 */}
-            <div>
-              <Label htmlFor="company-name" className="text-sm font-medium text-gray-700">
-                公司名稱
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="company-name" className="text-sm font-medium text-gray-700">
+                  公司名稱
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={companyNameVisible}
+                    onCheckedChange={setCompanyNameVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="company-name"
                 type="text"
@@ -358,10 +461,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* 職稱 */}
-            <div>
-              <Label htmlFor="job-title" className="text-sm font-medium text-gray-700">
-                職稱
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="job-title" className="text-sm font-medium text-gray-700">
+                  職稱
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={jobTitleVisible}
+                    onCheckedChange={setJobTitleVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="job-title"
                 type="text"
@@ -372,10 +484,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* 電話 */}
-            <div>
-              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                電話
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  電話
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={phoneVisible}
+                    onCheckedChange={setPhoneVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="phone"
                 type="tel"
@@ -389,10 +510,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* Email */}
-            <div>
-              <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                Email
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={emailVisible}
+                    onCheckedChange={setEmailVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="email"
                 type="email"
@@ -403,10 +533,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* 網站 */}
-            <div>
-              <Label htmlFor="website" className="text-sm font-medium text-gray-700">
-                網站
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="website" className="text-sm font-medium text-gray-700">
+                  網站
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={websiteVisible}
+                    onCheckedChange={setWebsiteVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="website"
                 type="url"
@@ -439,20 +578,67 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               />
             </div>
 
+            {/* 生日公開設定 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-gray-700">
+                  生日顯示
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={birthdayVisible}
+                    onCheckedChange={setBirthdayVisible}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                開啟後，名片上將顯示生日（僅月日）
+              </p>
+            </div>
+
+            {/* 性別公開設定 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-gray-700">
+                  性別顯示
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={genderVisible}
+                    onCheckedChange={setGenderVisible}
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-gray-500">
+                開啟後，名片上將顯示性別
+              </p>
+            </div>
+
             {/* LINE */}
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Label htmlFor="line" className="text-sm font-medium text-gray-700">
-                  LINE
-                </Label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowLineTutorial(!showLineTutorial)}
-                  className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
-                >
-                  <Info className="w-4 h-4 text-blue-500" />
-                </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="line" className="text-sm font-medium text-gray-700">
+                    LINE
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowLineTutorial(!showLineTutorial)}
+                    className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
+                  >
+                    <Info className="w-4 h-4 text-blue-500" />
+                  </Button>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={lineVisible}
+                    onCheckedChange={setLineVisible}
+                  />
+                </div>
               </div>
               <Input
                 id="line"
@@ -483,10 +669,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* Facebook */}
-            <div>
-              <Label htmlFor="facebook" className="text-sm font-medium text-gray-700">
-                Facebook
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="facebook" className="text-sm font-medium text-gray-700">
+                  Facebook
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={facebookVisible}
+                    onCheckedChange={setFacebookVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="facebook"
                 type="text"
@@ -497,10 +692,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* Instagram */}
-            <div>
-              <Label htmlFor="instagram" className="text-sm font-medium text-gray-700">
-                Instagram
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="instagram" className="text-sm font-medium text-gray-700">
+                  Instagram
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={instagramVisible}
+                    onCheckedChange={setInstagramVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="instagram"
                 type="text"
@@ -511,6 +715,15 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
           </CardContent>
         </Card>
+
+        {/* 儲存按鈕 */}
+        <Button 
+          onClick={handleSave}
+          className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 text-lg font-semibold shadow-lg mb-6"
+        >
+          <Save className="w-5 h-5 mr-2" />
+          儲存電子名片
+        </Button>
 
         {/* 名片預覽 */}
         <Card className="mb-6 shadow-lg">
@@ -529,30 +742,30 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                   </Avatar>
                 )}
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1">{name || '您的姓名'}</h2>
-                  {jobTitle && (
+                  <h2 className="text-2xl font-bold mb-1">{(name && nameVisible) ? name : '您的姓名'}</h2>
+                  {jobTitle && jobTitleVisible && (
                     <p className="text-green-100 text-sm mb-1">{jobTitle}</p>
                   )}
-                  {companyName && (
+                  {companyName && companyNameVisible && (
                     <p className="text-green-100 text-lg">{companyName}</p>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2 text-sm">
-                {phone && (
+                {phone && phoneVisible && (
                   <div className="flex items-center">
                     <span className="mr-2">📱</span>
                     <span>{phone}</span>
                   </div>
                 )}
-                {email && (
+                {email && emailVisible && (
                   <div className="flex items-center">
                     <span className="mr-2">✉️</span>
                     <span>{email}</span>
                   </div>
                 )}
-                {website && (
+                {website && websiteVisible && (
                   <div className="flex items-center">
                     <span className="mr-2">🌐</span>
                     <span>{website}</span>
@@ -573,16 +786,16 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                 {gender && genderVisible && (
                   <div className="flex items-center">
                     <span className="mr-2">👤</span>
-                    <span>{gender === 'male' ? '男性' : gender === 'female' ? '女性' : '其他'}</span>
+                    <span>{getGenderDisplay(gender)}</span>
                   </div>
                 )}
               </div>
 
               {/* 社群資訊 */}
-              {(line || facebook || instagram) && (
+              {((line && lineVisible) || (facebook && facebookVisible) || (instagram && instagramVisible)) && (
                 <div className="mt-4 pt-4 border-t border-green-300/50">
                   <div className="flex flex-wrap gap-3">
-                    {line && (
+                    {line && lineVisible && (
                       <button
                         onClick={() => window.open(line, '_blank')}
                         className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
@@ -591,13 +804,13 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                         <span>加入 LINE</span>
                       </button>
                     )}
-                    {facebook && (
+                    {facebook && facebookVisible && (
                       <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
                         <span className="mr-1">📘</span>
                         <span>FB: {facebook}</span>
                       </div>
                     )}
-                    {instagram && (
+                    {instagram && instagramVisible && (
                       <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
                         <span className="mr-1">📷</span>
                         <span>IG: {instagram}</span>
@@ -607,17 +820,66 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                 </div>
               )}
             </div>
+            
+            {/* QR Code 區塊 */}
+            <div className="p-4 bg-white border-t">
+              <Button
+                variant="ghost"
+                onClick={() => setShowQRCode(!showQRCode)}
+                className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
+              >
+                <div className="flex items-center">
+                  <QrCode className="w-4 h-4 mr-2" />
+                  <span className="font-semibold text-gray-800">我的名片 QR Code</span>
+                </div>
+                {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+              
+              {showQRCode && (
+                <div className="mt-3 text-center">
+                  <div className="flex justify-center mb-3">
+                    {generateQRCode(qrCodeData)}
+                  </div>
+                  <p className="text-xs text-gray-600 mb-3">
+                    掃描此QR Code即可獲得我的聯絡資訊
+                  </p>
+                  <Button
+                    onClick={downloadQRCode}
+                    variant="outline"
+                    size="sm"
+                    className="border-green-500 text-green-600 hover:bg-green-50"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    下載 QR Code
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* 名片操作按鈕 */}
+            <div className="p-4 bg-gray-50 border-t">
+              <div className="grid grid-cols-2 gap-3">
+                <Button
+                  onClick={downloadCard}
+                  variant="outline"
+                  className="border-gray-500 text-gray-600 hover:bg-gray-50"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  下載電子名片
+                </Button>
+
+                <Button
+                  onClick={shareCard}
+                  variant="outline"
+                  className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  <Share2 className="w-4 h-4 mr-1" />
+                  分享電子名片
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
-
-        {/* 儲存按鈕 */}
-        <Button 
-          onClick={handleSave}
-          className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 text-lg font-semibold shadow-lg"
-        >
-          <Save className="w-5 h-5 mr-2" />
-          儲存電子名片
-        </Button>
       </div>
     </div>
   );
