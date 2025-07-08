@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, QrCode, UserPlus, Edit, Share2 } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -416,16 +416,18 @@ const ChatRoom = () => {
     const customerName = generateRandomCustomerName();
     
     switch (action) {
-      case 'qrcode':
-        // 直接顯示 LIFF 彈跳介面
-        setCurrentCardOwner(cardData?.name || '用戶');
-        setShowLIFFPopup(true);
+      case 'saveToAlbum':
+        toast({
+          title: "已儲存到相簿",
+          description: "電子名片已儲存到您的相簿中。"
+        });
         break;
         
-      case 'addContact':
-        // 直接觸發 LIFF 彈跳介面
-        setCurrentCardOwner(cardData?.name || '用戶');
-        setShowLIFFPopup(true);
+      case 'addToContacts':
+        toast({
+          title: "已加入聯絡人",
+          description: `${cardData?.name || '聯絡人'} 已加入您的聯絡人清單。`
+        });
         break;
         
       case 'createCard':
@@ -466,30 +468,6 @@ const ChatRoom = () => {
         });
         break;
     }
-  };
-
-  // 生成簡化的 QR Code 視覺效果
-  const generateQRCode = (data: string) => {
-    const size = 8;
-    const squares = [];
-    
-    for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++) {
-        const isBlack = (i + j + data.length) % 3 === 0;
-        squares.push(
-          <div
-            key={`${i}-${j}`}
-            className={`w-2 h-2 ${isBlack ? 'bg-black' : 'bg-white'}`}
-          />
-        );
-      }
-    }
-    
-    return (
-      <div className="grid grid-cols-8 gap-0 p-2 bg-white border border-gray-300 rounded-lg">
-        {squares}
-      </div>
-    );
   };
 
   const renderActiveView = () => {
@@ -548,7 +526,6 @@ const ChatRoom = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           {message.isCard && message.cardData ? (
-                            /* LINE Flex Message Style Card with integrated QR Code */
                             <div className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden max-w-[280px]">
                               {/* Business Card Header */}
                               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
@@ -587,44 +564,72 @@ const ChatRoom = () => {
                                   )}
                                 </div>
 
-                                {/* Social Media Links */}
+                                {/* 修改社群媒體連結顯示 */}
                                 {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
                                   <div className="mt-2 pt-2 border-t border-white/20">
                                     <p className="text-xs text-blue-100 mb-1">社群媒體</p>
                                     <div className="space-y-1 text-xs">
-                                      {message.cardData.line && <div className="truncate">LINE: {message.cardData.line}</div>}
-                                      {message.cardData.facebook && <div className="truncate">Facebook: {message.cardData.facebook}</div>}
-                                      {message.cardData.instagram && <div className="truncate">Instagram: {message.cardData.instagram}</div>}
+                                      {message.cardData.line && (
+                                        <div className="flex items-center space-x-2">
+                                          <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                          <a 
+                                            href={message.cardData.line} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-white hover:text-blue-100 underline truncate"
+                                          >
+                                            LINE: {message.cardData.line}
+                                          </a>
+                                        </div>
+                                      )}
+                                      {message.cardData.facebook && (
+                                        <div className="flex items-center space-x-2">
+                                          <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                          <a 
+                                            href={message.cardData.facebook} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-white hover:text-blue-100 underline truncate"
+                                          >
+                                            Facebook: {message.cardData.facebook}
+                                          </a>
+                                        </div>
+                                      )}
+                                      {message.cardData.instagram && (
+                                        <div className="flex items-center space-x-2">
+                                          <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                          <a 
+                                            href={message.cardData.instagram} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            className="text-white hover:text-blue-100 underline truncate"
+                                          >
+                                            Instagram: {message.cardData.instagram}
+                                          </a>
+                                        </div>
+                                      )}
                                     </div>
                                   </div>
                                 )}
                               </div>
 
-                              {/* 直接顯示 QR Code */}
-                              <div className="p-3 text-center bg-gray-50 border-b border-gray-100">
-                                <div className="flex justify-center mb-2">
-                                  {generateQRCode(JSON.stringify(message.cardData))}
-                                </div>
-                                <p className="text-xs text-gray-600">掃描獲取名片</p>
-                              </div>
-
-                              {/* Action Buttons */}
+                              {/* 修改後的操作按鈕 - 移除QR Code相關功能 */}
                               <div className="p-3 bg-white space-y-2">
                                 <Button 
-                                  onClick={() => handleCardAction('qrcode', message.cardData)} 
+                                  onClick={() => handleCardAction('saveToAlbum', message.cardData)} 
                                   size="sm" 
                                   className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
                                 >
-                                  <QrCode className="w-3 h-3 mr-2" />
-                                  分享 QR Code
+                                  <Download className="w-3 h-3 mr-2" />
+                                  儲存到我的相簿
                                 </Button>
                                 
                                 <Button 
-                                  onClick={() => handleCardAction('addContact', message.cardData)} 
+                                  onClick={() => handleCardAction('addToContacts', message.cardData)} 
                                   size="sm" 
                                   className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8"
                                 >
-                                  <UserPlus className="w-3 h-3 mr-2" />
+                                  <BookmarkPlus className="w-3 h-3 mr-2" />
                                   加入聯絡人
                                 </Button>
                                 
