@@ -105,6 +105,21 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
         customerName: randomCustomerName // 傳遞客戶名稱
       };
       
+      // 立即新增客戶到名片人脈夾（當客戶加入 Aipower 名片人脈圈時）
+      const lineUserId = `U${Math.random().toString(36).substr(2, 32)}`;
+      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+        detail: { 
+          customerName: randomCustomerName,
+          action: 'join_aipower_network',
+          isDigitalCard: true,
+          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${randomCustomerName.charAt(0)}`,
+          lineAccount: `@${randomCustomerName.toLowerCase()}`,
+          lineUserId: lineUserId, // LINE userId (scope ID)
+          hasBusinessCard: false,
+          isLineContact: true // 標記為 LINE 聯絡人
+        }
+      }));
+      
       // 模擬在聊天室中顯示這些訊息
       setTimeout(() => {
         window.dispatchEvent(new CustomEvent('liffCardShared', {
@@ -417,33 +432,6 @@ const ChatRoom = () => {
         }
         break;
         
-      case 'addToContacts':
-        // 處理加入聯絡人按鈕點擊
-        if (customerName) {
-          // 生成 LINE userId (scope ID)
-          const lineUserId = `U${Math.random().toString(36).substr(2, 32)}`;
-          
-          // 通知名片人脈夾新增客戶到電子名片列表
-          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-            detail: { 
-              customerName: customerName,
-              action: 'add_to_contacts_from_flex',
-              isDigitalCard: true,
-              profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${customerName.charAt(0)}`,
-              lineAccount: `@${customerName.toLowerCase()}`,
-              lineUserId: lineUserId, // LINE userId (scope ID)
-              hasBusinessCard: false,
-              isLineContact: true // 標記為 LINE 聯絡人
-            }
-          }));
-          
-          toast({
-            title: "已加入聯絡人！",
-            description: `${customerName} 已加入您的名片人脈夾電子名片列表。`
-          });
-        }
-        break;
-        
       case 'share':
         const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
         
@@ -674,7 +662,7 @@ LINE: ${message.cardData.line || ''}
 
                               {/* 操作按鈕區域 */}
                               <div className="p-2 bg-white">
-                                {/* 如果是完整Flex Message，顯示所有按鈕 */}
+                                {/* 如果是完整Flex Message，顯示指定按鈕 */}
                                 {(message as any).isFullFlexMessage ? (
                                   <div className="space-y-1">
                                     <Button 
@@ -684,14 +672,6 @@ LINE: ${message.cardData.line || ''}
                                     >
                                       <BookmarkPlus className="w-3 h-3 mr-1" />
                                       儲存聯絡人
-                                    </Button>
-                                    <Button 
-                                      onClick={() => handleCardAction('addToContacts', message.cardData, (message as any).customerName)}
-                                      size="sm" 
-                                      className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs h-8 font-medium"
-                                    >
-                                      <UserPlus className="w-3 h-3 mr-1" />
-                                      加入聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
