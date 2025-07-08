@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -643,7 +642,7 @@ LINE: ${message.cardData.line || ''}
                                       className="w-full text-center cursor-pointer hover:bg-gray-50 transition-colors p-2 rounded"
                                       onClick={() => handleQrCodeClick(message.cardData)}
                                     >
-                                      <span className="text-xs text-blue-600">點擊分享名片</span>
+                                      <span className="text-xs text-blue-600">請掃描</span>
                                     </div>
                                   </div>
                                 )}
