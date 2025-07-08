@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -430,7 +431,16 @@ const ChatRoom = () => {
   };
 
   const handleCardAction = (action: string, cardData: any, customerName?: string) => {
+    const randomCustomerName = generateRandomCustomerName();
+    
     switch (action) {
+      case 'addContact':
+        // 立即加入聯絡人 - 觸發 LIFF 介面
+        const ownerName = cardData?.name || '此用戶';
+        setCurrentCardOwner(ownerName);
+        setShowLIFFPopup(true);
+        break;
+        
       case 'saveToContacts':
         // 模擬儲存到手機聯絡人
         if (cardData?.name && cardData?.phone) {
@@ -448,30 +458,30 @@ const ChatRoom = () => {
         break;
         
       case 'share':
-        const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
-        
-        if (navigator.share) {
-          navigator.share({
-            title: `${cardData?.name} 的電子名片`,
-            text: `查看 ${cardData?.name} 的電子名片`,
-            url: shareUrl
-          }).catch(() => {
-            navigator.clipboard.writeText(shareUrl);
-          });
-        } else {
-          navigator.clipboard.writeText(shareUrl);
-        }
-        
+        // 分享電子名片 - 顯示客戶端的 Flex Message
         const shareMessage: Message = {
           id: Date.now(),
-          text: "您的電子名片分享連結已準備好！",
+          text: `已分享電子名片給 ${randomCustomerName}：`,
           isBot: true,
           timestamp: new Date()
         };
-        setMessages(prev => [...prev, shareMessage]);
+        
+        const clientFlexMessage: Message = {
+          id: Date.now() + 1,
+          text: "",
+          isBot: true,
+          timestamp: new Date(),
+          isCard: true,
+          cardData: cardData,
+          isClientFlexMessage: true, // 標記為客戶端 Flex Message
+          customerName: randomCustomerName
+        };
+        
+        setMessages(prev => [...prev, shareMessage, clientFlexMessage]);
+        
         toast({
           title: "分享成功！",
-          description: "您的電子名片已準備好分享。"
+          description: `電子名片已分享給 ${randomCustomerName}。`
         });
         break;
     }
@@ -636,49 +646,85 @@ const ChatRoom = () => {
                                 )}
                               </div>
 
-                              {/* QR Code 可折疊區塊 */}
-                              <div className="bg-gray-50 border-t border-gray-200">
-                                <button
-                                  onClick={() => toggleQrCode(message.id)}
-                                  className="w-full p-3 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
-                                >
-                                  <div className="flex items-center space-x-2">
-                                    <QrCode className="w-4 h-4 text-gray-600" />
-                                    <span className="text-sm text-gray-700">QR Code</span>
-                                  </div>
-                                  {expandedQrCodes[message.id] ? (
-                                    <ChevronUp className="w-4 h-4 text-gray-600" />
-                                  ) : (
-                                    <ChevronDown className="w-4 h-4 text-gray-600" />
-                                  )}
-                                </button>
-                                
-                                {expandedQrCodes[message.id] && (
-                                  <div className="p-4 border-t border-gray-200 bg-white">
-                                    <div className="flex justify-center mb-3">
-                                      {generateQRCode(`名片資訊
+                              {/* QR Code 可折疊區塊 - 只在非客戶端 Flex Message 時顯示 */}
+                              {!(message as any).isClientFlexMessage && (
+                                <div className="bg-gray-50 border-t border-gray-200">
+                                  <button
+                                    onClick={() => toggleQrCode(message.id)}
+                                    className="w-full p-3 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <QrCode className="w-4 h-4 text-gray-600" />
+                                      <span className="text-sm text-gray-700">QR Code</span>
+                                    </div>
+                                    {expandedQrCodes[message.id] ? (
+                                      <ChevronUp className="w-4 h-4 text-gray-600" />
+                                    ) : (
+                                      <ChevronDown className="w-4 h-4 text-gray-600" />
+                                    )}
+                                  </button>
+                                  
+                                  {expandedQrCodes[message.id] && (
+                                    <div className="p-4 border-t border-gray-200 bg-white">
+                                      <div className="flex justify-center mb-3">
+                                        {generateQRCode(`名片資訊
 姓名: ${message.cardData.name || ''}
 公司: ${message.cardData.companyName || ''}
 電話: ${message.cardData.phone || ''}
 Email: ${message.cardData.email || ''}
 LINE: ${message.cardData.line || ''}
 網站: ${message.cardData.website || ''}`)}
+                                      </div>
+                                      <p className="text-xs text-gray-500 text-center mb-2">掃描此QR Code即可獲得我的聯絡資訊</p>
+                                      <div 
+                                        className="w-full text-center cursor-pointer hover:bg-gray-50 transition-colors p-2 rounded"
+                                        onClick={() => handleQrCodeClick(message.cardData)}
+                                      >
+                                        <span className="text-xs text-blue-600">請掃描</span>
+                                      </div>
                                     </div>
-                                    <p className="text-xs text-gray-500 text-center mb-2">掃描此QR Code即可獲得我的聯絡資訊</p>
-                                    <div 
-                                      className="w-full text-center cursor-pointer hover:bg-gray-50 transition-colors p-2 rounded"
-                                      onClick={() => handleQrCodeClick(message.cardData)}
-                                    >
-                                      <span className="text-xs text-blue-600">請掃描</span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
+                                  )}
+                                </div>
+                              )}
 
                               {/* 操作按鈕區域 */}
                               <div className="p-2 bg-white">
-                                {/* 如果是完整Flex Message，顯示指定按鈕 */}
-                                {(message as any).isFullFlexMessage ? (
+                                {/* 如果是客戶端 Flex Message，顯示客戶端按鈕組 */}
+                                {(message as any).isClientFlexMessage ? (
+                                  <div className="space-y-1">
+                                    <Button 
+                                      onClick={() => handleCardAction('addContact', message.cardData, (message as any).customerName)}
+                                      size="sm" 
+                                      className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8 font-medium"
+                                    >
+                                      <UserPlus className="w-3 h-3 mr-1" />
+                                      立即加入聯絡人
+                                    </Button>
+                                    <Button 
+                                      onClick={() => handleCardAction('saveToContacts', message.cardData)}
+                                      size="sm" 
+                                      className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium"
+                                    >
+                                      <BookmarkPlus className="w-3 h-3 mr-1" />
+                                      儲存聯絡人
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium"
+                                    >
+                                      <Edit className="w-3 h-3 mr-1" />
+                                      建立電子名片
+                                    </Button>
+                                    <Button 
+                                      onClick={() => handleCardAction('share', message.cardData)} 
+                                      size="sm" 
+                                      className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium"
+                                    >
+                                      <Share2 className="w-3 h-3 mr-1" />
+                                      分享
+                                    </Button>
+                                  </div>
+                                ) : (message as any).isFullFlexMessage ? (
                                   <div className="space-y-1">
                                     <Button 
                                       onClick={() => handleCardAction('saveToContacts', message.cardData)}
@@ -829,3 +875,4 @@ LINE: ${message.cardData.line || ''}
 };
 
 export default ChatRoom;
+
