@@ -50,6 +50,9 @@ const menuItems: MenuItem[] = [
   { id: 'schedule', title: '行程管理', icon: Calendar, color: 'bg-gradient-to-br from-indigo-500 to-indigo-600' },
 ];
 
+// 統一使用的客戶名稱
+const CONSISTENT_CUSTOMER_NAME = '陳淑芬';
+
 // 模擬客戶名稱生成器
 const generateRandomCustomerName = () => {
   const surnames = ['王', '李', '張', '陳', '林', '黃', '吳', '劉', '蔡', '楊'];
@@ -69,8 +72,8 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
   customerName?: string;
 }) => {
   const [step, setStep] = useState(1);
-  // 使用傳入的客戶名稱，如果沒有則生成隨機名稱
-  const [actualCustomerName] = useState(() => customerName || generateRandomCustomerName());
+  // 使用統一的客戶名稱
+  const [actualCustomerName] = useState(() => customerName || CONSISTENT_CUSTOMER_NAME);
   
   const handleJoinAipowerNetwork = () => {
     setStep(2); // 顯示加LINE成功
@@ -471,13 +474,13 @@ const ChatRoom = () => {
     const ownerName = cardData?.name || '此用戶';
     setCurrentCardOwner(ownerName);
     setLiffFlowType('qr_scan');
-    setPendingCustomerName(''); // QR Code 掃描使用隨機名稱
+    setPendingCustomerName(CONSISTENT_CUSTOMER_NAME); // 使用統一的客戶名稱
     setShowLIFFPopup(true);
   };
 
   const handleCardAction = (action: string, cardData: any, customerName?: string) => {
-    // 生成或使用指定的客戶名稱
-    const targetCustomerName = customerName || generateRandomCustomerName();
+    // 統一使用陳淑芬作為客戶名稱
+    const targetCustomerName = CONSISTENT_CUSTOMER_NAME;
     
     switch (action) {
       case 'addContact':
@@ -485,7 +488,7 @@ const ChatRoom = () => {
         const ownerName = cardData?.name || '此用戶';
         setCurrentCardOwner(ownerName);
         setLiffFlowType('direct_add');
-        setPendingCustomerName(targetCustomerName); // 設置要加入的客戶名稱
+        setPendingCustomerName(targetCustomerName); // 設置統一的客戶名稱
         setShowLIFFPopup(true);
         break;
         
@@ -741,7 +744,7 @@ LINE: ${message.cardData.line || ''}
                                 {(message as any).isClientFlexMessage ? (
                                   <div className="space-y-1">
                                     <Button 
-                                      onClick={() => handleCardAction('addContact', message.cardData, (message as any).customerName)}
+                                      onClick={() => handleCardAction('addContact', message.cardData, CONSISTENT_CUSTOMER_NAME)}
                                       size="sm" 
                                       className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8 font-medium"
                                     >
@@ -921,7 +924,7 @@ LINE: ${message.cardData.line || ''}
         cardOwnerName={currentCardOwner}
         onUserJoined={handleUserJoined}
         flowType={liffFlowType}
-        customerName={pendingCustomerName} // 傳遞客戶名稱
+        customerName={pendingCustomerName} // 傳遞統一的客戶名稱
       />
     </div>
   );
