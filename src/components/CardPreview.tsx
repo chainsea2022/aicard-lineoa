@@ -27,6 +27,15 @@ interface CardPreviewProps {
     instagram: string;
     photo: string | null;
     cardPublic?: boolean;
+    nameVisible?: boolean;
+    companyNameVisible?: boolean;
+    jobTitleVisible?: boolean;
+    phoneVisible?: boolean;
+    emailVisible?: boolean;
+    websiteVisible?: boolean;
+    lineVisible?: boolean;
+    facebookVisible?: boolean;
+    instagramVisible?: boolean;
   };
   onClose: () => void;
   onEdit: () => void;
@@ -144,7 +153,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
 
   const qrCodeData = `名片資訊
 姓名: ${cardData.name || ''}
-${cardData.jobTitle ? `職稱: ${cardData.jobTitle}` : ''}
+${cardData.jobTitle && cardData.jobTitleVisible !== false ? `職稱: ${cardData.jobTitle}` : ''}
 公司: ${cardData.companyName || ''}
 電話: ${cardData.phone || ''}
 Email: ${cardData.email || ''}
@@ -186,30 +195,30 @@ LINE: ${cardData.line || ''}
                   </Avatar>
                 )}
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1">{cardData.name}</h2>
-                  {cardData.jobTitle && (
+                  <h2 className="text-2xl font-bold mb-1">{(cardData.name && cardData.nameVisible !== false) ? cardData.name : '您的姓名'}</h2>
+                  {cardData.jobTitle && cardData.jobTitleVisible !== false && (
                     <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>
                   )}
-                  {cardData.companyName && (
+                  {cardData.companyName && cardData.companyNameVisible !== false && (
                     <p className="text-green-100 text-lg">{cardData.companyName}</p>
                   )}
                 </div>
               </div>
 
               <div className="space-y-2 text-sm">
-                {cardData.phone && (
+                {cardData.phone && cardData.phoneVisible !== false && (
                   <div className="flex items-center">
                     <span className="mr-2">📱</span>
                     <span>{cardData.phone}</span>
                   </div>
                 )}
-                {cardData.email && (
+                {cardData.email && cardData.emailVisible !== false && (
                   <div className="flex items-center">
                     <span className="mr-2">✉️</span>
                     <span>{cardData.email}</span>
                   </div>
                 )}
-                {cardData.website && (
+                {cardData.website && cardData.websiteVisible !== false && (
                   <div className="flex items-center">
                     <span className="mr-2">🌐</span>
                     <span>{cardData.website}</span>
@@ -236,10 +245,10 @@ LINE: ${cardData.line || ''}
               </div>
 
               {/* 社群資訊 */}
-              {(cardData.line || cardData.facebook || cardData.instagram) && (
+              {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
                 <div className="mt-4 pt-4 border-t border-green-300/50">
                   <div className="flex flex-wrap gap-3">
-                    {cardData.line && (
+                    {cardData.line && cardData.lineVisible !== false && (
                       <button
                         onClick={() => handleLineClick(cardData.line)}
                         className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
@@ -248,13 +257,13 @@ LINE: ${cardData.line || ''}
                         <span>加入 LINE</span>
                       </button>
                     )}
-                    {cardData.facebook && (
+                    {cardData.facebook && cardData.facebookVisible !== false && (
                       <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
                         <span className="mr-1">📘</span>
                         <span>FB: {cardData.facebook}</span>
                       </div>
                     )}
-                    {cardData.instagram && (
+                    {cardData.instagram && cardData.instagramVisible !== false && (
                       <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
                         <span className="mr-1">📷</span>
                         <span>IG: {cardData.instagram}</span>

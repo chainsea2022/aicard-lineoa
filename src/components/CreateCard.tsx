@@ -55,6 +55,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [showQRCode, setShowQRCode] = useState(false);
 
   useEffect(() => {
+    // 設置註冊手機號碼
+    if (userData?.phone) {
+      setRegisteredPhone(userData.phone);
+      setPhone(userData.phone); // 同時設置為顯示用電話
+    }
+
     // 從 localStorage 載入名片資料
     const savedCardData = localStorage.getItem('aile-card-data');
     if (savedCardData) {
@@ -300,9 +306,6 @@ LINE: ${line || ''}
                 value={birthday}
                 onChange={(e) => setBirthday(e.target.value)}
               />
-              <p className="text-xs text-gray-500">
-                公開時僅顯示月日，不顯示年份
-              </p>
             </div>
 
             {/* 註冊手機號碼 */}
