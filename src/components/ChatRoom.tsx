@@ -581,36 +581,6 @@ const ChatRoom = () => {
                                 )}
                               </div>
 
-                              {/* QR Code 可折疊區塊 */}
-                              <div className="bg-gray-50 border-t border-gray-200">
-                                <button
-                                  onClick={() => toggleQrCode(message.id)}
-                                  className="w-full p-3 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
-                                >
-                                  <div className="flex items-center space-x-2">
-                                    <QrCode className="w-4 h-4 text-gray-600" />
-                                    <span className="text-sm text-gray-700">QR Code</span>
-                                  </div>
-                                  {expandedQrCodes[message.id] ? (
-                                    <ChevronUp className="w-4 h-4 text-gray-600" />
-                                  ) : (
-                                    <ChevronDown className="w-4 h-4 text-gray-600" />
-                                  )}
-                                </button>
-                                
-                                {expandedQrCodes[message.id] && (
-                                  <div className="p-4 border-t border-gray-200 bg-white">
-                                    <div 
-                                      className="w-32 h-32 mx-auto bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-                                      onClick={() => handleQrCodeClick(message.cardData)}
-                                    >
-                                      <QrCode className="w-16 h-16 text-gray-400" />
-                                    </div>
-                                    <p className="text-xs text-gray-500 text-center mt-2">點擊 QR Code 分享名片</p>
-                                  </div>
-                                )}
-                              </div>
-
                               {/* 操作按鈕區域 */}
                               <div className="p-2 bg-white">
                                 {/* 如果是完整Flex Message，顯示所有按鈕 */}
