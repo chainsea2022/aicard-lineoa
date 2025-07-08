@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -65,13 +64,8 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
   onUserJoined: (userName: string) => void;
 }) => {
   const [step, setStep] = useState(1);
+  const [randomCustomerName] = useState(() => generateRandomCustomerName());
   
-  // 檢查用戶是否已加入
-  const isUserAdded = () => {
-    const addedUsers = JSON.parse(localStorage.getItem('addedDigitalCards') || '[]');
-    return addedUsers.includes(cardOwnerName);
-  };
-
   const handleJoinAipowerNetwork = () => {
     setStep(2); // 顯示加LINE成功
     
@@ -80,13 +74,10 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
       onClose();
       setStep(1);
       
-      // 生成張小姐作為加入者
-      const joinerName = '張小姐';
-      
       // 在聊天室中顯示加LINE成功訊息
       const joinMessage = {
         id: Date.now(),
-        text: `🎉 ${joinerName} 已加入您的 Aipower 名片人脈圈！`,
+        text: `🎉 ${randomCustomerName} 已加入您的 Aipower 名片人脈圈！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -94,7 +85,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
       // 發送完整的電子名片卡訊息
       const cardMessage = {
         id: Date.now() + 1,
-        text: `已發送完整電子名片給 ${joinerName}：`,
+        text: `已發送完整電子名片給 ${randomCustomerName}：`,
         isBot: true,
         timestamp: new Date()
       };
@@ -110,7 +101,8 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
         timestamp: new Date(),
         isCard: true,
         cardData: cardData,
-        isFullFlexMessage: true // 標記為完整 Flex Message
+        isFullFlexMessage: true, // 標記為完整 Flex Message
+        customerName: randomCustomerName // 傳遞客戶名稱
       };
       
       // 模擬在聊天室中顯示這些訊息
@@ -119,21 +111,11 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
           detail: { 
             joinMessage,
             cardMessage,
-            fullCardMessage
+            fullCardMessage,
+            customerName: randomCustomerName
           }
         }));
       }, 500);
-      
-      // 觸發名片夾更新
-      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-        detail: { 
-          customerName: joinerName,
-          action: 'liff_join',
-          isDigitalCard: true,
-          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${joinerName.charAt(0)}`,
-          lineAccount: `@${joinerName.toLowerCase()}`
-        }
-      }));
     }, 2000);
   };
 
@@ -189,10 +171,9 @@ const ChatRoom = () => {
   const [inputText, setInputText] = useState('');
   const [showLIFFPopup, setShowLIFFPopup] = useState(false);
   const [currentCardOwner, setCurrentCardOwner] = useState('');
-  const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({}); // 追蹤QR碼展開狀態
+  const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    // 監聽各種客戶事件
     const handleCustomerAdded = (event: CustomEvent) => {
       const newCustomer = event.detail;
       setCustomers(prev => [...prev, newCustomer]);
@@ -207,10 +188,8 @@ const ChatRoom = () => {
       setMessages(prev => [...prev, newMessage]);
     };
 
-    // 監聽QR掃描事件 - 數位名片
     const handleQRScanned = (event: CustomEvent) => {
       const { customer } = event.detail;
-      // 觸發名片人脈夾更新 - 加入到數位名片夾
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: customer.name, 
@@ -220,23 +199,69 @@ const ChatRoom = () => {
       }));
     };
 
-    // 監聽紙本掃描事件 - 紙本聯絡人
     const handlePaperScanned = (event: CustomEvent) => {
       const { customer } = event.detail;
-      // 觸發名片人脈夾更新 - 加入到聯絡人列表（紙本）
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: customer.name, 
           action: 'paper_scanned',
-          isDigitalCard: false  // 明確標示為紙本聯絡人
+          isDigitalCard: false
         }
       }));
     };
 
-    // 監聽LIFF分享事件
     const handleLiffCardShared = (event: CustomEvent) => {
-      const { joinMessage, cardMessage, fullCardMessage } = event.detail;
+      const { joinMessage, cardMessage, fullCardMessage, customerName } = event.detail;
       setMessages(prev => [...prev, joinMessage, cardMessage, fullCardMessage]);
+      
+      setTimeout(() => {
+        const hasBusinessCard = Math.random() > 0.5;
+        
+        if (hasBusinessCard) {
+          const businessCardMessage = {
+            id: Date.now() + 10,
+            text: `${customerName} 已建立電子名片並加入您的聯絡人`,
+            isBot: true,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, businessCardMessage]);
+          
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: { 
+              customerName: customerName,
+              action: 'liff_join_with_card',
+              isDigitalCard: true,
+              profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${customerName.charAt(0)}`,
+              lineAccount: `@${customerName.toLowerCase()}`,
+              hasBusinessCard: true,
+              phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+              email: `${customerName.toLowerCase()}@example.com`,
+              company: `${customerName}的公司`,
+              jobTitle: '經理'
+            }
+          }));
+        } else {
+          const contactMessage = {
+            id: Date.now() + 10,
+            text: `${customerName} 已加入您的聯絡人`,
+            isBot: true,
+            timestamp: new Date()
+          };
+          setMessages(prev => [...prev, contactMessage]);
+          
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: { 
+              customerName: customerName,
+              action: 'liff_join_basic',
+              isDigitalCard: true,
+              profileImage: `https://via.placeholder.com/40/6b7280/ffffff?text=${customerName.charAt(0)}`,
+              lineAccount: `@${customerName.toLowerCase()}`,
+              hasBusinessCard: false,
+              isBasicLineContact: true
+            }
+          }));
+        }
+      }, 3000);
     };
 
     window.addEventListener('customerScannedCard', handleCustomerAdded as EventListener);
@@ -264,7 +289,6 @@ const ChatRoom = () => {
       setMessages(prev => [...prev, userMessage]);
       setInputText('');
       
-      // 模擬機器人回應
       setTimeout(() => {
         const botMessage: Message = {
           id: Date.now() + 1,
@@ -283,13 +307,11 @@ const ChatRoom = () => {
     }
   };
 
-  // Check if user is registered
   const isRegistered = () => {
     const savedData = localStorage.getItem('aile-card-data');
     return !!savedData;
   };
 
-  // Get dynamic menu items based on registration status
   const getDynamicMenuItems = () => {
     const baseItems = [...menuItems];
     if (isRegistered()) {
@@ -300,16 +322,13 @@ const ChatRoom = () => {
 
   const handleMenuItemClick = (itemId: string) => {
     if (itemId === 'create-card') {
-      // 直接進入設置電子名片頁面，會自動判斷是否需要註冊
       setActiveView(itemId);
       setIsMenuOpen(false);
     } else if (itemId === 'my-card') {
-      // 檢查是否有名片資料
       const savedData = localStorage.getItem('aile-card-data');
       if (savedData) {
         const cardData = JSON.parse(savedData);
         
-        // 在聊天室中顯示名片
         const cardMessage: Message = {
           id: Date.now(),
           text: "這是您的電子名片：",
@@ -352,7 +371,6 @@ const ChatRoom = () => {
     setCustomers(prev => [...prev, customer]);
   };
 
-  // 新增處理用戶加入的函數
   const handleUserJoined = (joinerName: string) => {
     const joinMessage: Message = {
       id: Date.now(),
@@ -363,7 +381,6 @@ const ChatRoom = () => {
     setMessages(prev => [...prev, joinMessage]);
   };
 
-  // 處理QR碼展開/收合
   const toggleQrCode = (messageId: number) => {
     setExpandedQrCodes(prev => ({
       ...prev,
@@ -371,14 +388,12 @@ const ChatRoom = () => {
     }));
   };
 
-  // 處理QR Code點擊 - 觸發LIFF彈窗
   const handleQrCodeClick = (cardData: any) => {
     const ownerName = cardData?.name || '此用戶';
     setCurrentCardOwner(ownerName);
     setShowLIFFPopup(true);
   };
 
-  // 處理名片內的操作
   const handleCardAction = (action: string, cardData: any) => {
     const customerName = generateRandomCustomerName();
     
@@ -622,7 +637,6 @@ const ChatRoom = () => {
                                     </Button>
                                   </div>
                                 ) : (
-                                  // 一般名片只顯示分享按鈕
                                   <Button 
                                     onClick={() => handleCardAction('share', message.cardData)} 
                                     size="sm" 
