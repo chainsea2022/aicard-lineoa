@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -71,69 +72,69 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
     return addedUsers.includes(cardOwnerName);
   };
 
-  const handleAddCardDirectly = () => {
-    if (isUserAdded()) {
-      return; // 已加入，不做任何操作
-    }
-    
-    // 加入用戶到已加入列表
-    const addedUsers = JSON.parse(localStorage.getItem('addedDigitalCards') || '[]');
-    addedUsers.push(cardOwnerName);
-    localStorage.setItem('addedDigitalCards', JSON.stringify(addedUsers));
-    
-    // 顯示加入成功並關閉
-    setStep(2);
-    setTimeout(() => {
-      onClose();
-      setStep(1);
-      
-      // 生成加入者名稱並觸發聊天室訊息
-      const joinerName = generateRandomCustomerName();
-      onUserJoined(joinerName);
-      
-      // 觸發名片夾更新 - 加到電子名片夾列表上方
-      window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-        detail: { 
-          customerName: joinerName,
-          action: 'direct_add',
-          isDigitalCard: true,
-          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${joinerName.charAt(0)}`,
-          lineAccount: `@${joinerName.toLowerCase()}`
-        }
-      }));
-    }, 1500);
-  };
-
   const handleJoinAipowerNetwork = () => {
-    setStep(3);
-    // 模擬加入 Aipower 名片人脈圈
-    setTimeout(() => {
-      setStep(4);
-    }, 2000);
-  };
-
-  const handleFinalAddCard = () => {
-    setStep(5);
-    // 模擬最終加入電子名片
+    setStep(2); // 顯示加LINE成功
+    
+    // 模擬加LINE成功並發送完整電子名片卡
     setTimeout(() => {
       onClose();
       setStep(1);
       
-      // 生成加入者名稱並觸發聊天室訊息
-      const joinerName = generateRandomCustomerName();
-      onUserJoined(joinerName);
+      // 生成張小姐作為加入者
+      const joinerName = '張小姐';
+      
+      // 在聊天室中顯示加LINE成功訊息
+      const joinMessage = {
+        id: Date.now(),
+        text: `🎉 ${joinerName} 已加入您的 Aipower 名片人脈圈！`,
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      // 發送完整的電子名片卡訊息
+      const cardMessage = {
+        id: Date.now() + 1,
+        text: `已發送完整電子名片給 ${joinerName}：`,
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      // 獲取當前用戶名片資料
+      const savedData = localStorage.getItem('aile-card-data');
+      const cardData = savedData ? JSON.parse(savedData) : null;
+      
+      const fullCardMessage = {
+        id: Date.now() + 2,
+        text: "",
+        isBot: true,
+        timestamp: new Date(),
+        isCard: true,
+        cardData: cardData,
+        isFullFlexMessage: true // 標記為完整 Flex Message
+      };
+      
+      // 模擬在聊天室中顯示這些訊息
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('liffCardShared', {
+          detail: { 
+            joinMessage,
+            cardMessage,
+            fullCardMessage
+          }
+        }));
+      }, 500);
       
       // 觸發名片夾更新
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: joinerName,
-          action: 'network_add',
+          action: 'liff_join',
           isDigitalCard: true,
           profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${joinerName.charAt(0)}`,
           lineAccount: `@${joinerName.toLowerCase()}`
         }
       }));
-    }, 1500);
+    }, 2000);
   };
 
   return (
@@ -145,89 +146,31 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined }: {
               <User className="w-8 h-8 text-white" />
             </div>
             <h3 className="text-lg font-bold text-gray-800 mb-4">
-              選擇加入方式
-            </h3>
-            
-            <div className="space-y-3">
-              <Button 
-                onClick={handleAddCardDirectly}
-                className={`w-full py-3 rounded-xl ${
-                  isUserAdded() 
-                    ? 'bg-gray-400 text-white cursor-not-allowed' 
-                    : 'bg-blue-500 hover:bg-blue-600 text-white'
-                }`}
-                disabled={isUserAdded()}
-              >
-                {isUserAdded() 
-                  ? `已加入成功！` 
-                  : `加入 ${cardOwnerName} 的電子名片`
-                }
-              </Button>
-              
-              <Button 
-                onClick={handleJoinAipowerNetwork}
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl"
-              >
-                加入 Aipower 名片人脈圈
-              </Button>
-            </div>
-            
-            <p className="text-xs text-gray-500 mt-4">
-              選擇您偏好的加入方式
-            </p>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
-              <UserPlus className="w-8 h-8 text-blue-500" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">正在加入電子名片...</h3>
-            <p className="text-sm text-gray-600">請稍候，正在將 {cardOwnerName} 的電子名片加入您的名片夾</p>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center animate-pulse">
-              <Zap className="w-8 h-8 text-green-500" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">正在加入...</h3>
-            <p className="text-sm text-gray-600">請稍候，正在為您加入 Aipower 名片人脈圈</p>
-          </div>
-        )}
-
-        {step === 4 && (
-          <div className="p-6 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <QrCode className="w-8 h-8 text-blue-500" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-800 mb-2">
-              加入 {cardOwnerName} 的名片
+              請加入此{cardOwnerName}電子名片卡
             </h3>
             <p className="text-sm text-gray-600 mb-6">
-              現在可以加入 {cardOwnerName} 的電子名片到您的電子名片夾中！
+              加入後即可獲得完整的電子名片資訊
             </p>
+            
             <Button 
-              onClick={handleFinalAddCard}
-              className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl"
+              onClick={handleJoinAipowerNetwork}
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl"
             >
-              加入電子名片
+              加入 Aipower 名片人脈圈
             </Button>
           </div>
         )}
 
-        {step === 5 && (
+        {step === 2 && (
           <div className="p-6 text-center">
             <div className="w-16 h-16 bg-green-100 rounded-full mx-auto mb-4 flex items-center justify-center">
               <svg className="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
               </svg>
             </div>
-            <h3 className="text-lg font-bold text-green-800 mb-2">加入成功！</h3>
+            <h3 className="text-lg font-bold text-green-800 mb-2">加LINE成功！</h3>
             <p className="text-sm text-gray-600">
-              {cardOwnerName} 的電子名片已加入您的電子名片夾
+              已成功加入 Aipower 名片人脈圈，完整電子名片已發送至您的LINE聊天室
             </p>
           </div>
         )}
@@ -290,14 +233,22 @@ const ChatRoom = () => {
       }));
     };
 
+    // 監聽LIFF分享事件
+    const handleLiffCardShared = (event: CustomEvent) => {
+      const { joinMessage, cardMessage, fullCardMessage } = event.detail;
+      setMessages(prev => [...prev, joinMessage, cardMessage, fullCardMessage]);
+    };
+
     window.addEventListener('customerScannedCard', handleCustomerAdded as EventListener);
     window.addEventListener('qrCodeScanned', handleQRScanned as EventListener);
     window.addEventListener('paperCardScanned', handlePaperScanned as EventListener);
+    window.addEventListener('liffCardShared', handleLiffCardShared as EventListener);
     
     return () => {
       window.removeEventListener('customerScannedCard', handleCustomerAdded as EventListener);
       window.removeEventListener('qrCodeScanned', handleQRScanned as EventListener);
       window.removeEventListener('paperCardScanned', handlePaperScanned as EventListener);
+      window.removeEventListener('liffCardShared', handleLiffCardShared as EventListener);
     };
   }, []);
 
@@ -418,6 +369,13 @@ const ChatRoom = () => {
       ...prev,
       [messageId]: !prev[messageId]
     }));
+  };
+
+  // 處理QR Code點擊 - 觸發LIFF彈窗
+  const handleQrCodeClick = (cardData: any) => {
+    const ownerName = cardData?.name || '此用戶';
+    setCurrentCardOwner(ownerName);
+    setShowLIFFPopup(true);
   };
 
   // 處理名片內的操作
@@ -610,24 +568,70 @@ const ChatRoom = () => {
                                 
                                 {expandedQrCodes[message.id] && (
                                   <div className="p-4 border-t border-gray-200 bg-white">
-                                    <div className="w-32 h-32 mx-auto bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center">
+                                    <div 
+                                      className="w-32 h-32 mx-auto bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+                                      onClick={() => handleQrCodeClick(message.cardData)}
+                                    >
                                       <QrCode className="w-16 h-16 text-gray-400" />
                                     </div>
-                                    <p className="text-xs text-gray-500 text-center mt-2">掃描此 QR Code 查看名片</p>
+                                    <p className="text-xs text-gray-500 text-center mt-2">點擊 QR Code 分享名片</p>
                                   </div>
                                 )}
                               </div>
 
-                              {/* 操作按鈕 - 只保留分享按鈕 */}
+                              {/* 操作按鈕區域 */}
                               <div className="p-3 bg-white">
-                                <Button 
-                                  onClick={() => handleCardAction('share', message.cardData)} 
-                                  size="sm" 
-                                  className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8"
-                                >
-                                  <Share2 className="w-3 h-3 mr-2" />
-                                  分享
-                                </Button>
+                                {/* 如果是完整Flex Message，顯示所有按鈕 */}
+                                {(message as any).isFullFlexMessage ? (
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                                    >
+                                      <Download className="w-3 h-3 mr-1" />
+                                      儲存到相簿
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                                    >
+                                      <BookmarkPlus className="w-3 h-3 mr-1" />
+                                      儲存到聯絡人
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
+                                    >
+                                      <UserPlus className="w-3 h-3 mr-1" />
+                                      加入聯絡人
+                                    </Button>
+                                    <Button 
+                                      size="sm" 
+                                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8"
+                                    >
+                                      <Edit className="w-3 h-3 mr-1" />
+                                      建立我的電子名片
+                                    </Button>
+                                    <Button 
+                                      onClick={() => handleCardAction('share', message.cardData)} 
+                                      size="sm" 
+                                      className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 col-span-2"
+                                    >
+                                      <Share2 className="w-3 h-3 mr-2" />
+                                      分享
+                                    </Button>
+                                  </div>
+                                ) : (
+                                  // 一般名片只顯示分享按鈕
+                                  <Button 
+                                    onClick={() => handleCardAction('share', message.cardData)} 
+                                    size="sm" 
+                                    className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                                  >
+                                    <Share2 className="w-3 h-3 mr-2" />
+                                    分享
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           ) : (
