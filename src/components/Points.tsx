@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail } from 'lucide-react';
+import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -23,6 +22,19 @@ interface Milestone {
   achieved: boolean;
 }
 
+interface EarningMethod {
+  id: string;
+  title: string;
+  description: string;
+  points: number;
+  icon: React.ReactNode;
+  bgGradient: string;
+  borderColor: string;
+  iconBg: string;
+  textColor: string;
+  completed: boolean;
+}
+
 const Points: React.FC<PointsProps> = ({ onClose }) => {
   const [currentPoints, setCurrentPoints] = useState(0);
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
@@ -34,8 +46,52 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
     { cardCount: 100, points: 50, achieved: false }
   ]);
 
+  const [earningMethods, setEarningMethods] = useState<EarningMethod[]>([
+    {
+      id: 'register',
+      title: '註冊電子名片',
+      description: '完成電子名片註冊',
+      points: 30,
+      icon: <FileText className="w-5 h-5 text-white" />,
+      bgGradient: 'from-blue-50 to-blue-100',
+      borderColor: 'border-blue-200',
+      iconBg: 'bg-blue-500',
+      textColor: 'text-blue-900',
+      completed: true // Assume registration is completed
+    },
+    {
+      id: 'complete-profile',
+      title: '完成電子名片資料',
+      description: '包含公司名稱、姓名、大頭照、手機、信箱',
+      points: 30,
+      icon: (
+        <div className="flex space-x-0.5">
+          <Users className="w-3 h-3 text-white" />
+          <Camera className="w-3 h-3 text-white" />
+          <Mail className="w-3 h-3 text-white" />
+        </div>
+      ),
+      bgGradient: 'from-purple-50 to-purple-100',
+      borderColor: 'border-purple-200',
+      iconBg: 'bg-purple-500',
+      textColor: 'text-purple-900',
+      completed: true // Check if profile is complete
+    },
+    {
+      id: 'others-join',
+      title: '他人加入您的電子名片',
+      description: '每有一人加入您的名片',
+      points: 10,
+      icon: <Users className="w-5 h-5 text-white" />,
+      bgGradient: 'from-orange-50 to-orange-100',
+      borderColor: 'border-orange-200',
+      iconBg: 'bg-orange-500',
+      textColor: 'text-orange-900',
+      completed: false // Check based on actual data
+    }
+  ]);
+
   useEffect(() => {
-    // Load points data from localStorage
     const savedPoints = localStorage.getItem('aile-user-points');
     const savedTransactions = localStorage.getItem('aile-points-history');
     
@@ -50,7 +106,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       }));
       setTransactions(parsedTransactions);
     } else {
-      // Initialize with updated sample data that matches the earning activities
       const initialTransactions: PointTransaction[] = [
         { id: 1, type: 'earn', points: 30, description: '註冊電子名片', date: new Date() },
         { id: 2, type: 'earn', points: 30, description: '完成電子名片資料', date: new Date(Date.now() - 86400000) },
@@ -59,12 +114,10 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       setTransactions(initialTransactions);
       setCurrentPoints(70);
       
-      // Save to localStorage
       localStorage.setItem('aile-user-points', '70');
       localStorage.setItem('aile-points-history', JSON.stringify(initialTransactions));
     }
 
-    // Check saved customers to update milestones
     const savedCustomers = localStorage.getItem('aile-saved-customers');
     if (savedCustomers) {
       const customers = JSON.parse(savedCustomers);
@@ -75,7 +128,15 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
         achieved: cardCount >= milestone.cardCount
       })));
     }
-  }, []);
+
+    setEarningMethods(prev => prev.map(method => {
+      if (method.id === 'others-join') {
+        const hasOthersJoined = transactions.some(t => t.description === '他人加入您的電子名片');
+        return { ...method, completed: hasOthersJoined };
+      }
+      return method;
+    }));
+  }, [transactions]);
 
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('zh-TW', {
@@ -87,11 +148,10 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
     });
   };
 
-  const canRedeemTrial = currentPoints >= 50;
+  const canRedeemTrial = currentPoints >= 30;
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
-      {/* Header */}
       <div className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white p-4 shadow-lg">
         <div className="flex items-center space-x-3">
           <Button
@@ -106,7 +166,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
       <div className="flex bg-white border-b border-gray-200">
         <button
           onClick={() => setActiveTab('overview')}
@@ -135,7 +194,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       <div className="p-4">
         {activeTab === 'overview' ? (
           <>
-            {/* Current Points Card */}
             <Card className="mb-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
               <CardContent className="p-6 text-center">
                 <div className="mb-4">
@@ -147,7 +205,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                 </div>
                 <p className="text-gray-600">點</p>
                 
-                {/* Premium Trial Status */}
                 <div className="mt-4 p-3 bg-white rounded-lg border">
                   {canRedeemTrial ? (
                     <div className="text-green-600">
@@ -157,7 +214,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                   ) : (
                     <div className="text-gray-600">
                       <span className="text-sm">
-                        還需 {50 - currentPoints} 點即可兌換商務版試用
+                        還需 {30 - currentPoints} 點即可兌換商務版試用
                       </span>
                     </div>
                   )}
@@ -165,7 +222,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               </CardContent>
             </Card>
 
-            {/* Points Rules Section - Optimized */}
             <Card className="mb-4">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
@@ -175,56 +231,35 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {/* 註冊電子名片 */}
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm">
-                    <div className="flex items-center flex-1">
-                      <div className="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full mr-3">
-                        <FileText className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-blue-900">註冊電子名片</h4>
-                        <p className="text-sm text-blue-700">完成電子名片註冊</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-green-500 text-white font-bold px-3 py-1">+30點</Badge>
-                  </div>
-                  
-                  {/* 完成電子名片資料 */}
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl border border-purple-200 shadow-sm">
-                    <div className="flex items-center flex-1">
-                      <div className="flex items-center justify-center w-10 h-10 bg-purple-500 rounded-full mr-3">
-                        <div className="flex space-x-0.5">
-                          <Users className="w-3 h-3 text-white" />
-                          <Camera className="w-3 h-3 text-white" />
-                          <Mail className="w-3 h-3 text-white" />
+                  {earningMethods.map((method) => (
+                    <div 
+                      key={method.id}
+                      className={`relative flex items-center justify-between p-4 bg-gradient-to-r ${method.bgGradient} rounded-xl border ${method.borderColor} shadow-sm`}
+                    >
+                      {method.completed && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle className="w-5 h-5 text-green-500 bg-white rounded-full" />
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center flex-1">
+                        <div className={`flex items-center justify-center w-10 h-10 ${method.iconBg} rounded-full mr-3`}>
+                          {method.icon}
+                        </div>
+                        <div>
+                          <h4 className={`font-semibold ${method.textColor}`}>{method.title}</h4>
+                          <p className={`text-sm ${method.textColor.replace('900', '700')}`}>{method.description}</p>
                         </div>
                       </div>
-                      <div>
-                        <h4 className="font-semibold text-purple-900">完成電子名片資料</h4>
-                        <p className="text-sm text-purple-700">包含公司名稱、姓名、大頭照、手機、信箱</p>
-                      </div>
+                      <Badge className="bg-green-500 text-white font-bold px-3 py-1">
+                        {method.id === 'others-join' ? '每人' : ''}+{method.points}點
+                      </Badge>
                     </div>
-                    <Badge className="bg-green-500 text-white font-bold px-3 py-1">+30點</Badge>
-                  </div>
-                  
-                  {/* 他人加入您的電子名片 */}
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl border border-orange-200 shadow-sm">
-                    <div className="flex items-center flex-1">
-                      <div className="flex items-center justify-center w-10 h-10 bg-orange-500 rounded-full mr-3">
-                        <Users className="w-5 h-5 text-white" />
-                      </div>
-                      <div>
-                        <h4 className="font-semibold text-orange-900">他人加入您的電子名片</h4>
-                        <p className="text-sm text-orange-700">每有一人加入您的名片</p>
-                      </div>
-                    </div>
-                    <Badge className="bg-green-500 text-white font-bold px-3 py-1">每人+10點</Badge>
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Milestones Section */}
             <Card className="mb-4">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
@@ -237,12 +272,18 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                   {milestones.map((milestone, index) => (
                     <div 
                       key={index} 
-                      className={`flex items-center justify-between p-4 rounded-xl border shadow-sm ${
+                      className={`relative flex items-center justify-between p-4 rounded-xl border shadow-sm ${
                         milestone.achieved 
                           ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
                           : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200'
                       }`}
                     >
+                      {milestone.achieved && (
+                        <div className="absolute top-2 right-2">
+                          <CheckCircle className="w-5 h-5 text-green-500 bg-white rounded-full" />
+                        </div>
+                      )}
+                      
                       <div className="flex items-center flex-1">
                         <div className={`flex items-center justify-center w-10 h-10 rounded-full mr-3 ${
                           milestone.achieved ? 'bg-green-500' : 'bg-gray-400'
@@ -280,7 +321,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               </CardContent>
             </Card>
 
-            {/* Redemption Section */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
@@ -290,7 +330,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {/* Premium Trial Offer */}
                   <div className={`p-4 rounded-xl border-2 shadow-sm ${
                     canRedeemTrial 
                       ? 'border-green-300 bg-gradient-to-r from-green-50 to-green-100' 
@@ -332,11 +371,10 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                       }`}
                       disabled={!canRedeemTrial}
                     >
-                      {canRedeemTrial ? '立即兌換' : `還需 ${50 - currentPoints} 點`}
+                      {canRedeemTrial ? '立即兌換' : `還需 ${30 - currentPoints} 點`}
                     </Button>
                   </div>
 
-                  {/* Aiwow App Promotion - Updated button size */}
                   <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-100 border-2 border-blue-200 rounded-xl shadow-sm">
                     <div className="text-center">
                       <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full mx-auto mb-3">
@@ -355,7 +393,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                     </div>
                   </div>
 
-                  {/* Terms */}
                   <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
                     <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
                       <FileText className="w-4 h-4 mr-2" />
@@ -385,7 +422,6 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
             </Card>
           </>
         ) : (
-          /* History Tab */
           <div className="space-y-3">
             {transactions.length === 0 ? (
               <div className="text-center py-8">
