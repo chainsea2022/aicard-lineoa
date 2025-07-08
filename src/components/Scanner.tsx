@@ -33,6 +33,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
+  const [scanCount, setScanCount] = useState(0); // Track number of scans
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: '',
     phone: '',
@@ -95,11 +96,12 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   };
 
   const simulateScan = () => {
-    // Simulate random scan result for demo
-    const isQRCode = Math.random() > 0.5;
+    // Alternate between digital card (first scan) and paper card (second scan)
+    const newScanCount = scanCount + 1;
+    setScanCount(newScanCount);
     
-    if (isQRCode) {
-      // Simulate QR Code scan - Aipower card
+    if (newScanCount % 2 === 1) {
+      // First scan - Digital card (Aipower card)
       setScanResult('aipower-card');
       setCustomerData({
         name: '張小明',
@@ -114,7 +116,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         photo: '/placeholder.svg'
       });
     } else {
-      // Simulate paper card scan
+      // Second scan - Paper card
       setScanResult('paper-card');
       setCustomerData({
         name: '李大華',
@@ -287,10 +289,10 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             <div className="bg-gray-50 rounded-lg p-3">
               <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>• 自動識別紙本名片或 QR Code</li>
-                <li>• 紙本名片將加入聯絡人清單</li>
-                <li>• 電子名片 QR Code 將加入名片夾</li>
-                <li>• 確保光線充足，保持相機穩定</li>
+                <li>• 第一次掃描：顯示電子名片卡</li>
+                <li>• 第二次掃描：顯示紙本名片聯絡人</li>
+                <li>• 電子名片將加入我的電子名片夾</li>
+                <li>• 紙本名片將加入我的聯絡人列表</li>
               </ul>
             </div>
           </>
@@ -403,7 +405,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               </div>
               
               <Button onClick={handleAddCustomer} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation">
-                加入我的聯絡人
+                加入我的聯絡人列表
               </Button>
             </div>
           </div>
@@ -472,13 +474,13 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
               <p className="text-xs text-blue-700">
-                🎉 太好了！{customerData.name} 也是 Aipower 用戶，您可以直接將他們加入名片夾。
+                🎉 太好了！{customerData.name} 也是 Aipower 用戶，您可以直接將他們加入我的電子名片夾。
               </p>
             </div>
             
             <Button onClick={handleAddCustomer} className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-9 touch-manipulation">
               <UserPlus className="w-3 h-3 mr-1" />
-              加入我的名片夾
+              加入我的電子名片夾
             </Button>
           </div>
         )}
