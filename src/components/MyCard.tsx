@@ -31,7 +31,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     receiveNotifications: true
   });
   const [isNewUser, setIsNewUser] = useState(false);
-  const [hasExistingAccount, setHasExistingAccount] = useState(false);
+  const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
 
   const formatBirthdayDisplay = (dateStr: string) => {
@@ -53,10 +53,10 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
     const savedCardData = localStorage.getItem('aile-card-data');
     const savedUserData = localStorage.getItem('aile-user-data');
     
-    // 檢查是否有曾經註冊過的記錄
+    // 檢查是否有註冊歷史記錄
     const registrationHistory = localStorage.getItem('aile-registration-history');
     if (registrationHistory) {
-      setHasExistingAccount(true);
+      setHasRegistrationHistory(true);
     }
     
     if (savedCardData) {
@@ -109,9 +109,13 @@ LINE: ${cardInfo.line || ''}
 
     // 儲存用戶登入資訊和註冊歷史
     localStorage.setItem('aile-user-data', JSON.stringify(phoneUser));
-    localStorage.setItem('aile-registration-history', JSON.stringify({ registeredAt: new Date(), method: 'phone' }));
+    localStorage.setItem('aile-registration-history', JSON.stringify({ 
+      registeredAt: new Date(), 
+      method: 'phone',
+      hasRegistered: true 
+    }));
     setUserData(phoneUser);
-    setHasExistingAccount(true);
+    setHasRegistrationHistory(true);
     
     // 創建預設名片資料（只包含手機號碼）
     const defaultCardData = {
@@ -234,12 +238,13 @@ LINE: ${cardInfo.line || ''}
   };
 
   const handleLogout = () => {
-    // 清除所有用戶相關資料，但保留註冊歷史
+    // 清除當前用戶資料，但保留註冊歷史
     localStorage.removeItem('aile-card-data');
     localStorage.removeItem('aile-user-data');
     localStorage.removeItem('aile-profile-settings');
+    localStorage.removeItem('aile-user-points');
     
-    // 重置狀態
+    // 重置狀態，但保留註冊歷史
     setCardData(null);
     setUserData(null);
     setQrCodeData('');
@@ -247,10 +252,16 @@ LINE: ${cardInfo.line || ''}
     setShowPoints(false);
     setShowOTPVerification(false);
     setIsNewUser(false);
+    setCurrentPoints(0);
     setPublicSettings({
       isPublicProfile: false,
       allowDirectContact: true,
       receiveNotifications: true
+    });
+    
+    toast({
+      title: "已登出",
+      description: "您已成功登出，可重新登入使用服務。"
     });
   };
 
@@ -354,7 +365,7 @@ LINE: ${cardInfo.line || ''}
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="font-bold text-lg">
-              {userData && cardData ? '我的電子名片' : hasExistingAccount ? '登入電子名片' : '快速註冊登入'}
+              {userData && cardData ? '我的電子名片' : hasRegistrationHistory ? 'LINE 快速登入' : '手機號碼註冊'}
             </h1>
           </div>
           {userData && cardData && (
@@ -380,17 +391,17 @@ LINE: ${cardInfo.line || ''}
               <User className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-xl font-bold text-gray-800 mb-2">
-              {hasExistingAccount ? '歡迎回來' : '歡迎使用電子名片'}
+              {hasRegistrationHistory ? '歡迎回來' : '歡迎使用電子名片'}
             </h2>
             <p className="text-gray-600 text-sm px-2">
-              {hasExistingAccount ? '請選擇登入方式' : '建立您的專屬電子名片，輕鬆分享聯絡資訊'}
+              {hasRegistrationHistory ? '請使用 LINE 快速登入' : '請先完成手機號碼註冊，建立您的專屬電子名片'}
             </p>
           </div>
 
           {/* 登入/註冊選項 */}
           <div className="space-y-3 mb-6">
-            {/* 首次註冊時只顯示手機註冊 */}
-            {!hasExistingAccount && (
+            {/* 沒有註冊歷史時顯示手機註冊 */}
+            {!hasRegistrationHistory && (
               <Card 
                 className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer"
                 onClick={() => setShowOTPVerification(true)}
@@ -409,51 +420,32 @@ LINE: ${cardInfo.line || ''}
               </Card>
             )}
 
-            {/* 有帳號後顯示登入選項 */}
-            {hasExistingAccount && (
-              <>
-                <Card 
-                  className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer"
-                  onClick={() => setShowOTPVerification(true)}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                        <Smartphone className="w-5 h-5 text-blue-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 text-sm">手機號碼登入</h3>
-                        <p className="text-xs text-gray-600">使用註冊的手機號碼登入</p>
-                      </div>
+            {/* 有註冊歷史時顯示 LINE 登入 */}
+            {hasRegistrationHistory && (
+              <Card 
+                className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer"
+                onClick={handleLineLogin}
+              >
+                <CardContent className="p-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
+                      </svg>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card 
-                  className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer"
-                  onClick={handleLineLogin}
-                >
-                  <CardContent className="p-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
-                        </svg>
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-800 text-sm">LINE 登入</h3>
-                        <p className="text-xs text-gray-600">使用LINE帳號快速登入</p>
-                      </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-800 text-sm">LINE 快速登入</h3>
+                      <p className="text-xs text-gray-600">使用LINE帳號快速登入</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </div>
 
           {/* 註冊/登入按鈕 */}
           <div className="space-y-3">
-            {!hasExistingAccount ? (
+            {!hasRegistrationHistory ? (
               <Button 
                 onClick={() => setShowOTPVerification(true)}
                 className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg"
@@ -462,25 +454,15 @@ LINE: ${cardInfo.line || ''}
                 開始手機註冊
               </Button>
             ) : (
-              <>
-                <Button 
-                  onClick={() => setShowOTPVerification(true)}
-                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg"
-                >
-                  <Smartphone className="w-4 h-4 mr-2" />
-                  手機號碼登入
-                </Button>
-
-                <Button 
-                  onClick={handleLineLogin}
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg"
-                >
-                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
-                  </svg>
-                  LINE 登入
-                </Button>
-              </>
+              <Button 
+                onClick={handleLineLogin}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg"
+              >
+                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
+                </svg>
+                LINE 快速登入
+              </Button>
             )}
           </div>
 
@@ -488,12 +470,12 @@ LINE: ${cardInfo.line || ''}
           <Card className="mt-6 bg-blue-50 border border-blue-200">
             <CardContent className="p-3">
               <h4 className="font-medium text-blue-800 mb-2 text-sm">
-                {hasExistingAccount ? '登入後您可以：' : '註冊後您可以：'}
+                {hasRegistrationHistory ? '登入後您可以：' : '註冊後您可以：'}
               </h4>
               <ul className="text-xs text-blue-700 space-y-1">
                 <li className="flex items-center">
                   <QrCode className="w-3 h-3 mr-2 flex-shrink-0" />
-                  {hasExistingAccount ? '管理您的電子名片' : '建立專屬電子名片'}
+                  {hasRegistrationHistory ? '管理您的電子名片' : '建立專屬電子名片'}
                 </li>
                 <li className="flex items-center">
                   <Share2 className="w-3 h-3 mr-2 flex-shrink-0" />
@@ -501,7 +483,7 @@ LINE: ${cardInfo.line || ''}
                 </li>
                 <li className="flex items-center">
                   <Award className="w-3 h-3 mr-2 flex-shrink-0" />
-                  {hasExistingAccount ? '查看會員點數' : '獲得會員點數獎勵'}
+                  {hasRegistrationHistory ? '查看會員點數' : '獲得會員點數獎勵'}
                 </li>
               </ul>
             </CardContent>
@@ -510,7 +492,7 @@ LINE: ${cardInfo.line || ''}
           {/* 服務條款 */}
           <div className="mt-4 text-center px-4">
             <p className="text-xs text-gray-500 leading-relaxed">
-              {hasExistingAccount ? '登入' : '註冊'}即表示您同意我們的
+              {hasRegistrationHistory ? '登入' : '註冊'}即表示您同意我們的
               <span className="text-blue-500 underline cursor-pointer mx-1">服務條款</span>
               和
               <span className="text-blue-500 underline cursor-pointer mx-1">隱私政策</span>
