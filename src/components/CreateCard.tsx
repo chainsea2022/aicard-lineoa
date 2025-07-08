@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -359,16 +358,7 @@ LINE: ${line || ''}
         {/* 電子名片設定區塊 */}
         <Card className="mb-6 shadow-lg">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xl text-gray-800">電子名片設定</CardTitle>
-              <div className="flex items-center space-x-2">
-                <Label className="text-sm text-gray-600">公開名片</Label>
-                <Switch
-                  checked={cardPublic}
-                  onCheckedChange={setCardPublic}
-                />
-              </div>
-            </div>
+            <CardTitle className="text-xl text-gray-800">電子名片設定</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* 照片上傳 */}
@@ -576,44 +566,6 @@ LINE: ${line || ''}
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
-            </div>
-
-            {/* 生日公開設定 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-gray-700">
-                  生日顯示
-                </Label>
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={birthdayVisible}
-                    onCheckedChange={setBirthdayVisible}
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                開啟後，名片上將顯示生日（僅月日）
-              </p>
-            </div>
-
-            {/* 性別公開設定 */}
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium text-gray-700">
-                  性別顯示
-                </Label>
-                <div className="flex items-center space-x-2">
-                  <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={genderVisible}
-                    onCheckedChange={setGenderVisible}
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-gray-500">
-                開啟後，名片上將顯示性別
-              </p>
             </div>
 
             {/* LINE */}
