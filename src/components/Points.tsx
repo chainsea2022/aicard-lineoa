@@ -50,7 +50,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       }));
       setTransactions(parsedTransactions);
     } else {
-      // Initialize with updated sample data
+      // Initialize with updated sample data that matches the earning activities
       const initialTransactions: PointTransaction[] = [
         { id: 1, type: 'earn', points: 30, description: '註冊電子名片', date: new Date() },
         { id: 2, type: 'earn', points: 30, description: '完成電子名片資料', date: new Date(Date.now() - 86400000) },
@@ -165,45 +165,60 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               </CardContent>
             </Card>
 
-            {/* Points Rules Section */}
+            {/* Points Rules Section - Optimized */}
             <Card className="mb-4">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-lg">
                   <Gift className="w-5 h-5 mr-2 text-green-600" />
                   獲得點數方式
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                    <div className="flex items-center">
-                      <FileText className="w-5 h-5 mr-3 text-blue-600" />
-                      <span className="font-medium">註冊電子名片</span>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800">+30點</Badge>
-                  </div>
-                  
-                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                    <div className="flex items-center">
-                      <div className="flex space-x-1 mr-3">
-                        <Users className="w-4 h-4 text-purple-600" />
-                        <Camera className="w-4 h-4 text-purple-600" />
-                        <Mail className="w-4 h-4 text-purple-600" />
+                <div className="grid gap-4">
+                  {/* 註冊電子名片 */}
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm">
+                    <div className="flex items-center flex-1">
+                      <div className="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full mr-3">
+                        <FileText className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <span className="font-medium block">完成電子名片資料</span>
-                        <span className="text-xs text-gray-600">包含公司、姓名、照片、手機、信箱</span>
+                        <h4 className="font-semibold text-blue-900">註冊電子名片</h4>
+                        <p className="text-sm text-blue-700">完成電子名片註冊</p>
                       </div>
                     </div>
-                    <Badge className="bg-purple-100 text-purple-800">+30點</Badge>
+                    <Badge className="bg-green-500 text-white font-bold px-3 py-1">+30點</Badge>
                   </div>
                   
-                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                    <div className="flex items-center">
-                      <Users className="w-5 h-5 mr-3 text-orange-600" />
-                      <span className="font-medium">他人加入您的電子名片</span>
+                  {/* 完成電子名片資料 */}
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl border border-purple-200 shadow-sm">
+                    <div className="flex items-center flex-1">
+                      <div className="flex items-center justify-center w-10 h-10 bg-purple-500 rounded-full mr-3">
+                        <div className="flex space-x-0.5">
+                          <Users className="w-3 h-3 text-white" />
+                          <Camera className="w-3 h-3 text-white" />
+                          <Mail className="w-3 h-3 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-purple-900">完成電子名片資料</h4>
+                        <p className="text-sm text-purple-700">包含公司名稱、姓名、大頭照、手機、信箱</p>
+                      </div>
                     </div>
-                    <Badge className="bg-orange-100 text-orange-800">每人+10點</Badge>
+                    <Badge className="bg-green-500 text-white font-bold px-3 py-1">+30點</Badge>
+                  </div>
+                  
+                  {/* 他人加入您的電子名片 */}
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl border border-orange-200 shadow-sm">
+                    <div className="flex items-center flex-1">
+                      <div className="flex items-center justify-center w-10 h-10 bg-orange-500 rounded-full mr-3">
+                        <Users className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-orange-900">他人加入您的電子名片</h4>
+                        <p className="text-sm text-orange-700">每有一人加入您的名片</p>
+                      </div>
+                    </div>
+                    <Badge className="bg-green-500 text-white font-bold px-3 py-1">每人+10點</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -212,41 +227,50 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
             {/* Milestones Section */}
             <Card className="mb-4">
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-lg">
                   <Award className="w-5 h-5 mr-2 text-yellow-600" />
                   名片收藏里程碑
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
+                <div className="grid gap-3">
                   {milestones.map((milestone, index) => (
                     <div 
                       key={index} 
-                      className={`flex justify-between items-center p-3 rounded-lg ${
+                      className={`flex items-center justify-between p-4 rounded-xl border shadow-sm ${
                         milestone.achieved 
-                          ? 'bg-green-50 border border-green-200' 
-                          : 'bg-gray-50 border border-gray-200'
+                          ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' 
+                          : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200'
                       }`}
                     >
-                      <div className="flex items-center">
-                        <FileText className={`w-5 h-5 mr-3 ${
-                          milestone.achieved ? 'text-green-600' : 'text-gray-400'
-                        }`} />
-                        <span className={`font-medium ${
-                          milestone.achieved ? 'text-green-800' : 'text-gray-600'
+                      <div className="flex items-center flex-1">
+                        <div className={`flex items-center justify-center w-10 h-10 rounded-full mr-3 ${
+                          milestone.achieved ? 'bg-green-500' : 'bg-gray-400'
                         }`}>
-                          收藏 {milestone.cardCount} 筆名片
-                        </span>
+                          <FileText className="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                          <h4 className={`font-semibold ${
+                            milestone.achieved ? 'text-green-900' : 'text-gray-700'
+                          }`}>
+                            收藏 {milestone.cardCount} 筆名片
+                          </h4>
+                          <p className={`text-sm ${
+                            milestone.achieved ? 'text-green-700' : 'text-gray-600'
+                          }`}>
+                            名片夾達到 {milestone.cardCount} 筆
+                          </p>
+                        </div>
                       </div>
                       <div className="flex items-center">
                         {milestone.achieved && (
                           <Award className="w-4 h-4 text-green-600 mr-2" />
                         )}
-                        <Badge className={
+                        <Badge className={`font-bold px-3 py-1 ${
                           milestone.achieved 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-gray-100 text-gray-600'
-                        }>
+                            ? 'bg-green-500 text-white' 
+                            : 'bg-gray-400 text-white'
+                        }`}>
                           +{milestone.points}點
                         </Badge>
                       </div>
@@ -259,7 +283,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
             {/* Redemption Section */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center">
+                <CardTitle className="flex items-center text-lg">
                   <Gift className="w-5 h-5 mr-2 text-red-600" />
                   兌點方式
                 </CardTitle>
@@ -267,38 +291,44 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               <CardContent>
                 <div className="space-y-4">
                   {/* Premium Trial Offer */}
-                  <div className={`p-4 rounded-lg border-2 ${
+                  <div className={`p-4 rounded-xl border-2 shadow-sm ${
                     canRedeemTrial 
-                      ? 'border-green-300 bg-green-50' 
-                      : 'border-gray-200 bg-gray-50'
+                      ? 'border-green-300 bg-gradient-to-r from-green-50 to-green-100' 
+                      : 'border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100'
                   }`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <Award className={`w-6 h-6 mr-3 ${
-                          canRedeemTrial ? 'text-green-600' : 'text-gray-400'
-                        }`} />
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center flex-1">
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-full mr-3 ${
+                          canRedeemTrial ? 'bg-green-500' : 'bg-gray-400'
+                        }`}>
+                          <Award className="w-6 h-6 text-white" />
+                        </div>
                         <div>
-                          <h4 className={`font-semibold ${
+                          <h4 className={`font-semibold text-lg ${
                             canRedeemTrial ? 'text-green-800' : 'text-gray-600'
                           }`}>
                             Aile商務全功能試用
                           </h4>
-                          <p className="text-sm text-gray-600">免費試用1個月</p>
+                          <p className={`text-sm ${
+                            canRedeemTrial ? 'text-green-700' : 'text-gray-600'
+                          }`}>
+                            免費試用1個月
+                          </p>
                         </div>
                       </div>
-                      <Badge className={
+                      <Badge className={`font-bold px-3 py-1 ${
                         canRedeemTrial 
-                          ? 'bg-red-100 text-red-800' 
-                          : 'bg-gray-100 text-gray-600'
-                      }>
+                          ? 'bg-red-500 text-white' 
+                          : 'bg-gray-400 text-white'
+                      }`}>
                         50點
                       </Badge>
                     </div>
                     <Button 
-                      className={`w-full ${
+                      className={`w-full h-11 text-base font-semibold ${
                         canRedeemTrial 
-                          ? 'bg-green-600 hover:bg-green-700' 
-                          : 'bg-gray-400 cursor-not-allowed'
+                          ? 'bg-green-600 hover:bg-green-700 text-white' 
+                          : 'bg-gray-400 cursor-not-allowed text-white'
                       }`}
                       disabled={!canRedeemTrial}
                     >
@@ -306,17 +336,19 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                     </Button>
                   </div>
 
-                  {/* Aiwow App Promotion */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+                  {/* Aiwow App Promotion - Updated button size */}
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-100 border-2 border-blue-200 rounded-xl shadow-sm">
                     <div className="text-center">
-                      <Gift className="w-8 h-8 mx-auto text-blue-600 mb-2" />
-                      <h4 className="font-semibold text-blue-800 mb-1">更多兌點優惠</h4>
-                      <p className="text-sm text-blue-700 mb-3">
+                      <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full mx-auto mb-3">
+                        <Gift className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-lg text-blue-800 mb-2">更多兌點優惠</h4>
+                      <p className="text-sm text-blue-700 mb-4">
                         請至 Aiwow APP 兌換更多好禮！
                       </p>
                       <Button 
                         variant="outline" 
-                        className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                        className="w-full h-11 text-base font-semibold border-2 border-blue-500 text-blue-600 hover:bg-blue-50"
                       >
                         前往 Aiwow APP
                       </Button>
@@ -324,13 +356,28 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                   </div>
 
                   {/* Terms */}
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-800 mb-2">兌點說明</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• 點數有效期限為獲得日起一年</li>
-                      <li>• 點數不可轉讓給其他用戶</li>
-                      <li>• 兌換後的服務或商品不可退換</li>
-                      <li>• 兌點規則可能會調整，以最新公告為準</li>
+                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
+                      <FileText className="w-4 h-4 mr-2" />
+                      兌點說明
+                    </h4>
+                    <ul className="text-sm text-gray-600 space-y-2">
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        點數有效期限為獲得日起一年
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        點數不可轉讓給其他用戶
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        兌換後的服務或商品不可退換
+                      </li>
+                      <li className="flex items-start">
+                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
+                        兌點規則可能會調整，以最新公告為準
+                      </li>
                     </ul>
                   </div>
                 </div>
