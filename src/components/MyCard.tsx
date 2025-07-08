@@ -710,19 +710,6 @@ LINE: ${cardInfo.line || ''}
           </Card>
 
           <PointsWidget onPointsClick={() => setShowPoints(true)} />
-
-          <Button 
-            onClick={() => setShowPoints(true)}
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white flex items-center justify-center"
-          >
-            <Award className="w-4 h-4 mr-2" />
-            會員點數詳情
-            {currentPoints > 0 && (
-              <span className="ml-2 bg-white/20 px-2 py-1 rounded text-sm">
-                {currentPoints.toLocaleString()} 點
-              </span>
-            )}
-          </Button>
         </div>
       )}
     </div>
