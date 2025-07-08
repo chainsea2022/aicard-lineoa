@@ -17,11 +17,16 @@ interface CardPreviewProps {
     email: string;
     website: string;
     address?: string;
+    addressVisible?: boolean;
     birthday?: string;
+    birthdayVisible?: boolean;
+    gender?: string;
+    genderVisible?: boolean;
     line: string;
     facebook: string;
     instagram: string;
     photo: string | null;
+    cardPublic?: boolean;
   };
   onClose: () => void;
   onEdit: () => void;
@@ -59,6 +64,21 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
       title: "設定已儲存",
       description: "您的電子名片設定已更新。"
     });
+  };
+
+  const formatBirthdayDisplay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  };
+
+  const getGenderDisplay = (gender: string) => {
+    switch (gender) {
+      case 'male': return '男性';
+      case 'female': return '女性';
+      case 'other': return '其他';
+      default: return gender;
+    }
   };
 
   const generateQRCode = (data: string) => {
@@ -128,8 +148,9 @@ ${cardData.jobTitle ? `職稱: ${cardData.jobTitle}` : ''}
 公司: ${cardData.companyName || ''}
 電話: ${cardData.phone || ''}
 Email: ${cardData.email || ''}
-${cardData.address ? `地址: ${cardData.address}` : ''}
-${cardData.birthday ? `生日: ${new Date(cardData.birthday).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}` : ''}
+${cardData.address && cardData.addressVisible ? `地址: ${cardData.address}` : ''}
+${cardData.birthday && cardData.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardData.birthday)}` : ''}
+${cardData.gender && cardData.genderVisible ? `性別: ${getGenderDisplay(cardData.gender)}` : ''}
 LINE: ${cardData.line || ''}
 網站: ${cardData.website || ''}`;
 
@@ -194,16 +215,22 @@ LINE: ${cardData.line || ''}
                     <span>{cardData.website}</span>
                   </div>
                 )}
-                {cardData.address && (
+                {cardData.address && cardData.addressVisible && (
                   <div className="flex items-center">
                     <span className="mr-2">📍</span>
                     <span>{cardData.address}</span>
                   </div>
                 )}
-                {cardData.birthday && (
+                {cardData.birthday && cardData.birthdayVisible && (
                   <div className="flex items-center">
                     <span className="mr-2">🎂</span>
-                    <span>{new Date(cardData.birthday).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}</span>
+                    <span>{formatBirthdayDisplay(cardData.birthday)}</span>
+                  </div>
+                )}
+                {cardData.gender && cardData.genderVisible && (
+                  <div className="flex items-center">
+                    <span className="mr-2">👤</span>
+                    <span>{getGenderDisplay(cardData.gender)}</span>
                   </div>
                 )}
               </div>

@@ -1,11 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, X, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
 
 interface CreateCardProps {
@@ -15,6 +18,16 @@ interface CreateCardProps {
 }
 
 const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userData }) => {
+  // Personal Info States
+  const [gender, setGender] = useState('');
+  const [genderVisible, setGenderVisible] = useState(false);
+  const [birthday, setBirthday] = useState('');
+  const [birthdayVisible, setBirthdayVisible] = useState(false);
+  const [registeredPhone, setRegisteredPhone] = useState(userData?.phone || '');
+  const [showOTPInput, setShowOTPInput] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+
+  // Business Card Settings States
   const [name, setName] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [jobTitle, setJobTitle] = useState('');
@@ -22,12 +35,16 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
   const [address, setAddress] = useState('');
-  const [birthday, setBirthday] = useState('');
+  const [addressVisible, setAddressVisible] = useState(true);
   const [line, setLine] = useState('');
   const [facebook, setFacebook] = useState('');
   const [instagram, setInstagram] = useState('');
   const [photo, setPhoto] = useState<string | null>(null);
+  const [cardPublic, setCardPublic] = useState(false);
+
+  // UI States
   const [showPreview, setShowPreview] = useState(false);
+  const [showLineTutorial, setShowLineTutorial] = useState(false);
 
   useEffect(() => {
     // 從 localStorage 載入名片資料
@@ -37,17 +54,22 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setName(cardInfo.name || '');
       setCompanyName(cardInfo.companyName || '');
       setJobTitle(cardInfo.jobTitle || '');
-      setPhone(cardInfo.phone || '');
+      setPhone(cardInfo.phone || userData?.phone || '');
       setEmail(cardInfo.email || '');
       setWebsite(cardInfo.website || '');
       setAddress(cardInfo.address || '');
+      setAddressVisible(cardInfo.addressVisible !== false);
       setBirthday(cardInfo.birthday || '');
+      setBirthdayVisible(cardInfo.birthdayVisible || false);
+      setGender(cardInfo.gender || '');
+      setGenderVisible(cardInfo.genderVisible || false);
       setLine(cardInfo.line || '');
       setFacebook(cardInfo.facebook || '');
       setInstagram(cardInfo.instagram || '');
       setPhoto(cardInfo.photo || null);
+      setCardPublic(cardInfo.cardPublic || false);
     }
-  }, []);
+  }, [userData]);
 
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -64,21 +86,51 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     setPhoto(null);
   };
 
+  const handlePhoneChange = () => {
+    setShowOTPInput(true);
+    toast({
+      title: "手機號碼驗證",
+      description: "請輸入發送到您手機的驗證碼"
+    });
+  };
+
+  const handleOTPVerification = () => {
+    if (otpCode.length === 6) {
+      setRegisteredPhone(phone);
+      setShowOTPInput(false);
+      setOtpCode('');
+      toast({
+        title: "驗證成功",
+        description: "手機號碼已更新"
+      });
+    } else {
+      toast({
+        title: "驗證失敗",
+        description: "請輸入正確的驗證碼"
+      });
+    }
+  };
+
   const handleSave = () => {
     // 儲存名片資料到 localStorage
     const cardData = {
       name,
       companyName,
       jobTitle,
-      phone,
+      phone: registeredPhone,
       email,
       website,
       address,
+      addressVisible,
       birthday,
+      birthdayVisible,
+      gender,
+      genderVisible,
       line,
       facebook,
       instagram,
-      photo
+      photo,
+      cardPublic
     };
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
     toast({
@@ -86,6 +138,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       description: "您的電子名片已成功儲存。"
     });
     onRegistrationComplete();
+  };
+
+  const formatBirthdayDisplay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
   };
 
   return (
@@ -106,10 +164,126 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       </div>
 
       <div className="p-6">
-        {/* 編輯表單 */}
+        {/* 個人資料區塊 */}
         <Card className="mb-6 shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl text-gray-800">基本資訊</CardTitle>
+            <CardTitle className="text-xl text-gray-800">個人資料</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* 性別 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="gender" className="text-sm font-medium text-gray-700">
+                  性別
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={genderVisible}
+                    onCheckedChange={setGenderVisible}
+                  />
+                </div>
+              </div>
+              <Select value={gender} onValueChange={setGender}>
+                <SelectTrigger>
+                  <SelectValue placeholder="請選擇性別" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="male">男性</SelectItem>
+                  <SelectItem value="female">女性</SelectItem>
+                  <SelectItem value="other">其他</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* 生日 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="birthday" className="text-sm font-medium text-gray-700">
+                  生日
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={birthdayVisible}
+                    onCheckedChange={setBirthdayVisible}
+                  />
+                </div>
+              </div>
+              <Input
+                id="birthday"
+                type="date"
+                value={birthday}
+                onChange={(e) => setBirthday(e.target.value)}
+              />
+              <p className="text-xs text-gray-500">
+                公開時僅顯示月日，不顯示年份
+              </p>
+            </div>
+
+            {/* 註冊手機號碼 */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium text-gray-700">
+                註冊手機號碼
+              </Label>
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="tel"
+                  value={registeredPhone}
+                  readOnly
+                  className="bg-gray-50"
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePhoneChange}
+                  className="shrink-0"
+                >
+                  <Edit className="w-4 h-4 mr-1" />
+                  修改
+                </Button>
+              </div>
+              
+              {showOTPInput && (
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg">
+                  <Label className="text-sm font-medium text-gray-700 mb-2 block">
+                    請輸入驗證碼
+                  </Label>
+                  <div className="flex items-center space-x-2">
+                    <Input
+                      type="text"
+                      placeholder="6位數驗證碼"
+                      value={otpCode}
+                      onChange={(e) => setOtpCode(e.target.value)}
+                      maxLength={6}
+                    />
+                    <Button
+                      onClick={handleOTPVerification}
+                      size="sm"
+                      className="shrink-0"
+                    >
+                      驗證
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 電子名片設定區塊 */}
+        <Card className="mb-6 shadow-lg">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl text-gray-800">電子名片設定</CardTitle>
+              <div className="flex items-center space-x-2">
+                <Label className="text-sm text-gray-600">公開名片</Label>
+                <Switch
+                  checked={cardPublic}
+                  onCheckedChange={setCardPublic}
+                />
+              </div>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* 照片上傳 */}
@@ -125,7 +299,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               </Avatar>
               <div>
                 <Label htmlFor="photo-upload" className="text-sm font-medium text-gray-700">
-                  更換照片
+                  上傳頭像
                 </Label>
                 <Input
                   id="photo-upload"
@@ -134,12 +308,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                   className="hidden"
                   onChange={handlePhotoUpload}
                 />
+                <label
+                  htmlFor="photo-upload"
+                  className="cursor-pointer inline-flex items-center px-3 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-50"
+                >
+                  <Upload className="w-4 h-4 mr-1" />
+                  選擇照片
+                </label>
                 {photo && (
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={handleRemovePhoto}
-                    className="text-red-500 hover:bg-red-50"
+                    className="text-red-500 hover:bg-red-50 ml-2"
                   >
                     <X className="w-4 h-4 mr-1" />
                     移除
@@ -198,10 +379,13 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               <Input
                 id="phone"
                 type="tel"
-                placeholder="您的電話號碼"
+                placeholder="您的聯絡電話"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
+              <p className="text-xs text-gray-500 mt-1">
+                顯示用聯絡電話，可與註冊手機號碼不同
+              </p>
             </div>
 
             {/* Email */}
@@ -233,10 +417,19 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
             </div>
 
             {/* 地址 */}
-            <div>
-              <Label htmlFor="address" className="text-sm font-medium text-gray-700">
-                地址
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="address" className="text-sm font-medium text-gray-700">
+                  地址
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={addressVisible}
+                    onCheckedChange={setAddressVisible}
+                  />
+                </div>
+              </div>
               <Input
                 id="address"
                 type="text"
@@ -246,31 +439,47 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               />
             </div>
 
-            {/* 生日 */}
-            <div>
-              <Label htmlFor="birthday" className="text-sm font-medium text-gray-700">
-                生日
-              </Label>
-              <Input
-                id="birthday"
-                type="date"
-                value={birthday}
-                onChange={(e) => setBirthday(e.target.value)}
-              />
-            </div>
-
             {/* LINE */}
-            <div>
-              <Label htmlFor="line" className="text-sm font-medium text-gray-700">
-                LINE
-              </Label>
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="line" className="text-sm font-medium text-gray-700">
+                  LINE
+                </Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowLineTutorial(!showLineTutorial)}
+                  className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
+                >
+                  <Info className="w-4 h-4 text-blue-500" />
+                </Button>
+              </div>
               <Input
                 id="line"
-                type="text"
-                placeholder="您的LINE ID"
+                type="url"
+                placeholder="您的LINE個人網址"
                 value={line}
                 onChange={(e) => setLine(e.target.value)}
               />
+              
+              <Collapsible open={showLineTutorial} onOpenChange={setShowLineTutorial}>
+                <CollapsibleContent className="mt-2 p-3 bg-blue-50 rounded-lg text-sm">
+                  <div className="space-y-3">
+                    <div>
+                      <p className="font-medium text-blue-800 mb-1">📱 iOS用戶：</p>
+                      <p className="text-blue-700 text-xs leading-relaxed">
+                        進入LINE主頁 → 加入好友 → 透過社群/郵件等方式宣傳帳號 → 選擇「網址」→ 複製網址URL
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-medium text-blue-800 mb-1">🤖 Android用戶：</p>
+                      <p className="text-blue-700 text-xs leading-relaxed">
+                        進入LINE主頁 → 點右上角「人像＋」圖示 → 點行動條碼 → 顯示行動條碼 → 選擇一位朋友分享 → 進入對話視窗即可看到專屬連結和QR Code
+                      </p>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
             {/* Facebook */}
@@ -281,7 +490,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               <Input
                 id="facebook"
                 type="text"
-                placeholder="您的Facebook連結"
+                placeholder="您的Facebook用戶名稱或連結"
                 value={facebook}
                 onChange={(e) => setFacebook(e.target.value)}
               />
@@ -295,7 +504,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               <Input
                 id="instagram"
                 type="text"
-                placeholder="您的Instagram連結"
+                placeholder="您的Instagram用戶名稱或連結"
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
               />
@@ -349,7 +558,54 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                     <span>{website}</span>
                   </div>
                 )}
+                {address && addressVisible && (
+                  <div className="flex items-center">
+                    <span className="mr-2">📍</span>
+                    <span>{address}</span>
+                  </div>
+                )}
+                {birthday && birthdayVisible && (
+                  <div className="flex items-center">
+                    <span className="mr-2">🎂</span>
+                    <span>{formatBirthdayDisplay(birthday)}</span>
+                  </div>
+                )}
+                {gender && genderVisible && (
+                  <div className="flex items-center">
+                    <span className="mr-2">👤</span>
+                    <span>{gender === 'male' ? '男性' : gender === 'female' ? '女性' : '其他'}</span>
+                  </div>
+                )}
               </div>
+
+              {/* 社群資訊 */}
+              {(line || facebook || instagram) && (
+                <div className="mt-4 pt-4 border-t border-green-300/50">
+                  <div className="flex flex-wrap gap-3">
+                    {line && (
+                      <button
+                        onClick={() => window.open(line, '_blank')}
+                        className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
+                      >
+                        <span className="mr-1">💬</span>
+                        <span>加入 LINE</span>
+                      </button>
+                    )}
+                    {facebook && (
+                      <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                        <span className="mr-1">📘</span>
+                        <span>FB: {facebook}</span>
+                      </div>
+                    )}
+                    {instagram && (
+                      <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                        <span className="mr-1">📷</span>
+                        <span>IG: {instagram}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
