@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,7 +31,6 @@ interface CustomerData {
 
 const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
-  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
   const [scanCount, setScanCount] = useState(0); // Track number of scans
   const [customerData, setCustomerData] = useState<CustomerData>({
@@ -42,8 +42,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     // Initialize LIFF
@@ -64,33 +62,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     };
     initializeLiff();
   }, []);
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' } // Use back camera for scanning
-      });
-      
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setIsCameraOpen(true);
-      }
-    } catch (error) {
-      console.error('Camera access failed:', error);
-      // Remove the toast notification - just log the error
-      // Keep the interface but don't show error toast
-    }
-  };
-
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      const tracks = stream.getTracks();
-      tracks.forEach(track => track.stop());
-      videoRef.current.srcObject = null;
-    }
-    setIsCameraOpen(false);
-  };
 
   const simulateScan = () => {
     // Alternate between digital card (first scan) and paper card (second scan)
@@ -124,8 +95,6 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       });
       setInvitationUrl(generateInvitationUrl());
     }
-    
-    stopCamera();
   };
 
   const generateInvitationUrl = () => {
@@ -267,16 +236,16 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3 pb-4 min-h-0">
-        {!isCameraOpen && scanResult === 'none' && (
+        {scanResult === 'none' && (
           <>
-            {/* Camera Interface */}
+            {/* Scanner Interface */}
             <div className="bg-gray-100 rounded-lg p-4 text-center">
               <div className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
                 <Camera className="w-12 h-12 text-gray-400" />
               </div>
               <p className="text-gray-600 mb-4 text-sm">對準名片或 QR Code 進行掃描</p>
               
-              <Button onClick={startCamera} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-3 h-12 touch-manipulation">
+              <Button onClick={simulateScan} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-3 h-12 touch-manipulation">
                 <Camera className="w-5 h-5 mr-2" />
                 開始掃描
               </Button>
@@ -286,50 +255,13 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             <div className="bg-gray-50 rounded-lg p-3">
               <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>• 第一次點擊：掃描電子名片卡並儲存到我的電子名片夾</li>
-                <li>• 第二次點擊：掃描紙本名片並儲存到我的聯絡人列表</li>
+                <li>• 第一次點擊：展開電子名片卡欄位，儲存到我的電子名片夾</li>
+                <li>• 第二次點擊：展開紙本名片欄位，儲存到我的聯絡人列表</li>
                 <li>• 依序交替顯示不同的掃描結果</li>
-                <li>• 完成掃描後可選擇繼續掃描或前往查看</li>
+                <li>• 完成儲存後可選擇繼續掃描或前往查看</li>
               </ul>
             </div>
           </>
-        )}
-
-        {/* Camera View */}
-        {isCameraOpen && (
-          <div className="relative">
-            <video
-              ref={videoRef}
-              autoPlay
-              playsInline
-              className="w-full h-64 bg-black rounded-lg object-cover"
-            />
-            <canvas ref={canvasRef} className="hidden" />
-            
-            {/* Camera overlay */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-48 h-32 border-2 border-white rounded-lg opacity-75"></div>
-            </div>
-            
-            {/* Camera controls */}
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
-              <Button
-                onClick={simulateScan}
-                className="bg-white text-gray-800 hover:bg-gray-100 rounded-full w-16 h-16 p-0"
-              >
-                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                  <Camera className="w-6 h-6 text-white" />
-                </div>
-              </Button>
-              <Button
-                onClick={stopCamera}
-                variant="outline"
-                className="bg-white text-gray-800 hover:bg-gray-100 rounded-full w-12 h-12 p-0"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
         )}
 
         {/* Paper Business Card Results */}
