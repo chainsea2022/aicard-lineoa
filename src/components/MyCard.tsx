@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -522,6 +523,9 @@ LINE: ${cardInfo.line || ''}
                   )}
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-1">{cardData.name}</h2>
+                    {cardData.jobTitle && (
+                      <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>
+                    )}
                     {cardData.companyName && (
                       <p className="text-green-100 text-lg">{cardData.companyName}</p>
                     )}
