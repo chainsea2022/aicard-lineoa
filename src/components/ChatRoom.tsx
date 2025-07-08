@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -246,6 +246,7 @@ const ChatRoom = () => {
   const [inputText, setInputText] = useState('');
   const [showLIFFPopup, setShowLIFFPopup] = useState(false);
   const [currentCardOwner, setCurrentCardOwner] = useState('');
+  const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({}); // 追蹤QR碼展開狀態
 
   useEffect(() => {
     // 監聽各種客戶事件
@@ -411,35 +412,19 @@ const ChatRoom = () => {
     setMessages(prev => [...prev, joinMessage]);
   };
 
+  // 處理QR碼展開/收合
+  const toggleQrCode = (messageId: number) => {
+    setExpandedQrCodes(prev => ({
+      ...prev,
+      [messageId]: !prev[messageId]
+    }));
+  };
+
   // 處理名片內的操作
   const handleCardAction = (action: string, cardData: any) => {
     const customerName = generateRandomCustomerName();
     
     switch (action) {
-      case 'saveToAlbum':
-        toast({
-          title: "已儲存到相簿",
-          description: "電子名片已儲存到您的相簿中。"
-        });
-        break;
-        
-      case 'addToContacts':
-        toast({
-          title: "已加入聯絡人",
-          description: `${cardData?.name || '聯絡人'} 已加入您的聯絡人清單。`
-        });
-        break;
-        
-      case 'createCard':
-        const createMessage: Message = {
-          id: Date.now(),
-          text: "正在為您建立電子名片模板，您可以編輯個人資訊和自訂設計。",
-          isBot: true,
-          timestamp: new Date()
-        };
-        setMessages(prev => [...prev, createMessage]);
-        break;
-        
       case 'share':
         const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
         
@@ -564,84 +549,77 @@ const ChatRoom = () => {
                                   )}
                                 </div>
 
-                                {/* 修改社群媒體連結顯示 */}
+                                {/* 社群媒體圖示顯示 */}
                                 {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
                                   <div className="mt-2 pt-2 border-t border-white/20">
-                                    <p className="text-xs text-blue-100 mb-1">社群媒體</p>
-                                    <div className="space-y-1 text-xs">
+                                    <div className="flex items-center space-x-3">
                                       {message.cardData.line && (
-                                        <div className="flex items-center space-x-2">
-                                          <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                          <a 
-                                            href={message.cardData.line} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="text-white hover:text-blue-100 underline truncate"
-                                          >
-                                            LINE: {message.cardData.line}
-                                          </a>
-                                        </div>
+                                        <a 
+                                          href={message.cardData.line} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-white hover:text-blue-100 transition-colors"
+                                          title="LINE"
+                                        >
+                                          <MessageCircle className="w-5 h-5" />
+                                        </a>
                                       )}
                                       {message.cardData.facebook && (
-                                        <div className="flex items-center space-x-2">
-                                          <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                          <a 
-                                            href={message.cardData.facebook} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="text-white hover:text-blue-100 underline truncate"
-                                          >
-                                            Facebook: {message.cardData.facebook}
-                                          </a>
-                                        </div>
+                                        <a 
+                                          href={message.cardData.facebook} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-white hover:text-blue-100 transition-colors"
+                                          title="Facebook"
+                                        >
+                                          <Facebook className="w-5 h-5" />
+                                        </a>
                                       )}
                                       {message.cardData.instagram && (
-                                        <div className="flex items-center space-x-2">
-                                          <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                          <a 
-                                            href={message.cardData.instagram} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer"
-                                            className="text-white hover:text-blue-100 underline truncate"
-                                          >
-                                            Instagram: {message.cardData.instagram}
-                                          </a>
-                                        </div>
+                                        <a 
+                                          href={message.cardData.instagram} 
+                                          target="_blank" 
+                                          rel="noopener noreferrer"
+                                          className="text-white hover:text-blue-100 transition-colors"
+                                          title="Instagram"
+                                        >
+                                          <Instagram className="w-5 h-5" />
+                                        </a>
                                       )}
                                     </div>
                                   </div>
                                 )}
                               </div>
 
-                              {/* 修改後的操作按鈕 - 移除QR Code相關功能 */}
-                              <div className="p-3 bg-white space-y-2">
-                                <Button 
-                                  onClick={() => handleCardAction('saveToAlbum', message.cardData)} 
-                                  size="sm" 
-                                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                              {/* QR Code 可折疊區塊 */}
+                              <div className="bg-gray-50 border-t border-gray-200">
+                                <button
+                                  onClick={() => toggleQrCode(message.id)}
+                                  className="w-full p-3 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
                                 >
-                                  <Download className="w-3 h-3 mr-2" />
-                                  儲存到我的相簿
-                                </Button>
+                                  <div className="flex items-center space-x-2">
+                                    <QrCode className="w-4 h-4 text-gray-600" />
+                                    <span className="text-sm text-gray-700">QR Code</span>
+                                  </div>
+                                  {expandedQrCodes[message.id] ? (
+                                    <ChevronUp className="w-4 h-4 text-gray-600" />
+                                  ) : (
+                                    <ChevronDown className="w-4 h-4 text-gray-600" />
+                                  )}
+                                </button>
                                 
-                                <Button 
-                                  onClick={() => handleCardAction('addToContacts', message.cardData)} 
-                                  size="sm" 
-                                  className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8"
-                                >
-                                  <BookmarkPlus className="w-3 h-3 mr-2" />
-                                  加入聯絡人
-                                </Button>
-                                
-                                <Button 
-                                  onClick={() => handleCardAction('createCard', message.cardData)} 
-                                  size="sm" 
-                                  className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
-                                >
-                                  <Edit className="w-3 h-3 mr-2" />
-                                  建立我的名片
-                                </Button>
-                                
+                                {expandedQrCodes[message.id] && (
+                                  <div className="p-4 border-t border-gray-200 bg-white">
+                                    <div className="w-32 h-32 mx-auto bg-white border-2 border-gray-200 rounded-lg flex items-center justify-center">
+                                      <QrCode className="w-16 h-16 text-gray-400" />
+                                    </div>
+                                    <p className="text-xs text-gray-500 text-center mt-2">掃描此 QR Code 查看名片</p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* 操作按鈕 - 只保留分享按鈕 */}
+                              <div className="p-3 bg-white">
                                 <Button 
                                   onClick={() => handleCardAction('share', message.cardData)} 
                                   size="sm" 
