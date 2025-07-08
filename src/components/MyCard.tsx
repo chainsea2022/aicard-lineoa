@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Settings, Eye, EyeOff, Award, User, Smartphone, LogOut } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import CreateCard from './CreateCard';
-import { ProfileSettings } from './MyCustomers/ProfileSettings';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
 
@@ -17,7 +16,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [cardData, setCardData] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [showCreateCard, setShowCreateCard] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
   const [showPoints, setShowPoints] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [qrCodeData, setQrCodeData] = useState('');
@@ -209,7 +207,6 @@ LINE: ${cardInfo.line || ''}
     setUserData(null);
     setQrCodeData('');
     setShowCreateCard(false);
-    setShowSettings(false);
     setShowPoints(false);
     setShowOTPVerification(false);
     setIsNewUser(false);
@@ -249,10 +246,6 @@ LINE: ${cardInfo.line || ''}
 
   if (showCreateCard) {
     return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
-  }
-
-  if (showSettings) {
-    return <ProfileSettings onClose={() => setShowSettings(false)} />;
   }
 
   if (showPoints) {
@@ -422,10 +415,6 @@ LINE: ${cardInfo.line || ''}
                   <Award className="w-3 h-3 mr-2 flex-shrink-0" />
                   {hasExistingAccount ? '查看會員點數' : '獲得會員點數獎勵'}
                 </li>
-                <li className="flex items-center">
-                  <Settings className="w-3 h-3 mr-2 flex-shrink-0" />
-                  管理個人資料設定
-                </li>
               </ul>
             </CardContent>
           </Card>
@@ -565,14 +554,6 @@ LINE: ${cardInfo.line || ''}
             </Button>
 
             <Button 
-              onClick={() => setShowSettings(true)}
-              className="w-full bg-green-500 hover:bg-green-600 text-white"
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              公開設定
-            </Button>
-
-            <Button 
               onClick={() => setShowPoints(true)}
               className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
             >
@@ -605,7 +586,7 @@ LINE: ${cardInfo.line || ''}
               <ul className="text-xs text-blue-700 space-y-1">
                 <li>• 公開名片：其他用戶可以在智能推薦中找到您</li>
                 <li>• 私人名片：僅限您主動分享的人可以查看</li>
-                <li>• 可隨時在公開設定中調整</li>
+                <li>• 可隨時在預覽模式中調整公開設定</li>
               </ul>
             </CardContent>
           </Card>

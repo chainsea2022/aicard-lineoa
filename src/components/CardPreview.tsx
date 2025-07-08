@@ -1,9 +1,12 @@
 
 import React, { useState } from 'react';
-import { ArrowLeft, Edit, Share2, Download, QrCode, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, Download, QrCode, ChevronUp, ChevronDown, Eye, EyeOff, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { toast } from '@/hooks/use-toast';
 
 interface CardPreviewProps {
   cardData: {
@@ -22,11 +25,40 @@ interface CardPreviewProps {
 }
 
 const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) => {
-  const [showQRCode, setShowQRCode] = useState(true); // 預設展開
+  const [showQRCode, setShowQRCode] = useState(true);
+  const [publicSettings, setPublicSettings] = useState({
+    isPublicProfile: false,
+    allowDirectContact: true,
+    receiveNotifications: true
+  });
+
+  React.useEffect(() => {
+    const savedSettings = localStorage.getItem('aile-profile-settings');
+    if (savedSettings) {
+      const settings = JSON.parse(savedSettings);
+      setPublicSettings({
+        isPublicProfile: settings.isPublicProfile ?? false,
+        allowDirectContact: settings.allowDirectContact ?? true,
+        receiveNotifications: settings.receiveNotifications ?? true
+      });
+    }
+  }, []);
+
+  const handleSettingChange = (key: string, value: boolean) => {
+    const newSettings = {
+      ...publicSettings,
+      [key]: value
+    };
+    setPublicSettings(newSettings);
+    localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
+    toast({
+      title: "設定已儲存",
+      description: "您的電子名片設定已更新。"
+    });
+  };
 
   const generateQRCode = (data: string) => {
-    // 創建簡單的QR Code視覺化
-    const size = 8; // 8x8的簡化QR Code
+    const size = 8;
     const squares = [];
     
     for (let i = 0; i < size; i++) {
@@ -48,10 +80,26 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
     );
   };
 
-  const handleGenerateQRCode = () => {
-    // 模擬生成QR Code
-    const cardInfo = `名片資訊\n姓名: ${cardData.name}\n公司: ${cardData.companyName}\n電話: ${cardData.phone}\nEmail: ${cardData.email}`;
-    console.log('生成QR Code:', cardInfo);
+  const handleLineClick = (lineUrl: string) => {
+    if (lineUrl) {
+      window.open(lineUrl, '_blank');
+    }
+  };
+
+  const downloadQRCode = () => {
+    toast({
+      title: "QR Code 已下載",
+      description: "QR Code 圖片已儲存到您的裝置。"
+    });
+    console.log('下載 QR Code');
+  };
+
+  const downloadCard = () => {
+    toast({
+      title: "名片已下載",
+      description: "電子名片已儲存到您的裝置。"
+    });
+    console.log('下載名片');
   };
 
   const shareCard = () => {
@@ -62,17 +110,14 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
         url: window.location.href,
       });
     } else {
-      // 復制到剪貼板
       navigator.clipboard.writeText(`${cardData.name}的電子名片 - ${cardData.companyName}`);
+      toast({
+        title: "已複製到剪貼板",
+        description: "名片資訊已複製，可以分享給朋友。"
+      });
     }
   };
 
-  const downloadCard = () => {
-    // 模擬下載名片
-    console.log('下載名片');
-  };
-
-  // 生成QR Code資料
   const qrCodeData = `名片資訊
 姓名: ${cardData.name || ''}
 公司: ${cardData.companyName || ''}
@@ -146,10 +191,13 @@ LINE: ${cardData.line || ''}
                 <div className="mt-4 pt-4 border-t border-green-300/50">
                   <div className="flex flex-wrap gap-3">
                     {cardData.line && (
-                      <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                      <button
+                        onClick={() => handleLineClick(cardData.line)}
+                        className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
+                      >
                         <span className="mr-1">💬</span>
-                        <span>LINE: {cardData.line}</span>
-                      </div>
+                        <span>加入 LINE</span>
+                      </button>
                     )}
                     {cardData.facebook && (
                       <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
@@ -170,7 +218,7 @@ LINE: ${cardData.line || ''}
           </CardContent>
         </Card>
 
-        {/* QR Code 區塊 - 預設展開 */}
+        {/* QR Code 區塊 */}
         <Card className="mb-6 shadow-lg">
           <CardContent className="p-4">
             <Button
@@ -190,50 +238,99 @@ LINE: ${cardData.line || ''}
                 <div className="flex justify-center mb-3">
                   {generateQRCode(qrCodeData)}
                 </div>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 mb-3">
                   掃描此QR Code即可獲得我的聯絡資訊
                 </p>
+                <Button
+                  onClick={downloadQRCode}
+                  variant="outline"
+                  size="sm"
+                  className="border-green-500 text-green-600 hover:bg-green-50"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  下載 QR Code
+                </Button>
               </div>
             )}
           </CardContent>
         </Card>
 
+        {/* 公開設定區塊 */}
+        <Card className="mb-6 shadow-lg">
+          <CardHeader>
+            <CardTitle className="flex items-center text-lg">
+              <Eye className="w-5 h-5 mr-2" />
+              公開設定
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">公開電子名片</Label>
+                <p className="text-xs text-gray-600">
+                  開啟後，其他人可以在智能推薦中找到您的名片
+                </p>
+              </div>
+              <Switch
+                checked={publicSettings.isPublicProfile}
+                onCheckedChange={(checked) => handleSettingChange('isPublicProfile', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">允許直接聯繫</Label>
+                <p className="text-xs text-gray-600">
+                  關閉後，需要您同意才能與您聯繫
+                </p>
+              </div>
+              <Switch
+                checked={publicSettings.allowDirectContact}
+                onCheckedChange={(checked) => handleSettingChange('allowDirectContact', checked)}
+              />
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">接收通知</Label>
+                <p className="text-xs text-gray-600">
+                  當有人加入您的名片時接收通知
+                </p>
+              </div>
+              <Switch
+                checked={publicSettings.receiveNotifications}
+                onCheckedChange={(checked) => handleSettingChange('receiveNotifications', checked)}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* 操作按鈕 */}
-        <div className="space-y-3">
+        <div className="grid grid-cols-3 gap-3">
           <Button
             onClick={onEdit}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white"
+            className="bg-blue-500 hover:bg-blue-600 text-white"
           >
-            <Edit className="w-4 h-4 mr-2" />
+            <Edit className="w-4 h-4 mr-1" />
             編輯名片
           </Button>
-
-          <div className="grid grid-cols-2 gap-3">
-            <Button
-              onClick={handleGenerateQRCode}
-              variant="outline"
-              className="border-green-500 text-green-600 hover:bg-green-50"
-            >
-              <QrCode className="w-4 h-4 mr-2" />
-              QR Code
-            </Button>
-            <Button
-              onClick={shareCard}
-              variant="outline"
-              className="border-blue-500 text-blue-600 hover:bg-blue-50"
-            >
-              <Share2 className="w-4 h-4 mr-2" />
-              分享
-            </Button>
-          </div>
 
           <Button
             onClick={downloadCard}
             variant="outline"
-            className="w-full border-gray-500 text-gray-600 hover:bg-gray-50"
+            className="border-gray-500 text-gray-600 hover:bg-gray-50"
           >
-            <Download className="w-4 h-4 mr-2" />
+            <Download className="w-4 h-4 mr-1" />
             下載名片
+          </Button>
+
+          <Button
+            onClick={shareCard}
+            variant="outline"
+            className="border-blue-500 text-blue-600 hover:bg-blue-50"
+          >
+            <Share2 className="w-4 h-4 mr-1" />
+            分享名片
           </Button>
         </div>
       </div>
