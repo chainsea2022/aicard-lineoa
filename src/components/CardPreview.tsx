@@ -25,7 +25,8 @@ interface CardPreviewProps {
 }
 
 const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) => {
-  const [showQRCode, setShowQRCode] = useState(true);
+  const [showQRCode, setShowQRCode] = useState(false);
+  const [showPublicSettings, setShowPublicSettings] = useState(false);
   const [publicSettings, setPublicSettings] = useState({
     isPublicProfile: false,
     allowDirectContact: true,
@@ -215,98 +216,46 @@ LINE: ${cardData.line || ''}
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-
-        {/* QR Code 區塊 */}
-        <Card className="mb-6 shadow-lg">
-          <CardContent className="p-4">
-            <Button
-              variant="ghost"
-              onClick={() => setShowQRCode(!showQRCode)}
-              className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
-            >
-              <div className="flex items-center">
-                <QrCode className="w-4 h-4 mr-2" />
-                <span className="font-semibold text-gray-800">我的名片 QR Code</span>
-              </div>
-              {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </Button>
             
-            {showQRCode && (
-              <div className="mt-3 text-center">
-                <div className="flex justify-center mb-3">
-                  {generateQRCode(qrCodeData)}
+            {/* QR Code 區塊 - 移到名片內部 */}
+            <div className="p-4 bg-white border-t">
+              <Button
+                variant="ghost"
+                onClick={() => setShowQRCode(!showQRCode)}
+                className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
+              >
+                <div className="flex items-center">
+                  <QrCode className="w-4 h-4 mr-2" />
+                  <span className="font-semibold text-gray-800">我的名片 QR Code</span>
                 </div>
-                <p className="text-xs text-gray-600 mb-3">
-                  掃描此QR Code即可獲得我的聯絡資訊
-                </p>
-                <Button
-                  onClick={downloadQRCode}
-                  variant="outline"
-                  size="sm"
-                  className="border-green-500 text-green-600 hover:bg-green-50"
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  下載 QR Code
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* 公開設定區塊 */}
-        <Card className="mb-6 shadow-lg">
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <Eye className="w-5 h-5 mr-2" />
-              公開設定
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">公開電子名片</Label>
-                <p className="text-xs text-gray-600">
-                  開啟後，其他人可以在智能推薦中找到您的名片
-                </p>
-              </div>
-              <Switch
-                checked={publicSettings.isPublicProfile}
-                onCheckedChange={(checked) => handleSettingChange('isPublicProfile', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">允許直接聯繫</Label>
-                <p className="text-xs text-gray-600">
-                  關閉後，需要您同意才能與您聯繫
-                </p>
-              </div>
-              <Switch
-                checked={publicSettings.allowDirectContact}
-                onCheckedChange={(checked) => handleSettingChange('allowDirectContact', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">接收通知</Label>
-                <p className="text-xs text-gray-600">
-                  當有人加入您的名片時接收通知
-                </p>
-              </div>
-              <Switch
-                checked={publicSettings.receiveNotifications}
-                onCheckedChange={(checked) => handleSettingChange('receiveNotifications', checked)}
-              />
+                {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+              
+              {showQRCode && (
+                <div className="mt-3 text-center">
+                  <div className="flex justify-center mb-3">
+                    {generateQRCode(qrCodeData)}
+                  </div>
+                  <p className="text-xs text-gray-600 mb-3">
+                    掃描此QR Code即可獲得我的聯絡資訊
+                  </p>
+                  <Button
+                    onClick={downloadQRCode}
+                    variant="outline"
+                    size="sm"
+                    className="border-green-500 text-green-600 hover:bg-green-50"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    下載 QR Code
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        {/* 操作按鈕 */}
-        <div className="grid grid-cols-3 gap-3">
+        {/* 操作按鈕 - 移到公開設定上方 */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <Button
             onClick={onEdit}
             className="bg-blue-500 hover:bg-blue-600 text-white"
@@ -333,6 +282,66 @@ LINE: ${cardData.line || ''}
             分享名片
           </Button>
         </div>
+
+        {/* 公開設定區塊 - 可折疊且預設縮合 */}
+        <Card className="mb-6 shadow-lg">
+          <CardContent className="p-4">
+            <Button
+              variant="ghost"
+              onClick={() => setShowPublicSettings(!showPublicSettings)}
+              className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
+            >
+              <div className="flex items-center">
+                <Eye className="w-4 h-4 mr-2" />
+                <span className="font-semibold text-gray-800">公開設定</span>
+              </div>
+              {showPublicSettings ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </Button>
+            
+            {showPublicSettings && (
+              <div className="mt-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">公開電子名片</Label>
+                    <p className="text-xs text-gray-600">
+                      開啟後，其他人可以在智能推薦中找到您的名片
+                    </p>
+                  </div>
+                  <Switch
+                    checked={publicSettings.isPublicProfile}
+                    onCheckedChange={(checked) => handleSettingChange('isPublicProfile', checked)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">允許直接聯繫</Label>
+                    <p className="text-xs text-gray-600">
+                      關閉後，需要您同意才能與您聯繫
+                    </p>
+                  </div>
+                  <Switch
+                    checked={publicSettings.allowDirectContact}
+                    onCheckedChange={(checked) => handleSettingChange('allowDirectContact', checked)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label className="text-sm font-medium">接收通知</Label>
+                    <p className="text-xs text-gray-600">
+                      當有人加入您的名片時接收通知
+                    </p>
+                  </div>
+                  <Switch
+                    checked={publicSettings.receiveNotifications}
+                    onCheckedChange={(checked) => handleSettingChange('receiveNotifications', checked)}
+                  />
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
