@@ -60,15 +60,17 @@ const generateRandomCustomerName = () => {
 };
 
 // 新增 LIFF 彈跳介面元件
-const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: { 
+const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, customerName }: { 
   isOpen: boolean; 
   onClose: () => void; 
   cardOwnerName: string;
   onUserJoined: (userName: string) => void;
   flowType: 'qr_scan' | 'direct_add';
+  customerName?: string;
 }) => {
   const [step, setStep] = useState(1);
-  const [randomCustomerName] = useState(() => generateRandomCustomerName());
+  // 使用傳入的客戶名稱，如果沒有則生成隨機名稱
+  const [actualCustomerName] = useState(() => customerName || generateRandomCustomerName());
   
   const handleJoinAipowerNetwork = () => {
     setStep(2); // 顯示加LINE成功
@@ -81,7 +83,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: {
       // 在聊天室中顯示加LINE成功訊息
       const joinMessage = {
         id: Date.now(),
-        text: `🎉 ${randomCustomerName} 已加入您的 Aipower 名片人脈圈！`,
+        text: `🎉 ${actualCustomerName} 已加入您的 Aipower 名片人脈圈！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -91,7 +93,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: {
         // QR Code 掃描流程 - 發送完整的電子名片卡訊息
         const cardMessage = {
           id: Date.now() + 1,
-          text: `已發送完整電子名片給 ${randomCustomerName}：`,
+          text: `已發送完整電子名片給 ${actualCustomerName}：`,
           isBot: true,
           timestamp: new Date()
         };
@@ -108,7 +110,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: {
           isCard: true,
           cardData: cardData,
           isFullFlexMessage: true, // 標記為完整 Flex Message
-          customerName: randomCustomerName // 傳遞客戶名稱
+          customerName: actualCustomerName // 傳遞客戶名稱
         };
         
         // 模擬在聊天室中顯示這些訊息
@@ -118,7 +120,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: {
               joinMessage,
               cardMessage,
               fullCardMessage,
-              customerName: randomCustomerName,
+              customerName: actualCustomerName,
               flowType: 'qr_scan'
             }
           }));
@@ -129,7 +131,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: {
           window.dispatchEvent(new CustomEvent('liffCardShared', {
             detail: { 
               joinMessage,
-              customerName: randomCustomerName,
+              customerName: actualCustomerName,
               flowType: 'direct_add'
             }
           }));
@@ -140,11 +142,11 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType }: {
       const lineUserId = `U${Math.random().toString(36).substr(2, 32)}`;
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
-          customerName: randomCustomerName,
+          customerName: actualCustomerName,
           action: flowType === 'qr_scan' ? 'join_aipower_network' : 'direct_contact_add',
           isDigitalCard: true,
-          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${randomCustomerName.charAt(0)}`,
-          lineAccount: `@${randomCustomerName.toLowerCase()}`,
+          profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${actualCustomerName.charAt(0)}`,
+          lineAccount: `@${actualCustomerName.toLowerCase()}`,
           lineUserId: lineUserId, // LINE userId (scope ID)
           hasBusinessCard: false,
           isLineContact: true // 標記為 LINE 聯絡人
@@ -225,6 +227,7 @@ const ChatRoom = () => {
   const [currentCardOwner, setCurrentCardOwner] = useState('');
   const [liffFlowType, setLiffFlowType] = useState<'qr_scan' | 'direct_add'>('qr_scan');
   const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({});
+  const [pendingCustomerName, setPendingCustomerName] = useState<string>('');
 
   useEffect(() => {
     const handleCustomerAdded = (event: CustomEvent) => {
@@ -468,11 +471,13 @@ const ChatRoom = () => {
     const ownerName = cardData?.name || '此用戶';
     setCurrentCardOwner(ownerName);
     setLiffFlowType('qr_scan');
+    setPendingCustomerName(''); // QR Code 掃描使用隨機名稱
     setShowLIFFPopup(true);
   };
 
   const handleCardAction = (action: string, cardData: any, customerName?: string) => {
-    const randomCustomerName = generateRandomCustomerName();
+    // 生成或使用指定的客戶名稱
+    const targetCustomerName = customerName || generateRandomCustomerName();
     
     switch (action) {
       case 'addContact':
@@ -480,6 +485,7 @@ const ChatRoom = () => {
         const ownerName = cardData?.name || '此用戶';
         setCurrentCardOwner(ownerName);
         setLiffFlowType('direct_add');
+        setPendingCustomerName(targetCustomerName); // 設置要加入的客戶名稱
         setShowLIFFPopup(true);
         break;
         
@@ -503,7 +509,7 @@ const ChatRoom = () => {
         // 分享電子名片 - 顯示客戶端的 Flex Message
         const shareMessage: Message = {
           id: Date.now(),
-          text: `已分享電子名片給 ${randomCustomerName}：`,
+          text: `已分享電子名片給 ${targetCustomerName}：`,
           isBot: true,
           timestamp: new Date()
         };
@@ -516,14 +522,14 @@ const ChatRoom = () => {
           isCard: true,
           cardData: cardData,
           isClientFlexMessage: true, // 標記為客戶端 Flex Message
-          customerName: randomCustomerName
+          customerName: targetCustomerName // 確保客戶名稱一致
         };
         
         setMessages(prev => [...prev, shareMessage, clientFlexMessage]);
         
         toast({
           title: "分享成功！",
-          description: `電子名片已分享給 ${randomCustomerName}。`
+          description: `電子名片已分享給 ${targetCustomerName}。`
         });
         break;
     }
@@ -908,10 +914,14 @@ LINE: ${message.cardData.line || ''}
       {/* LIFF 彈跳介面 */}
       <LIFFPopup 
         isOpen={showLIFFPopup} 
-        onClose={() => setShowLIFFPopup(false)} 
+        onClose={() => {
+          setShowLIFFPopup(false);
+          setPendingCustomerName(''); // 清除暫存的客戶名稱
+        }} 
         cardOwnerName={currentCardOwner}
         onUserJoined={handleUserJoined}
         flowType={liffFlowType}
+        customerName={pendingCustomerName} // 傳遞客戶名稱
       />
     </div>
   );
