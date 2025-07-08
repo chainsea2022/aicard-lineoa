@@ -34,6 +34,21 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [hasExistingAccount, setHasExistingAccount] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
 
+  const formatBirthdayDisplay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  };
+
+  const getGenderDisplay = (gender: string) => {
+    switch (gender) {
+      case 'male': return '男性';
+      case 'female': return '女性';
+      case 'other': return '其他';
+      default: return gender;
+    }
+  };
+
   useEffect(() => {
     const savedCardData = localStorage.getItem('aile-card-data');
     const savedUserData = localStorage.getItem('aile-user-data');
@@ -51,9 +66,13 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
       // 自動生成QR Code資料
       const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
+${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
 公司: ${cardInfo.companyName || ''}
 電話: ${cardInfo.phone || ''}
 Email: ${cardInfo.email || ''}
+${cardInfo.address && cardInfo.addressVisible ? `地址: ${cardInfo.address}` : ''}
+${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardInfo.birthday)}` : ''}
+${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
 LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
       
@@ -199,9 +218,13 @@ LINE: ${cardInfo.line || ''}
       // 重新生成QR Code資料
       const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
+${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
 公司: ${cardInfo.companyName || ''}
 電話: ${cardInfo.phone || ''}
 Email: ${cardInfo.email || ''}
+${cardInfo.address && cardInfo.addressVisible ? `地址: ${cardInfo.address}` : ''}
+${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardInfo.birthday)}` : ''}
+${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
 LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
       
@@ -522,42 +545,60 @@ LINE: ${cardInfo.line || ''}
                     </Avatar>
                   )}
                   <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-1">{cardData.name}</h2>
-                    {cardData.jobTitle && (
+                    <h2 className="text-2xl font-bold mb-1">{(cardData.name && cardData.nameVisible !== false) ? cardData.name : '您的姓名'}</h2>
+                    {cardData.jobTitle && cardData.jobTitleVisible !== false && (
                       <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>
                     )}
-                    {cardData.companyName && (
+                    {cardData.companyName && cardData.companyNameVisible !== false && (
                       <p className="text-green-100 text-lg">{cardData.companyName}</p>
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  {cardData.phone && (
+                  {cardData.phone && cardData.phoneVisible !== false && (
                     <div className="flex items-center">
                       <span className="mr-2">📱</span>
                       <span>{cardData.phone}</span>
                     </div>
                   )}
-                  {cardData.email && (
+                  {cardData.email && cardData.emailVisible !== false && (
                     <div className="flex items-center">
                       <span className="mr-2">✉️</span>
                       <span>{cardData.email}</span>
                     </div>
                   )}
-                  {cardData.website && (
+                  {cardData.website && cardData.websiteVisible !== false && (
                     <div className="flex items-center">
                       <span className="mr-2">🌐</span>
                       <span>{cardData.website}</span>
                     </div>
                   )}
+                  {cardData.address && cardData.addressVisible && (
+                    <div className="flex items-center">
+                      <span className="mr-2">📍</span>
+                      <span>{cardData.address}</span>
+                    </div>
+                  )}
+                  {cardData.birthday && cardData.birthdayVisible && (
+                    <div className="flex items-center">
+                      <span className="mr-2">🎂</span>
+                      <span>{formatBirthdayDisplay(cardData.birthday)}</span>
+                    </div>
+                  )}
+                  {cardData.gender && cardData.genderVisible && (
+                    <div className="flex items-center">
+                      <span className="mr-2">👤</span>
+                      <span>{getGenderDisplay(cardData.gender)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* 社群資訊 */}
-                {(cardData.line || cardData.facebook || cardData.instagram) && (
+                {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
                   <div className="mt-4 pt-4 border-t border-green-300/50">
                     <div className="flex flex-wrap gap-3">
-                      {cardData.line && (
+                      {cardData.line && cardData.lineVisible !== false && (
                         <button
                           onClick={() => handleLineClick(cardData.line)}
                           className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
@@ -566,13 +607,13 @@ LINE: ${cardInfo.line || ''}
                           <span>加入 LINE</span>
                         </button>
                       )}
-                      {cardData.facebook && (
+                      {cardData.facebook && cardData.facebookVisible !== false && (
                         <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
                           <span className="mr-1">📘</span>
                           <span>FB: {cardData.facebook}</span>
                         </div>
                       )}
-                      {cardData.instagram && (
+                      {cardData.instagram && cardData.instagramVisible !== false && (
                         <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
                           <span className="mr-1">📷</span>
                           <span>IG: {cardData.instagram}</span>
