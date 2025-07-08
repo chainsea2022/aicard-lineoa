@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Scan, MessageSquare, Mail, UserPlus, CheckCircle, QrCode, FileText, Share2 } from 'lucide-react';
+
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -28,10 +29,9 @@ interface CustomerData {
   photo?: string;
 }
 
-const Scanner: React.FC<ScannerProps> = ({
-  onClose
-}) => {
+const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: '',
@@ -42,6 +42,8 @@ const Scanner: React.FC<ScannerProps> = ({
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     // Initialize LIFF
@@ -49,7 +51,7 @@ const Scanner: React.FC<ScannerProps> = ({
       try {
         if (typeof window !== 'undefined' && window.liff) {
           await window.liff.init({
-            liffId: process.env.REACT_APP_LIFF_ID || 'your-liff-id'
+            liffId: 'your-liff-id' // Replace with actual LIFF ID
           });
           setIsLiffReady(true);
           console.log('LIFF initialized successfully');
@@ -63,78 +65,73 @@ const Scanner: React.FC<ScannerProps> = ({
     initializeLiff();
   }, []);
 
+  const startCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'environment' } // Use back camera for scanning
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        setIsCameraOpen(true);
+      }
+    } catch (error) {
+      console.error('Camera access failed:', error);
+      toast({
+        title: "相機啟動失敗",
+        description: "無法存取相機，請檢查權限設定。"
+      });
+    }
+  };
+
+  const stopCamera = () => {
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      const tracks = stream.getTracks();
+      tracks.forEach(track => track.stop());
+      videoRef.current.srcObject = null;
+    }
+    setIsCameraOpen(false);
+  };
+
+  const simulateScan = () => {
+    // Simulate random scan result for demo
+    const isQRCode = Math.random() > 0.5;
+    
+    if (isQRCode) {
+      // Simulate QR Code scan - Aipower card
+      setScanResult('aipower-card');
+      setCustomerData({
+        name: '張小明',
+        phone: '0912-345-678',
+        email: 'zhang@example.com',
+        company: 'ABC科技公司',
+        jobTitle: '業務經理',
+        website: 'www.abc-tech.com',
+        line: '@abc-tech',
+        facebook: 'ABC.Tech.Official',
+        instagram: 'abc_tech_official',
+        photo: '/placeholder.svg'
+      });
+    } else {
+      // Simulate paper card scan
+      setScanResult('paper-card');
+      setCustomerData({
+        name: '李大華',
+        phone: '0923-456-789',
+        email: 'li@company.com',
+        company: '創新企業有限公司',
+        jobTitle: '行銷總監'
+      });
+      setInvitationUrl(generateInvitationUrl());
+    }
+    
+    stopCamera();
+  };
+
   const generateInvitationUrl = () => {
     const inviteId = Math.random().toString(36).substring(2, 15);
     return `https://aipower.app/register?invite=${inviteId}`;
-  };
-
-  const handlePaperScan = () => {
-    setScanResult('paper-card');
-    setCustomerData({
-      name: '李大華',
-      phone: '0923-456-789',
-      email: 'li@company.com',
-      company: '創新企業有限公司',
-      jobTitle: '行銷總監'
-    });
-    setInvitationUrl(generateInvitationUrl());
-  };
-
-  const handleQRCodeScan = () => {
-    setScanResult('aipower-card');
-    setCustomerData({
-      name: '張小明',
-      phone: '0912-345-678',
-      email: 'zhang@example.com',
-      company: 'ABC科技公司',
-      jobTitle: '業務經理',
-      website: 'www.abc-tech.com',
-      line: '@abc-tech',
-      facebook: 'ABC.Tech.Official',
-      instagram: 'abc_tech_official',
-      photo: '/placeholder.svg'
-    });
-  };
-
-  const handleSendSMSInvitation = () => {
-    const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
-    toast({
-      title: "簡訊邀請已發送！",
-      description: `邀請註冊連結已發送給 ${customerData.name}`
-    });
-    console.log('SMS內容:', message);
-  };
-
-  const handleSendEmailInvitation = () => {
-    const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
-    toast({
-      title: "Email 已發送！",
-      description: `邀請連結已透過Email發送給 ${customerData.name}。`
-    });
-    console.log('Email內容:', message);
-  };
-
-  const handleSocialShare = () => {
-    const message = `邀請您建立電子名片，請加入我的人脈網！註冊連結：${invitationUrl}`;
-    if (navigator.share) {
-      navigator.share({
-        title: 'Aipower 電子名片邀請',
-        text: message,
-        url: invitationUrl
-      }).catch(() => {
-        navigator.clipboard.writeText(message);
-        toast({
-          title: "已複製到剪貼板",
-          description: "邀請訊息已複製，可以分享到社群平台。"
-        });
-      });
-    } else {
-      navigator.clipboard.writeText(message);
-      toast({
-        title: "已複製到剪貼板",
-        description: "邀請訊息已複製，可以分享到社群平台。"
-      });
-    }
   };
 
   const handleAddCustomer = () => {
@@ -163,9 +160,8 @@ const Scanner: React.FC<ScannerProps> = ({
     localStorage.setItem('aile-customers', JSON.stringify(customers));
     setShowSuccessMessage(true);
 
-    // 觸發正確的事件通知給 MyCustomers 組件
+    // Trigger notification events
     if (scanResult === 'paper-card') {
-      // 紙本掃描 - 通知加入聯絡人列表
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: customerData.name, 
@@ -175,7 +171,6 @@ const Scanner: React.FC<ScannerProps> = ({
         }
       }));
     } else if (scanResult === 'aipower-card') {
-      // QR Code 掃描 - 通知加入數位名片夾
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: customerData.name, 
@@ -194,16 +189,19 @@ const Scanner: React.FC<ScannerProps> = ({
 
   // Show loading if LIFF is not ready
   if (!isLiffReady) {
-    return <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    return (
+      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
           <p className="text-gray-600 text-sm">載入中...</p>
         </div>
-      </div>;
+      </div>
+    );
   }
 
   if (showSuccessMessage) {
-    return <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-3 overflow-hidden">
+    return (
+      <div className="fixed inset-0 bg-white z-50 flex items-center justify-center p-3 overflow-hidden">
         <div className="w-full max-w-xs mx-auto text-center h-full flex flex-col justify-center">
           <CheckCircle className="w-10 h-10 text-green-500 mx-auto mb-3" />
           <h2 className="text-base font-bold text-gray-800 mb-2">
@@ -238,25 +236,27 @@ const Scanner: React.FC<ScannerProps> = ({
               前往名片人脈夾
             </Button>
             <Button onClick={() => {
-            setShowSuccessMessage(false);
-            setScanResult('none');
-            setCustomerData({
-              name: '',
-              phone: '',
-              email: '',
-              company: '',
-              jobTitle: ''
-            });
-          }} variant="outline" className="w-full text-xs py-2 h-8">
+              setShowSuccessMessage(false);
+              setScanResult('none');
+              setCustomerData({
+                name: '',
+                phone: '',
+                email: '',
+                company: '',
+                jobTitle: ''
+              });
+            }} variant="outline" className="w-full text-xs py-2 h-8">
               繼續掃描
             </Button>
           </div>
         </div>
-      </div>;
+      </div>
+    );
   }
 
-  return <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col max-w-sm mx-auto">
-      {/* LIFF-optimized Header */}
+  return (
+    <div className="fixed inset-0 bg-white z-50 overflow-hidden flex flex-col max-w-sm mx-auto">
+      {/* Header */}
       <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 shadow-lg flex-shrink-0">
         <div className="flex items-center space-x-3">
           <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20 p-1.5 h-8 w-8">
@@ -266,31 +266,78 @@ const Scanner: React.FC<ScannerProps> = ({
         </div>
       </div>
 
-      {/* Main Content - Scrollable with proper mobile sizing */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3 pb-4 min-h-0">
-        {/* Scanner Area */}
-        <div className="bg-gray-100 rounded-lg p-3 text-center">
-          <div className="w-24 h-24 border-4 border-dashed border-gray-300 rounded-lg mx-auto mb-3 flex items-center justify-center">
-            <Scan className="w-8 h-8 text-gray-400" />
+        {!isCameraOpen && scanResult === 'none' && (
+          <>
+            {/* Camera Interface */}
+            <div className="bg-gray-100 rounded-lg p-4 text-center">
+              <div className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
+                <Camera className="w-12 h-12 text-gray-400" />
+              </div>
+              <p className="text-gray-600 mb-4 text-sm">對準名片或 QR Code 進行掃描</p>
+              
+              <Button onClick={startCamera} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-3 h-12 touch-manipulation">
+                <Camera className="w-5 h-5 mr-2" />
+                開始掃描
+              </Button>
+            </div>
+
+            {/* Instructions */}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
+              <ul className="text-xs text-gray-600 space-y-1">
+                <li>• 自動識別紙本名片或 QR Code</li>
+                <li>• 紙本名片將加入聯絡人清單</li>
+                <li>• 電子名片 QR Code 將加入名片夾</li>
+                <li>• 確保光線充足，保持相機穩定</li>
+              </ul>
+            </div>
+          </>
+        )}
+
+        {/* Camera View */}
+        {isCameraOpen && (
+          <div className="relative">
+            <video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              className="w-full h-64 bg-black rounded-lg object-cover"
+            />
+            <canvas ref={canvasRef} className="hidden" />
+            
+            {/* Camera overlay */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-48 h-32 border-2 border-white rounded-lg opacity-75"></div>
+            </div>
+            
+            {/* Camera controls */}
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-4">
+              <Button
+                onClick={simulateScan}
+                className="bg-white text-gray-800 hover:bg-gray-100 rounded-full w-16 h-16 p-0"
+              >
+                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
+                  <Camera className="w-6 h-6 text-white" />
+                </div>
+              </Button>
+              <Button
+                onClick={stopCamera}
+                variant="outline"
+                className="bg-white text-gray-800 hover:bg-gray-100 rounded-full w-12 h-12 p-0"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
-          <p className="text-gray-600 mb-3 text-xs">選擇掃描類型</p>
-          
-          <div className="space-y-2">
-            <Button onClick={handlePaperScan} className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-2 h-9 touch-manipulation">
-              <FileText className="w-3 h-3 mr-1" />
-              紙本掃描
-            </Button>
-            <Button onClick={handleQRCodeScan} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs py-2 h-9 touch-manipulation">
-              <QrCode className="w-3 h-3 mr-1" />
-              QR Code 掃描
-            </Button>
-          </div>
-        </div>
+        )}
 
         {/* Paper Business Card Results */}
-        {scanResult === 'paper-card' && <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+        {scanResult === 'paper-card' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
-              <UserPlus className="w-4 h-4 text-blue-600" />
+              <FileText className="w-4 h-4 text-blue-600" />
               <h3 className="font-bold text-blue-800 text-xs">掃描紙本名片</h3>
             </div>
             
@@ -299,84 +346,74 @@ const Scanner: React.FC<ScannerProps> = ({
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   客戶姓名
                 </label>
-                <Input value={customerData.name} onChange={e => setCustomerData({
-              ...customerData,
-              name: e.target.value
-            })} placeholder="客戶姓名" className="text-xs h-8 touch-manipulation" />
+                <Input 
+                  value={customerData.name} 
+                  onChange={e => setCustomerData({...customerData, name: e.target.value})} 
+                  placeholder="客戶姓名" 
+                  className="text-xs h-8 touch-manipulation" 
+                />
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   公司名稱
                 </label>
-                <Input value={customerData.company} onChange={e => setCustomerData({
-              ...customerData,
-              company: e.target.value
-            })} placeholder="公司名稱" className="text-xs h-8 touch-manipulation" />
+                <Input 
+                  value={customerData.company} 
+                  onChange={e => setCustomerData({...customerData, company: e.target.value})} 
+                  placeholder="公司名稱" 
+                  className="text-xs h-8 touch-manipulation" 
+                />
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   職稱
                 </label>
-                <Input value={customerData.jobTitle} onChange={e => setCustomerData({
-              ...customerData,
-              jobTitle: e.target.value
-            })} placeholder="職稱" className="text-xs h-8 touch-manipulation" />
+                <Input 
+                  value={customerData.jobTitle} 
+                  onChange={e => setCustomerData({...customerData, jobTitle: e.target.value})} 
+                  placeholder="職稱" 
+                  className="text-xs h-8 touch-manipulation" 
+                />
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   手機號碼
                 </label>
-                <div className="flex gap-1">
-                  <Input value={customerData.phone} onChange={e => setCustomerData({
-                ...customerData,
-                phone: e.target.value
-              })} placeholder="手機號碼" className="flex-1 text-xs h-8 touch-manipulation" />
-                  <Button onClick={handleSendSMSInvitation} className="bg-green-500 hover:bg-green-600 text-white px-2 text-xs whitespace-nowrap touch-manipulation h-8" size="sm">
-                    <MessageSquare className="w-3 h-3 mr-0.5" />
-                    簡訊
-                  </Button>
-                </div>
+                <Input 
+                  value={customerData.phone} 
+                  onChange={e => setCustomerData({...customerData, phone: e.target.value})} 
+                  placeholder="手機號碼" 
+                  className="text-xs h-8 touch-manipulation" 
+                />
               </div>
               
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
                   電子信箱
                 </label>
-                <Input value={customerData.email} onChange={e => setCustomerData({
-              ...customerData,
-              email: e.target.value
-            })} placeholder="電子信箱" className="text-xs h-8 touch-manipulation" />
+                <Input 
+                  value={customerData.email} 
+                  onChange={e => setCustomerData({...customerData, email: e.target.value})} 
+                  placeholder="電子信箱" 
+                  className="text-xs h-8 touch-manipulation" 
+                />
               </div>
               
-              <div className="flex gap-1">
-                <Button onClick={handleSendEmailInvitation} variant="outline" className="flex-1 text-xs touch-manipulation h-8" size="sm">
-                  <Mail className="w-3 h-3 mr-0.5" />
-                  Email 邀請 
-                </Button>
-                <Button onClick={handleSocialShare} variant="outline" className="flex-1 text-xs touch-manipulation h-8" size="sm">
-                  <Share2 className="w-3 h-3 mr-0.5" />
-                  社群分享
-                </Button>
-              </div>
-              
-              {invitationUrl && <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
-                  <p className="text-xs text-green-700 mb-1">邀請訊息預覽：</p>
-                  <p className="text-xs text-gray-600 bg-white p-2 rounded border">
-                    "邀請您建立電子名片，請加入我的人脈網！註冊連結：{invitationUrl}"
-                  </p>
-                </div>}
-              
-              <Button onClick={handleAddCustomer} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation">加入我的聯絡人</Button>
+              <Button onClick={handleAddCustomer} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation">
+                加入我的聯絡人
+              </Button>
             </div>
-          </div>}
+          </div>
+        )}
 
         {/* Aipower Electronic Business Card Results */}
-        {scanResult === 'aipower-card' && <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+        {scanResult === 'aipower-card' && (
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
-              <CheckCircle className="w-4 h-4 text-green-600" />
+              <QrCode className="w-4 h-4 text-green-600" />
               <h3 className="font-bold text-green-800 text-xs">發現 Aipower 電子名片！</h3>
             </div>
             
@@ -384,7 +421,13 @@ const Scanner: React.FC<ScannerProps> = ({
             <div className="bg-white border-2 border-gray-200 rounded-lg shadow-md mb-2 overflow-hidden">
               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 text-white">
                 <div className="flex items-center space-x-2 mb-2">
-                  {customerData.photo && <img src={customerData.photo} alt="照片" className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0" />}
+                  {customerData.photo && (
+                    <img 
+                      src={customerData.photo} 
+                      alt="照片" 
+                      className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0" 
+                    />
+                  )}
                   <div className="min-w-0 flex-1">
                     <h3 className="text-sm font-bold mb-0.5 truncate">{customerData.name}</h3>
                     <p className="text-blue-100 text-xs truncate">{customerData.company}</p>
@@ -393,29 +436,37 @@ const Scanner: React.FC<ScannerProps> = ({
                 </div>
                 
                 <div className="space-y-0.5 text-xs">
-                  {customerData.phone && <div className="flex items-center space-x-1">
+                  {customerData.phone && (
+                    <div className="flex items-center space-x-1">
                       <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{customerData.phone}</span>
-                    </div>}
-                  {customerData.email && <div className="flex items-center space-x-1">
+                    </div>
+                  )}
+                  {customerData.email && (
+                    <div className="flex items-center space-x-1">
                       <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{customerData.email}</span>
-                    </div>}
-                  {customerData.website && <div className="flex items-center space-x-1">
+                    </div>
+                  )}
+                  {customerData.website && (
+                    <div className="flex items-center space-x-1">
                       <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{customerData.website}</span>
-                    </div>}
+                    </div>
+                  )}
                 </div>
 
                 {/* Social Media Links */}
-                {(customerData.line || customerData.facebook || customerData.instagram) && <div className="mt-2 pt-2 border-t border-white/20">
+                {(customerData.line || customerData.facebook || customerData.instagram) && (
+                  <div className="mt-2 pt-2 border-t border-white/20">
                     <p className="text-xs text-blue-100 mb-0.5">社群媒體</p>
                     <div className="space-y-0.5 text-xs">
                       {customerData.line && <div className="truncate">LINE: {customerData.line}</div>}
                       {customerData.facebook && <div className="truncate">FB: {customerData.facebook}</div>}
                       {customerData.instagram && <div className="truncate">IG: {customerData.instagram}</div>}
                     </div>
-                  </div>}
+                  </div>
+                )}
               </div>
             </div>
             
@@ -429,21 +480,11 @@ const Scanner: React.FC<ScannerProps> = ({
               <UserPlus className="w-3 h-3 mr-1" />
               加入我的名片夾
             </Button>
-          </div>}
-
-        {/* Instructions */}
-        <div className="bg-gray-50 rounded-lg p-2.5">
-          <h4 className="font-bold text-gray-800 mb-1.5 text-xs">💡 掃描說明</h4>
-          <ul className="text-xs text-gray-600 space-y-0.5">
-            <li>• <strong>紙本掃描：</strong>適用於傳統紙本名片識別</li>
-            <li>• <strong>QR Code 掃描：</strong>適用於 Aipower 電子名片 QR Code</li>
-            <li>• 確保光線充足，保持相機穩定</li>
-            <li>• 掃描成功後會自動識別客戶資訊</li>
-            <li>• 邀請沒有 Aipower 名片的客戶加入</li>
-          </ul>
-        </div>
+          </div>
+        )}
       </div>
-    </div>;
+    </div>
+  );
 };
 
 export default Scanner;
