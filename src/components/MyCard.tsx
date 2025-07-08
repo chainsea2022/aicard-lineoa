@@ -31,6 +31,7 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   });
   const [isNewUser, setIsNewUser] = useState(false);
   const [hasExistingAccount, setHasExistingAccount] = useState(false);
+  const [currentPoints, setCurrentPoints] = useState(0);
 
   useEffect(() => {
     const savedCardData = localStorage.getItem('aile-card-data');
@@ -66,6 +67,12 @@ LINE: ${cardInfo.line || ''}
     const savedSettings = localStorage.getItem('aile-profile-settings');
     if (savedSettings) {
       setPublicSettings(JSON.parse(savedSettings));
+    }
+
+    // 載入點數資訊
+    const savedPoints = localStorage.getItem('aile-user-points');
+    if (savedPoints) {
+      setCurrentPoints(parseInt(savedPoints));
     }
   }, []);
 
@@ -700,10 +707,15 @@ LINE: ${cardInfo.line || ''}
 
           <Button 
             onClick={() => setShowPoints(true)}
-            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white"
+            className="w-full bg-yellow-500 hover:bg-yellow-600 text-white flex items-center justify-center"
           >
             <Award className="w-4 h-4 mr-2" />
             會員點數
+            {currentPoints > 0 && (
+              <span className="ml-2 bg-white/20 px-2 py-1 rounded text-sm">
+                {currentPoints.toLocaleString()} 點
+              </span>
+            )}
           </Button>
         </div>
       )}

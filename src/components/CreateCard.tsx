@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, Info, ChevronDown, ChevronUp, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, Info, ChevronDown, ChevronUp, EyeOff, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
 import CardPreview from './CardPreview';
+import { Card, CardContent, Avatar, AvatarImage, AvatarFallback } from '@/components/ui/card';
 
 interface CreateCardProps {
   onClose: () => void;
@@ -179,8 +180,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       description: isEditing ? "您的名片已經更新完成" : "您的名片已經建立完成，獲得 100 點數獎勵！",
     });
 
-    // 儲存後自動顯示完整預覽
-    setShowPreview(true);
+    // 不自動顯示預覽，直接完成操作
+    if (onRegistrationComplete) {
+      onRegistrationComplete();
+    } else {
+      onClose();
+    }
   };
 
   const handlePreviewClose = () => {
@@ -193,12 +198,128 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   };
 
   if (showPreview) {
+    // 使用與 MyCard 相同的名片預覽格式
     return (
-      <CardPreview
-        cardData={getFilteredCardData()}
-        onClose={handlePreviewClose}
-        onEdit={() => setShowPreview(false)}
-      />
+      <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
+        <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPreview(false)}
+                className="text-white hover:bg-white/20"
+              >
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <h1 className="font-bold text-lg">名片預覽</h1>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePreviewClose}
+              className="text-white hover:bg-white/20"
+            >
+              完成
+            </Button>
+          </div>
+        </div>
+
+        <div className="p-6">
+          {/* 名片預覽 - 使用與 MyCard 相同的格式 */}
+          <Card className="mb-6 shadow-xl border-2 border-green-200">
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-br from-green-500 to-blue-600 p-6 text-white">
+                <div className="flex items-center space-x-4 mb-4">
+                  {getFilteredCardData().photo && (
+                    <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                      <AvatarImage src={getFilteredCardData().photo} alt="照片" />
+                      <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
+                        {getFilteredCardData().name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold mb-1">{getFilteredCardData().name}</h2>
+                    {getFilteredCardData().companyName && (
+                      <p className="text-green-100 text-lg">{getFilteredCardData().companyName}</p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm">
+                  {getFilteredCardData().phone && (
+                    <div className="flex items-center">
+                      <span className="mr-2">📱</span>
+                      <span>{getFilteredCardData().phone}</span>
+                    </div>
+                  )}
+                  {getFilteredCardData().email && (
+                    <div className="flex items-center">
+                      <span className="mr-2">✉️</span>
+                      <span>{getFilteredCardData().email}</span>
+                    </div>
+                  )}
+                  {getFilteredCardData().website && (
+                    <div className="flex items-center">
+                      <span className="mr-2">🌐</span>
+                      <span>{getFilteredCardData().website}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 社群資訊 */}
+                {(getFilteredCardData().line || getFilteredCardData().facebook || getFilteredCardData().instagram) && (
+                  <div className="mt-4 pt-4 border-t border-green-300/50">
+                    <div className="flex flex-wrap gap-3">
+                      {getFilteredCardData().line && (
+                        <button
+                          onClick={() => window.open(getFilteredCardData().line, '_blank')}
+                          className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
+                        >
+                          <span className="mr-1">💬</span>
+                          <span>加入 LINE</span>
+                        </button>
+                      )}
+                      {getFilteredCardData().facebook && (
+                        <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                          <span className="mr-1">📘</span>
+                          <span>FB: {getFilteredCardData().facebook}</span>
+                        </div>
+                      )}
+                      {getFilteredCardData().instagram && (
+                        <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                          <span className="mr-1">📷</span>
+                          <span>IG: {getFilteredCardData().instagram}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 操作按鈕 */}
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => setShowPreview(false)}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <Edit className="w-4 h-4 mr-1" />
+              返回編輯
+            </Button>
+
+            <Button
+              onClick={handlePreviewClose}
+              variant="outline"
+              className="border-green-500 text-green-600 hover:bg-green-50"
+            >
+              完成
+            </Button>
+          </div>
+        </div>
+      </div>
     );
   }
 

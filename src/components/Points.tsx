@@ -123,30 +123,65 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               </CardContent>
             </Card>
 
-            {/* Points Earning Methods */}
+            {/* Points Rules Section */}
             <Card className="mb-4">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Gift className="w-5 h-5 mr-2 text-green-600" />
-                  獲得點數方式
+                  點數規則
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                  <span className="text-sm">註冊電子名片</span>
-                  <Badge className="bg-green-100 text-green-800">+100點</Badge>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                  <span className="text-sm">完成個人資料</span>
-                  <Badge className="bg-blue-100 text-blue-800">+50點</Badge>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                  <span className="text-sm">分享名片</span>
-                  <Badge className="bg-purple-100 text-purple-800">+30點</Badge>
-                </div>
-                <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
-                  <span className="text-sm">掃描他人名片</span>
-                  <Badge className="bg-orange-100 text-orange-800">+20點</Badge>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="bg-blue-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-800 mb-2">獲得點數方式</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span>註冊電子名片</span>
+                        <Badge className="bg-green-100 text-green-800">+100點</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>完成個人資料</span>
+                        <Badge className="bg-blue-100 text-blue-800">+50點</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>分享名片</span>
+                        <Badge className="bg-purple-100 text-purple-800">+30點</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>掃描他人名片</span>
+                        <Badge className="bg-orange-100 text-orange-800">+20點</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>每日登入</span>
+                        <Badge className="bg-yellow-100 text-yellow-800">+10點</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-red-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-red-800 mb-2">消耗點數方式</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span>兌換禮品</span>
+                        <Badge className="bg-red-100 text-red-800">視禮品而定</Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span>升級功能</span>
+                        <Badge className="bg-red-100 text-red-800">視功能而定</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800 mb-2">注意事項</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>• 點數有效期限為獲得日起一年</li>
+                      <li>• 點數不可轉讓給其他用戶</li>
+                      <li>• 違規行為將扣除相應點數</li>
+                      <li>• 點數規則可能會調整，以最新公告為準</li>
+                    </ul>
+                  </div>
                 </div>
               </CardContent>
             </Card>
