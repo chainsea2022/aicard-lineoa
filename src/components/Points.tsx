@@ -321,7 +321,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                           ? 'bg-red-500 text-white' 
                           : 'bg-gray-400 text-white'
                       }`}>
-                        50點
+                        30點
                       </Badge>
                     </div>
                     <Button 
