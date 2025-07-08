@@ -143,7 +143,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       companyNameVisible,
       jobTitle,
       jobTitleVisible,
-      phone: registeredPhone,
+      phone,
       phoneVisible,
       email,
       emailVisible,
