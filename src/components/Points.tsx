@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Gift, History, TrendingUp, Award, Coins } from 'lucide-react';
+import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,10 +17,22 @@ interface PointTransaction {
   date: Date;
 }
 
+interface Milestone {
+  cardCount: number;
+  points: number;
+  achieved: boolean;
+}
+
 const Points: React.FC<PointsProps> = ({ onClose }) => {
   const [currentPoints, setCurrentPoints] = useState(0);
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
+  const [milestones, setMilestones] = useState<Milestone[]>([
+    { cardCount: 10, points: 10, achieved: false },
+    { cardCount: 30, points: 20, achieved: false },
+    { cardCount: 50, points: 30, achieved: false },
+    { cardCount: 100, points: 50, achieved: false }
+  ]);
 
   useEffect(() => {
     // Load points data from localStorage
@@ -38,18 +50,30 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       }));
       setTransactions(parsedTransactions);
     } else {
-      // Initialize with some sample data
+      // Initialize with updated sample data
       const initialTransactions: PointTransaction[] = [
-        { id: 1, type: 'earn', points: 100, description: '註冊電子名片', date: new Date() },
-        { id: 2, type: 'earn', points: 50, description: '完成個人資料', date: new Date(Date.now() - 86400000) },
-        { id: 3, type: 'earn', points: 30, description: '分享名片', date: new Date(Date.now() - 172800000) },
+        { id: 1, type: 'earn', points: 30, description: '註冊電子名片', date: new Date() },
+        { id: 2, type: 'earn', points: 30, description: '完成電子名片資料', date: new Date(Date.now() - 86400000) },
+        { id: 3, type: 'earn', points: 10, description: '他人加入您的電子名片', date: new Date(Date.now() - 172800000) },
       ];
       setTransactions(initialTransactions);
-      setCurrentPoints(180);
+      setCurrentPoints(70);
       
       // Save to localStorage
-      localStorage.setItem('aile-user-points', '180');
+      localStorage.setItem('aile-user-points', '70');
       localStorage.setItem('aile-points-history', JSON.stringify(initialTransactions));
+    }
+
+    // Check saved customers to update milestones
+    const savedCustomers = localStorage.getItem('aile-saved-customers');
+    if (savedCustomers) {
+      const customers = JSON.parse(savedCustomers);
+      const cardCount = customers.length;
+      
+      setMilestones(prev => prev.map(milestone => ({
+        ...milestone,
+        achieved: cardCount >= milestone.cardCount
+      })));
     }
   }, []);
 
@@ -62,6 +86,8 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       minute: '2-digit'
     });
   };
+
+  const canRedeemTrial = currentPoints >= 50;
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
@@ -120,6 +146,22 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                   {currentPoints.toLocaleString()}
                 </div>
                 <p className="text-gray-600">點</p>
+                
+                {/* Premium Trial Status */}
+                <div className="mt-4 p-3 bg-white rounded-lg border">
+                  {canRedeemTrial ? (
+                    <div className="text-green-600">
+                      <Award className="w-5 h-5 inline-block mr-1" />
+                      <span className="font-medium">可兌換商務版試用！</span>
+                    </div>
+                  ) : (
+                    <div className="text-gray-600">
+                      <span className="text-sm">
+                        還需 {50 - currentPoints} 點即可兌換商務版試用
+                      </span>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
 
@@ -128,76 +170,169 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Gift className="w-5 h-5 mr-2 text-green-600" />
-                  點數規則
+                  獲得點數方式
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-blue-800 mb-2">獲得點數方式</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span>註冊電子名片</span>
-                        <Badge className="bg-green-100 text-green-800">+100點</Badge>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                    <div className="flex items-center">
+                      <FileText className="w-5 h-5 mr-3 text-blue-600" />
+                      <span className="font-medium">註冊電子名片</span>
+                    </div>
+                    <Badge className="bg-green-100 text-green-800">+30點</Badge>
+                  </div>
+                  
+                  <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="flex space-x-1 mr-3">
+                        <Users className="w-4 h-4 text-purple-600" />
+                        <Camera className="w-4 h-4 text-purple-600" />
+                        <Mail className="w-4 h-4 text-purple-600" />
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span>完成個人資料</span>
-                        <Badge className="bg-blue-100 text-blue-800">+50點</Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>分享名片</span>
-                        <Badge className="bg-purple-100 text-purple-800">+30點</Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>掃描他人名片</span>
-                        <Badge className="bg-orange-100 text-orange-800">+20點</Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>每日登入</span>
-                        <Badge className="bg-yellow-100 text-yellow-800">+10點</Badge>
+                      <div>
+                        <span className="font-medium block">完成電子名片資料</span>
+                        <span className="text-xs text-gray-600">包含公司、姓名、照片、手機、信箱</span>
                       </div>
                     </div>
+                    <Badge className="bg-purple-100 text-purple-800">+30點</Badge>
                   </div>
-
-                  <div className="bg-red-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-red-800 mb-2">消耗點數方式</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between items-center">
-                        <span>兌換禮品</span>
-                        <Badge className="bg-red-100 text-red-800">視禮品而定</Badge>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span>升級功能</span>
-                        <Badge className="bg-red-100 text-red-800">視功能而定</Badge>
-                      </div>
+                  
+                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg">
+                    <div className="flex items-center">
+                      <Users className="w-5 h-5 mr-3 text-orange-600" />
+                      <span className="font-medium">他人加入您的電子名片</span>
                     </div>
-                  </div>
-
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-800 mb-2">注意事項</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• 點數有效期限為獲得日起一年</li>
-                      <li>• 點數不可轉讓給其他用戶</li>
-                      <li>• 違規行為將扣除相應點數</li>
-                      <li>• 點數規則可能會調整，以最新公告為準</li>
-                    </ul>
+                    <Badge className="bg-orange-100 text-orange-800">每人+10點</Badge>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
-            {/* Rewards Section */}
-            <Card>
+            {/* Milestones Section */}
+            <Card className="mb-4">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Award className="w-5 h-5 mr-2 text-yellow-600" />
-                  點數兌換
+                  名片收藏里程碑
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Award className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                  <p className="text-gray-600">敬請期待更多兌換選項</p>
+                <div className="space-y-3">
+                  {milestones.map((milestone, index) => (
+                    <div 
+                      key={index} 
+                      className={`flex justify-between items-center p-3 rounded-lg ${
+                        milestone.achieved 
+                          ? 'bg-green-50 border border-green-200' 
+                          : 'bg-gray-50 border border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center">
+                        <FileText className={`w-5 h-5 mr-3 ${
+                          milestone.achieved ? 'text-green-600' : 'text-gray-400'
+                        }`} />
+                        <span className={`font-medium ${
+                          milestone.achieved ? 'text-green-800' : 'text-gray-600'
+                        }`}>
+                          收藏 {milestone.cardCount} 筆名片
+                        </span>
+                      </div>
+                      <div className="flex items-center">
+                        {milestone.achieved && (
+                          <Award className="w-4 h-4 text-green-600 mr-2" />
+                        )}
+                        <Badge className={
+                          milestone.achieved 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-gray-100 text-gray-600'
+                        }>
+                          +{milestone.points}點
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Redemption Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Gift className="w-5 h-5 mr-2 text-red-600" />
+                  兌點方式
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Premium Trial Offer */}
+                  <div className={`p-4 rounded-lg border-2 ${
+                    canRedeemTrial 
+                      ? 'border-green-300 bg-green-50' 
+                      : 'border-gray-200 bg-gray-50'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <Award className={`w-6 h-6 mr-3 ${
+                          canRedeemTrial ? 'text-green-600' : 'text-gray-400'
+                        }`} />
+                        <div>
+                          <h4 className={`font-semibold ${
+                            canRedeemTrial ? 'text-green-800' : 'text-gray-600'
+                          }`}>
+                            Aile商務全功能試用
+                          </h4>
+                          <p className="text-sm text-gray-600">免費試用1個月</p>
+                        </div>
+                      </div>
+                      <Badge className={
+                        canRedeemTrial 
+                          ? 'bg-red-100 text-red-800' 
+                          : 'bg-gray-100 text-gray-600'
+                      }>
+                        50點
+                      </Badge>
+                    </div>
+                    <Button 
+                      className={`w-full ${
+                        canRedeemTrial 
+                          ? 'bg-green-600 hover:bg-green-700' 
+                          : 'bg-gray-400 cursor-not-allowed'
+                      }`}
+                      disabled={!canRedeemTrial}
+                    >
+                      {canRedeemTrial ? '立即兌換' : `還需 ${50 - currentPoints} 點`}
+                    </Button>
+                  </div>
+
+                  {/* Aiwow App Promotion */}
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+                    <div className="text-center">
+                      <Gift className="w-8 h-8 mx-auto text-blue-600 mb-2" />
+                      <h4 className="font-semibold text-blue-800 mb-1">更多兌點優惠</h4>
+                      <p className="text-sm text-blue-700 mb-3">
+                        請至 Aiwow APP 兌換更多好禮！
+                      </p>
+                      <Button 
+                        variant="outline" 
+                        className="border-blue-500 text-blue-600 hover:bg-blue-50"
+                      >
+                        前往 Aiwow APP
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Terms */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h4 className="font-semibold text-gray-800 mb-2">兌點說明</h4>
+                    <ul className="text-sm text-gray-600 space-y-1">
+                      <li>• 點數有效期限為獲得日起一年</li>
+                      <li>• 點數不可轉讓給其他用戶</li>
+                      <li>• 兌換後的服務或商品不可退換</li>
+                      <li>• 兌點規則可能會調整，以最新公告為準</li>
+                    </ul>
+                  </div>
                 </div>
               </CardContent>
             </Card>
