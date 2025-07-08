@@ -466,6 +466,25 @@ LINE: ${cardInfo.line || ''}
             )}
           </div>
 
+          {/* 有註冊歷史時，新增沒有帳號的註冊連結區塊 */}
+          {hasRegistrationHistory && (
+            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <div className="text-center">
+                <p className="text-sm text-gray-600 mb-3">
+                  沒有 LINE 帳號？
+                </p>
+                <Button
+                  onClick={() => setShowOTPVerification(true)}
+                  variant="outline"
+                  className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  <Smartphone className="w-4 h-4 mr-2" />
+                  立即註冊
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* 功能說明 */}
           <Card className="mt-6 bg-blue-50 border border-blue-200">
             <CardContent className="p-3">
