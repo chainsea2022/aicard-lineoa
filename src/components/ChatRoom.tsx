@@ -612,38 +612,38 @@ const ChatRoom = () => {
                               </div>
 
                               {/* 操作按鈕區域 */}
-                              <div className="p-3 bg-white">
+                              <div className="p-2 bg-white">
                                 {/* 如果是完整Flex Message，顯示所有按鈕 */}
                                 {(message as any).isFullFlexMessage ? (
-                                  <div className="grid grid-cols-2 gap-3">
+                                  <div className="grid grid-cols-4 gap-1">
                                     <Button 
                                       onClick={() => handleCardAction('saveToContacts', message.cardData)}
                                       size="sm" 
-                                      className="bg-green-500 hover:bg-green-600 text-white text-sm h-10 font-medium"
+                                      className="bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium px-1"
                                     >
-                                      <BookmarkPlus className="w-4 h-4 mr-2" />
-                                      儲存到聯絡人
+                                      <BookmarkPlus className="w-3 h-3 mr-1" />
+                                      儲存聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
-                                      className="bg-purple-500 hover:bg-purple-600 text-white text-sm h-10 font-medium"
+                                      className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-8 font-medium px-1"
                                     >
-                                      <UserPlus className="w-4 h-4 mr-2" />
+                                      <UserPlus className="w-3 h-3 mr-1" />
                                       加入聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
-                                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm h-10 font-medium"
+                                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium px-1"
                                     >
-                                      <Edit className="w-4 h-4 mr-2" />
-                                      建立我的電子名片
+                                      <Edit className="w-3 h-3 mr-1" />
+                                      建立電子名片
                                     </Button>
                                     <Button 
                                       onClick={() => handleCardAction('share', message.cardData)} 
                                       size="sm" 
-                                      className="bg-orange-500 hover:bg-orange-600 text-white text-sm h-10 font-medium"
+                                      className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium px-1"
                                     >
-                                      <Share2 className="w-4 h-4 mr-2" />
+                                      <Share2 className="w-3 h-3 mr-1" />
                                       分享
                                     </Button>
                                   </div>
@@ -651,7 +651,7 @@ const ChatRoom = () => {
                                   <Button 
                                     onClick={() => handleCardAction('share', message.cardData)} 
                                     size="sm" 
-                                    className="w-full bg-green-500 hover:bg-green-600 text-white text-sm h-10 font-medium"
+                                    className="w-full bg-green-500 hover:bg-green-600 text-white text-sm h-8 font-medium"
                                   >
                                     <Share2 className="w-4 h-4 mr-2" />
                                     分享
