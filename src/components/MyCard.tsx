@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
+import PointsWidget from './PointsWidget';
 
 interface MyCardProps {
   onClose: () => void;
@@ -709,12 +709,14 @@ LINE: ${cardInfo.line || ''}
             </CardContent>
           </Card>
 
+          <PointsWidget onPointsClick={() => setShowPoints(true)} />
+
           <Button 
             onClick={() => setShowPoints(true)}
             className="w-full bg-yellow-500 hover:bg-yellow-600 text-white flex items-center justify-center"
           >
             <Award className="w-4 h-4 mr-2" />
-            會員點數
+            會員點數詳情
             {currentPoints > 0 && (
               <span className="ml-2 bg-white/20 px-2 py-1 rounded text-sm">
                 {currentPoints.toLocaleString()} 點
