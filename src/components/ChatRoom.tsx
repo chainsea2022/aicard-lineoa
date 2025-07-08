@@ -398,6 +398,23 @@ const ChatRoom = () => {
     const customerName = generateRandomCustomerName();
     
     switch (action) {
+      case 'saveToContacts':
+        // 模擬儲存到手機聯絡人
+        if (cardData?.name && cardData?.phone) {
+          // 在實際應用中，這裡會調用原生 API 來儲存聯絡人
+          console.log('Saving to contacts:', {
+            name: cardData.name,
+            phone: cardData.phone,
+            email: cardData.email
+          });
+          
+          toast({
+            title: "已儲存到聯絡人！",
+            description: `${cardData.name} 的聯絡資訊已儲存到您的手機聯絡人中。`
+          });
+        }
+        break;
+        
       case 'share':
         const shareUrl = `https://aile.app/card/${cardData?.name || 'user'}`;
         
@@ -598,41 +615,35 @@ const ChatRoom = () => {
                               <div className="p-3 bg-white">
                                 {/* 如果是完整Flex Message，顯示所有按鈕 */}
                                 {(message as any).isFullFlexMessage ? (
-                                  <div className="grid grid-cols-2 gap-2">
+                                  <div className="grid grid-cols-2 gap-3">
                                     <Button 
+                                      onClick={() => handleCardAction('saveToContacts', message.cardData)}
                                       size="sm" 
-                                      className="bg-blue-500 hover:bg-blue-600 text-white text-xs h-8"
+                                      className="bg-green-500 hover:bg-green-600 text-white text-sm h-10 font-medium"
                                     >
-                                      <Download className="w-3 h-3 mr-1" />
-                                      儲存到相簿
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      className="bg-green-500 hover:bg-green-600 text-white text-xs h-8"
-                                    >
-                                      <BookmarkPlus className="w-3 h-3 mr-1" />
+                                      <BookmarkPlus className="w-4 h-4 mr-2" />
                                       儲存到聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
-                                      className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-8"
+                                      className="bg-purple-500 hover:bg-purple-600 text-white text-sm h-10 font-medium"
                                     >
-                                      <UserPlus className="w-3 h-3 mr-1" />
+                                      <UserPlus className="w-4 h-4 mr-2" />
                                       加入聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
-                                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8"
+                                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-sm h-10 font-medium"
                                     >
-                                      <Edit className="w-3 h-3 mr-1" />
+                                      <Edit className="w-4 h-4 mr-2" />
                                       建立我的電子名片
                                     </Button>
                                     <Button 
                                       onClick={() => handleCardAction('share', message.cardData)} 
                                       size="sm" 
-                                      className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 col-span-2"
+                                      className="bg-orange-500 hover:bg-orange-600 text-white text-sm h-10 font-medium"
                                     >
-                                      <Share2 className="w-3 h-3 mr-2" />
+                                      <Share2 className="w-4 h-4 mr-2" />
                                       分享
                                     </Button>
                                   </div>
@@ -640,9 +651,9 @@ const ChatRoom = () => {
                                   <Button 
                                     onClick={() => handleCardAction('share', message.cardData)} 
                                     size="sm" 
-                                    className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8"
+                                    className="w-full bg-green-500 hover:bg-green-600 text-white text-sm h-10 font-medium"
                                   >
-                                    <Share2 className="w-3 h-3 mr-2" />
+                                    <Share2 className="w-4 h-4 mr-2" />
                                     分享
                                   </Button>
                                 )}
