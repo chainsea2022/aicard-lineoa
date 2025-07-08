@@ -32,7 +32,10 @@ interface CustomerData {
 const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
   const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
-  const [scanCount, setScanCount] = useState(0); // Track number of scans
+  const [scanCount, setScanCount] = useState(() => {
+    // Get scan count from localStorage to persist across visits
+    return parseInt(localStorage.getItem('scanner-scan-count') || '0');
+  });
   const [customerData, setCustomerData] = useState<CustomerData>({
     name: '',
     phone: '',
@@ -64,12 +67,14 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   }, []);
 
   const simulateScan = () => {
-    // Alternate between digital card (first scan) and paper card (second scan)
+    // Alternate between digital card and paper card based on persistent count
     const newScanCount = scanCount + 1;
     setScanCount(newScanCount);
+    // Save to localStorage for persistence
+    localStorage.setItem('scanner-scan-count', newScanCount.toString());
     
     if (newScanCount % 2 === 1) {
-      // First scan - Digital card (Aipower card)
+      // Odd count - Digital card (Aipower card)
       setScanResult('aipower-card');
       setCustomerData({
         name: '張小明',
@@ -84,7 +89,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
         photo: '/placeholder.svg'
       });
     } else {
-      // Second scan - Paper card
+      // Even count - Paper card
       setScanResult('paper-card');
       setCustomerData({
         name: '李大華',
@@ -236,33 +241,29 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3 pb-4 min-h-0">
-        {scanResult === 'none' && (
-          <>
-            {/* Scanner Interface */}
-            <div className="bg-gray-100 rounded-lg p-4 text-center">
-              <div className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
-                <Camera className="w-12 h-12 text-gray-400" />
-              </div>
-              <p className="text-gray-600 mb-4 text-sm">對準名片或 QR Code 進行掃描</p>
-              
-              <Button onClick={simulateScan} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-3 h-12 touch-manipulation">
-                <Camera className="w-5 h-5 mr-2" />
-                開始掃描
-              </Button>
-            </div>
+        {/* Scanner Interface - Always visible */}
+        <div className="bg-gray-100 rounded-lg p-4 text-center">
+          <div className="w-32 h-32 border-4 border-dashed border-gray-300 rounded-lg mx-auto mb-4 flex items-center justify-center">
+            <Camera className="w-12 h-12 text-gray-400" />
+          </div>
+          <p className="text-gray-600 mb-4 text-sm">對準名片或 QR Code 進行掃描</p>
+          
+          <Button onClick={simulateScan} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-3 h-12 touch-manipulation">
+            <Camera className="w-5 h-5 mr-2" />
+            開始掃描
+          </Button>
+        </div>
 
-            {/* Instructions */}
-            <div className="bg-gray-50 rounded-lg p-3">
-              <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
-              <ul className="text-xs text-gray-600 space-y-1">
-                <li>• 第一次點擊：展開電子名片卡欄位，儲存到我的電子名片夾</li>
-                <li>• 第二次點擊：展開紙本名片欄位，儲存到我的聯絡人列表</li>
-                <li>• 依序交替顯示不同的掃描結果</li>
-                <li>• 完成儲存後可選擇繼續掃描或前往查看</li>
-              </ul>
-            </div>
-          </>
-        )}
+        {/* Instructions - Always visible */}
+        <div className="bg-gray-50 rounded-lg p-3">
+          <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
+          <ul className="text-xs text-gray-600 space-y-1">
+            <li>• 點擊開始掃描會模擬掃描名片或QR Code</li>
+            <li>• 會交替顯示電子名片和紙本名片掃描結果</li>
+            <li>• 電子名片：儲存到我的電子名片夾</li>
+            <li>• 紙本名片：儲存到我的聯絡人列表</li>
+          </ul>
+        </div>
 
         {/* Paper Business Card Results */}
         {scanResult === 'paper-card' && (
