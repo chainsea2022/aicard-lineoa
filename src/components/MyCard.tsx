@@ -466,15 +466,15 @@ LINE: ${cardInfo.line || ''}
             )}
           </div>
 
-          {/* 有註冊歷史時，新增沒有帳號的註冊連結區塊 */}
+          {/* 有註冊歷史時，新增立即註冊連結區塊 */}
           {hasRegistrationHistory && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="text-center">
-                <p className="text-sm text-gray-600 mb-3">
-                  沒有 LINE 帳號？
-                </p>
                 <Button
-                  onClick={() => setShowOTPVerification(true)}
+                  onClick={() => {
+                    // 清除註冊歷史，讓用戶回到首次註冊流程
+                    setHasRegistrationHistory(false);
+                  }}
                   variant="outline"
                   className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
                 >
