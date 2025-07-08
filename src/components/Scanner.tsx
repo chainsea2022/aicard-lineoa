@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -78,10 +77,8 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
       }
     } catch (error) {
       console.error('Camera access failed:', error);
-      toast({
-        title: "相機啟動失敗",
-        description: "無法存取相機，請檢查權限設定。"
-      });
+      // Remove the toast notification - just log the error
+      // Keep the interface but don't show error toast
     }
   };
 
@@ -289,10 +286,10 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             <div className="bg-gray-50 rounded-lg p-3">
               <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
               <ul className="text-xs text-gray-600 space-y-1">
-                <li>• 第一次掃描：顯示電子名片卡</li>
-                <li>• 第二次掃描：顯示紙本名片聯絡人</li>
-                <li>• 電子名片將加入我的電子名片夾</li>
-                <li>• 紙本名片將加入我的聯絡人列表</li>
+                <li>• 第一次點擊：掃描電子名片卡並儲存到我的電子名片夾</li>
+                <li>• 第二次點擊：掃描紙本名片並儲存到我的聯絡人列表</li>
+                <li>• 依序交替顯示不同的掃描結果</li>
+                <li>• 完成掃描後可選擇繼續掃描或前往查看</li>
               </ul>
             </div>
           </>
@@ -405,7 +402,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
               </div>
               
               <Button onClick={handleAddCustomer} className="w-full bg-orange-500 hover:bg-orange-600 text-xs py-2 h-9 touch-manipulation">
-                加入我的聯絡人列表
+                儲存到我的聯絡人列表
               </Button>
             </div>
           </div>
@@ -480,7 +477,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             
             <Button onClick={handleAddCustomer} className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-9 touch-manipulation">
               <UserPlus className="w-3 h-3 mr-1" />
-              加入我的電子名片夾
+              儲存到我的電子名片夾
             </Button>
           </div>
         )}
