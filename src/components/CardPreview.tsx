@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, Edit, Share2, Download, QrCode, ChevronUp, ChevronDown, Eye, EyeOff, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +11,7 @@ interface CardPreviewProps {
   cardData: {
     companyName: string;
     name: string;
+    jobTitle?: string;
     phone: string;
     email: string;
     website: string;
@@ -121,6 +121,7 @@ const CardPreview: React.FC<CardPreviewProps> = ({ cardData, onClose, onEdit }) 
 
   const qrCodeData = `名片資訊
 姓名: ${cardData.name || ''}
+${cardData.jobTitle ? `職稱: ${cardData.jobTitle}` : ''}
 公司: ${cardData.companyName || ''}
 電話: ${cardData.phone || ''}
 Email: ${cardData.email || ''}
@@ -160,6 +161,9 @@ LINE: ${cardData.line || ''}
                 )}
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-1">{cardData.name}</h2>
+                  {cardData.jobTitle && (
+                    <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>
+                  )}
                   {cardData.companyName && (
                     <p className="text-green-100 text-lg">{cardData.companyName}</p>
                   )}

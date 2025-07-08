@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Eye, Info, ChevronDown, ChevronUp, EyeOff, Edit } from 'lucide-react';
+import { ArrowLeft, Eye, Info, ChevronDown, ChevronUp, EyeOff, Edit, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,6 +20,7 @@ interface CreateCardProps {
 const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userData }) => {
   const [companyName, setCompanyName] = useState('');
   const [name, setName] = useState('');
+  const [jobTitle, setJobTitle] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [website, setWebsite] = useState('');
@@ -34,6 +36,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [fieldVisibility, setFieldVisibility] = useState({
     companyName: true,
     name: true,
+    jobTitle: true,
     phone: true,
     email: true,
     website: true,
@@ -50,6 +53,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       const cardData = JSON.parse(savedCardData);
       setCompanyName(cardData.companyName || '');
       setName(cardData.name || '');
+      setJobTitle(cardData.jobTitle || '');
       setPhone(cardData.phone || '');
       setEmail(cardData.email || '');
       setWebsite(cardData.website || '');
@@ -102,6 +106,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     return {
       companyName: fieldVisibility.companyName ? companyName : '',
       name: fieldVisibility.name ? name : '',
+      jobTitle: fieldVisibility.jobTitle ? jobTitle : '',
       phone: fieldVisibility.phone ? phone : '',
       email: fieldVisibility.email ? email : '',
       website: fieldVisibility.website ? website : '',
@@ -146,6 +151,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     const cardData = {
       companyName,
       name,
+      jobTitle,
       phone,
       email,
       website,
@@ -242,6 +248,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
                   )}
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-1">{getFilteredCardData().name}</h2>
+                    {getFilteredCardData().jobTitle && (
+                      <p className="text-green-100 text-sm mb-1">{getFilteredCardData().jobTitle}</p>
+                    )}
                     {getFilteredCardData().companyName && (
                       <p className="text-green-100 text-lg">{getFilteredCardData().companyName}</p>
                     )}
@@ -463,6 +472,32 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
               onChange={(e) => setName(e.target.value)}
               placeholder="請輸入姓名"
               required
+            />
+          </div>
+
+          {/* 職稱 */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="jobTitle">職稱</Label>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-gray-500">公開</span>
+                <Switch
+                  checked={fieldVisibility.jobTitle}
+                  onCheckedChange={() => toggleFieldVisibility('jobTitle')}
+                />
+                {fieldVisibility.jobTitle ? (
+                  <Eye className="w-4 h-4 text-green-600" />
+                ) : (
+                  <EyeOff className="w-4 h-4 text-gray-400" />
+                )}
+              </div>
+            </div>
+            <Input
+              type="text"
+              id="jobTitle"
+              value={jobTitle}
+              onChange={(e) => setJobTitle(e.target.value)}
+              placeholder="請輸入職稱"
             />
           </div>
           
