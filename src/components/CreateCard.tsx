@@ -7,7 +7,8 @@ import { Switch } from '@/components/ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { toast } from '@/hooks/use-toast';
 import CardPreview from './CardPreview';
-import { Card, CardContent, Avatar, AvatarImage, AvatarFallback } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface CreateCardProps {
   onClose: () => void;
