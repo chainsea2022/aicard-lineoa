@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -214,10 +215,12 @@ const ChatRoom = () => {
       const { joinMessage, cardMessage, fullCardMessage, customerName } = event.detail;
       setMessages(prev => [...prev, joinMessage, cardMessage, fullCardMessage]);
       
+      // 3秒後判斷客戶是否建立電子名片
       setTimeout(() => {
-        const hasBusinessCard = Math.random() > 0.5;
+        const hasBusinessCard = Math.random() > 0.5; // 50% 機率客戶有建立電子名片
         
         if (hasBusinessCard) {
+          // 客戶有建立電子名片 - 顯示完整資料
           const businessCardMessage = {
             id: Date.now() + 10,
             text: `${customerName} 已建立電子名片並加入您的聯絡人`,
@@ -226,6 +229,7 @@ const ChatRoom = () => {
           };
           setMessages(prev => [...prev, businessCardMessage]);
           
+          // 通知名片人脈夾新增客戶（有電子名片）
           window.dispatchEvent(new CustomEvent('customerAddedNotification', {
             detail: { 
               customerName: customerName,
@@ -241,6 +245,7 @@ const ChatRoom = () => {
             }
           }));
         } else {
+          // 客戶只加入聯絡人 - 只顯示基本資料
           const contactMessage = {
             id: Date.now() + 10,
             text: `${customerName} 已加入您的聯絡人`,
@@ -249,6 +254,7 @@ const ChatRoom = () => {
           };
           setMessages(prev => [...prev, contactMessage]);
           
+          // 通知名片人脈夾新增客戶（只有基本資料）
           window.dispatchEvent(new CustomEvent('customerAddedNotification', {
             detail: { 
               customerName: customerName,
@@ -257,7 +263,7 @@ const ChatRoom = () => {
               profileImage: `https://via.placeholder.com/40/6b7280/ffffff?text=${customerName.charAt(0)}`,
               lineAccount: `@${customerName.toLowerCase()}`,
               hasBusinessCard: false,
-              isBasicLineContact: true
+              isBasicLineContact: true // 標記為基本LINE聯絡人
             }
           }));
         }
