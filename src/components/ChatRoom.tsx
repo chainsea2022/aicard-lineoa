@@ -462,6 +462,29 @@ const ChatRoom = () => {
     }
   };
 
+  const generateQRCode = (data: string) => {
+    const size = 8;
+    const squares = [];
+    
+    for (let i = 0; i < size; i++) {
+      for (let j = 0; j < size; j++) {
+        const isBlack = (i + j + data.length) % 3 === 0;
+        squares.push(
+          <div
+            key={`${i}-${j}`}
+            className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`}
+          />
+        );
+      }
+    }
+    
+    return (
+      <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
+        {squares}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen w-full bg-white relative overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header - LINE style */}
@@ -576,6 +599,45 @@ const ChatRoom = () => {
                                           <Instagram className="w-5 h-5" />
                                         </a>
                                       )}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* QR Code 可折疊區塊 */}
+                              <div className="bg-gray-50 border-t border-gray-200">
+                                <button
+                                  onClick={() => toggleQrCode(message.id)}
+                                  className="w-full p-3 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <QrCode className="w-4 h-4 text-gray-600" />
+                                    <span className="text-sm text-gray-700">QR Code</span>
+                                  </div>
+                                  {expandedQrCodes[message.id] ? (
+                                    <ChevronUp className="w-4 h-4 text-gray-600" />
+                                  ) : (
+                                    <ChevronDown className="w-4 h-4 text-gray-600" />
+                                  )}
+                                </button>
+                                
+                                {expandedQrCodes[message.id] && (
+                                  <div className="p-4 border-t border-gray-200 bg-white">
+                                    <div className="flex justify-center mb-3">
+                                      {generateQRCode(`名片資訊
+姓名: ${message.cardData.name || ''}
+公司: ${message.cardData.companyName || ''}
+電話: ${message.cardData.phone || ''}
+Email: ${message.cardData.email || ''}
+LINE: ${message.cardData.line || ''}
+網站: ${message.cardData.website || ''}`)}
+                                    </div>
+                                    <p className="text-xs text-gray-500 text-center mb-2">掃描此QR Code即可獲得我的聯絡資訊</p>
+                                    <div 
+                                      className="w-full text-center cursor-pointer hover:bg-gray-50 transition-colors p-2 rounded"
+                                      onClick={() => handleQrCodeClick(message.cardData)}
+                                    >
+                                      <span className="text-xs text-blue-600">點擊分享名片</span>
                                     </div>
                                   </div>
                                 )}
