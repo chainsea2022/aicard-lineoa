@@ -615,25 +615,25 @@ const ChatRoom = () => {
                               <div className="p-2 bg-white">
                                 {/* 如果是完整Flex Message，顯示所有按鈕 */}
                                 {(message as any).isFullFlexMessage ? (
-                                  <div className="grid grid-cols-4 gap-1">
+                                  <div className="space-y-1">
                                     <Button 
                                       onClick={() => handleCardAction('saveToContacts', message.cardData)}
                                       size="sm" 
-                                      className="bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium px-1"
+                                      className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium"
                                     >
                                       <BookmarkPlus className="w-3 h-3 mr-1" />
                                       儲存聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
-                                      className="bg-purple-500 hover:bg-purple-600 text-white text-xs h-8 font-medium px-1"
+                                      className="w-full bg-purple-500 hover:bg-purple-600 text-white text-xs h-8 font-medium"
                                     >
                                       <UserPlus className="w-3 h-3 mr-1" />
                                       加入聯絡人
                                     </Button>
                                     <Button 
                                       size="sm" 
-                                      className="bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium px-1"
+                                      className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium"
                                     >
                                       <Edit className="w-3 h-3 mr-1" />
                                       建立電子名片
@@ -641,7 +641,7 @@ const ChatRoom = () => {
                                     <Button 
                                       onClick={() => handleCardAction('share', message.cardData)} 
                                       size="sm" 
-                                      className="bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium px-1"
+                                      className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium"
                                     >
                                       <Share2 className="w-3 h-3 mr-1" />
                                       分享
