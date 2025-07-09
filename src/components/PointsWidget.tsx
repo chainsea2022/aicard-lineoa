@@ -17,7 +17,7 @@ const PointsWidget: React.FC<PointsWidgetProps> = ({ onPointsClick }) => {
     if (savedPoints) {
       const points = parseInt(savedPoints);
       setCurrentPoints(points);
-      setCanRedeem(points >= 30);
+      setCanRedeem(points >= 50);
     }
   }, []);
 
@@ -68,7 +68,7 @@ const PointsWidget: React.FC<PointsWidgetProps> = ({ onPointsClick }) => {
         <div className="mt-3 pt-3 border-t border-orange-200">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600">
-              {canRedeem ? '立即兌換商務版試用！' : `還需 ${30 - currentPoints} 點可兌換`}
+              {canRedeem ? '立即兌換商務版試用！' : `還需 ${50 - currentPoints} 點可兌換`}
             </span>
             <div className="flex items-center text-orange-600">
               <span className="font-medium">查看詳情</span>

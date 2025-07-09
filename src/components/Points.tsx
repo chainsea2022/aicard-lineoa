@@ -41,9 +41,9 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
   const [milestones, setMilestones] = useState<Milestone[]>([
     { cardCount: 10, points: 10, achieved: false },
-    { cardCount: 30, points: 20, achieved: false },
-    { cardCount: 50, points: 30, achieved: false },
-    { cardCount: 100, points: 50, achieved: false }
+    { cardCount: 30, points: 50, achieved: false },
+    { cardCount: 50, points: 80, achieved: false },
+    { cardCount: 100, points: 150, achieved: false }
   ]);
 
   const [earningMethods, setEarningMethods] = useState<EarningMethod[]>([
@@ -148,7 +148,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
     });
   };
 
-  const canRedeemTrial = currentPoints >= 30;
+  const canRedeemTrial = currentPoints >= 50;
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
@@ -214,7 +214,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                   ) : (
                     <div className="text-gray-600">
                       <span className="text-sm">
-                        還需 {30 - currentPoints} 點即可兌換商務版試用
+                        還需 {50 - currentPoints} 點即可兌換商務版試用
                       </span>
                     </div>
                   )}
@@ -294,12 +294,12 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                           <h4 className={`font-semibold ${
                             milestone.achieved ? 'text-green-900' : 'text-gray-700'
                           }`}>
-                            收藏 {milestone.cardCount} 筆名片
+                            收藏電子名片達 {milestone.cardCount} 筆
                           </h4>
                           <p className={`text-sm ${
                             milestone.achieved ? 'text-green-700' : 'text-gray-600'
                           }`}>
-                            名片夾達到 {milestone.cardCount} 筆
+                            電子名片夾達到 {milestone.cardCount} 筆
                           </p>
                         </div>
                       </div>
@@ -360,7 +360,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                           ? 'bg-red-500 text-white' 
                           : 'bg-gray-400 text-white'
                       }`}>
-                        30點
+                        50點
                       </Badge>
                     </div>
                     <Button 
@@ -371,7 +371,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                       }`}
                       disabled={!canRedeemTrial}
                     >
-                      {canRedeemTrial ? '立即兌換' : `還需 ${30 - currentPoints} 點`}
+                      {canRedeemTrial ? '立即兌換' : `還需 ${50 - currentPoints} 點`}
                     </Button>
                   </div>
 
