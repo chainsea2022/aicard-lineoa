@@ -333,10 +333,28 @@ LINE: ${cardInfo.line || ''}
     };
     setPublicSettings(newSettings);
     localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
-    toast({
-      title: "設定已儲存",
-      description: "您的電子名片設定已更新。"
-    });
+    
+    // 根據設定顯示相應的提示訊息
+    if (key === 'allowDirectContact') {
+      toast({
+        title: value ? "已開啟直接聯繫" : "已關閉直接聯繫",
+        description: value 
+          ? "其他人現在可以直接聯繫您，LINE聯繫方式將顯示在他人的名片夾中。"
+          : "其他人現在需要您的同意才能聯繫您，LINE聯繫方式將不會顯示在他人的名片夾中。"
+      });
+    } else if (key === 'receiveNotifications') {
+      toast({
+        title: value ? "已開啟通知" : "已關閉通知",
+        description: value
+          ? "當有用戶加入您的名片時，將在Aipower聊天室中彈跳通知提醒。"
+          : "將不再接收用戶加入名片的通知提醒。"
+      });
+    } else {
+      toast({
+        title: "設定已儲存",
+        description: "您的電子名片設定已更新。"
+      });
+    }
   };
 
   if (showOTPVerification) {
@@ -725,7 +743,7 @@ LINE: ${cardInfo.line || ''}
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">允許直接聯繫</Label>
                       <p className="text-xs text-gray-600">
-                        關閉後，需要您同意才能與您聯繫
+                        關閉後，他人需取得您的同意後方可聯繫，於他人的電子名片夾列表不顯示LINE聯繫方式
                       </p>
                     </div>
                     <Switch
@@ -738,7 +756,7 @@ LINE: ${cardInfo.line || ''}
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">接收通知</Label>
                       <p className="text-xs text-gray-600">
-                        當有人加入您的名片時接收通知
+                        當有用戶加入您的名片時，系統將推播通知提醒，於Aipower聊天室中彈跳用戶加入您的電子名片卡訊息通知
                       </p>
                     </div>
                     <Switch

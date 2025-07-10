@@ -272,77 +272,87 @@ const ChatRoom = () => {
     const handleLiffCardShared = (event: CustomEvent) => {
       const { joinMessage, cardMessage, fullCardMessage, customerName, flowType } = event.detail;
       
+      // 檢查是否開啟通知接收
+      const savedSettings = localStorage.getItem('aile-profile-settings');
+      const settings = savedSettings ? JSON.parse(savedSettings) : { receiveNotifications: true };
+      
       if (flowType === 'qr_scan') {
         // QR Code 掃描流程 - 顯示完整流程
         setMessages(prev => [...prev, joinMessage, cardMessage, fullCardMessage]);
         
-        // 3秒後判斷客戶是否建立電子名片
-        setTimeout(() => {
-          const hasBusinessCard = Math.random() > 0.5; // 50% 機率客戶有建立電子名片
-          
-          if (hasBusinessCard) {
-            // 客戶有建立電子名片 - 顯示完整資料
-            const businessCardMessage = {
-              id: Date.now() + 10,
-              text: `${customerName} 已建立電子名片並加入您的聯絡人`,
-              isBot: true,
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, businessCardMessage]);
+        // 只有在開啟通知時才顯示加入通知
+        if (settings.receiveNotifications) {
+          // 3秒後判斷客戶是否建立電子名片
+          setTimeout(() => {
+            const hasBusinessCard = Math.random() > 0.5; // 50% 機率客戶有建立電子名片
             
-            // 通知名片人脈夾新增客戶（有電子名片）
-            window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-              detail: { 
-                customerName: customerName,
-                action: 'liff_join_with_card',
-                isDigitalCard: true,
-                profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${customerName.charAt(0)}`,
-                lineAccount: `@${customerName.toLowerCase()}`,
-                hasBusinessCard: true,
-                phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
-                email: `${customerName.toLowerCase()}@example.com`,
-                company: `${customerName}的公司`,
-                jobTitle: '經理'
-              }
-            }));
-          } else {
-            // 客戶只加入聯絡人 - 只顯示基本資料
-            const contactMessage = {
-              id: Date.now() + 10,
-              text: `${customerName} 已加入您的聯絡人`,
-              isBot: true,
-              timestamp: new Date()
-            };
-            setMessages(prev => [...prev, contactMessage]);
-            
-            // 通知名片人脈夾新增客戶（只有基本資料）
-            window.dispatchEvent(new CustomEvent('customerAddedNotification', {
-              detail: { 
-                customerName: customerName,
-                action: 'liff_join_basic',
-                isDigitalCard: true,
-                profileImage: `https://via.placeholder.com/40/6b7280/ffffff?text=${customerName.charAt(0)}`,
-                lineAccount: `@${customerName.toLowerCase()}`,
-                hasBusinessCard: false,
-                isBasicLineContact: true // 標記為基本LINE聯絡人
-              }
-            }));
-          }
-        }, 3000);
+            if (hasBusinessCard) {
+              // 客戶有建立電子名片 - 顯示完整資料
+              const businessCardMessage = {
+                id: Date.now() + 10,
+                text: `🔔 ${customerName} 已建立電子名片並加入您的聯絡人`,
+                isBot: true,
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, businessCardMessage]);
+              
+              // 通知名片人脈夾新增客戶（有電子名片）
+              window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+                detail: { 
+                  customerName: customerName,
+                  action: 'liff_join_with_card',
+                  isDigitalCard: true,
+                  profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${customerName.charAt(0)}`,
+                  lineAccount: `@${customerName.toLowerCase()}`,
+                  hasBusinessCard: true,
+                  phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+                  email: `${customerName.toLowerCase()}@example.com`,
+                  company: `${customerName}的公司`,
+                  jobTitle: '經理'
+                }
+              }));
+            } else {
+              // 客戶只加入聯絡人 - 只顯示基本資料
+              const contactMessage = {
+                id: Date.now() + 10,
+                text: `🔔 ${customerName} 已加入您的聯絡人`,
+                isBot: true,
+                timestamp: new Date()
+              };
+              setMessages(prev => [...prev, contactMessage]);
+              
+              // 通知名片人脈夾新增客戶（只有基本資料）
+              window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+                detail: { 
+                  customerName: customerName,
+                  action: 'liff_join_basic',
+                  isDigitalCard: true,
+                  profileImage: `https://via.placeholder.com/40/6b7280/ffffff?text=${customerName.charAt(0)}`,
+                  lineAccount: `@${customerName.toLowerCase()}`,
+                  hasBusinessCard: false,
+                  isBasicLineContact: true // 標記為基本LINE聯絡人
+                }
+              }));
+            }
+          }, 3000);
+        }
       } else {
         // 直接加入聯絡人流程 - 只顯示加入訊息
         setMessages(prev => [...prev, joinMessage]);
         
-        // 直接新增為基本聯絡人，不等待也不發送完整電子名片
-        const contactMessage = {
-          id: Date.now() + 10,
-          text: `${customerName} 已加入您的聯絡人`,
-          isBot: true,
-          timestamp: new Date()
-        };
-        setTimeout(() => {
-          setMessages(prev => [...prev, contactMessage]);
-        }, 1000);
+        // 只有在開啟通知時才顯示後續通知
+        if (settings.receiveNotifications) {
+          // 直接新增為基本聯絡人，不等待也不發送完整電子名片
+          const contactMessage = {
+            id: Date.now() + 10,
+            text: `🔔 ${customerName} 已加入您的聯絡人`,
+            isBot: true,
+            timestamp: new Date()
+          };
+          setTimeout(() => {
+            setMessages(prev => [...prev, contactMessage]);
+          }, 1000);
+        }
       }
     };
 

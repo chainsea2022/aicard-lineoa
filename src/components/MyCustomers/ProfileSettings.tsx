@@ -99,7 +99,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               <div className="space-y-1">
                 <Label className="text-sm font-medium">允許直接聯繫</Label>
                 <p className="text-xs text-gray-600">
-                  關閉後，需要您同意才能與您聯繫
+                  關閉後，他人需取得您的同意後方可聯繫，於他人的電子名片夾列表不顯示LINE聯繫方式
                 </p>
               </div>
               <Switch
@@ -158,7 +158,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               <div className="space-y-1">
                 <Label className="text-sm font-medium">接收加入通知</Label>
                 <p className="text-xs text-gray-600">
-                  當有人加入您的名片時接收通知
+                  當有用戶加入您的名片時，系統將推播通知提醒，於Aipower聊天室中彈跳用戶加入您的電子名片卡訊息通知
                 </p>
               </div>
               <Switch
@@ -175,9 +175,9 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
             <h4 className="font-medium text-blue-800 mb-2">設定說明</h4>
             <ul className="text-xs text-blue-700 space-y-1">
               <li>• 公開電子名片：開啟後其他用戶可以在智能推薦中找到您</li>
-              <li>• 允許直接聯繫：關閉後需要您的同意才能聯繫</li>
+              <li>• 允許直接聯繫：關閉後需要您的同意才能聯繫，且於他人名片夾不顯示LINE聯繫方式</li>
               <li>• 聯絡資訊顯示：控制哪些聯絡方式對其他人可見</li>
-              <li>• 通知設定：管理您希望接收的通知類型</li>
+              <li>• 通知設定：管理您希望接收的通知類型，包含聊天室彈跳通知</li>
             </ul>
           </CardContent>
         </Card>
