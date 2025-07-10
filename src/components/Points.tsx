@@ -78,10 +78,10 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       completed: true // Check if profile is complete
     },
     {
-      id: 'others-join',
-      title: '他人加入您的電子名片',
-      description: '每有一人加入您的名片',
-      points: 10,
+      id: 'invite-others',
+      title: '邀請他人完成註冊電子名片',
+      description: '分享他人完成註冊電子名片',
+      points: 30,
       icon: <Users className="w-5 h-5 text-white" />,
       bgGradient: 'from-orange-50 to-orange-100',
       borderColor: 'border-orange-200',
@@ -109,12 +109,12 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       const initialTransactions: PointTransaction[] = [
         { id: 1, type: 'earn', points: 30, description: '註冊電子名片', date: new Date() },
         { id: 2, type: 'earn', points: 30, description: '完成電子名片資料', date: new Date(Date.now() - 86400000) },
-        { id: 3, type: 'earn', points: 10, description: '他人加入您的電子名片', date: new Date(Date.now() - 172800000) },
+        { id: 3, type: 'earn', points: 30, description: '邀請他人完成註冊電子名片', date: new Date(Date.now() - 172800000) },
       ];
       setTransactions(initialTransactions);
-      setCurrentPoints(70);
+      setCurrentPoints(90);
       
-      localStorage.setItem('aile-user-points', '70');
+      localStorage.setItem('aile-user-points', '90');
       localStorage.setItem('aile-points-history', JSON.stringify(initialTransactions));
     }
 
@@ -130,9 +130,9 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
     }
 
     setEarningMethods(prev => prev.map(method => {
-      if (method.id === 'others-join') {
-        const hasOthersJoined = transactions.some(t => t.description === '他人加入您的電子名片');
-        return { ...method, completed: hasOthersJoined };
+      if (method.id === 'invite-others') {
+        const hasInvitedOthers = transactions.some(t => t.description === '邀請他人完成註冊電子名片');
+        return { ...method, completed: hasInvitedOthers };
       }
       return method;
     }));
@@ -252,7 +252,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                         </div>
                       </div>
                       <Badge className="bg-green-500 text-white font-bold px-3 py-1">
-                        {method.id === 'others-join' ? '每人' : ''}+{method.points}點
+                        +{method.points}點
                       </Badge>
                     </div>
                   ))}
