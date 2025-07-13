@@ -62,27 +62,43 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
 
   // Birthday formatting and validation functions
   const formatBirthdayInput = (value: string) => {
-    // Remove all non-numeric characters
-    const numbers = value.replace(/\D/g, '');
+    // Remove all non-numeric characters except forward slashes
+    const cleaned = value.replace(/[^\d/]/g, '');
     
-    // Limit to 8 digits maximum
-    const limitedNumbers = numbers.slice(0, 8);
-    
-    // Format as yyyy/mm/dd progressively
-    if (limitedNumbers.length >= 8) {
-      const year = limitedNumbers.slice(0, 4);
-      const month = limitedNumbers.slice(4, 6);
-      const day = limitedNumbers.slice(6, 8);
-      return `${year}/${month}/${day}`;
-    } else if (limitedNumbers.length >= 6) {
-      const year = limitedNumbers.slice(0, 4);
-      const month = limitedNumbers.slice(4, 6);
-      return `${year}/${month}`;
-    } else if (limitedNumbers.length >= 4) {
-      const year = limitedNumbers.slice(0, 4);
-      return `${year}`;
+    // If user is typing with slashes, preserve them
+    if (cleaned.includes('/')) {
+      // Split by slash and process each part
+      const parts = cleaned.split('/');
+      if (parts.length === 3) {
+        const [year, month, day] = parts;
+        // Validate and format year (4 digits), month (2 digits), day (2 digits)
+        const validYear = year.slice(0, 4);
+        const validMonth = month.slice(0, 2);
+        const validDay = day.slice(0, 2);
+        return `${validYear}${month ? '/' + validMonth : ''}${day ? '/' + validDay : ''}`;
+      }
+      return cleaned;
+    } else {
+      // Handle pure numeric input (e.g., 20250713)
+      const numbers = cleaned.replace(/\D/g, '');
+      const limitedNumbers = numbers.slice(0, 8);
+      
+      // Format as yyyy/mm/dd progressively
+      if (limitedNumbers.length >= 8) {
+        const year = limitedNumbers.slice(0, 4);
+        const month = limitedNumbers.slice(4, 6);
+        const day = limitedNumbers.slice(6, 8);
+        return `${year}/${month}/${day}`;
+      } else if (limitedNumbers.length >= 6) {
+        const year = limitedNumbers.slice(0, 4);
+        const month = limitedNumbers.slice(4, 6);
+        return `${year}/${month}`;
+      } else if (limitedNumbers.length >= 4) {
+        const year = limitedNumbers.slice(0, 4);
+        return `${year}`;
+      }
+      return limitedNumbers;
     }
-    return limitedNumbers;
   };
 
   const validateBirthday = (dateStr: string) => {
@@ -408,6 +424,34 @@ LINE: ${line || ''}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
+                    <div className="p-3">
+                      {/* 年份快速選擇 */}
+                      <div className="flex items-center justify-between mb-3 pb-2 border-b">
+                        <Label className="text-sm font-medium">快速選擇年份：</Label>
+                        <Select
+                          value={birthdayDate?.getFullYear().toString() || new Date().getFullYear().toString()}
+                          onValueChange={(year) => {
+                            const currentDate = birthdayDate || new Date();
+                            const newDate = new Date(parseInt(year), currentDate.getMonth(), currentDate.getDate());
+                            if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
+                              setBirthdayDate(newDate);
+                              setBirthday(format(newDate, 'yyyy/MM/dd'));
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="w-24">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-48">
+                            {Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                              <SelectItem key={year} value={year.toString()}>
+                                {year}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                     <Calendar
                       mode="single"
                       selected={birthdayDate}
