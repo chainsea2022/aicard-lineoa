@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2 } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,7 +8,11 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { toast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 interface CreateCardProps {
   onClose: () => void;
@@ -53,6 +57,67 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   // UI States
   const [showLineTutorial, setShowLineTutorial] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showBirthdayCalendar, setShowBirthdayCalendar] = useState(false);
+  const [birthdayDate, setBirthdayDate] = useState<Date | undefined>();
+
+  // Birthday formatting and validation functions
+  const formatBirthdayInput = (value: string) => {
+    // Remove all non-numeric characters
+    const numbers = value.replace(/\D/g, '');
+    
+    // Format as yyyy/mm/dd
+    if (numbers.length >= 8) {
+      const year = numbers.slice(0, 4);
+      const month = numbers.slice(4, 6);
+      const day = numbers.slice(6, 8);
+      return `${year}/${month}/${day}`;
+    } else if (numbers.length >= 6) {
+      const year = numbers.slice(0, 4);
+      const month = numbers.slice(4, 6);
+      return `${year}/${month}`;
+    } else if (numbers.length >= 4) {
+      const year = numbers.slice(0, 4);
+      return `${year}`;
+    }
+    return numbers;
+  };
+
+  const validateBirthday = (dateStr: string) => {
+    if (!dateStr || dateStr.length < 10) return false;
+    
+    const date = new Date(dateStr);
+    const today = new Date();
+    
+    // Check if date is valid
+    if (isNaN(date.getTime())) return false;
+    
+    // Check if date is not in the future
+    if (date > today) return false;
+    
+    // Check if date is reasonable (not before 1900)
+    if (date.getFullYear() < 1900) return false;
+    
+    return true;
+  };
+
+  const handleBirthdayInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatBirthdayInput(e.target.value);
+    setBirthday(formatted);
+    
+    // Convert to Date object for calendar state
+    if (formatted.length === 10 && validateBirthday(formatted)) {
+      setBirthdayDate(new Date(formatted));
+    }
+  };
+
+  const handleBirthdayDateSelect = (date: Date | undefined) => {
+    if (date) {
+      const formatted = format(date, 'yyyy/MM/dd');
+      setBirthday(formatted);
+      setBirthdayDate(date);
+    }
+    setShowBirthdayCalendar(false);
+  };
 
   useEffect(() => {
     // 設置註冊手機號碼
@@ -91,6 +156,14 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setInstagramVisible(cardInfo.instagramVisible !== false);
       setPhoto(cardInfo.photo || null);
       setCardPublic(cardInfo.cardPublic || false);
+      
+      // Convert birthday to Date object for calendar
+      if (cardInfo.birthday) {
+        const date = new Date(cardInfo.birthday);
+        if (!isNaN(date.getTime())) {
+          setBirthdayDate(date);
+        }
+      }
     }
   }, [userData]);
 
@@ -300,12 +373,54 @@ LINE: ${line || ''}
               <Label htmlFor="birthday" className="text-sm font-medium text-gray-700">
                 生日
               </Label>
-              <Input
-                id="birthday"
-                type="date"
-                value={birthday}
-                onChange={(e) => setBirthday(e.target.value)}
-              />
+              <div className="flex items-center space-x-2">
+                <Input
+                  id="birthday"
+                  type="text"
+                  placeholder="例如：2025/07/13 或 20250713"
+                  value={birthday}
+                  onChange={handleBirthdayInputChange}
+                  onBlur={() => {
+                    if (birthday && !validateBirthday(birthday)) {
+                      toast({
+                        title: "日期格式錯誤",
+                        description: "請輸入正確的日期格式，例如：2025/07/13"
+                      });
+                    }
+                  }}
+                  className={cn(
+                    birthday && !validateBirthday(birthday) && birthday.length >= 8 
+                      ? "border-red-500 focus:border-red-500" 
+                      : ""
+                  )}
+                />
+                <Popover open={showBirthdayCalendar} onOpenChange={setShowBirthdayCalendar}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="shrink-0 px-3"
+                    >
+                      <CalendarIcon className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={birthdayDate}
+                      onSelect={handleBirthdayDateSelect}
+                      disabled={(date) =>
+                        date > new Date() || date < new Date("1900-01-01")
+                      }
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <p className="text-xs text-gray-500">
+                可手動輸入（支援8碼數字、斜線分隔）或點選日曆圖示選擇
+              </p>
             </div>
 
             {/* 註冊手機號碼 */}
