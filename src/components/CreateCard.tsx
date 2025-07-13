@@ -424,44 +424,80 @@ LINE: ${line || ''}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="start">
-                    <div className="p-3">
-                      {/* 年份快速選擇 */}
-                      <div className="flex items-center justify-between mb-3 pb-2 border-b">
-                        <Label className="text-sm font-medium">快速選擇年份：</Label>
+                    <div className="p-3 space-y-3">
+                      {/* 年代快速選擇 */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">快速選擇年代：</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {Array.from({ length: 13 }, (_, i) => {
+                            const decade = 2020 - (i * 10);
+                            const startYear = decade;
+                            const endYear = decade + 9;
+                            return (
+                              <Button
+                                key={decade}
+                                variant="outline"
+                                size="sm"
+                                className="text-xs h-8"
+                                onClick={() => {
+                                  const currentDate = birthdayDate || new Date();
+                                  // 選擇該年代的中間年份
+                                  const middleYear = startYear + 5;
+                                  const newDate = new Date(middleYear, currentDate.getMonth(), currentDate.getDate());
+                                  if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
+                                    setBirthdayDate(newDate);
+                                    setBirthday(format(newDate, 'yyyy/MM/dd'));
+                                  }
+                                }}
+                              >
+                                {startYear}-{endYear}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      
+                      {/* 精確年份選擇 */}
+                      <div className="space-y-2 pt-2 border-t">
+                        <Label className="text-sm font-medium">精確年份：</Label>
                         <Select
-                          value={birthdayDate?.getFullYear().toString() || new Date().getFullYear().toString()}
+                          value={birthdayDate?.getFullYear().toString() || ""}
                           onValueChange={(year) => {
-                            const currentDate = birthdayDate || new Date();
-                            const newDate = new Date(parseInt(year), currentDate.getMonth(), currentDate.getDate());
-                            if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
-                              setBirthdayDate(newDate);
-                              setBirthday(format(newDate, 'yyyy/MM/dd'));
+                            if (year) {
+                              const currentDate = birthdayDate || new Date();
+                              const newDate = new Date(parseInt(year), currentDate.getMonth(), currentDate.getDate());
+                              if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
+                                setBirthdayDate(newDate);
+                                setBirthday(format(newDate, 'yyyy/MM/dd'));
+                              }
                             }
                           }}
                         >
-                          <SelectTrigger className="w-24">
-                            <SelectValue />
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="選擇年份" />
                           </SelectTrigger>
                           <SelectContent className="max-h-48">
                             {Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i).map((year) => (
                               <SelectItem key={year} value={year.toString()}>
-                                {year}
+                                {year}年
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
-                    <Calendar
-                      mode="single"
-                      selected={birthdayDate}
-                      onSelect={handleBirthdayDateSelect}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
+                    <div className="border-t">
+                      <Calendar
+                        mode="single"
+                        selected={birthdayDate}
+                        onSelect={handleBirthdayDateSelect}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
