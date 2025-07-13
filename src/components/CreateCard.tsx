@@ -65,21 +65,24 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     // Remove all non-numeric characters
     const numbers = value.replace(/\D/g, '');
     
-    // Format as yyyy/mm/dd
-    if (numbers.length >= 8) {
-      const year = numbers.slice(0, 4);
-      const month = numbers.slice(4, 6);
-      const day = numbers.slice(6, 8);
+    // Limit to 8 digits maximum
+    const limitedNumbers = numbers.slice(0, 8);
+    
+    // Format as yyyy/mm/dd progressively
+    if (limitedNumbers.length >= 8) {
+      const year = limitedNumbers.slice(0, 4);
+      const month = limitedNumbers.slice(4, 6);
+      const day = limitedNumbers.slice(6, 8);
       return `${year}/${month}/${day}`;
-    } else if (numbers.length >= 6) {
-      const year = numbers.slice(0, 4);
-      const month = numbers.slice(4, 6);
+    } else if (limitedNumbers.length >= 6) {
+      const year = limitedNumbers.slice(0, 4);
+      const month = limitedNumbers.slice(4, 6);
       return `${year}/${month}`;
-    } else if (numbers.length >= 4) {
-      const year = numbers.slice(0, 4);
+    } else if (limitedNumbers.length >= 4) {
+      const year = limitedNumbers.slice(0, 4);
       return `${year}`;
     }
-    return numbers;
+    return limitedNumbers;
   };
 
   const validateBirthday = (dateStr: string) => {
