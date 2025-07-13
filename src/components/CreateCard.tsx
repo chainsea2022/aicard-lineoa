@@ -813,16 +813,14 @@ LINE: ${line || ''}
 
             {/* 名片操作按鈕 */}
             <div className="p-4 bg-gray-50 border-t">
-              <div className="flex justify-center">
-                <Button
-                  onClick={shareCard}
-                  variant="outline"
-                  className="border-blue-500 text-blue-600 hover:bg-blue-50"
-                >
-                  <Share2 className="w-4 h-4 mr-1" />
-                  分享電子名片
-                </Button>
-              </div>
+              <Button
+                onClick={shareCard}
+                variant="outline"
+                className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+              >
+                <Share2 className="w-4 h-4 mr-1" />
+                分享電子名片
+              </Button>
             </div>
           </CardContent>
         </Card>
