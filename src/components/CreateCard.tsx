@@ -397,11 +397,13 @@ LINE: ${line || ''}
                     if (birthday && !validateBirthday(birthday)) {
                       toast({
                         title: "日期格式錯誤",
-                        description: "請輸入正確的日期格式，例如：1990/03/25"
+                        description: "請輸入正確的日期格式，例如：1990/03/25",
+                        duration: 3000,
                       });
                     }
                   }}
                   className={cn(
+                    "text-base",
                     birthday && !validateBirthday(birthday) && birthday.length >= 8 
                       ? "border-red-500 focus:border-red-500" 
                       : ""
@@ -413,14 +415,24 @@ LINE: ${line || ''}
                     <Button
                       variant="outline"
                       size="sm"
-                      className="shrink-0 px-3"
+                      className="shrink-0 px-3 h-10"
                     >
                       <CalendarIcon className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 p-0" align="start">
-                    <div className="p-4 space-y-4">
-                      {/* 年份快速選擇 */}
+                  <PopoverContent 
+                    className="w-[95vw] max-w-sm p-0 mx-2" 
+                    align="center"
+                    side="bottom"
+                    sideOffset={5}
+                  >
+                    <div className="p-3 space-y-3 max-h-[70vh] overflow-y-auto">
+                      {/* 標題 */}
+                      <div className="text-center border-b pb-2">
+                        <h3 className="text-base font-medium text-gray-800">選擇生日日期</h3>
+                      </div>
+
+                      {/* 年份選擇 */}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">年份</Label>
                         <Select
@@ -431,10 +443,10 @@ LINE: ${line || ''}
                             setBirthdayDate(newDate);
                           }}
                         >
-                          <SelectTrigger>
+                          <SelectTrigger className="h-10">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="max-h-60">
+                          <SelectContent className="max-h-48">
                             {Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i).map((year) => (
                               <SelectItem key={year} value={year.toString()}>
                                 {year}年
@@ -444,16 +456,16 @@ LINE: ${line || ''}
                         </Select>
                       </div>
 
-                      {/* 月份快速選擇 */}
+                      {/* 月份選擇 */}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">月份</Label>
-                        <div className="grid grid-cols-4 gap-1">
+                        <div className="grid grid-cols-6 gap-1">
                           {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                             <Button
                               key={month}
                               variant={birthdayDate?.getMonth() + 1 === month ? "default" : "outline"}
                               size="sm"
-                              className="h-8 text-xs"
+                              className="h-8 text-xs px-1"
                               onClick={() => {
                                 const currentDate = birthdayDate || new Date();
                                 const newDate = new Date(currentDate.getFullYear(), month - 1, currentDate.getDate());
@@ -466,7 +478,7 @@ LINE: ${line || ''}
                         </div>
                       </div>
 
-                      {/* 日期快速選擇 */}
+                      {/* 日期選擇 */}
                       <div className="space-y-2">
                         <Label className="text-sm font-medium">日期</Label>
                         <div className="grid grid-cols-7 gap-1">
@@ -480,7 +492,7 @@ LINE: ${line || ''}
                                 key={day}
                                 variant={birthdayDate?.getDate() === day ? "default" : "outline"}
                                 size="sm"
-                                className="h-8 text-xs"
+                                className="h-8 text-xs p-0 min-w-0"
                                 disabled={!isValidDay}
                                 onClick={() => {
                                   if (isValidDay) {
@@ -496,20 +508,42 @@ LINE: ${line || ''}
                         </div>
                       </div>
 
+                      {/* 預覽和確認 */}
+                      {birthdayDate && (
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="text-center text-sm text-gray-600">
+                            選擇的日期：<span className="font-medium text-gray-800">{format(birthdayDate, 'yyyy年MM月dd日')}</span>
+                          </div>
+                        </div>
+                      )}
+
                       {/* 確認按鈕 */}
-                      <Button
-                        onClick={() => {
-                          if (birthdayDate) {
-                            setBirthday(format(birthdayDate, 'yyyy/MM/dd'));
-                            setShowBirthdayCalendar(false);
-                          }
-                        }}
-                        className="w-full"
-                        disabled={!birthdayDate}
-                      >
-                        確認選擇
-                        {birthdayDate && ` - ${format(birthdayDate, 'yyyy/MM/dd')}`}
-                      </Button>
+                      <div className="flex space-x-2 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setShowBirthdayCalendar(false)}
+                          className="flex-1"
+                        >
+                          取消
+                        </Button>
+                        <Button
+                          onClick={() => {
+                            if (birthdayDate) {
+                              setBirthday(format(birthdayDate, 'yyyy/MM/dd'));
+                              setShowBirthdayCalendar(false);
+                              toast({
+                                title: "生日已設定",
+                                description: `${format(birthdayDate, 'yyyy年MM月dd日')}`,
+                                duration: 2000,
+                              });
+                            }
+                          }}
+                          className="flex-1"
+                          disabled={!birthdayDate}
+                        >
+                          確認
+                        </Button>
+                      </div>
                     </div>
                   </PopoverContent>
                 </Popover>
