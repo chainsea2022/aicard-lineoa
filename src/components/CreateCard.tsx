@@ -388,15 +388,18 @@ LINE: ${line || ''}
             </div>
 
             {/* 生日 */}
-            <div className="space-y-2">
-              <Label htmlFor="birthday" className="text-sm font-medium text-gray-700">
-                生日
+            <div className="space-y-3">
+              <Label htmlFor="birthday" className="text-base font-medium text-gray-700">
+                生日日期
               </Label>
-              <div className="flex items-center space-x-2">
+              
+              {/* 手動輸入區域 */}
+              <div className="space-y-2">
+                <Label className="text-sm text-gray-600">手動輸入：</Label>
                 <Input
                   id="birthday"
                   type="text"
-                  placeholder="例如：2025/07/13 或 20250713"
+                  placeholder="請輸入：2025/07/13 或 20250713"
                   value={birthday}
                   onChange={handleBirthdayInputChange}
                   onBlur={() => {
@@ -408,102 +411,151 @@ LINE: ${line || ''}
                     }
                   }}
                   className={cn(
+                    "text-lg h-12",
                     birthday && !validateBirthday(birthday) && birthday.length >= 8 
                       ? "border-red-500 focus:border-red-500" 
                       : ""
                   )}
                 />
+                <p className="text-xs text-gray-500 bg-blue-50 p-2 rounded">
+                  💡 輸入提示：可直接輸入8位數字（如：20250713）或用斜線分隔（如：2025/07/13）
+                </p>
+              </div>
+
+              {/* 快速選擇區域 */}
+              <div className="space-y-2">
+                <Label className="text-sm text-gray-600">快速選擇：</Label>
                 <Popover open={showBirthdayCalendar} onOpenChange={setShowBirthdayCalendar}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="shrink-0 px-3"
+                      className="w-full h-12 text-base justify-center"
                     >
-                      <CalendarIcon className="h-4 w-4" />
+                      <CalendarIcon className="h-5 w-5 mr-2" />
+                      點此開啟日期選擇器
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <div className="p-3 space-y-3">
-                      {/* 年代快速選擇 */}
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium">快速選擇年代：</Label>
-                        <div className="grid grid-cols-2 gap-2">
-                          {Array.from({ length: 13 }, (_, i) => {
-                            const decade = 2020 - (i * 10);
-                            const startYear = decade;
-                            const endYear = decade + 9;
-                            return (
-                              <Button
-                                key={decade}
-                                variant="outline"
-                                size="sm"
-                                className="text-xs h-8"
-                                onClick={() => {
-                                  const currentDate = birthdayDate || new Date();
-                                  // 選擇該年代的中間年份
-                                  const middleYear = startYear + 5;
-                                  const newDate = new Date(middleYear, currentDate.getMonth(), currentDate.getDate());
-                                  if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
-                                    setBirthdayDate(newDate);
-                                    setBirthday(format(newDate, 'yyyy/MM/dd'));
-                                  }
-                                }}
-                              >
-                                {startYear}-{endYear}
-                              </Button>
-                            );
-                          })}
-                        </div>
+                  <PopoverContent className="w-[420px] p-4" align="start">
+                    {/* 年代快速選擇 - 大按鈕設計 */}
+                    <div className="space-y-4">
+                      <div className="text-center">
+                        <Label className="text-lg font-medium text-gray-800">選擇出生年代</Label>
+                        <p className="text-sm text-gray-600 mt-1">請先選擇您的出生年代範圍</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { range: "2000-2009", label: "2000年代", decade: 2000 },
+                          { range: "1990-1999", label: "1990年代", decade: 1990 },
+                          { range: "1980-1989", label: "1980年代", decade: 1980 },
+                          { range: "1970-1979", label: "1970年代", decade: 1970 },
+                          { range: "1960-1969", label: "1960年代", decade: 1960 },
+                          { range: "1950-1959", label: "1950年代", decade: 1950 },
+                          { range: "1940-1949", label: "1940年代", decade: 1940 },
+                          { range: "1930-1939", label: "1930年代", decade: 1930 }
+                        ].map(({ range, label, decade }) => (
+                          <Button
+                            key={decade}
+                            variant={birthdayDate && birthdayDate.getFullYear() >= decade && birthdayDate.getFullYear() < decade + 10 ? "default" : "outline"}
+                            className="h-14 text-base font-medium flex flex-col py-2"
+                            onClick={() => {
+                              const currentDate = birthdayDate || new Date();
+                              const middleYear = decade + 5;
+                              const newDate = new Date(middleYear, currentDate.getMonth(), currentDate.getDate());
+                              if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
+                                setBirthdayDate(newDate);
+                              }
+                            }}
+                          >
+                            <span className="text-sm">{label}</span>
+                            <span className="text-xs opacity-75">{range}</span>
+                          </Button>
+                        ))}
                       </div>
                       
                       {/* 精確年份選擇 */}
-                      <div className="space-y-2 pt-2 border-t">
-                        <Label className="text-sm font-medium">精確年份：</Label>
-                        <Select
-                          value={birthdayDate?.getFullYear().toString() || ""}
-                          onValueChange={(year) => {
-                            if (year) {
-                              const currentDate = birthdayDate || new Date();
-                              const newDate = new Date(parseInt(year), currentDate.getMonth(), currentDate.getDate());
-                              if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
-                                setBirthdayDate(newDate);
-                                setBirthday(format(newDate, 'yyyy/MM/dd'));
+                      {birthdayDate && (
+                        <div className="space-y-3 pt-4 border-t">
+                          <Label className="text-base font-medium text-gray-800">精確年份</Label>
+                          <Select
+                            value={birthdayDate?.getFullYear().toString() || ""}
+                            onValueChange={(year) => {
+                              if (year) {
+                                const currentDate = birthdayDate || new Date();
+                                const newDate = new Date(parseInt(year), currentDate.getMonth(), currentDate.getDate());
+                                if (newDate <= new Date() && newDate >= new Date("1900-01-01")) {
+                                  setBirthdayDate(newDate);
+                                }
                               }
+                            }}
+                          >
+                            <SelectTrigger className="w-full h-12 text-base">
+                              <SelectValue placeholder="選擇具體年份" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60">
+                              {Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                                <SelectItem key={year} value={year.toString()} className="text-base py-2">
+                                  {year}年
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
+                      
+                      {/* 月日選擇 */}
+                      {birthdayDate && (
+                        <div className="border-t pt-4">
+                          <Label className="text-base font-medium text-gray-800 mb-3 block">選擇月份和日期</Label>
+                          <Calendar
+                            mode="single"
+                            selected={birthdayDate}
+                            onSelect={handleBirthdayDateSelect}
+                            disabled={(date) =>
+                              date > new Date() || date < new Date("1900-01-01")
                             }
-                          }}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="選擇年份" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-48">
-                            {Array.from({ length: 125 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                              <SelectItem key={year} value={year.toString()}>
-                                {year}年
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="border-t">
-                      <Calendar
-                        mode="single"
-                        selected={birthdayDate}
-                        onSelect={handleBirthdayDateSelect}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                        className={cn("p-3 pointer-events-auto")}
-                      />
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </div>
+                      )}
+                      
+                      {/* 確認按鈕 */}
+                      {birthdayDate && (
+                        <div className="pt-3 border-t">
+                          <Button
+                            onClick={() => {
+                              if (birthdayDate) {
+                                setBirthday(format(birthdayDate, 'yyyy/MM/dd'));
+                                setShowBirthdayCalendar(false);
+                                toast({
+                                  title: "生日已設定",
+                                  description: `生日設定為：${format(birthdayDate, 'yyyy年MM月dd日')}`
+                                });
+                              }
+                            }}
+                            className="w-full h-12 text-base"
+                          >
+                            確認選擇：{format(birthdayDate, 'yyyy年MM月dd日')}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </PopoverContent>
                 </Popover>
               </div>
-              <p className="text-xs text-gray-500">
-                可手動輸入（支援8碼數字、斜線分隔）或點選日曆圖示選擇
-              </p>
+              
+              {/* 當前設定顯示 */}
+              {birthday && validateBirthday(birthday) && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="flex items-center space-x-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="text-green-800 font-medium">
+                      已設定生日：{format(new Date(birthday), 'yyyy年MM月dd日')}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* 註冊手機號碼 */}
