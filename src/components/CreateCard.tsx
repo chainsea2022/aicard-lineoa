@@ -813,16 +813,7 @@ LINE: ${line || ''}
 
             {/* 名片操作按鈕 */}
             <div className="p-4 bg-gray-50 border-t">
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  onClick={downloadCard}
-                  variant="outline"
-                  className="border-gray-500 text-gray-600 hover:bg-gray-50"
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  下載電子名片
-                </Button>
-
+              <div className="flex justify-center">
                 <Button
                   onClick={shareCard}
                   variant="outline"
