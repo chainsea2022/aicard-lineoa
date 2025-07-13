@@ -393,8 +393,7 @@ LINE: ${cardInfo.line || ''}
               onClick={handleLogout}
               className="text-white hover:bg-white/20"
             >
-              <LogOut className="w-4 h-4 mr-1" />
-              登出
+              <LogOut className="w-4 h-4" />
             </Button>
           )}
         </div>
