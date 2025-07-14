@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon, Mail, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -39,6 +39,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [phoneVisible, setPhoneVisible] = useState(true);
   const [email, setEmail] = useState('');
   const [emailVisible, setEmailVisible] = useState(true);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [website, setWebsite] = useState('');
   const [websiteVisible, setWebsiteVisible] = useState(true);
   const [address, setAddress] = useState('');
@@ -152,6 +154,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setPhoneVisible(cardInfo.phoneVisible !== false);
       setEmail(cardInfo.email || '');
       setEmailVisible(cardInfo.emailVisible !== false);
+      setEmailVerified(cardInfo.emailVerified || false);
+      setEmailVerificationSent(cardInfo.emailVerificationSent || false);
       setWebsite(cardInfo.website || '');
       setWebsiteVisible(cardInfo.websiteVisible !== false);
       setAddress(cardInfo.address || '');
@@ -220,6 +224,23 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   };
 
   const handleSave = () => {
+    // 檢查必填欄位
+    if (!email) {
+      toast({
+        title: "請填寫必填項目",
+        description: "Email 為必填項目，請填寫後再儲存。",
+      });
+      return;
+    }
+    
+    if (!emailVerified) {
+      toast({
+        title: "請完成 Email 驗證",
+        description: "請先完成 Email 驗證後再儲存名片。",
+      });
+      return;
+    }
+    
     // 儲存名片資料到 localStorage
     const cardData = {
       name,
@@ -232,6 +253,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       phoneVisible,
       email,
       emailVisible,
+      emailVerified,
+      emailVerificationSent,
       website,
       websiteVisible,
       address,
@@ -378,6 +401,107 @@ LINE: ${line || ''}
                   <SelectItem value="other">其他</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Email */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Email *
+                </Label>
+                {emailVerified && (
+                  <div className="flex items-center space-x-1 text-green-600">
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="text-xs">已驗證</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="請輸入您的 Email 地址"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailVerified) {
+                      setEmailVerified(false);
+                      setEmailVerificationSent(false);
+                    }
+                  }}
+                  className={cn(
+                    "text-base",
+                    !email && "border-red-300",
+                    emailVerified && "border-green-500 bg-green-50"
+                  )}
+                  required
+                />
+                
+                {email && !emailVerified && (
+                  <div className="space-y-2">
+                    {!emailVerificationSent ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => {
+                          // 模擬發送驗證郵件
+                          setEmailVerificationSent(true);
+                          toast({
+                            title: "驗證郵件已發送",
+                            description: `驗證郵件已發送至 ${email}，請檢查您的信箱並點擊驗證連結。`,
+                          });
+                        }}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Mail className="w-4 h-4 mr-2" />
+                        發送驗證郵件
+                      </Button>
+                    ) : (
+                      <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                        <div className="flex items-start space-x-2">
+                          <Mail className="w-4 h-4 text-blue-600 mt-0.5" />
+                          <div className="text-sm text-blue-800">
+                            <p className="font-medium">驗證郵件已發送</p>
+                            <p className="text-xs mt-1">
+                              請檢查您的信箱 {email} 並點擊驗證連結。未收到？
+                              <button
+                                onClick={() => {
+                                  toast({
+                                    title: "驗證郵件已重新發送",
+                                    description: `驗證郵件已重新發送至 ${email}`,
+                                  });
+                                }}
+                                className="text-blue-600 underline ml-1"
+                              >
+                                重新發送
+                              </button>
+                            </p>
+                            {/* 模擬驗證按鈕 - 實際應用中這個會通過郵件連結觸發 */}
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setEmailVerified(true);
+                                toast({
+                                  title: "Email 驗證成功",
+                                  description: "您的 Email 已成功驗證並綁定。",
+                                });
+                              }}
+                              className="mt-2 text-xs bg-green-600 hover:bg-green-700"
+                            >
+                              點擊完成驗證（模擬）
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                
+                {!email && (
+                  <p className="text-xs text-red-600">Email 為必填項目</p>
+                )}
+              </div>
             </div>
 
             {/* 生日 */}

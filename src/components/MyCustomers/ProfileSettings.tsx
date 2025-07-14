@@ -14,7 +14,6 @@ interface ProfileSettingsProps {
 export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => {
   const [settings, setSettings] = useState({
     isPublicProfile: false,
-    allowDirectContact: true,
     showPhoneNumber: true,
     showLineId: true,
     showEmail: true,
@@ -95,18 +94,6 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               />
             </div>
 
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">允許直接聯繫</Label>
-                <p className="text-xs text-gray-600">
-                  關閉後，他人需取得您的同意後方可聯繫，於他人的電子名片夾列表不顯示LINE聯繫方式
-                </p>
-              </div>
-              <Switch
-                checked={settings.allowDirectContact}
-                onCheckedChange={(checked) => handleSettingChange('allowDirectContact', checked)}
-              />
-            </div>
           </CardContent>
         </Card>
 
@@ -175,7 +162,6 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
             <h4 className="font-medium text-blue-800 mb-2">設定說明</h4>
             <ul className="text-xs text-blue-700 space-y-1">
               <li>• 公開電子名片：開啟後其他用戶可以在智能推薦中找到您</li>
-              <li>• 允許直接聯繫：關閉後需要您的同意才能聯繫，且於他人名片夾不顯示LINE聯繫方式</li>
               <li>• 聯絡資訊顯示：控制哪些聯絡方式對其他人可見</li>
               <li>• 通知設定：管理您希望接收的通知類型，包含聊天室彈跳通知</li>
             </ul>
