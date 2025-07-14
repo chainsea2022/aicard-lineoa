@@ -27,7 +27,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [showPublicSettings, setShowPublicSettings] = useState(false);
   const [publicSettings, setPublicSettings] = useState({
     isPublicProfile: false,
-    allowDirectContact: true,
     receiveNotifications: true
   });
   const [isNewUser, setIsNewUser] = useState(false);
@@ -255,7 +254,6 @@ LINE: ${cardInfo.line || ''}
     setCurrentPoints(0);
     setPublicSettings({
       isPublicProfile: false,
-      allowDirectContact: true,
       receiveNotifications: true
     });
     
@@ -335,14 +333,7 @@ LINE: ${cardInfo.line || ''}
     localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
     
     // 根據設定顯示相應的提示訊息
-    if (key === 'allowDirectContact') {
-      toast({
-        title: value ? "已開啟直接聯繫" : "已關閉直接聯繫",
-        description: value 
-          ? "其他人現在可以直接聯繫您，LINE聯繫方式將顯示在他人的名片夾中。"
-          : "其他人現在需要您的同意才能聯繫您，LINE聯繫方式將不會顯示在他人的名片夾中。"
-      });
-    } else if (key === 'receiveNotifications') {
+    if (key === 'receiveNotifications') {
       toast({
         title: value ? "已開啟通知" : "已關閉通知",
         description: value
@@ -729,18 +720,6 @@ LINE: ${cardInfo.line || ''}
                     />
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">允許直接聯繫</Label>
-                      <p className="text-xs text-gray-600">
-                        關閉後，他人需取得您的同意後方可聯繫，於他人的電子名片夾列表不顯示LINE聯繫方式
-                      </p>
-                    </div>
-                    <Switch
-                      checked={publicSettings.allowDirectContact}
-                      onCheckedChange={(checked) => handleSettingChange('allowDirectContact', checked)}
-                    />
-                  </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
