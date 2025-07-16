@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle } from 'lucide-react';
+import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -307,20 +307,128 @@ const Points: React.FC<PointsProps> = ({
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
+                {/* Mobile-optimized card layout */}
+                <div className="block md:hidden space-y-4">
+                  {/* 新手方案 */}
+                  <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-bold text-green-700">新手方案</h3>
+                      <p className="text-2xl font-bold text-green-600">Free</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center py-2 border-b border-green-200">
+                        <span className="text-sm text-green-800">智慧人脈記錄</span>
+                        <span className="text-sm font-medium text-green-700">１次免費，30點/張</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-green-200">
+                        <span className="text-sm text-green-800">完整數據分析</span>
+                        <span className="text-sm font-medium text-green-700">50點/次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-green-200">
+                        <span className="text-sm text-green-800">新增行程</span>
+                        <span className="text-sm font-medium text-green-700">１次免費，30點/次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-green-200">
+                        <span className="text-sm text-green-800">語音記錄</span>
+                        <span className="text-sm font-medium text-green-700">１次免費，50點/次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-green-200">
+                        <span className="text-sm text-green-800">發送信件</span>
+                        <span className="text-sm font-medium text-green-700">１次免費，50點/次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-green-800">自訂名片樣式</span>
+                        <span className="text-sm font-medium text-green-700">50點</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 菁英方案 */}
+                  <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-bold text-blue-700">菁英方案</h3>
+                      <p className="text-2xl font-bold text-blue-600">$399</p>
+                      <p className="text-sm text-blue-600">年優惠：$4,500</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-sm text-blue-800">智慧人脈記錄</span>
+                        <span className="text-sm font-medium text-blue-700">10張</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-sm text-blue-800">完整數據分析</span>
+                        <span className="text-sm font-medium text-blue-700">解鎖</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-sm text-blue-800">新增行程</span>
+                        <span className="text-sm font-medium text-blue-700">10次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-sm text-blue-800">語音記錄</span>
+                        <span className="text-sm font-medium text-blue-700">5次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-sm text-blue-800">發送信件</span>
+                        <span className="text-sm font-medium text-blue-700">5次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-blue-800">自訂名片樣式</span>
+                        <span className="text-sm font-medium text-blue-700">X</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 首席方案 */}
+                  <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
+                    <div className="text-center mb-4">
+                      <h3 className="text-lg font-bold text-purple-700">首席方案</h3>
+                      <p className="text-2xl font-bold text-purple-600">$999</p>
+                      <p className="text-sm text-purple-600">年優惠：$11,000</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                        <span className="text-sm text-purple-800">智慧人脈記錄</span>
+                        <span className="text-sm font-medium text-purple-700">30張</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                        <span className="text-sm text-purple-800">完整數據分析</span>
+                        <span className="text-sm font-medium text-purple-700">解鎖</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                        <span className="text-sm text-purple-800">新增行程</span>
+                        <span className="text-sm font-medium text-purple-700">20次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                        <span className="text-sm text-purple-800">語音記錄</span>
+                        <span className="text-sm font-medium text-purple-700">15次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                        <span className="text-sm text-purple-800">發送信件</span>
+                        <span className="text-sm font-medium text-purple-700">15次</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-purple-800">自訂名片樣式</span>
+                        <span className="text-sm font-medium text-purple-700">解鎖</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop table layout */}
+                <div className="hidden md:block overflow-x-auto">
                   <table className="w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="border border-gray-300 p-3 text-left font-semibold">功能/方案</th>
-                        <th className="border border-gray-300 p-3 text-center font-semibold text-green-600">新手方案</th>
-                        <th className="border border-gray-300 p-3 text-center font-semibold text-blue-600">菁英方案</th>
-                        <th className="border border-gray-300 p-3 text-center font-semibold text-purple-600">首席方案</th>
+                        <th className="border border-gray-300 p-3 text-left font-semibold min-w-[140px]">功能/方案</th>
+                        <th className="border border-gray-300 p-3 text-center font-semibold text-green-600 min-w-[120px]">新手方案</th>
+                        <th className="border border-gray-300 p-3 text-center font-semibold text-blue-600 min-w-[120px]">菁英方案</th>
+                        <th className="border border-gray-300 p-3 text-center font-semibold text-purple-600 min-w-[120px]">首席方案</th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr>
                         <td className="border border-gray-300 p-3 font-medium">智慧人脈記錄</td>
-                        <td className="border border-gray-300 p-3 text-center">１次免費，30點/張</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>30點/張</td>
                         <td className="border border-gray-300 p-3 text-center">10張</td>
                         <td className="border border-gray-300 p-3 text-center">30張</td>
                       </tr>
@@ -331,20 +439,20 @@ const Points: React.FC<PointsProps> = ({
                         <td className="border border-gray-300 p-3 text-center">解鎖</td>
                       </tr>
                       <tr>
-                        <td className="border border-gray-300 p-3 font-medium">行程管理：新增行程</td>
-                        <td className="border border-gray-300 p-3 text-center">１次免費，30點/次</td>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br/>新增行程</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>30點/次</td>
                         <td className="border border-gray-300 p-3 text-center">10次</td>
                         <td className="border border-gray-300 p-3 text-center">20次</td>
                       </tr>
                       <tr className="bg-gray-50">
-                        <td className="border border-gray-300 p-3 font-medium">行程管理：語音記錄</td>
-                        <td className="border border-gray-300 p-3 text-center">１次免費，50點/次</td>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br/>語音記錄</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>50點/次</td>
                         <td className="border border-gray-300 p-3 text-center">5次</td>
                         <td className="border border-gray-300 p-3 text-center">15次</td>
                       </tr>
                       <tr>
-                        <td className="border border-gray-300 p-3 font-medium">行程管理：發送信件</td>
-                        <td className="border border-gray-300 p-3 text-center">１次免費，50點/次</td>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br/>發送信件</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>50點/次</td>
                         <td className="border border-gray-300 p-3 text-center">5次</td>
                         <td className="border border-gray-300 p-3 text-center">15次</td>
                       </tr>
@@ -395,13 +503,13 @@ const Points: React.FC<PointsProps> = ({
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-semibold text-blue-800 text-sm md:text-base">Aipower PRO商業名片</h4>
                       <div className="flex items-center bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
-                        <Coins className="w-3 h-3 mr-1" />
-                        100點/月
+                        <Info className="w-3 h-3 mr-1" />
+                        了解更多
                       </div>
                     </div>
                     <p className="text-xs md:text-sm text-blue-700 mb-3 leading-relaxed">可建立商家名片，品牌地圖互動交流平台</p>
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
-                      100點兌換
+                      100點免費試用1個月
                     </Button>
                   </div>
 
@@ -409,13 +517,13 @@ const Points: React.FC<PointsProps> = ({
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-semibold text-green-800 text-sm md:text-base">Aile 商務版</h4>
                       <div className="flex items-center bg-green-500 text-white px-2 py-1 rounded-full text-xs">
-                        <Coins className="w-3 h-3 mr-1" />
-                        100點/月
+                        <Info className="w-3 h-3 mr-1" />
+                        了解更多
                       </div>
                     </div>
                     <p className="text-xs md:text-sm text-green-700 mb-3 leading-relaxed">無縫轉接、通路整合，打造專屬商務助手</p>
                     <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2">
-                      100點兌換
+                      100點免費試用1個月
                     </Button>
                   </div>
 
@@ -423,13 +531,13 @@ const Points: React.FC<PointsProps> = ({
                     <div className="flex items-start justify-between mb-2">
                       <h4 className="font-semibold text-purple-800 text-sm md:text-base">Aile PRO企業版</h4>
                       <div className="flex items-center bg-purple-500 text-white px-2 py-1 rounded-full text-xs">
-                        <Coins className="w-3 h-3 mr-1" />
-                        300點/月
+                        <Info className="w-3 h-3 mr-1" />
+                        了解更多
                       </div>
                     </div>
                     <p className="text-xs md:text-sm text-purple-700 mb-3 leading-relaxed">內外協作，顧客管理，一站掌握商機節奏</p>
                     <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm py-2">
-                      300點兌換
+                      300點免費試用1個月
                     </Button>
                   </div>
 
