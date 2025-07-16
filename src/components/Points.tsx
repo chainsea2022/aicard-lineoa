@@ -40,18 +40,18 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
   const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
   const [milestones, setMilestones] = useState<Milestone[]>([
-    { cardCount: 10, points: 10, achieved: false },
-    { cardCount: 30, points: 50, achieved: false },
-    { cardCount: 50, points: 80, achieved: false },
+    { cardCount: 10, points: 30, achieved: false },
+    { cardCount: 30, points: 60, achieved: false },
+    { cardCount: 60, points: 100, achieved: false },
     { cardCount: 100, points: 150, achieved: false }
   ]);
 
   const [earningMethods, setEarningMethods] = useState<EarningMethod[]>([
     {
       id: 'register',
-      title: '註冊電子名片',
+      title: '完成電子名片註冊',
       description: '完成電子名片註冊',
-      points: 30,
+      points: 50,
       icon: <FileText className="w-5 h-5 text-white" />,
       bgGradient: 'from-blue-50 to-blue-100',
       borderColor: 'border-blue-200',
@@ -61,9 +61,9 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
     },
     {
       id: 'complete-profile',
-      title: '完成電子名片資料',
+      title: '完整電子名片個人資料(70%以上)',
       description: '包含公司名稱、姓名、大頭照、手機、信箱',
-      points: 30,
+      points: 50,
       icon: (
         <div className="flex space-x-0.5">
           <Users className="w-3 h-3 text-white" />
@@ -79,15 +79,39 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
     },
     {
       id: 'invite-others',
-      title: '邀請他人完成註冊電子名片',
-      description: '分享他人完成註冊電子名片',
-      points: 30,
+      title: '邀請好友完成電子名片註冊 (1人)',
+      description: '邀請好友完成電子名片註冊',
+      points: 50,
       icon: <Users className="w-5 h-5 text-white" />,
       bgGradient: 'from-orange-50 to-orange-100',
       borderColor: 'border-orange-200',
       iconBg: 'bg-orange-500',
       textColor: 'text-orange-900',
       completed: false // Check based on actual data
+    },
+    {
+      id: 'share-card',
+      title: '分享好友電子名片卡加入名片夾 (1人)',
+      description: '分享好友電子名片卡加入名片夾',
+      points: 10,
+      icon: <FileText className="w-5 h-5 text-white" />,
+      bgGradient: 'from-green-50 to-green-100',
+      borderColor: 'border-green-200',
+      iconBg: 'bg-green-500',
+      textColor: 'text-green-900',
+      completed: false
+    },
+    {
+      id: 'share-ocr',
+      title: '分享好友OCR 名片掃描加入名片夾 (1人)',
+      description: '分享好友OCR 名片掃描加入名片夾',
+      points: 10,
+      icon: <Camera className="w-5 h-5 text-white" />,
+      bgGradient: 'from-teal-50 to-teal-100',
+      borderColor: 'border-teal-200',
+      iconBg: 'bg-teal-500',
+      textColor: 'text-teal-900',
+      completed: false
     }
   ]);
 
@@ -107,14 +131,14 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
       setTransactions(parsedTransactions);
     } else {
       const initialTransactions: PointTransaction[] = [
-        { id: 1, type: 'earn', points: 30, description: '註冊電子名片', date: new Date() },
-        { id: 2, type: 'earn', points: 30, description: '完成電子名片資料', date: new Date(Date.now() - 86400000) },
-        { id: 3, type: 'earn', points: 30, description: '邀請他人完成註冊電子名片', date: new Date(Date.now() - 172800000) },
+        { id: 1, type: 'earn', points: 50, description: '完成電子名片註冊', date: new Date() },
+        { id: 2, type: 'earn', points: 50, description: '完整電子名片個人資料(70%以上)', date: new Date(Date.now() - 86400000) },
+        { id: 3, type: 'earn', points: 50, description: '邀請好友完成電子名片註冊 (1人)', date: new Date(Date.now() - 172800000) },
       ];
       setTransactions(initialTransactions);
-      setCurrentPoints(90);
+      setCurrentPoints(150);
       
-      localStorage.setItem('aile-user-points', '90');
+      localStorage.setItem('aile-user-points', '150');
       localStorage.setItem('aile-points-history', JSON.stringify(initialTransactions));
     }
 
@@ -131,7 +155,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
 
     setEarningMethods(prev => prev.map(method => {
       if (method.id === 'invite-others') {
-        const hasInvitedOthers = transactions.some(t => t.description === '邀請他人完成註冊電子名片');
+        const hasInvitedOthers = transactions.some(t => t.description === '邀請好友完成電子名片註冊 (1人)');
         return { ...method, completed: hasInvitedOthers };
       }
       return method;
@@ -264,7 +288,7 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
                   <Award className="w-5 h-5 mr-2 text-yellow-600" />
-                  名片收藏里程碑
+                  名片分享里程碑
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -294,12 +318,12 @@ const Points: React.FC<PointsProps> = ({ onClose }) => {
                           <h4 className={`font-semibold ${
                             milestone.achieved ? 'text-green-900' : 'text-gray-700'
                           }`}>
-                            收藏電子名片達 {milestone.cardCount} 筆
+                            分享好友電子名片卡或掃描加入名片夾 {milestone.cardCount} 人
                           </h4>
                           <p className={`text-sm ${
                             milestone.achieved ? 'text-green-700' : 'text-gray-600'
                           }`}>
-                            電子名片夾達到 {milestone.cardCount} 筆
+                            分享好友電子名片卡或掃描加入名片夾達到 {milestone.cardCount} 人
                           </p>
                         </div>
                       </div>
