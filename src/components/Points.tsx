@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info } from 'lucide-react';
+import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info, Crown, Star, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -312,7 +312,10 @@ const Points: React.FC<PointsProps> = ({
                   {/* 新手方案 */}
                   <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
                     <div className="text-center mb-4">
-                      <h3 className="text-lg font-bold text-green-700">新手方案</h3>
+                      <div className="flex items-center justify-center mb-2">
+                        <Shield className="w-6 h-6 text-green-600 mr-2" />
+                        <h3 className="text-lg font-bold text-green-700">新手方案</h3>
+                      </div>
                       <p className="text-2xl font-bold text-green-600">Free</p>
                     </div>
                     <div className="space-y-3">
@@ -346,7 +349,10 @@ const Points: React.FC<PointsProps> = ({
                   {/* 菁英方案 */}
                   <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
                     <div className="text-center mb-4">
-                      <h3 className="text-lg font-bold text-blue-700">菁英方案</h3>
+                      <div className="flex items-center justify-center mb-2">
+                        <Star className="w-6 h-6 text-blue-600 mr-2" />
+                        <h3 className="text-lg font-bold text-blue-700">菁英方案</h3>
+                      </div>
                       <p className="text-2xl font-bold text-blue-600">$399</p>
                       <p className="text-sm text-blue-600">年優惠：$4,500</p>
                     </div>
@@ -378,7 +384,7 @@ const Points: React.FC<PointsProps> = ({
                     </div>
                     <div className="mt-4">
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2">
-                        立即購買
+                        立即升級
                       </Button>
                     </div>
                   </div>
@@ -386,7 +392,10 @@ const Points: React.FC<PointsProps> = ({
                   {/* 首席方案 */}
                   <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
                     <div className="text-center mb-4">
-                      <h3 className="text-lg font-bold text-purple-700">首席方案</h3>
+                      <div className="flex items-center justify-center mb-2">
+                        <Crown className="w-6 h-6 text-purple-600 mr-2" />
+                        <h3 className="text-lg font-bold text-purple-700">首席方案</h3>
+                      </div>
                       <p className="text-2xl font-bold text-purple-600">$999</p>
                       <p className="text-sm text-purple-600">年優惠：$11,000</p>
                     </div>
@@ -418,7 +427,7 @@ const Points: React.FC<PointsProps> = ({
                     </div>
                     <div className="mt-4">
                       <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2">
-                        立即購買
+                        立即升級
                       </Button>
                     </div>
                   </div>
@@ -497,7 +506,7 @@ const Points: React.FC<PointsProps> = ({
                   <div className="relative">
                     <div className="flex items-center justify-center mb-4">
                       <Gift className="w-8 h-8 text-orange-600 mr-2" />
-                      <h3 className="font-bold text-2xl text-orange-800">專屬大禮包</h3>
+                      <h3 className="font-bold text-2xl text-orange-800">專屬大禮</h3>
                       <div className="ml-3 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
                         限時優惠
                       </div>
@@ -510,7 +519,7 @@ const Points: React.FC<PointsProps> = ({
                           <span className="text-3xl font-bold text-orange-600">$7,200</span>
                           <span className="text-lg text-orange-600">/年</span>
                         </div>
-                        <p className="text-orange-600 mt-2">每月只要＄600，預繳一年＄7,200</p>
+                        <p className="text-orange-600 mt-2">每月只要＄600，預繳一年$7,200</p>
                       </div>
                       
                       <div className="bg-orange-50 p-4 rounded-lg mb-4">
@@ -537,84 +546,76 @@ const Points: React.FC<PointsProps> = ({
                 </CardTitle>
                 <p className="text-sm text-gray-600 mt-2">專業AI工具生態，助力您的商務成功</p>
               </CardHeader>
-              <CardContent className="p-6">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <div className="group p-6 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 border-2 border-blue-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mr-3">
-                          <Gift className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-blue-800 text-lg">Aipower PRO商業名片</h4>
-                          <div className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full text-xs mt-1">
-                            <Info className="w-3 h-3 mr-1" />
-                            了解更多
-                          </div>
+              <CardContent className="p-4">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                        <Gift className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 text-sm">Aipower PRO商業名片</h4>
+                        <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
+                          <Info className="w-3 h-3 mr-1" />
+                          了解更多
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-blue-700 mb-4 leading-relaxed">可建立商家名片，品牌地圖互動交流平台</p>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 shadow-md">
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">可建立商家名片，品牌地圖互動交流平台</p>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 text-sm shadow-sm">
                       100點免費試用1個月
                     </Button>
                   </div>
 
-                  <div className="group p-6 bg-gradient-to-br from-green-50 via-green-100 to-emerald-100 border-2 border-green-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mr-3">
-                          <Users className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-green-800 text-lg">Aile專業商務對話</h4>
-                          <div className="flex items-center bg-green-500 text-white px-3 py-1 rounded-full text-xs mt-1">
-                            <Info className="w-3 h-3 mr-1" />
-                            了解更多
-                          </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                        <Users className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 text-sm">Aile專業商務對話</h4>
+                        <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
+                          <Info className="w-3 h-3 mr-1" />
+                          了解更多
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-green-700 mb-4 leading-relaxed">無縫轉接、通路整合，打造專屬商務助手</p>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 shadow-md">
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">無縫轉接、通路整合，打造專屬商務助手</p>
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 text-sm shadow-sm">
                       100點免費試用1個月
                     </Button>
                   </div>
 
-                  <div className="group p-6 bg-gradient-to-br from-purple-50 via-purple-100 to-violet-100 border-2 border-purple-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mr-3">
-                          <Award className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-purple-800 text-lg">Aile PRO企業商務管理</h4>
-                          <div className="flex items-center bg-purple-500 text-white px-3 py-1 rounded-full text-xs mt-1">
-                            <Info className="w-3 h-3 mr-1" />
-                            了解更多
-                          </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                        <Award className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 text-sm">Aile PRO企業商務管理</h4>
+                        <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
+                          <Info className="w-3 h-3 mr-1" />
+                          了解更多
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-purple-700 mb-4 leading-relaxed">內外協作，顧客管理，一站掌握商機節奏</p>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 shadow-md">
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">內外協作，顧客管理，一站掌握商機節奏</p>
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 text-sm shadow-sm">
                       300點免費試用1個月
                     </Button>
                   </div>
 
-                  <div className="group p-6 bg-gradient-to-br from-pink-50 via-pink-100 to-rose-100 border-2 border-pink-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center">
-                        <div className="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mr-3">
-                          <Coins className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h4 className="font-bold text-pink-800 text-lg">Aiwow集點商城</h4>
-                        </div>
+                  <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
+                    <div className="flex items-center mb-3">
+                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                        <Coins className="w-4 h-4 text-pink-600" />
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-gray-800 text-sm">Aiwow集點商城</h4>
                       </div>
                     </div>
-                    <p className="text-sm text-pink-700 mb-4 leading-relaxed">更多優惠兌點　點點累積，驚喜無限。打造互動導購與點數流通的智慧入口</p>
-                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 shadow-md">
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">更多優惠兌點　點點累積，驚喜無限。打造互動導購與點數流通的智慧入口</p>
+                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 text-sm shadow-sm">
                       前往商城
                     </Button>
                   </div>
