@@ -35,7 +35,7 @@ const Points: React.FC<PointsProps> = ({
 }) => {
   const [currentPoints, setCurrentPoints] = useState(0);
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'upgrade' | 'history'>('overview');
   const [milestones, setMilestones] = useState<Milestone[]>([{
     cardCount: 10,
     points: 30,
@@ -195,6 +195,10 @@ const Points: React.FC<PointsProps> = ({
           <TrendingUp className="w-4 h-4 inline-block mr-1" />
           點數總覽
         </button>
+        <button onClick={() => setActiveTab('upgrade')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'upgrade' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
+          <Award className="w-4 h-4 inline-block mr-1" />
+          兑點升級
+        </button>
         <button onClick={() => setActiveTab('history')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'history' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
           <History className="w-4 h-4 inline-block mr-1" />
           累兌歷程
@@ -293,78 +297,130 @@ const Points: React.FC<PointsProps> = ({
                 </div>
               </CardContent>
             </Card>
+          </> : activeTab === 'upgrade' ? <>
+            {/* 兑點方案說明 */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <Award className="w-5 h-5 mr-2 text-purple-600" />
+                  兑點方案說明
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse border border-gray-300 text-sm">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        <th className="border border-gray-300 p-3 text-left font-semibold">功能/方案</th>
+                        <th className="border border-gray-300 p-3 text-center font-semibold text-green-600">新手方案</th>
+                        <th className="border border-gray-300 p-3 text-center font-semibold text-blue-600">菁英方案</th>
+                        <th className="border border-gray-300 p-3 text-center font-semibold text-purple-600">首席方案</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="border border-gray-300 p-3 font-medium">智慧人脈記錄</td>
+                        <td className="border border-gray-300 p-3 text-center">１次免費，30點/張</td>
+                        <td className="border border-gray-300 p-3 text-center">10張</td>
+                        <td className="border border-gray-300 p-3 text-center">30張</td>
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="border border-gray-300 p-3 font-medium">完整數據分析</td>
+                        <td className="border border-gray-300 p-3 text-center">50點/次</td>
+                        <td className="border border-gray-300 p-3 text-center">解鎖</td>
+                        <td className="border border-gray-300 p-3 text-center">解鎖</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：新增行程</td>
+                        <td className="border border-gray-300 p-3 text-center">１次免費，30點/次</td>
+                        <td className="border border-gray-300 p-3 text-center">10次</td>
+                        <td className="border border-gray-300 p-3 text-center">20次</td>
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：語音記錄</td>
+                        <td className="border border-gray-300 p-3 text-center">１次免費，50點/次</td>
+                        <td className="border border-gray-300 p-3 text-center">5次</td>
+                        <td className="border border-gray-300 p-3 text-center">15次</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：發送信件</td>
+                        <td className="border border-gray-300 p-3 text-center">１次免費，50點/次</td>
+                        <td className="border border-gray-300 p-3 text-center">5次</td>
+                        <td className="border border-gray-300 p-3 text-center">15次</td>
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="border border-gray-300 p-3 font-medium">建立自訂名片樣式</td>
+                        <td className="border border-gray-300 p-3 text-center">50點</td>
+                        <td className="border border-gray-300 p-3 text-center">X</td>
+                        <td className="border border-gray-300 p-3 text-center">解鎖</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-gray-300 p-3 font-medium bg-yellow-50">月價格</td>
+                        <td className="border border-gray-300 p-3 text-center font-bold text-green-600">Free</td>
+                        <td className="border border-gray-300 p-3 text-center font-bold text-blue-600">$399</td>
+                        <td className="border border-gray-300 p-3 text-center font-bold text-purple-600">$999</td>
+                      </tr>
+                      <tr className="bg-gray-50">
+                        <td className="border border-gray-300 p-3 font-medium">年優惠</td>
+                        <td className="border border-gray-300 p-3 text-center">-</td>
+                        <td className="border border-gray-300 p-3 text-center font-bold text-blue-600">$4,500</td>
+                        <td className="border border-gray-300 p-3 text-center font-bold text-purple-600">$11,000</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
 
+                {/* 特別優惠 */}
+                <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-100 border-2 border-orange-200 rounded-xl">
+                  <h3 className="font-bold text-lg text-orange-800 mb-3">特別優惠</h3>
+                  <div className="bg-white p-4 rounded-lg border border-orange-200">
+                    <h4 className="font-semibold text-orange-700 mb-2">「超值群募解鎖包」 $7200/年</h4>
+                    <p className="text-sm text-orange-600">每月只要＄600，預繳一年＄7200，一年不限次數全功能解鎖</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 更多AI生態圈方案 */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
-                  <Gift className="w-5 h-5 mr-2 text-red-600" />
-                  兌點方式
+                  <Gift className="w-5 h-5 mr-2 text-blue-600" />
+                  更多AI生態圈方案
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className={`p-4 rounded-xl border-2 shadow-sm ${canRedeemTrial ? 'border-green-300 bg-gradient-to-r from-green-50 to-green-100' : 'border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100'}`}>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center flex-1">
-                        <div className={`flex items-center justify-center w-12 h-12 rounded-full mr-3 ${canRedeemTrial ? 'bg-green-500' : 'bg-gray-400'}`}>
-                          <Award className="w-6 h-6 text-white" />
-                        </div>
-                        <div>
-                          <h4 className={`font-semibold text-lg ${canRedeemTrial ? 'text-green-800' : 'text-gray-600'}`}>
-                            Aile商務全功能試用
-                          </h4>
-                          <p className={`text-sm ${canRedeemTrial ? 'text-green-700' : 'text-gray-600'}`}>
-                            免費試用1個月
-                          </p>
-                        </div>
-                      </div>
-                      <Badge className={`font-bold px-3 py-1 ${canRedeemTrial ? 'bg-red-500 text-white' : 'bg-gray-400 text-white'}`}>
-                        50點
-                      </Badge>
-                    </div>
-                    <Button className={`w-full h-11 text-base font-semibold ${canRedeemTrial ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-400 cursor-not-allowed text-white'}`} disabled={!canRedeemTrial}>
-                      {canRedeemTrial ? '立即兌換' : `還需 ${50 - currentPoints} 點`}
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl">
+                    <h4 className="font-semibold text-blue-800 mb-2">Aipower PRO商業名片</h4>
+                    <p className="text-sm text-blue-700 mb-3">100點/1個月試用。可建立商家名片，品牌地圖互動交流平台</p>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      100點兌換
                     </Button>
                   </div>
 
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-100 border-2 border-blue-200 rounded-xl shadow-sm">
-                    <div className="text-center">
-                      <div className="flex items-center justify-center w-12 h-12 bg-blue-500 rounded-full mx-auto mb-3">
-                        <Gift className="w-6 h-6 text-white" />
-                      </div>
-                      <h4 className="font-semibold text-lg text-blue-800 mb-2">更多兌點優惠</h4>
-                      <p className="text-sm text-blue-700 mb-4">
-                        請至 Aiwow APP 兌換更多好禮！
-                      </p>
-                      <Button variant="outline" className="w-full h-11 text-base font-semibold border-2 border-blue-500 text-blue-600 hover:bg-blue-50">
-                        前往 Aiwow APP
-                      </Button>
-                    </div>
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl">
+                    <h4 className="font-semibold text-green-800 mb-2">Aile 商務版</h4>
+                    <p className="text-sm text-green-700 mb-3">100點/1個月試用，無縫轉接、通路整合，打造專屬商務助手</p>
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
+                      100點兌換
+                    </Button>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                    <h4 className="font-semibold text-gray-800 mb-3 flex items-center">
-                      <FileText className="w-4 h-4 mr-2" />
-                      兌點說明
-                    </h4>
-                    <ul className="text-sm text-gray-600 space-y-2">
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        點數有效期限為獲得日起一年
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        點數不可轉讓給其他用戶
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        兌換後的服務或商品不可退換
-                      </li>
-                      <li className="flex items-start">
-                        <span className="w-2 h-2 bg-gray-400 rounded-full mt-2 mr-3 flex-shrink-0"></span>
-                        兌點規則可能會調整，以最新公告為準
-                      </li>
-                    </ul>
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-xl">
+                    <h4 className="font-semibold text-purple-800 mb-2">Aile PRO企業版</h4>
+                    <p className="text-sm text-purple-700 mb-3">300點/1個月試用，內外協作，顧客管理，一站掌握商機節奏</p>
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                      300點兌換
+                    </Button>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 rounded-xl">
+                    <h4 className="font-semibold text-pink-800 mb-2">Aiwow集點商城</h4>
+                    <p className="text-sm text-pink-700 mb-3">更多優惠兌點　點點累積，驚喜無限。打造互動導購與點數流通的智慧入口</p>
+                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white">
+                      前往商城
+                    </Button>
                   </div>
                 </div>
               </CardContent>
