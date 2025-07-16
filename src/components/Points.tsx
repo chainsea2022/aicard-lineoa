@@ -376,6 +376,11 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm font-medium text-blue-700">X</span>
                       </div>
                     </div>
+                    <div className="mt-4">
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2">
+                        立即購買
+                      </Button>
+                    </div>
                   </div>
 
                   {/* 首席方案 */}
@@ -410,6 +415,11 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-purple-800">自訂名片樣式</span>
                         <span className="text-sm font-medium text-purple-700">解鎖</span>
                       </div>
+                    </div>
+                    <div className="mt-4">
+                      <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2">
+                        立即購買
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -478,75 +488,133 @@ const Points: React.FC<PointsProps> = ({
                   </table>
                 </div>
 
-                {/* 特別優惠 */}
-                <div className="mt-6 p-4 bg-gradient-to-r from-orange-50 to-red-100 border-2 border-orange-200 rounded-xl">
-                  <h3 className="font-bold text-lg text-orange-800 mb-3">特別優惠</h3>
-                  <div className="bg-white p-4 rounded-lg border border-orange-200">
-                    <h4 className="font-semibold text-orange-700 mb-2">「超值群募解鎖包」 $7200/年</h4>
-                    <p className="text-sm text-orange-600">每月只要＄600，預繳一年＄7200，一年不限次數全功能解鎖</p>
+                {/* 專屬大禮包 */}
+                <div className="mt-6 p-6 bg-gradient-to-br from-orange-100 via-red-50 to-pink-100 border-4 border-orange-300 rounded-2xl shadow-lg relative overflow-hidden">
+                  {/* 裝飾性背景元素 */}
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-orange-200 rounded-full opacity-30 transform translate-x-10 -translate-y-10"></div>
+                  <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-200 rounded-full opacity-30 transform -translate-x-8 translate-y-8"></div>
+                  
+                  <div className="relative">
+                    <div className="flex items-center justify-center mb-4">
+                      <Gift className="w-8 h-8 text-orange-600 mr-2" />
+                      <h3 className="font-bold text-2xl text-orange-800">專屬大禮包</h3>
+                      <div className="ml-3 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                        限時優惠
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white p-6 rounded-xl border-2 border-orange-200 shadow-md">
+                      <div className="text-center mb-4">
+                        <h4 className="font-bold text-xl text-orange-700 mb-2">「超值群募解鎖包」</h4>
+                        <div className="flex items-center justify-center space-x-2">
+                          <span className="text-3xl font-bold text-orange-600">$7,200</span>
+                          <span className="text-lg text-orange-600">/年</span>
+                        </div>
+                        <p className="text-orange-600 mt-2">每月只要＄600，預繳一年＄7,200</p>
+                      </div>
+                      
+                      <div className="bg-orange-50 p-4 rounded-lg mb-4">
+                        <p className="text-center text-orange-700 font-semibold">
+                          🎉 一年不限次數全功能解鎖 🎉
+                        </p>
+                      </div>
+                      
+                      <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+                        立即搶購
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {/* 更多AI+生態圈方案 */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center text-lg">
-                  <Gift className="w-5 h-5 mr-2 text-blue-600" />
+            <Card className="border-2 border-gray-200">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b">
+                <CardTitle className="flex items-center text-xl">
+                  <Gift className="w-6 h-6 mr-3 text-blue-600" />
                   更多AI+生態圈方案
                 </CardTitle>
+                <p className="text-sm text-gray-600 mt-2">專業AI工具生態，助力您的商務成功</p>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-3 md:space-y-4">
-                  <div className="p-3 md:p-4 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-blue-800 text-sm md:text-base">Aipower PRO商業名片</h4>
-                      <div className="flex items-center bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
-                        <Info className="w-3 h-3 mr-1" />
-                        了解更多
+              <CardContent className="p-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  <div className="group p-6 bg-gradient-to-br from-blue-50 via-blue-100 to-indigo-100 border-2 border-blue-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center mr-3">
+                          <Gift className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-blue-800 text-lg">Aipower PRO商業名片</h4>
+                          <div className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full text-xs mt-1">
+                            <Info className="w-3 h-3 mr-1" />
+                            了解更多
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-xs md:text-sm text-blue-700 mb-3 leading-relaxed">可建立商家名片，品牌地圖互動交流平台</p>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm py-2">
+                    <p className="text-sm text-blue-700 mb-4 leading-relaxed">可建立商家名片，品牌地圖互動交流平台</p>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 shadow-md">
                       100點免費試用1個月
                     </Button>
                   </div>
 
-                  <div className="p-3 md:p-4 bg-gradient-to-r from-green-50 to-green-100 border border-green-200 rounded-xl">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-green-800 text-sm md:text-base">Aile 商務版</h4>
-                      <div className="flex items-center bg-green-500 text-white px-2 py-1 rounded-full text-xs">
-                        <Info className="w-3 h-3 mr-1" />
-                        了解更多
+                  <div className="group p-6 bg-gradient-to-br from-green-50 via-green-100 to-emerald-100 border-2 border-green-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mr-3">
+                          <Users className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-green-800 text-lg">Aile專業商務對話</h4>
+                          <div className="flex items-center bg-green-500 text-white px-3 py-1 rounded-full text-xs mt-1">
+                            <Info className="w-3 h-3 mr-1" />
+                            了解更多
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-xs md:text-sm text-green-700 mb-3 leading-relaxed">無縫轉接、通路整合，打造專屬商務助手</p>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2">
+                    <p className="text-sm text-green-700 mb-4 leading-relaxed">無縫轉接、通路整合，打造專屬商務助手</p>
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 shadow-md">
                       100點免費試用1個月
                     </Button>
                   </div>
 
-                  <div className="p-3 md:p-4 bg-gradient-to-r from-purple-50 to-purple-100 border border-purple-200 rounded-xl">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-purple-800 text-sm md:text-base">Aile PRO企業版</h4>
-                      <div className="flex items-center bg-purple-500 text-white px-2 py-1 rounded-full text-xs">
-                        <Info className="w-3 h-3 mr-1" />
-                        了解更多
+                  <div className="group p-6 bg-gradient-to-br from-purple-50 via-purple-100 to-violet-100 border-2 border-purple-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center mr-3">
+                          <Award className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-purple-800 text-lg">Aile PRO企業商務管理</h4>
+                          <div className="flex items-center bg-purple-500 text-white px-3 py-1 rounded-full text-xs mt-1">
+                            <Info className="w-3 h-3 mr-1" />
+                            了解更多
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-xs md:text-sm text-purple-700 mb-3 leading-relaxed">內外協作，顧客管理，一站掌握商機節奏</p>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white text-sm py-2">
+                    <p className="text-sm text-purple-700 mb-4 leading-relaxed">內外協作，顧客管理，一站掌握商機節奏</p>
+                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 shadow-md">
                       300點免費試用1個月
                     </Button>
                   </div>
 
-                  <div className="p-3 md:p-4 bg-gradient-to-r from-pink-50 to-pink-100 border border-pink-200 rounded-xl">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-pink-800 text-sm md:text-base">Aiwow集點商城</h4>
+                  <div className="group p-6 bg-gradient-to-br from-pink-50 via-pink-100 to-rose-100 border-2 border-pink-200 rounded-2xl hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center">
+                        <div className="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center mr-3">
+                          <Coins className="w-6 h-6 text-white" />
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-pink-800 text-lg">Aiwow集點商城</h4>
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-xs md:text-sm text-pink-700 mb-3 leading-relaxed">更多優惠兌點　點點累積，驚喜無限。打造互動導購與點數流通的智慧入口</p>
-                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white text-sm py-2">
+                    <p className="text-sm text-pink-700 mb-4 leading-relaxed">更多優惠兌點　點點累積，驚喜無限。打造互動導購與點數流通的智慧入口</p>
+                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white font-semibold py-3 shadow-md">
                       前往商城
                     </Button>
                   </div>
