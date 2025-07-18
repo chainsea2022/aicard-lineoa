@@ -573,7 +573,7 @@ const Points: React.FC<PointsProps> = ({
                         <Users className="w-4 h-4 text-green-600" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 text-sm">Aile專業商務對話</h4>
+                        <h4 className="font-semibold text-gray-800 text-sm">Aile商務對話助手</h4>
                         <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
                           <Info className="w-3 h-3 mr-1" />
                           了解更多
