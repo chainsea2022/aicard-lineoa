@@ -586,24 +586,6 @@ const Points: React.FC<PointsProps> = ({
                     </Button>
                   </div>
 
-                  <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
-                        <Award className="w-4 h-4 text-purple-600" />
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 text-sm">Aile PRO企業商務管理</h4>
-                        <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
-                          <Info className="w-3 h-3 mr-1" />
-                          了解更多
-                        </div>
-                      </div>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">內外協作，顧客管理，一站掌握商機節奏</p>
-                    <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 text-sm shadow-sm">
-                      300點免費試用1個月
-                    </Button>
-                  </div>
 
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
                     <div className="flex items-center mb-3">
