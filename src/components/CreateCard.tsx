@@ -58,6 +58,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
 
   // UI States
   const [showLineTutorial, setShowLineTutorial] = useState(false);
+  const [showFacebookTutorial, setShowFacebookTutorial] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showBirthdayCalendar, setShowBirthdayCalendar] = useState(false);
   const [birthdayDate, setBirthdayDate] = useState<Date | undefined>();
@@ -1282,7 +1283,7 @@ LINE: ${line || ''}
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={showFacebookHelp}
+                    onClick={() => setShowFacebookTutorial(!showFacebookTutorial)}
                     className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
                   >
                     <Info className="w-4 h-4 text-blue-500" />
@@ -1303,6 +1304,43 @@ LINE: ${line || ''}
                 value={facebook}
                 onChange={(e) => setFacebook(e.target.value)}
               />
+              </div>
+
+              {/* Facebook Tutorial */}
+              {showFacebookTutorial && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+                  <h4 className="font-semibold text-blue-800 flex items-center">
+                    📱 Facebook URL 設置說明
+                  </h4>
+                  <div className="text-sm text-blue-700 space-y-2">
+                    <div className="bg-white rounded-lg p-3 border border-blue-100">
+                      <p className="font-medium text-blue-800 mb-2">iOS / Android 用戶：</p>
+                      <div className="space-y-1 text-blue-700">
+                        <div className="flex items-center">
+                          <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center mr-2">1</span>
+                          <span>打開 Facebook App</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center mr-2">2</span>
+                          <span>前往「個人/粉專」頁面</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center mr-2">3</span>
+                          <span>點右上角「⋯」圖示</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center mr-2">4</span>
+                          <span>選擇「複製連結」</span>
+                        </div>
+                        <div className="flex items-center">
+                          <span className="bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center mr-2">5</span>
+                          <span>即可獲得您的 Facebook 專屬網址</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Instagram */}
