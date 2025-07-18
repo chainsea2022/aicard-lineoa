@@ -561,7 +561,7 @@ const Points: React.FC<PointsProps> = ({
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">可建立商家名片，品牌地圖互動交流平台</p>
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">建立個人電子名片，串起你的人脈鏈</p>
                     <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 text-sm shadow-sm">
                       100點免費試用1個月
                     </Button>
