@@ -1258,24 +1258,33 @@ LINE: ${line || ''}
                 onChange={(e) => setLine(e.target.value)}
               />
               
-              <Collapsible open={showLineTutorial} onOpenChange={setShowLineTutorial}>
-                <CollapsibleContent className="mt-2 p-3 bg-blue-50 rounded-lg text-sm">
-                  <div className="space-y-3">
-                    <div>
-                      <p className="font-medium text-blue-800 mb-1">📱 iOS用戶：</p>
-                      <p className="text-blue-700 text-xs leading-relaxed">
-                        進入LINE主頁 → 加入好友 → 透過社群/郵件等方式宣傳帳號 → 選擇「網址」→ 複製網址URL
-                      </p>
+              {/* LINE Tutorial */}
+              {showLineTutorial && (
+                <Card className="mt-2 bg-blue-50 border-blue-200 animate-fade-in">
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-blue-900">LINE URL 設置說明</h4>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="font-medium text-blue-800 mb-1">📱 iOS用戶：</p>
+                            <p className="text-blue-700 text-sm leading-relaxed">
+                              進入LINE主頁 → 加入好友 → 透過社群/郵件等方式宣傳帳號 → 選擇「網址」→ 複製網址URL
+                            </p>
+                          </div>
+                          <div>
+                            <p className="font-medium text-blue-800 mb-1">🤖 Android用戶：</p>
+                            <p className="text-blue-700 text-sm leading-relaxed">
+                              進入LINE主頁 → 點右上角「人像＋」圖示 → 點行動條碼 → 顯示行動條碼 → 選擇一位朋友分享 → 進入對話視窗即可看到專屬連結和QR Code
+                            </p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-blue-800 mb-1">🤖 Android用戶：</p>
-                      <p className="text-blue-700 text-xs leading-relaxed">
-                        進入LINE主頁 → 點右上角「人像＋」圖示 → 點行動條碼 → 顯示行動條碼 → 選擇一位朋友分享 → 進入對話視窗即可看到專屬連結和QR Code
-                      </p>
-                    </div>
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Facebook */}
