@@ -350,6 +350,43 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     }
   };
 
+  const showFacebookHelp = () => {
+    const instructions = `Facebook URL 設置說明
+
+iOS / Android 用戶：
+打開 Facebook App → 前往「個人/粉專」頁面 → 點右上角「⋯」圖示 → 選擇「複製連結」→ 即可獲得您的 Facebook 專屬網址`;
+
+    if (window.liff) {
+      window.liff.openWindow({
+        url: `data:text/html,<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Facebook URL 設置說明</title></head><body style="font-family:sans-serif;padding:20px;line-height:1.6;"><h2>Facebook URL 設置說明</h2><div style="background:#f5f5f5;padding:15px;border-radius:8px;"><p><strong>iOS / Android 用戶：</strong></p><ol><li>打開 Facebook App</li><li>前往「個人/粉專」頁面</li><li>點右上角「⋯」圖示</li><li>選擇「複製連結」</li><li>即可獲得您的 Facebook 專屬網址</li></ol></div></body></html>`,
+        external: false
+      });
+    } else {
+      // Fallback for non-LIFF environment
+      alert(instructions);
+    }
+  };
+
+  const showInstagramHelp = () => {
+    const instructions = `Instagram URL 設置說明
+
+iOS用戶：
+開啟 Instagram App → 進入您的 個人頁 / 粉專 → 點右上角「⋯」圖示 → 選擇 「分享」→「複製連結」即可取得您的 Instagram 專屬網址
+
+Android用戶：
+打開 Instagram App → 進入您的 個人頁 / 粉專 → 點右上角「⋯」或下方「紙飛機圖示 ✈️」→ 選擇 「複製連結」或「以其他方式分享」→ 即可取得您的 Instagram 專屬網址`;
+
+    if (window.liff) {
+      window.liff.openWindow({
+        url: `data:text/html,<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Instagram URL 設置說明</title></head><body style="font-family:sans-serif;padding:20px;line-height:1.6;"><h2>Instagram URL 設置說明</h2><div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-bottom:20px;"><p><strong>iOS用戶：</strong></p><ol><li>開啟 Instagram App</li><li>進入您的 個人頁 / 粉專</li><li>點右上角「⋯」圖示</li><li>選擇「分享」→「複製連結」</li><li>即可取得您的 Instagram 專屬網址</li></ol></div><div style="background:#f5f5f5;padding:15px;border-radius:8px;"><p><strong>Android用戶：</strong></p><ol><li>打開 Instagram App</li><li>進入您的 個人頁 / 粉專</li><li>點右上角「⋯」或下方「紙飛機圖示 ✈️」</li><li>選擇「複製連結」或「以其他方式分享」</li><li>即可取得您的 Instagram 專屬網址</li></ol></div></body></html>`,
+        external: false
+      });
+    } else {
+      // Fallback for non-LIFF environment
+      alert(instructions);
+    }
+  };
+
   const qrCodeData = `名片資訊
 姓名: ${name || ''}
 ${jobTitle && jobTitleVisible ? `職稱: ${jobTitle}` : ''}
@@ -1005,9 +1042,19 @@ LINE: ${line || ''}
             {/* Facebook */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="facebook" className="text-sm font-medium text-gray-700">
-                  Facebook
-                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="facebook" className="text-sm font-medium text-gray-700">
+                    Facebook
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={showFacebookHelp}
+                    className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
+                  >
+                    <Info className="w-4 h-4 text-blue-500" />
+                  </Button>
+                </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
                   <Switch
@@ -1028,9 +1075,19 @@ LINE: ${line || ''}
             {/* Instagram */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="instagram" className="text-sm font-medium text-gray-700">
-                  Instagram
-                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="instagram" className="text-sm font-medium text-gray-700">
+                    Instagram
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={showInstagramHelp}
+                    className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
+                  >
+                    <Info className="w-4 h-4 text-blue-500" />
+                  </Button>
+                </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
                   <Switch
