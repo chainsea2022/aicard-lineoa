@@ -596,7 +596,7 @@ const Points: React.FC<PointsProps> = ({
                         <h4 className="font-semibold text-gray-800 text-sm">Aiwow集點商城</h4>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">更多優惠兌點　點點累積，驚喜無限。打造互動導購與點數流通的智慧入口</p>
+                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">點點累積、兌換好禮，打造品牌互動與消費循環</p>
                     <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 text-sm shadow-sm">
                       前往商城
                     </Button>
