@@ -351,38 +351,271 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   };
 
   const showFacebookHelp = () => {
-    const instructions = `Facebook URL 設置說明
-
-iOS / Android 用戶：
-打開 Facebook App → 前往「個人/粉專」頁面 → 點右上角「⋯」圖示 → 選擇「複製連結」→ 即可獲得您的 Facebook 專屬網址`;
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Facebook URL 設置說明</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #1877f2;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .step-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #1877f2;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+        .step:last-child {
+            margin-bottom: 0;
+        }
+        .step-number {
+            background: #1877f2;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .arrow {
+            margin: 0 8px;
+            color: #1877f2;
+            font-weight: bold;
+        }
+        .platform-tag {
+            background: #e3f2fd;
+            color: #1565c0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 Facebook URL 設置說明</h1>
+        <div class="platform-tag">iOS / Android 用戶</div>
+        <div class="step-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <span>打開 Facebook App</span>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>前往「個人/粉專」頁面</span>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>點右上角「⋯」圖示</span>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span>選擇「複製連結」</span>
+            </div>
+            <div class="step">
+                <div class="step-number">5</div>
+                <span>即可獲得您的 Facebook 專屬網址</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
 
     if (window.liff) {
       window.liff.openWindow({
-        url: `data:text/html,<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Facebook URL 設置說明</title></head><body style="font-family:sans-serif;padding:20px;line-height:1.6;"><h2>Facebook URL 設置說明</h2><div style="background:#f5f5f5;padding:15px;border-radius:8px;"><p><strong>iOS / Android 用戶：</strong></p><ol><li>打開 Facebook App</li><li>前往「個人/粉專」頁面</li><li>點右上角「⋯」圖示</li><li>選擇「複製連結」</li><li>即可獲得您的 Facebook 專屬網址</li></ol></div></body></html>`,
+        url: `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`,
         external: false
       });
     } else {
       // Fallback for non-LIFF environment
+      const instructions = "Facebook URL 設置說明\n\niOS / Android 用戶：\n打開 Facebook App → 前往「個人/粉專」頁面 → 點右上角「⋯」圖示 → 選擇「複製連結」→ 即可獲得您的 Facebook 專屬網址";
       alert(instructions);
     }
   };
 
   const showInstagramHelp = () => {
-    const instructions = `Instagram URL 設置說明
+    const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Instagram URL 設置說明</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            line-height: 1.6;
+            margin: 0;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #e4405f;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .platform-section {
+            margin-bottom: 24px;
+        }
+        .step-container {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #e4405f;
+            margin-bottom: 16px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 16px;
+        }
+        .step:last-child {
+            margin-bottom: 0;
+        }
+        .step-number {
+            background: #e4405f;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+        .platform-tag {
+            background: #fce4ec;
+            color: #c2185b;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            display: inline-block;
+        }
+        .ios {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+        .android {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📸 Instagram URL 設置說明</h1>
+        
+        <div class="platform-section">
+            <div class="platform-tag ios">iOS 用戶</div>
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <span>開啟 Instagram App</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>進入您的 個人頁 / 粉專</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>點右上角「⋯」圖示</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>選擇「分享」→「複製連結」</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <span>即可取得您的 Instagram 專屬網址</span>
+                </div>
+            </div>
+        </div>
 
-iOS用戶：
-開啟 Instagram App → 進入您的 個人頁 / 粉專 → 點右上角「⋯」圖示 → 選擇 「分享」→「複製連結」即可取得您的 Instagram 專屬網址
-
-Android用戶：
-打開 Instagram App → 進入您的 個人頁 / 粉專 → 點右上角「⋯」或下方「紙飛機圖示 ✈️」→ 選擇 「複製連結」或「以其他方式分享」→ 即可取得您的 Instagram 專屬網址`;
+        <div class="platform-section">
+            <div class="platform-tag android">Android 用戶</div>
+            <div class="step-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <span>打開 Instagram App</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <span>進入您的 個人頁 / 粉專</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <span>點右上角「⋯」或下方「紙飛機圖示 ✈️」</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <span>選擇「複製連結」或「以其他方式分享」</span>
+                </div>
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <span>即可取得您的 Instagram 專屬網址</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>`;
 
     if (window.liff) {
       window.liff.openWindow({
-        url: `data:text/html,<html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Instagram URL 設置說明</title></head><body style="font-family:sans-serif;padding:20px;line-height:1.6;"><h2>Instagram URL 設置說明</h2><div style="background:#f5f5f5;padding:15px;border-radius:8px;margin-bottom:20px;"><p><strong>iOS用戶：</strong></p><ol><li>開啟 Instagram App</li><li>進入您的 個人頁 / 粉專</li><li>點右上角「⋯」圖示</li><li>選擇「分享」→「複製連結」</li><li>即可取得您的 Instagram 專屬網址</li></ol></div><div style="background:#f5f5f5;padding:15px;border-radius:8px;"><p><strong>Android用戶：</strong></p><ol><li>打開 Instagram App</li><li>進入您的 個人頁 / 粉專</li><li>點右上角「⋯」或下方「紙飛機圖示 ✈️」</li><li>選擇「複製連結」或「以其他方式分享」</li><li>即可取得您的 Instagram 專屬網址</li></ol></div></body></html>`,
+        url: `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`,
         external: false
       });
     } else {
       // Fallback for non-LIFF environment
+      const instructions = "Instagram URL 設置說明\n\niOS用戶：\n開啟 Instagram App → 進入您的 個人頁 / 粉專 → 點右上角「⋯」圖示 → 選擇「分享」→「複製連結」即可取得您的 Instagram 專屬網址\n\nAndroid用戶：\n打開 Instagram App → 進入您的 個人頁 / 粉專 → 點右上角「⋯」或下方「紙飛機圖示 ✈️」→ 選擇「複製連結」或「以其他方式分享」→ 即可取得您的 Instagram 專屬網址";
       alert(instructions);
     }
   };
