@@ -59,6 +59,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   // UI States
   const [showLineTutorial, setShowLineTutorial] = useState(false);
   const [showFacebookTutorial, setShowFacebookTutorial] = useState(false);
+  const [showInstagramTutorial, setShowInstagramTutorial] = useState(false);
   const [showQRCode, setShowQRCode] = useState(false);
   const [showBirthdayCalendar, setShowBirthdayCalendar] = useState(false);
   const [birthdayDate, setBirthdayDate] = useState<Date | undefined>();
@@ -469,6 +470,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   };
 
   const showInstagramHelp = () => {
+    setShowInstagramTutorial(!showInstagramTutorial);
+  };
+
+  const showInstagramHelpOld = () => {
     const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -1373,6 +1378,24 @@ LINE: ${line || ''}
                 value={instagram}
                 onChange={(e) => setInstagram(e.target.value)}
               />
+
+              {/* Instagram Tutorial */}
+              {showInstagramTutorial && (
+                <Card className="mt-2 bg-blue-50 border-blue-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-start space-x-3">
+                      <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                      <div className="space-y-2">
+                        <h4 className="font-medium text-blue-900">Instagram URL 設置說明</h4>
+                        <div className="text-sm text-blue-800">
+                          <p className="font-medium mb-2">iOS / Android 用戶：</p>
+                          <p>開啟 Instagram App → 進入您的 個人頁 / 粉專 →點分享個人檔案 →「複製連結」，即可取得您的 Instagram 專屬網址</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </CardContent>
         </Card>
