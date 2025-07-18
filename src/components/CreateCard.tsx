@@ -1304,7 +1304,6 @@ LINE: ${line || ''}
                 value={facebook}
                 onChange={(e) => setFacebook(e.target.value)}
               />
-              </div>
 
               {/* Facebook Tutorial */}
               {showFacebookTutorial && (
