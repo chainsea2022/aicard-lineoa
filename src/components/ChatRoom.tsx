@@ -818,6 +818,21 @@ const ChatRoom = () => {
                                     <span className="truncate">{message.cardData.website}</span>
                                   </div>
                                 )}
+                                
+                                {/* 查看更多按鈕 */}
+                                {(message.cardData.line || message.cardData.facebook || message.cardData.instagram || message.cardData.address) && (
+                                  <div className="pt-2 mt-2 border-t border-gray-100">
+                                    <Button
+                                      onClick={() => handleViewFullCard(message.cardData)}
+                                      size="sm"
+                                      className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs h-6 font-medium rounded-md"
+                                      variant="outline"
+                                    >
+                                      <User className="w-3 h-3 mr-1" />
+                                      查看更多
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
 
                               {/* QR Code 區塊已隱藏 - 彈跳介面中不顯示 */}
