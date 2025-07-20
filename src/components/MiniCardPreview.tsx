@@ -60,56 +60,76 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-xs bg-white rounded-2xl overflow-hidden shadow-2xl transform transition-all">
+      <Card className="w-full max-w-sm bg-background rounded-2xl overflow-hidden shadow-2xl transform transition-all" style={{ maxHeight: '75vh' }}>
         {/* 關閉按鈕 */}
         <div className="flex justify-end p-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-8 w-8 rounded-full hover:bg-gray-100"
+            className="h-8 w-8 rounded-full hover:bg-muted"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        <CardContent className="px-6 pb-6 pt-0">
-          {/* 頭像和基本資訊 */}
-          <div className="text-center mb-4">
-            <Avatar className="w-20 h-20 mx-auto mb-3 border-4 border-white shadow-lg">
+        {/* Hero Section - 大頭照區域 */}
+        <div className="px-6 pb-4">
+          <div className="flex justify-center">
+            <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
               <AvatarImage src={cardData?.avatar} alt={cardData?.name} />
-              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-lg font-semibold">
+              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xl font-semibold">
                 {cardData?.name ? cardData.name.charAt(0) : 'U'}
               </AvatarFallback>
             </Avatar>
-            
-            <h3 className="font-bold text-lg text-gray-900 mb-1">
+          </div>
+        </div>
+
+        {/* Body Section - 基本資料區 */}
+        <CardContent className="px-6 pb-4 space-y-3">
+          {/* 公司名稱 */}
+          {cardData?.companyName && (
+            <div className="text-center">
+              <p className="text-sm font-medium text-muted-foreground truncate" title={cardData.companyName}>
+                {cardData.companyName.length > 20 ? `${cardData.companyName.substring(0, 20)}...` : cardData.companyName}
+              </p>
+            </div>
+          )}
+
+          {/* 職稱 */}
+          {cardData?.jobTitle && (
+            <div className="text-center">
+              <p className="text-base font-medium text-foreground">{cardData.jobTitle}</p>
+            </div>
+          )}
+
+          {/* 姓名 */}
+          <div className="text-center">
+            <h3 className="text-lg font-bold text-foreground">
               {cardData?.name || '未設定姓名'}
             </h3>
-            
-            {cardData?.jobTitle && (
-              <p className="text-sm text-gray-600 mb-1">{cardData.jobTitle}</p>
-            )}
-            
-            {cardData?.companyName && (
-              <p className="text-sm text-gray-500 mb-3">{cardData.companyName}</p>
-            )}
           </div>
 
           {/* 聯絡資訊 */}
-          <div className="space-y-2 mb-4">
+          <div className="space-y-2">
             {cardData?.phone && (
-              <div className="flex items-center text-xs text-gray-600">
-                <span className="w-12 text-gray-400">電話:</span>
-                <span>{cardData.phone}</span>
-              </div>
+              <a 
+                href={`tel:${cardData.phone}`}
+                className="flex items-center text-sm text-foreground hover:text-primary transition-colors"
+              >
+                <span className="w-12 text-muted-foreground">電話:</span>
+                <span className="underline">{cardData.phone}</span>
+              </a>
             )}
             
             {cardData?.email && (
-              <div className="flex items-center text-xs text-gray-600">
-                <span className="w-12 text-gray-400">Email:</span>
-                <span className="truncate">{cardData.email}</span>
-              </div>
+              <a 
+                href={`mailto:${cardData.email}`}
+                className="flex items-center text-sm text-foreground hover:text-primary transition-colors"
+              >
+                <span className="w-12 text-muted-foreground">Email:</span>
+                <span className="truncate underline">{cardData.email}</span>
+              </a>
             )}
           </div>
 
@@ -117,43 +137,45 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
           <Button
             onClick={onShowFullCard}
             variant="outline"
-            className="w-full mb-4 text-sm"
+            className="w-full"
           >
-            其他
+            🔘 其他
           </Button>
+        </CardContent>
 
-          {/* 操作按鈕 */}
+        {/* Footer Section - 操作按鈕區 */}
+        <div className="px-6 pb-6">
           <div className="grid grid-cols-3 gap-2">
             <Button
               onClick={handleAddToLineOA}
               size="sm"
-              className="bg-green-500 hover:bg-green-600 text-white text-xs py-2"
+              className="bg-green-500 hover:bg-green-600 text-white text-xs py-2 flex-col h-auto"
             >
-              <Plus className="w-3 h-3 mr-1" />
-              加入LINE
+              <Plus className="w-4 h-4 mb-1" />
+              <span>加入LINE OA</span>
             </Button>
             
             <Button
               onClick={handleSaveCard}
               size="sm"
               variant="outline"
-              className="text-xs py-2"
+              className="text-xs py-2 flex-col h-auto"
             >
-              <Save className="w-3 h-3 mr-1" />
-              儲存
+              <Save className="w-4 h-4 mb-1" />
+              <span>儲存名片</span>
             </Button>
             
             <Button
               onClick={handleShareCard}
               size="sm"
               variant="outline"
-              className="text-xs py-2"
+              className="text-xs py-2 flex-col h-auto"
             >
-              <Share2 className="w-3 h-3 mr-1" />
-              分享
+              <Share2 className="w-4 h-4 mb-1" />
+              <span>分享</span>
             </Button>
           </div>
-        </CardContent>
+        </div>
       </Card>
     </div>
   );
