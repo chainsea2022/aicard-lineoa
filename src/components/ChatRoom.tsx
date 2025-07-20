@@ -641,6 +641,9 @@ const ChatRoom = () => {
                                   <div className="min-w-0 flex-1">
                                     <h3 className="text-base font-bold truncate">{message.cardData.name}</h3>
                                     <p className="text-blue-100 text-xs truncate">{message.cardData.companyName}</p>
+                                    {message.cardData.jobTitle && (
+                                      <p className="text-blue-200 text-xs truncate">{message.cardData.jobTitle}</p>
+                                    )}
                                   </div>
                                 </div>
                                 
