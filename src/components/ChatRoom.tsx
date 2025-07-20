@@ -713,46 +713,7 @@ const ChatRoom = () => {
                                 )}
                               </div>
 
-                              {/* QR Code 可折疊區塊 - 只在非客戶端 Flex Message 時顯示 */}
-                              {!(message as any).isClientFlexMessage && (
-                                <div className="bg-gray-50 border-t border-gray-200">
-                                  <button
-                                    onClick={() => toggleQrCode(message.id)}
-                                    className="w-full p-3 text-left flex items-center justify-between hover:bg-gray-100 transition-colors"
-                                  >
-                                    <div className="flex items-center space-x-2">
-                                      <QrCode className="w-4 h-4 text-gray-600" />
-                                      <span className="text-sm text-gray-700">QR Code</span>
-                                    </div>
-                                    {expandedQrCodes[message.id] ? (
-                                      <ChevronUp className="w-4 h-4 text-gray-600" />
-                                    ) : (
-                                      <ChevronDown className="w-4 h-4 text-gray-600" />
-                                    )}
-                                  </button>
-                                  
-                                  {expandedQrCodes[message.id] && (
-                                    <div className="p-4 border-t border-gray-200 bg-white">
-                                      <div className="flex justify-center mb-3">
-                                        {generateQRCode(`名片資訊
-姓名: ${message.cardData.name || ''}
-公司: ${message.cardData.companyName || ''}
-電話: ${message.cardData.phone || ''}
-Email: ${message.cardData.email || ''}
-LINE: ${message.cardData.line || ''}
-網站: ${message.cardData.website || ''}`)}
-                                      </div>
-                                      <p className="text-xs text-gray-500 text-center mb-2">掃描此QR Code即可獲得我的聯絡資訊</p>
-                                      <div 
-                                        className="w-full text-center cursor-pointer hover:bg-gray-50 transition-colors p-2 rounded"
-                                        onClick={() => handleQrCodeClick(message.cardData)}
-                                      >
-                                        <span className="text-xs text-blue-600">請掃描</span>
-                                      </div>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                              {/* QR Code 區塊已隱藏 - 彈跳介面中不顯示 */}
 
                               {/* 操作按鈕區域 */}
                               <div className="p-2 bg-white">
