@@ -684,6 +684,20 @@ const ChatRoom = () => {
     setShowFullCardPopup(true);
   };
 
+  const handleJoinAipowerOA = () => {
+    toast({
+      title: "成功加入！",
+      description: "已成功加入 Aipower LINE OA 好友",
+    });
+  };
+
+  const handleSaveCard = (cardData: any) => {
+    toast({
+      title: "儲存成功！",
+      description: "電子名片已儲存至您的名片人脈夾",
+    });
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
@@ -763,74 +777,56 @@ const ChatRoom = () => {
                         </div>
                         <div className="flex-1 min-w-0">
                           {message.isCard && message.cardData ? (
-                            <div className="bg-white border border-gray-200 rounded-2xl shadow-md overflow-hidden max-w-[280px]">
-                              {/* Business Card Header */}
-                              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-4 text-white">
-                                <div className="flex items-center space-x-3 mb-2">
+                            <div className="bg-white rounded-2xl shadow-lg max-w-[260px] border border-gray-100 overflow-hidden">
+                              {/* Business Card Header - 更緊湊的設計 */}
+                              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 text-white">
+                                <div className="flex items-center space-x-2.5">
                                   {message.cardData.photo && (
                                     <img 
                                       src={message.cardData.photo} 
                                       alt="照片" 
-                                      className="w-10 h-10 rounded-full object-cover border-2 border-white flex-shrink-0" 
+                                      className="w-9 h-9 rounded-full object-cover border-2 border-white flex-shrink-0" 
                                     />
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <h3 className="text-base font-bold truncate">{message.cardData.name}</h3>
+                                    <h3 className="text-sm font-bold truncate">{message.cardData.name}</h3>
                                     <p className="text-blue-100 text-xs truncate">{message.cardData.companyName}</p>
                                     {message.cardData.jobTitle && (
                                       <p className="text-blue-200 text-xs truncate">{message.cardData.jobTitle}</p>
                                     )}
                                   </div>
                                 </div>
-                                
-                                <div className="space-y-1 text-xs">
-                                  {message.cardData.phone && (
-                                    <div className="flex items-center space-x-2">
-                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                      <span className="truncate">{message.cardData.phone}</span>
-                                    </div>
-                                  )}
-                                  {message.cardData.email && (
-                                    <div className="flex items-center space-x-2">
-                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                      <span className="truncate">{message.cardData.email}</span>
-                                    </div>
-                                  )}
-                                  {message.cardData.website && (
-                                    <div className="flex items-center space-x-2">
-                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                      <span className="truncate">{message.cardData.website}</span>
-                                    </div>
-                                  )}
-                                  {message.cardData.address && (
-                                    <div className="flex items-center space-x-2">
-                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                                      <span className="truncate">{message.cardData.address}</span>
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* 查看更多按鈕 - 替代社群媒體圖示 */}
-                                {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
-                                  <div className="mt-2 pt-2 border-t border-white/20">
-                                    <Button
-                                      onClick={() => handleViewFullCard(message.cardData)}
-                                      size="sm"
-                                      className="bg-white/20 hover:bg-white/30 text-white border border-white/30 text-xs px-3 py-1 h-auto"
-                                    >
-                                      查看更多
-                                    </Button>
+                              </div>
+                              
+                              {/* 聯絡資訊 - 更緊湊的間距 */}
+                              <div className="px-3 py-2 space-y-1.5">
+                                {message.cardData.phone && (
+                                  <div className="flex items-center space-x-2 text-xs text-gray-600">
+                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
+                                    <span className="truncate">{message.cardData.phone}</span>
+                                  </div>
+                                )}
+                                {message.cardData.email && (
+                                  <div className="flex items-center space-x-2 text-xs text-gray-600">
+                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
+                                    <span className="truncate">{message.cardData.email}</span>
+                                  </div>
+                                )}
+                                {message.cardData.website && (
+                                  <div className="flex items-center space-x-2 text-xs text-gray-600">
+                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
+                                    <span className="truncate">{message.cardData.website}</span>
                                   </div>
                                 )}
                               </div>
 
                               {/* QR Code 區塊已隱藏 - 彈跳介面中不顯示 */}
 
-                              {/* 操作按鈕區域 */}
-                              <div className="p-2 bg-white">
+                              {/* 操作按鈕區域 - 優化版本 */}
+                              <div className="p-3 pt-0 bg-white">
                                 {/* 如果是客戶端 Flex Message，顯示客戶端按鈕組 */}
                                 {(message as any).isClientFlexMessage ? (
-                                  <div className="space-y-1">
+                                  <div className="space-y-1.5">
                                     <Button 
                                       onClick={() => handleCardAction('addContact', message.cardData, CONSISTENT_CUSTOMER_NAME)}
                                       size="sm" 
@@ -864,7 +860,7 @@ const ChatRoom = () => {
                                     </Button>
                                   </div>
                                 ) : (message as any).isFullFlexMessage ? (
-                                  <div className="space-y-1">
+                                  <div className="space-y-1.5">
                                     <Button 
                                       onClick={() => handleCardAction('saveToContacts', message.cardData)}
                                       size="sm" 
@@ -890,14 +886,36 @@ const ChatRoom = () => {
                                     </Button>
                                   </div>
                                 ) : (
-                                  <Button 
-                                    onClick={() => handleCardAction('share', message.cardData)} 
-                                    size="sm" 
-                                    className="w-full bg-green-500 hover:bg-green-600 text-white text-sm h-8 font-medium"
-                                  >
-                                    <Share2 className="w-4 h-4 mr-2" />
-                                    分享
-                                  </Button>
+                                  <div className="space-y-1.5">
+                                    {/* 加入 Aipower LINE OA好友 */}
+                                    <Button 
+                                      onClick={() => handleJoinAipowerOA()}
+                                      size="sm" 
+                                      className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-7 font-medium rounded-lg"
+                                    >
+                                      <UserPlus className="w-3 h-3 mr-1.5" />
+                                      加入 Aipower LINE OA好友
+                                    </Button>
+                                    {/* 儲存名片 */}
+                                    <Button 
+                                      onClick={() => handleSaveCard(message.cardData)}
+                                      size="sm" 
+                                      className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-7 font-medium rounded-lg"
+                                    >
+                                      <BookmarkPlus className="w-3 h-3 mr-1.5" />
+                                      儲存名片
+                                    </Button>
+                                    {/* 分享 */}
+                                    <Button 
+                                      onClick={() => handleCardAction('share', message.cardData)} 
+                                      size="sm" 
+                                      className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-xs h-7 font-medium rounded-lg"
+                                      variant="outline"
+                                    >
+                                      <Share2 className="w-3 h-3 mr-1.5" />
+                                      分享
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             </div>
