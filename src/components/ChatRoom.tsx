@@ -219,10 +219,13 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
 };
 
 // 完整電子名片 LIFF 介面
-const FullCardLIFFPopup = ({ isOpen, onClose, cardData }: { 
+const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveCard, onShareCard }: { 
   isOpen: boolean; 
   onClose: () => void; 
   cardData: any;
+  onJoinAipowerOA: () => void;
+  onSaveCard: (cardData: any) => void;
+  onShareCard: (cardData: any) => void;
 }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -278,23 +281,19 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData }: {
               </div>
             </div>
 
-            {/* 社群媒體連結區域 */}
-            {(cardData?.line || cardData?.facebook || cardData?.instagram) && (
-              <div className="p-6 bg-gray-50 border-t border-gray-200">
-                <h4 className="text-sm font-semibold text-gray-700 mb-3">社群媒體</h4>
-                <div className="space-y-3">
+            {/* 社群媒體與操作區域 */}
+            <div className="p-4 bg-gray-50 border-t border-gray-200">
+              {/* 社群媒體符號 */}
+              {(cardData?.line || cardData?.facebook || cardData?.instagram) && (
+                <div className="flex justify-center space-x-4 mb-4">
                   {cardData.line && (
                     <a 
                       href={cardData.line} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600 transition-colors shadow-sm"
                     >
-                      <MessageCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-800">LINE</p>
-                        <p className="text-xs text-gray-500 truncate">{cardData.line}</p>
-                      </div>
+                      <MessageCircle className="w-5 h-5 text-white" />
                     </a>
                   )}
                   {cardData.facebook && (
@@ -302,13 +301,9 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData }: {
                       href={cardData.facebook} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors shadow-sm"
                     >
-                      <Facebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-800">Facebook</p>
-                        <p className="text-xs text-gray-500 truncate">{cardData.facebook}</p>
-                      </div>
+                      <Facebook className="w-5 h-5 text-white" />
                     </a>
                   )}
                   {cardData.instagram && (
@@ -316,18 +311,42 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData }: {
                       href={cardData.instagram} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                      className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center hover:from-purple-600 hover:to-pink-600 transition-colors shadow-sm"
                     >
-                      <Instagram className="w-5 h-5 text-pink-500 flex-shrink-0" />
-                      <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-gray-800">Instagram</p>
-                        <p className="text-xs text-gray-500 truncate">{cardData.instagram}</p>
-                      </div>
+                      <Instagram className="w-5 h-5 text-white" />
                     </a>
                   )}
                 </div>
+              )}
+              
+              {/* 操作按鈕組 */}
+              <div className="space-y-2">
+                <Button 
+                  onClick={onJoinAipowerOA}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white text-sm py-2.5 h-auto rounded-xl font-medium shadow-sm"
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  加入 Aipower LINE OA好友
+                </Button>
+                
+                <Button 
+                  onClick={() => onSaveCard(cardData)}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-2.5 h-auto rounded-xl font-medium shadow-sm"
+                >
+                  <BookmarkPlus className="w-4 h-4 mr-2" />
+                  儲存名片
+                </Button>
+                
+                <Button 
+                  onClick={() => onShareCard(cardData)}
+                  className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-sm py-2.5 h-auto rounded-xl font-medium shadow-sm"
+                  variant="outline"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  分享
+                </Button>
               </div>
-            )}
+            </div>
           </div>
           
           {/* 關閉按鈕 */}
@@ -698,6 +717,31 @@ const ChatRoom = () => {
     });
   };
 
+  const handleShareCard = async (cardData: any) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${cardData?.name}的電子名片`,
+          text: `${cardData?.companyName} - ${cardData?.name}`,
+          url: window.location.href,
+        });
+        toast({
+          title: "分享成功！",
+          description: "電子名片已成功分享",
+        });
+      } catch (error) {
+        console.log('分享取消');
+      }
+    } else {
+      // 備選方案：複製到剪貼簿
+      navigator.clipboard.writeText(`${cardData?.name}的電子名片 - ${cardData?.companyName}`);
+      toast({
+        title: "已複製到剪貼簿！",
+        description: "電子名片資訊已複製，您可以貼上分享",
+      });
+    }
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
@@ -1053,6 +1097,9 @@ const ChatRoom = () => {
         isOpen={showFullCardPopup} 
         onClose={() => setShowFullCardPopup(false)} 
         cardData={fullCardData}
+        onJoinAipowerOA={handleJoinAipowerOA}
+        onSaveCard={handleSaveCard}
+        onShareCard={handleShareCard}
       />
     </div>
   );
