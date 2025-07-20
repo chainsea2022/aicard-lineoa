@@ -663,6 +663,12 @@ const ChatRoom = () => {
                                       <span className="truncate">{message.cardData.website}</span>
                                     </div>
                                   )}
+                                  {message.cardData.address && (
+                                    <div className="flex items-center space-x-2">
+                                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
+                                      <span className="truncate">{message.cardData.address}</span>
+                                    </div>
+                                  )}
                                 </div>
 
                                 {/* 社群媒體圖示顯示 */}
