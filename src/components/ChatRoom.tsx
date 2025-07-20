@@ -218,6 +218,135 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
   );
 };
 
+// 完整電子名片 LIFF 介面
+const FullCardLIFFPopup = ({ isOpen, onClose, cardData }: { 
+  isOpen: boolean; 
+  onClose: () => void; 
+  cardData: any;
+}) => {
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-sm mx-auto p-0 bg-white rounded-2xl overflow-hidden border shadow-lg" style={{ maxWidth: '340px' }}>
+        <div className="relative">
+          {/* 完整電子名片預覽 */}
+          <div className="bg-white">
+            {/* Business Card Header */}
+            <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
+              <div className="flex items-center space-x-4 mb-3">
+                {cardData?.photo && (
+                  <img 
+                    src={cardData.photo} 
+                    alt="照片" 
+                    className="w-16 h-16 rounded-full object-cover border-3 border-white flex-shrink-0" 
+                  />
+                )}
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xl font-bold truncate">{cardData?.name}</h3>
+                  <p className="text-blue-100 text-sm truncate">{cardData?.companyName}</p>
+                  {cardData?.jobTitle && (
+                    <p className="text-blue-200 text-sm truncate">{cardData.jobTitle}</p>
+                  )}
+                </div>
+              </div>
+              
+              {/* 聯絡資訊 */}
+              <div className="space-y-2 text-sm">
+                {cardData?.phone && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{cardData.phone}</span>
+                  </div>
+                )}
+                {cardData?.email && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{cardData.email}</span>
+                  </div>
+                )}
+                {cardData?.website && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{cardData.website}</span>
+                  </div>
+                )}
+                {cardData?.address && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{cardData.address}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* 社群媒體連結區域 */}
+            {(cardData?.line || cardData?.facebook || cardData?.instagram) && (
+              <div className="p-6 bg-gray-50 border-t border-gray-200">
+                <h4 className="text-sm font-semibold text-gray-700 mb-3">社群媒體</h4>
+                <div className="space-y-3">
+                  {cardData.line && (
+                    <a 
+                      href={cardData.line} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                    >
+                      <MessageCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-800">LINE</p>
+                        <p className="text-xs text-gray-500 truncate">{cardData.line}</p>
+                      </div>
+                    </a>
+                  )}
+                  {cardData.facebook && (
+                    <a 
+                      href={cardData.facebook} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                    >
+                      <Facebook className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-800">Facebook</p>
+                        <p className="text-xs text-gray-500 truncate">{cardData.facebook}</p>
+                      </div>
+                    </a>
+                  )}
+                  {cardData.instagram && (
+                    <a 
+                      href={cardData.instagram} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="flex items-center space-x-3 p-3 bg-white rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                    >
+                      <Instagram className="w-5 h-5 text-pink-500 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-800">Instagram</p>
+                        <p className="text-xs text-gray-500 truncate">{cardData.instagram}</p>
+                      </div>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          {/* 關閉按鈕 */}
+          <div className="absolute top-3 right-3">
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              size="sm"
+              className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 p-0 backdrop-blur-sm"
+            >
+              <X className="w-4 h-4 text-white" />
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true);
   const [activeView, setActiveView] = useState<string | null>(null);
@@ -231,6 +360,8 @@ const ChatRoom = () => {
   const [liffFlowType, setLiffFlowType] = useState<'qr_scan' | 'direct_add'>('qr_scan');
   const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({});
   const [pendingCustomerName, setPendingCustomerName] = useState<string>('');
+  const [showFullCardPopup, setShowFullCardPopup] = useState(false);
+  const [fullCardData, setFullCardData] = useState<any>(null);
 
   useEffect(() => {
     const handleCustomerAdded = (event: CustomEvent) => {
@@ -548,6 +679,11 @@ const ChatRoom = () => {
     }
   };
 
+  const handleViewFullCard = (cardData: any) => {
+    setFullCardData(cardData);
+    setShowFullCardPopup(true);
+  };
+
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
@@ -674,44 +810,16 @@ const ChatRoom = () => {
                                   )}
                                 </div>
 
-                                {/* 社群媒體圖示顯示 */}
+                                {/* 查看更多按鈕 - 替代社群媒體圖示 */}
                                 {(message.cardData.line || message.cardData.facebook || message.cardData.instagram) && (
                                   <div className="mt-2 pt-2 border-t border-white/20">
-                                    <div className="flex items-center space-x-3">
-                                      {message.cardData.line && (
-                                        <a 
-                                          href={message.cardData.line} 
-                                          target="_blank" 
-                                          rel="noopener noreferrer"
-                                          className="text-white hover:text-blue-100 transition-colors"
-                                          title="LINE"
-                                        >
-                                          <MessageCircle className="w-5 h-5" />
-                                        </a>
-                                      )}
-                                      {message.cardData.facebook && (
-                                        <a 
-                                          href={message.cardData.facebook} 
-                                          target="_blank" 
-                                          rel="noopener noreferrer"
-                                          className="text-white hover:text-blue-100 transition-colors"
-                                          title="Facebook"
-                                        >
-                                          <Facebook className="w-5 h-5" />
-                                        </a>
-                                      )}
-                                      {message.cardData.instagram && (
-                                        <a 
-                                          href={message.cardData.instagram} 
-                                          target="_blank" 
-                                          rel="noopener noreferrer"
-                                          className="text-white hover:text-blue-100 transition-colors"
-                                          title="Instagram"
-                                        >
-                                          <Instagram className="w-5 h-5" />
-                                        </a>
-                                      )}
-                                    </div>
+                                    <Button
+                                      onClick={() => handleViewFullCard(message.cardData)}
+                                      size="sm"
+                                      className="bg-white/20 hover:bg-white/30 text-white border border-white/30 text-xs px-3 py-1 h-auto"
+                                    >
+                                      查看更多
+                                    </Button>
                                   </div>
                                 )}
                               </div>
@@ -905,6 +1013,13 @@ const ChatRoom = () => {
         onUserJoined={handleUserJoined}
         flowType={liffFlowType}
         customerName={pendingCustomerName} // 傳遞統一的客戶名稱
+      />
+
+      {/* 完整電子名片 LIFF 彈跳介面 */}
+      <FullCardLIFFPopup 
+        isOpen={showFullCardPopup} 
+        onClose={() => setShowFullCardPopup(false)} 
+        cardData={fullCardData}
       />
     </div>
   );
