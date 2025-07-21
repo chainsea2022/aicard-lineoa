@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X } from 'lucide-react';
+import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
+import { ContactForm } from '@/components/MyCustomers/ContactForm';
+import { Customer } from '@/components/MyCustomers/types';
 
 // LIFF type declaration
 declare global {
@@ -45,6 +47,7 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
   });
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
+  const [isContactFormOpen, setIsContactFormOpen] = useState(false);
 
   useEffect(() => {
     // Initialize LIFF
@@ -160,6 +163,52 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
     });
   };
 
+  const handleCreateContact = () => {
+    setIsContactFormOpen(true);
+  };
+
+  const handleSaveContact = (customer: Customer) => {
+    const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
+    const newCustomer = {
+      id: Date.now(),
+      name: customer.name,
+      phone: customer.phone,
+      email: customer.email,
+      company: customer.company,
+      jobTitle: customer.jobTitle,
+      website: customer.website,
+      line: customer.line,
+      facebook: customer.facebook,
+      instagram: customer.instagram,
+      notes: customer.notes,
+      hasCard: false,
+      addedDate: new Date().toISOString(),
+      isInvited: false,
+      invitationSent: false,
+      isDigitalCard: false,
+      relationshipStatus: 'following_me' as const
+    };
+
+    customers.push(newCustomer);
+    localStorage.setItem('aile-customers', JSON.stringify(customers));
+    setIsContactFormOpen(false);
+
+    toast({
+      title: "聯絡人已加入！",
+      description: `${customer.name} 已成功加入聯絡人清單。`
+    });
+
+    // Trigger notification event
+    window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+      detail: { 
+        customerName: customer.name, 
+        action: 'manual_created',
+        isDigitalCard: false,
+        customer: newCustomer
+      }
+    }));
+  };
+
   // Show loading if LIFF is not ready
   if (!isLiffReady) {
     return (
@@ -252,6 +301,15 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
             <Camera className="w-5 h-5 mr-2" />
             開始掃描
           </Button>
+        </div>
+
+        {/* Manual Create Contact Button */}
+        <div className="bg-gray-50 rounded-lg p-3">
+          <Button onClick={handleCreateContact} className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-3 h-10 touch-manipulation">
+            <Plus className="w-4 h-4 mr-2" />
+            手動建立名片
+          </Button>
+          <p className="text-xs text-gray-500 mt-2 text-center">手動輸入聯絡人資訊</p>
         </div>
 
         {/* Instructions - Always visible */}
@@ -415,6 +473,14 @@ const Scanner: React.FC<ScannerProps> = ({ onClose }) => {
           </div>
         )}
       </div>
+
+      {/* Contact Form Dialog */}
+      <ContactForm
+        isOpen={isContactFormOpen}
+        onClose={() => setIsContactFormOpen(false)}
+        onSave={handleSaveContact}
+        editingCustomer={null}
+      />
     </div>
   );
 };

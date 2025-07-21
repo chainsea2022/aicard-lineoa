@@ -350,18 +350,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               />
             </div>
 
-            {activeTab === 'paper' && (
-              <div className="mt-3">
-                <Button
-                  onClick={handleCreateContact}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm h-8"
-                  size="sm"
-                >
-                  <Plus className="w-3 h-3 mr-2" />
-                  手動建立名片
-                </Button>
-              </div>
-            )}
 
             {activeTab === 'digital' && (
               <div className="mt-3 space-y-3">
