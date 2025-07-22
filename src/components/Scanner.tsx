@@ -404,12 +404,12 @@ const Scanner: React.FC<ScannerProps> = ({
 
         {/* Instructions - Always visible */}
         <div className="bg-gray-50 rounded-lg p-3">
-          <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 掃描說明</h4>
+          <h4 className="font-bold text-gray-800 mb-2 text-sm">💡 名片識別說明</h4>
           <ul className="text-xs text-gray-600 space-y-1">
-            <li>• 點擊開始掃描會模擬掃描名片或QR Code</li>
-            
-            <li>• 電子名片：儲存到我的電子名片夾</li>
-            <li>• 紙本名片：儲存到我的聯絡人列表</li>
+            <li>• 點擊「開始識別」可辨別紙本名片或電子名片</li>
+            <li>• 提示說明：</li>
+            <li className="ml-3">– 電子名片：可儲存至「名片夾 {">"}我的電子名片夾」</li>
+            <li className="ml-3">– 紙本名片：可儲存至「名片夾 {">"} 我的聯絡人」</li>
           </ul>
         </div>
 
