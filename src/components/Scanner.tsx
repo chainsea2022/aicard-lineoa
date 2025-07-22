@@ -379,21 +379,15 @@ const Scanner: React.FC<ScannerProps> = ({
               {/* 頭部資訊 */}
               <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                 <div className="flex items-center space-x-3">
-                  {customerData.photo && (
-                    <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                  {customerData.photo && <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
                       <img src={customerData.photo} alt="頭像" className="w-14 h-14 rounded-full object-cover" />
-                    </div>
-                  )}
+                    </div>}
                   <div className="flex-1">
-                    {customerData.company && (
-                      <p className="text-blue-100 text-sm">{customerData.company}</p>
-                    )}
+                    {customerData.company && <p className="text-blue-100 text-sm">{customerData.company}</p>}
                     <h3 className="text-white text-lg font-semibold mb-1">
                       {customerData.name}
                     </h3>
-                    {customerData.jobTitle && (
-                      <p className="text-blue-100 text-sm">{customerData.jobTitle}</p>
-                    )}
+                    {customerData.jobTitle && <p className="text-blue-100 text-sm">{customerData.jobTitle}</p>}
                   </div>
                 </div>
               </div>
@@ -401,61 +395,47 @@ const Scanner: React.FC<ScannerProps> = ({
               {/* 聯絡資訊 */}
               <div className="p-4 space-y-3">
                 {/* 電話 */}
-                {customerData.phone && (
-                  <div className="flex items-center space-x-2">
+                {customerData.phone && <div className="flex items-center space-x-2">
                     <span className="text-gray-600">📱</span>
                     <div>
-                      <p className="text-xs font-medium text-gray-700">手機</p>
+                      
                       <p className="text-sm text-gray-800">{customerData.phone}</p>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* Email */}
-                {customerData.email && (
-                  <div className="flex items-center space-x-2">
+                {customerData.email && <div className="flex items-center space-x-2">
                     <span className="text-gray-600">✉️</span>
                     <div>
                       <p className="text-xs font-medium text-gray-700">Email</p>
                       <p className="text-sm text-gray-800">{customerData.email}</p>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* 網站 */}
-                {customerData.website && (
-                  <div className="flex items-center space-x-2">
+                {customerData.website && <div className="flex items-center space-x-2">
                     <span className="text-gray-600">🌐</span>
                     <div>
                       <p className="text-xs font-medium text-gray-700">網站</p>
                       <p className="text-sm text-gray-800">{customerData.website}</p>
                     </div>
-                  </div>
-                )}
+                  </div>}
               </div>
 
               {/* 社群媒體與操作區域 */}
-              {(customerData.line || customerData.facebook || customerData.instagram) && (
-                <div className="p-4 bg-gray-50 border-t border-gray-200">
+              {(customerData.line || customerData.facebook || customerData.instagram) && <div className="p-4 bg-gray-50 border-t border-gray-200">
                   <div className="flex justify-center flex-wrap gap-3">
-                    {customerData.line && (
-                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
+                    {customerData.line && <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white text-lg">💬</span>
-                      </div>
-                    )}
-                    {customerData.facebook && (
-                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                      </div>}
+                    {customerData.facebook && <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white text-lg">📘</span>
-                      </div>
-                    )}
-                    {customerData.instagram && (
-                      <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shadow-sm">
+                      </div>}
+                    {customerData.instagram && <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shadow-sm">
                         <span className="text-white text-lg">📷</span>
-                      </div>
-                    )}
+                      </div>}
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
