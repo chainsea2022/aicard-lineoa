@@ -321,7 +321,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         <Button onClick={onClose} variant="ghost" size="sm">
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h2 className="font-semibold text-lg">名片人脈夾</h2>
+        <h2 className="font-semibold text-lg">名片夾</h2>
         <div></div>
       </div>
 
