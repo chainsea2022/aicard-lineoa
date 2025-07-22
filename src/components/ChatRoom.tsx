@@ -378,7 +378,7 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
                   className="w-full bg-green-500 hover:bg-green-600 text-white text-sm py-2.5 h-auto rounded-xl font-medium shadow-sm"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
-                  加入 Aipower LINE OA好友
+                  加入名片好友
                 </Button>
                 
                 <Button 
