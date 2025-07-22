@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon, Mail, CheckCircle } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon, Mail, CheckCircle, Camera, Mic, MicOff, Play, Square, Plus, Youtube, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -35,8 +36,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [companyNameVisible, setCompanyNameVisible] = useState(true);
   const [jobTitle, setJobTitle] = useState('');
   const [jobTitleVisible, setJobTitleVisible] = useState(true);
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(''); // 公司電話
   const [phoneVisible, setPhoneVisible] = useState(true);
+  const [mobilePhone, setMobilePhone] = useState(''); // 手機號碼
+  const [mobilePhoneVisible, setMobilePhoneVisible] = useState(true);
   const [email, setEmail] = useState('');
   const [emailVisible, setEmailVisible] = useState(true);
   const [emailVerified, setEmailVerified] = useState(false);
@@ -45,6 +48,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [websiteVisible, setWebsiteVisible] = useState(true);
   const [address, setAddress] = useState('');
   const [addressVisible, setAddressVisible] = useState(true);
+  const [introduction, setIntroduction] = useState(''); // 自我介紹
+  const [introductionVisible, setIntroductionVisible] = useState(true);
   const [birthdayVisible, setBirthdayVisible] = useState(false);
   const [genderVisible, setGenderVisible] = useState(false);
   const [line, setLine] = useState('');
@@ -55,6 +60,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [instagramVisible, setInstagramVisible] = useState(true);
   const [photo, setPhoto] = useState<string | null>(null);
   const [cardPublic, setCardPublic] = useState(false);
+  
+  // 新增社群媒體狀態
+  const [socialMedia, setSocialMedia] = useState<Array<{id: string, platform: string, url: string, visible: boolean}>>([]);
+  const [otherInfo, setOtherInfo] = useState(''); // 其他資訊
+  const [otherInfoVisible, setOtherInfoVisible] = useState(true);
 
   // UI States
   const [showLineTutorial, setShowLineTutorial] = useState(false);
@@ -63,6 +73,15 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [showQRCode, setShowQRCode] = useState(false);
   const [showBirthdayCalendar, setShowBirthdayCalendar] = useState(false);
   const [birthdayDate, setBirthdayDate] = useState<Date | undefined>();
+  const [showOCRCapture, setShowOCRCapture] = useState(false);
+  const [showSocialMediaForm, setShowSocialMediaForm] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [newSocialMedia, setNewSocialMedia] = useState({platform: '', url: ''});
+  
+  // 語音錄製相關
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Birthday formatting and validation functions
   const formatBirthdayInput = (value: string) => {
@@ -139,7 +158,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     // 設置註冊手機號碼
     if (userData?.phone) {
       setRegisteredPhone(userData.phone);
-      setPhone(userData.phone); // 同時設置為顯示用電話
+      setMobilePhone(userData.phone); // 預設為手機號碼
     }
 
     // 從 localStorage 載入名片資料
@@ -152,8 +171,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setCompanyNameVisible(cardInfo.companyNameVisible !== false);
       setJobTitle(cardInfo.jobTitle || '');
       setJobTitleVisible(cardInfo.jobTitleVisible !== false);
-      setPhone(cardInfo.phone || userData?.phone || '');
+      setPhone(cardInfo.phone || '');
       setPhoneVisible(cardInfo.phoneVisible !== false);
+      setMobilePhone(cardInfo.mobilePhone || userData?.phone || '');
+      setMobilePhoneVisible(cardInfo.mobilePhoneVisible !== false);
       setEmail(cardInfo.email || '');
       setEmailVisible(cardInfo.emailVisible !== false);
       setEmailVerified(cardInfo.emailVerified || false);
@@ -162,6 +183,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setWebsiteVisible(cardInfo.websiteVisible !== false);
       setAddress(cardInfo.address || '');
       setAddressVisible(cardInfo.addressVisible !== false);
+      setIntroduction(cardInfo.introduction || '');
+      setIntroductionVisible(cardInfo.introductionVisible !== false);
       setBirthday(cardInfo.birthday || '');
       setBirthdayVisible(cardInfo.birthdayVisible || false);
       setGender(cardInfo.gender || '');
@@ -174,6 +197,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setInstagramVisible(cardInfo.instagramVisible !== false);
       setPhoto(cardInfo.photo || null);
       setCardPublic(cardInfo.cardPublic || false);
+      setSocialMedia(cardInfo.socialMedia || []);
+      setOtherInfo(cardInfo.otherInfo || '');
+      setOtherInfoVisible(cardInfo.otherInfoVisible !== false);
       
       // Convert birthday to Date object for calendar
       if (cardInfo.birthday) {
@@ -198,6 +224,103 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
 
   const handleRemovePhoto = () => {
     setPhoto(null);
+  };
+
+  // OCR 名片辨識處理
+  const handleOCRCapture = () => {
+    setShowOCRCapture(true);
+  };
+
+  const handleOCRResult = (ocrData: any) => {
+    // 模擬 OCR 辨識結果，實際應用時需要整合真實的 OCR API
+    if (ocrData.name) setName(ocrData.name);
+    if (ocrData.company) setCompanyName(ocrData.company);
+    if (ocrData.jobTitle) setJobTitle(ocrData.jobTitle);
+    if (ocrData.phone) setPhone(ocrData.phone);
+    if (ocrData.email) setEmail(ocrData.email);
+    if (ocrData.address) setAddress(ocrData.address);
+    
+    setShowOCRCapture(false);
+    toast({
+      title: "名片辨識完成",
+      description: "已自動填入辨識到的資訊，請檢查並修正。"
+    });
+  };
+
+  // 語音錄製處理
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      
+      const audioChunks: BlobPart[] = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunks.push(event.data);
+      };
+      
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        // 這裡可以整合語音轉文字 API
+        setIntroduction(prev => prev + " [語音錄製內容]");
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingTime(0);
+      
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+      
+    } catch (error) {
+      toast({
+        title: "錄音失敗",
+        description: "無法啟動麥克風，請檢查權限設定。"
+      });
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    }
+  };
+
+  // 社群媒體處理
+  const handleAddSocialMedia = () => {
+    setShowSocialMediaForm(true);
+    setNewSocialMedia({platform: '', url: ''});
+  };
+
+  const handleSaveSocialMedia = () => {
+    if (newSocialMedia.platform && newSocialMedia.url) {
+      const newItem = {
+        id: Date.now().toString(),
+        platform: newSocialMedia.platform,
+        url: newSocialMedia.url,
+        visible: true
+      };
+      setSocialMedia(prev => [...prev, newItem]);
+      setShowSocialMediaForm(false);
+      setNewSocialMedia({platform: '', url: ''});
+    }
+  };
+
+  const handleRemoveSocialMedia = (id: string) => {
+    setSocialMedia(prev => prev.filter(item => item.id !== id));
+  };
+
+  const handleSocialMediaVisibilityChange = (id: string, visible: boolean) => {
+    setSocialMedia(prev => prev.map(item => 
+      item.id === id ? {...item, visible} : item
+    ));
   };
 
   const handlePhoneChange = () => {
@@ -253,6 +376,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       jobTitleVisible,
       phone,
       phoneVisible,
+      mobilePhone,
+      mobilePhoneVisible,
       email,
       emailVisible,
       emailVerified,
@@ -261,6 +386,8 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       websiteVisible,
       address,
       addressVisible,
+      introduction,
+      introductionVisible,
       birthday,
       birthdayVisible,
       gender,
@@ -272,7 +399,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       instagram,
       instagramVisible,
       photo,
-      cardPublic
+      cardPublic,
+      socialMedia,
+      otherInfo,
+      otherInfoVisible
     };
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
     toast({
@@ -1062,6 +1192,70 @@ LINE: ${line || ''}
               </div>
             </div>
 
+            {/* OCR 名片辨識 */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <Button
+                onClick={handleOCRCapture}
+                className="w-full bg-indigo-500 hover:bg-indigo-600 text-white"
+              >
+                <Camera className="w-4 h-4 mr-2" />
+                OCR 名片辨識
+              </Button>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                拍攝您的紙本名片，自動識別並填入資訊
+              </p>
+            </div>
+
+            {/* 自我介紹欄位 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="introduction" className="text-sm font-medium text-gray-700">
+                  自我介紹
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={introductionVisible}
+                    onCheckedChange={setIntroductionVisible}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Textarea
+                  id="introduction"
+                  placeholder="請輸入自我介紹..."
+                  value={introduction}
+                  onChange={(e) => setIntroduction(e.target.value)}
+                  rows={3}
+                />
+                <div className="flex items-center space-x-2">
+                  {!isRecording ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={startRecording}
+                      className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                    >
+                      <Mic className="w-4 h-4 mr-2" />
+                      語音輸入
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="destructive"
+                      onClick={stopRecording}
+                      className="bg-red-500 hover:bg-red-600"
+                    >
+                      <Square className="w-4 h-4 mr-2" />
+                      停止錄音 ({recordingTime}s)
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+
             {/* 姓名 */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -1131,11 +1325,11 @@ LINE: ${line || ''}
               />
             </div>
 
-            {/* 電話 */}
+            {/* 公司電話 */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                  電話
+                  公司電話
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
@@ -1148,12 +1342,38 @@ LINE: ${line || ''}
               <Input
                 id="phone"
                 type="tel"
-                placeholder="您的聯絡電話"
+                placeholder="公司聯絡電話"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
               <p className="text-xs text-gray-500 mt-1">
-                顯示用聯絡電話，可與註冊手機號碼不同
+                填入公司主要聯絡電話或名片上的電話號碼
+              </p>
+            </div>
+
+            {/* 手機號碼 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="mobile-phone" className="text-sm font-medium text-gray-700">
+                  手機號碼
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={mobilePhoneVisible}
+                    onCheckedChange={setMobilePhoneVisible}
+                  />
+                </div>
+              </div>
+              <Input
+                id="mobile-phone"
+                type="tel"
+                placeholder="您的手機號碼"
+                value={mobilePhone}
+                onChange={(e) => setMobilePhone(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                預設為註冊時的手機號碼
               </p>
             </div>
 
@@ -1406,6 +1626,125 @@ LINE: ${line || ''}
                 </Card>
               )}
             </div>
+
+            {/* 新增社群媒體 */}
+            <div className="space-y-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-800">社群媒體</h3>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleAddSocialMedia}
+                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  新增社群
+                </Button>
+              </div>
+
+              {/* 顯示已新增的社群媒體 */}
+              {socialMedia.map((item) => (
+                <div key={item.id} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+                  <div className="flex items-center space-x-2 flex-1">
+                    {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-red-500" />}
+                    {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-blue-600" />}
+                    {item.platform === 'threads' && <span className="text-lg">🧵</span>}
+                    <div className="flex-1">
+                      <p className="font-medium text-sm capitalize">{item.platform}</p>
+                      <p className="text-xs text-gray-500 truncate">{item.url}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={item.visible}
+                      onCheckedChange={(visible) => handleSocialMediaVisibilityChange(item.id, visible)}
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRemoveSocialMedia(item.id)}
+                      className="text-red-500 hover:bg-red-50"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+
+              {/* 社群媒體新增表單 */}
+              {showSocialMediaForm && (
+                <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <Select value={newSocialMedia.platform} onValueChange={(value) => setNewSocialMedia(prev => ({...prev, platform: value}))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="選擇社群平台" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="youtube">YouTube</SelectItem>
+                      <SelectItem value="linkedin">LinkedIn</SelectItem>
+                      <SelectItem value="threads">Threads</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    placeholder="請輸入完整網址（如：https://...）"
+                    value={newSocialMedia.url}
+                    onChange={(e) => setNewSocialMedia(prev => ({...prev, url: e.target.value}))}
+                  />
+                  <div className="flex space-x-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleSaveSocialMedia}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      確認新增
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      onClick={() => setShowSocialMediaForm(false)}
+                    >
+                      取消
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 其他資訊 */}
+            <div className="space-y-2 pt-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="other-info" className="text-sm font-medium text-gray-700">
+                  其他資訊
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setOtherInfo('')}
+                    className="text-blue-600 border-blue-300 hover:bg-blue-50"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    新增其他
+                  </Button>
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch
+                    checked={otherInfoVisible}
+                    onCheckedChange={setOtherInfoVisible}
+                  />
+                </div>
+              </div>
+              <Textarea
+                id="other-info"
+                placeholder="可補充其他相關資訊、備註等..."
+                value={otherInfo}
+                onChange={(e) => setOtherInfo(e.target.value)}
+                rows={3}
+              />
+            </div>
           </CardContent>
         </Card>
 
@@ -1446,10 +1785,22 @@ LINE: ${line || ''}
               </div>
 
               <div className="space-y-2 text-sm">
+                {introduction && introductionVisible && (
+                  <div className="bg-white/10 p-2 rounded text-xs mb-3">
+                    <span className="mr-2">💬</span>
+                    <span>{introduction}</span>
+                  </div>
+                )}
                 {phone && phoneVisible && (
                   <div className="flex items-center">
+                    <span className="mr-2">☎️</span>
+                    <span>公司: {phone}</span>
+                  </div>
+                )}
+                {mobilePhone && mobilePhoneVisible && (
+                  <div className="flex items-center">
                     <span className="mr-2">📱</span>
-                    <span>{phone}</span>
+                    <span>手機: {mobilePhone}</span>
                   </div>
                 )}
                 {email && emailVisible && (
@@ -1509,7 +1860,24 @@ LINE: ${line || ''}
                         <span>IG: {instagram}</span>
                       </div>
                     )}
+                    {/* 新增的社群媒體 */}
+                    {socialMedia.filter(item => item.visible).map((item) => (
+                      <div key={item.id} className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                        {item.platform === 'youtube' && <span className="mr-1">📺</span>}
+                        {item.platform === 'linkedin' && <span className="mr-1">💼</span>}
+                        {item.platform === 'threads' && <span className="mr-1">🧵</span>}
+                        <span>{item.platform.toUpperCase()}</span>
+                      </div>
+                    ))}
                   </div>
+                  {otherInfo && otherInfoVisible && (
+                    <div className="mt-3 pt-3 border-t border-white/20">
+                      <div className="text-xs bg-white/10 p-2 rounded">
+                        <span className="mr-2">📝</span>
+                        <span>{otherInfo}</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -1562,6 +1930,64 @@ LINE: ${line || ''}
             </div>
           </CardContent>
         </Card>
+
+        {/* OCR 名片辨識模態框 */}
+        {showOCRCapture && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">名片辨識</h3>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowOCRCapture(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                  <div className="text-center">
+                    <Camera className="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500">將名片置於框內拍攝</p>
+                  </div>
+                </div>
+                
+                <div className="flex space-x-2">
+                  <Button
+                    onClick={() => {
+                      // 模擬 OCR 辨識結果
+                      handleOCRResult({
+                        name: '王小明',
+                        company: 'AI科技股份有限公司',
+                        jobTitle: '產品經理',
+                        phone: '02-1234-5678',
+                        email: 'wang@aitech.com',
+                        address: '台北市信義區信義路五段7號'
+                      });
+                    }}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    <Camera className="w-4 h-4 mr-2" />
+                    拍攝辨識
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowOCRCapture(false)}
+                    className="flex-1"
+                  >
+                    取消
+                  </Button>
+                </div>
+                
+                <p className="text-xs text-gray-500 text-center">
+                  請確保名片清晰可見，避免反光和陰影
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
