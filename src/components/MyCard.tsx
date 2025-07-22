@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -531,6 +531,32 @@ LINE: ${cardInfo.line || ''}
                     </div>
                   )}
                 </div>
+
+                {/* 社群資訊 */}
+                {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
+                  <div className="mt-4 pt-4 border-t border-green-300/50">
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      {cardData.line && cardData.lineVisible !== false && (
+                        <button
+                          onClick={() => handleLineClick(cardData.line)}
+                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                        >
+                          <MessageCircle className="w-5 h-5 text-white" />
+                        </button>
+                      )}
+                      {cardData.facebook && cardData.facebookVisible !== false && (
+                        <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                          <Facebook className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                      {cardData.instagram && cardData.instagramVisible !== false && (
+                        <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                          <Instagram className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
 
               </div>
               
