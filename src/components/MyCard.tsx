@@ -27,6 +27,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [showPublicSettings, setShowPublicSettings] = useState(false);
   const [publicSettings, setPublicSettings] = useState({
     isPublicProfile: false,
+    allowDirectContact: false,
     receiveNotifications: true
   });
   const [isNewUser, setIsNewUser] = useState(false);
@@ -243,6 +244,7 @@ LINE: ${cardInfo.line || ''}
     setCurrentPoints(0);
     setPublicSettings({
       isPublicProfile: false,
+      allowDirectContact: false,
       receiveNotifications: true
     });
     toast({
@@ -615,18 +617,27 @@ LINE: ${cardInfo.line || ''}
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">公開電子名片</Label>
                       <p className="text-xs text-gray-600">
-                        開啟後，其他人可以在智能推薦中找到您的名片
+                        您的名片將可被其他用戶在智能推薦中搜尋與發現
                       </p>
                     </div>
                     <Switch checked={publicSettings.isPublicProfile} onCheckedChange={checked => handleSettingChange('isPublicProfile', checked)} />
                   </div>
 
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">允許直接加入</Label>
+                      <p className="text-xs text-gray-600">
+                        啟用後，其他用戶在加入您的電子名片時，將可直接將您的名片儲存至他們的名片夾。未啟用，當他人想加入您的名片時，系統將透過 LINE OA 通知，您需點選「同意」後，對方的名片夾中才會顯示您的電子名片
+                      </p>
+                    </div>
+                    <Switch checked={publicSettings.allowDirectContact} onCheckedChange={checked => handleSettingChange('allowDirectContact', checked)} />
+                  </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">接收通知</Label>
                       <p className="text-xs text-gray-600">
-                        當有用戶加入您的名片時，系統將推播通知提醒，於Aipower聊天室中彈跳用戶加入您的電子名片卡訊息通知
+                        您將收到所有與電子名片、人脈互動、活動邀請、點數變動等相關的系統通知與提醒
                       </p>
                     </div>
                     <Switch checked={publicSettings.receiveNotifications} onCheckedChange={checked => handleSettingChange('receiveNotifications', checked)} />
