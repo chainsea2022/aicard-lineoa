@@ -45,7 +45,7 @@ const menuItems: MenuItem[] = [
   { id: 'create-card', title: '註冊電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
   { id: 'my-card', title: '我的電子名片', icon: Zap, color: 'bg-gradient-to-br from-green-500 to-green-600' },
   { id: 'scanner', title: '名片識別', icon: Scan, color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
-  { id: 'customers', title: '名片人脈夾', icon: Users, color: 'bg-gradient-to-br from-orange-500 to-orange-600' },
+  { id: 'customers', title: '名片夾', icon: Users, color: 'bg-gradient-to-br from-orange-500 to-orange-600' },
   { id: 'analytics', title: '數據分析', icon: BarChart3, color: 'bg-gradient-to-br from-red-500 to-red-600' },
   { id: 'schedule', title: '行程管理', icon: Calendar, color: 'bg-gradient-to-br from-indigo-500 to-indigo-600' },
 ];
@@ -86,7 +86,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
       // 在聊天室中顯示加LINE成功訊息
       const joinMessage = {
         id: Date.now(),
-        text: `🎉 ${actualCustomerName} 已加入您的 Aipower 名片人脈圈！`,
+        text: `🎉 ${actualCustomerName} 已加入您的 Aipower 名片圈！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -101,7 +101,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
           timestamp: new Date()
         };
         
-        // 獲取當前用戶名片資料
+        // 獲取當前用戶名片資料（同步更新）
         const savedData = localStorage.getItem('aile-card-data');
         const cardData = savedData ? JSON.parse(savedData) : null;
         
@@ -180,7 +180,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
                 onClick={handleJoinAipowerNetwork}
                 className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-sm font-medium"
               >
-                加入 Aipower 名片人脈圈
+              加入 Aipower 名片圈
               </Button>
             </div>
           )}
@@ -195,8 +195,8 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
               <h3 className="text-lg font-bold text-green-800 mb-3">加LINE成功！</h3>
               <p className="text-sm text-gray-600">
                 {flowType === 'qr_scan' 
-                  ? '已成功加入 Aipower 名片人脈圈，完整電子名片已發送至您的LINE聊天室'
-                  : '已成功加入 Aipower 名片人脈圈'}
+                  ? '已成功加入 Aipower 名片圈，完整電子名片已發送至您的LINE聊天室'
+                  : '已成功加入 Aipower 名片圈'}
               </p>
             </div>
           )}
