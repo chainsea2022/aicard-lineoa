@@ -343,10 +343,15 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-green-800">發送信件</span>
                         <span className="text-sm font-medium text-green-700">１次免費，50點/次</span>
                       </div>
-                      <div className="flex justify-between items-center py-2">
+                      <div className="flex justify-between items-center py-2 border-b border-green-200">
                         <span className="text-sm text-green-800">自訂名片樣式</span>
                         <span className="text-sm font-medium text-green-700">50點</span>
                       </div>
+                    </div>
+                    <div className="mt-4">
+                      <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2">
+                        下載 Aipower APP
+                      </Button>
                     </div>
                   </div>
 
