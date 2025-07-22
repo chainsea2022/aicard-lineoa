@@ -353,7 +353,7 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-green-800">自訂名片樣式</span>
                         <div className="text-right">
                           <span className="text-sm font-medium text-green-700 block">50點</span>
-                          <button className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md mt-1 hover:bg-green-200 transition-colors">
+                          <button className="px-2 py-1 rounded-md mt-1 transition-colors text-xs bg-yellow-100 text-orange-600">
                             下載App解鎖
                           </button>
                         </div>
