@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -301,10 +301,23 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
 
             {/* 社群媒體與操作區域 */}
             <div className="p-4 bg-gray-50 border-t border-gray-200">
+              {/* 其他資訊 */}
+              {cardData?.otherInfo && cardData?.otherInfoVisible !== false && (
+                <div className="mb-4 p-3 bg-white/50 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-600 mt-0.5">📋</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 mb-1">其他資訊</p>
+                      <p className="text-xs text-gray-600">{cardData.otherInfo}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
               {/* 社群媒體符號 */}
-              {(cardData?.line || cardData?.facebook || cardData?.instagram) && (
-                <div className="flex justify-center space-x-4 mb-4">
-                  {cardData.line && (
+              {(cardData?.line || cardData?.facebook || cardData?.instagram || (cardData?.socialMedia && cardData?.socialMedia.length > 0)) && (
+                <div className="flex justify-center flex-wrap gap-3 mb-4">
+                  {cardData.line && cardData.lineVisible !== false && (
                     <a 
                       href={cardData.line} 
                       target="_blank" 
@@ -314,7 +327,7 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
                       <MessageCircle className="w-5 h-5 text-white" />
                     </a>
                   )}
-                  {cardData.facebook && (
+                  {cardData.facebook && cardData.facebookVisible !== false && (
                     <a 
                       href={cardData.facebook} 
                       target="_blank" 
@@ -324,7 +337,7 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
                       <Facebook className="w-5 h-5 text-white" />
                     </a>
                   )}
-                  {cardData.instagram && (
+                  {cardData.instagram && cardData.instagramVisible !== false && (
                     <a 
                       href={cardData.instagram} 
                       target="_blank" 
@@ -334,6 +347,27 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
                       <Instagram className="w-5 h-5 text-white" />
                     </a>
                   )}
+                  
+                  {/* 其他社群媒體 */}
+                  {cardData?.socialMedia && cardData.socialMedia.filter(item => item.visible).map((social) => (
+                    <a 
+                      key={social.id}
+                      href={social.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${
+                        social.platform === 'YouTube' ? 'bg-red-600 hover:bg-red-700' :
+                        social.platform === 'LinkedIn' ? 'bg-blue-700 hover:bg-blue-800' :
+                        social.platform === 'Threads' ? 'bg-gray-800 hover:bg-gray-900' :
+                        'bg-gray-600 hover:bg-gray-700'
+                      }`}
+                    >
+                      {social.platform === 'YouTube' && <Youtube className="w-5 h-5 text-white" />}
+                      {social.platform === 'LinkedIn' && <Linkedin className="w-5 h-5 text-white" />}
+                      {social.platform === 'Threads' && <MessageCircle className="w-5 h-5 text-white" />}
+                      {!['YouTube', 'LinkedIn', 'Threads'].includes(social.platform) && <Share2 className="w-5 h-5 text-white" />}
+                    </a>
+                  ))}
                 </div>
               )}
               
