@@ -316,13 +316,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
-      {/* Header - LINE style */}
+      {/* Header - LIFF style with back and close */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between flex-shrink-0">
-        <Button onClick={onClose} variant="ghost" size="sm">
+        <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <h2 className="font-semibold text-lg">名片夾</h2>
-        <div></div>
+        <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
+          <X className="w-5 h-5" />
+        </Button>
       </div>
 
       <div className="flex-1 flex flex-col min-h-0 relative">
