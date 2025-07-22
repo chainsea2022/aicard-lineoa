@@ -350,7 +350,7 @@ const Points: React.FC<PointsProps> = ({
                     </div>
                     <div className="mt-4">
                       <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2">
-                        下載 Aipower APP
+                        立即升級
                       </Button>
                     </div>
                   </div>
