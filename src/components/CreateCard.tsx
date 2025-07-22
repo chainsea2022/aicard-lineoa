@@ -1150,7 +1150,7 @@ LINE: ${line || ''}
           </CardHeader>
           <CardContent className="space-y-6 p-6 max-w-full overflow-hidden">
             {/* 照片上傳 */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
+            <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
               <Avatar className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
                 {photo ? (
                   <AvatarImage src={photo} alt="照片" />
