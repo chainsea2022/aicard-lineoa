@@ -447,9 +447,9 @@ const Points: React.FC<PointsProps> = ({
                     <tbody>
                       <tr>
                         <td className="border border-gray-300 p-3 font-medium">智慧人脈記錄</td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>30點/張</td>
-                        <td className="border border-gray-300 p-3 text-center">10張</td>
-                        <td className="border border-gray-300 p-3 text-center">30張</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>30點/張<br/><span className="text-gray-600">名片夾數量：200張<br/>{'>'}200張，30點/張</span></td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">10張<br/><span className="text-gray-600">名片夾數量：500張<br/>{'>'}500張，30點/張</span></td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">30張<br/><span className="text-gray-600">無上限</span></td>
                       </tr>
                       <tr className="bg-gray-50">
                         <td className="border border-gray-300 p-3 font-medium">完整數據分析</td>
