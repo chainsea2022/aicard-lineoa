@@ -254,25 +254,43 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
               
               {/* 聯絡資訊 */}
               <div className="space-y-2 text-sm">
-                {cardData?.phone && (
-                  <div className="flex items-center space-x-3">
-                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate">{cardData.phone}</span>
+                {/* 自我介紹 */}
+                {cardData?.introduction && cardData?.introductionVisible !== false && (
+                  <div className="bg-white/10 p-2 rounded text-xs mb-3">
+                    <span className="mr-2">💬</span>
+                    <span>{cardData.introduction}</span>
                   </div>
                 )}
-                {cardData?.email && (
+                
+                {/* 公司電話 */}
+                {cardData?.phone && cardData?.phoneVisible !== false && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">電話: {cardData.phone}</span>
+                  </div>
+                )}
+                
+                {/* 手機號碼 */}
+                {cardData?.mobilePhone && cardData?.mobilePhoneVisible !== false && (
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">手機: {cardData.mobilePhone}</span>
+                  </div>
+                )}
+                
+                {cardData?.email && cardData?.emailVisible !== false && (
                   <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{cardData.email}</span>
                   </div>
                 )}
-                {cardData?.website && (
+                {cardData?.website && cardData?.websiteVisible !== false && (
                   <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{cardData.website}</span>
                   </div>
                 )}
-                {cardData?.address && (
+                {cardData?.address && cardData?.addressVisible !== false && (
                   <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{cardData.address}</span>
