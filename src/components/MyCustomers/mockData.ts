@@ -67,7 +67,7 @@ export const generateMockCustomers = (): Customer[] => {
     }
   ];
 
-  // 未註冊電子名片用戶（只有LINE ID）
+  // 未註冊電子名片用戶（只有LINE ID）- 3筆示意資料
   const unregisteredUsers: Customer[] = [
     {
       id: 4,
@@ -78,10 +78,10 @@ export const generateMockCustomers = (): Customer[] => {
       jobTitle: undefined,
       line: 'chen_meiling_2024',
       lineId: 'chen_meiling_2024',
-      photo: 'https://ui-avatars.com/api/?name=L&background=00B900&color=ffffff&size=128&rounded=true',
+      photo: 'https://ui-avatars.com/api/?name=陳&background=00B900&color=ffffff&size=128&rounded=true',
       hasCard: true,
       addedDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: '透過LINE群組認識',
+      notes: '透過LINE群組認識，已加入Aipower LINE OA',
       tags: ['潛在客戶'],
       relationshipStatus: 'collected',
       isDigitalCard: true,
@@ -98,16 +98,37 @@ export const generateMockCustomers = (): Customer[] => {
       jobTitle: undefined,
       line: 'business_lin2024',
       lineId: 'business_lin2024',
-      photo: 'https://ui-avatars.com/api/?name=L&background=00B900&color=ffffff&size=128&rounded=true',
+      photo: 'https://ui-avatars.com/api/?name=林&background=00B900&color=ffffff&size=128&rounded=true',
       hasCard: true,
       addedDate: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: '展會交換LINE',
+      notes: '展會交換LINE，已成為名片夾用戶',
       tags: ['同事'],
       relationshipStatus: 'collected',
       isDigitalCard: true,
       isRegisteredUser: false,
       isFavorite: true,
       isFollowingMe: false
+    },
+    {
+      id: 6,
+      name: 'startup_kevin888',
+      phone: '',
+      email: '',
+      company: undefined,
+      jobTitle: undefined,
+      line: 'startup_kevin888',
+      lineId: 'startup_kevin888',
+      photo: 'https://ui-avatars.com/api/?name=凱&background=00B900&color=ffffff&size=128&rounded=true',
+      hasCard: true,
+      addedDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+      notes: '創業聚會認識，已加入Aipower LINE OA但未註冊電子名片',
+      tags: ['創業夥伴'],
+      relationshipStatus: 'collected',
+      isDigitalCard: true,
+      isRegisteredUser: false,
+      isFavorite: false,
+      isFollowingMe: false,
+      isNewAddition: true
     }
   ];
 
