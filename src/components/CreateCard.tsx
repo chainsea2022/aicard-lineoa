@@ -1842,31 +1842,32 @@ LINE: ${line || ''}
                     {line && lineVisible && (
                       <button
                         onClick={() => window.open(line, '_blank')}
-                        className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
+                        className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-colors cursor-pointer"
                       >
-                        <span className="mr-1">💬</span>
-                        <span>加入 LINE</span>
+                        <span className="text-white text-sm">💬</span>
                       </button>
                     )}
                     {facebook && facebookVisible && (
-                      <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
-                        <span className="mr-1">📘</span>
-                        <span>FB: {facebook}</span>
+                      <div className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-colors cursor-pointer">
+                        <span className="text-white text-sm">📘</span>
                       </div>
                     )}
                     {instagram && instagramVisible && (
-                      <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
-                        <span className="mr-1">📷</span>
-                        <span>IG: {instagram}</span>
+                      <div className="w-8 h-8 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-colors cursor-pointer">
+                        <span className="text-white text-sm">📷</span>
                       </div>
                     )}
                     {/* 新增的社群媒體 */}
                     {socialMedia.filter(item => item.visible).map((item) => (
-                      <div key={item.id} className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
-                        {item.platform === 'youtube' && <span className="mr-1">📺</span>}
-                        {item.platform === 'linkedin' && <span className="mr-1">💼</span>}
-                        {item.platform === 'threads' && <span className="mr-1">🧵</span>}
-                        <span>{item.platform.toUpperCase()}</span>
+                      <div key={item.id} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                        item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' :
+                        item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' :
+                        item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' :
+                        'bg-gray-600 hover:bg-gray-700'
+                      }`}>
+                        {item.platform === 'youtube' && <span className="text-white text-sm">📺</span>}
+                        {item.platform === 'linkedin' && <span className="text-white text-sm">💼</span>}
+                        {item.platform === 'threads' && <span className="text-white text-sm">🧵</span>}
                       </div>
                     ))}
                   </div>
