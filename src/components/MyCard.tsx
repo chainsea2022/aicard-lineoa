@@ -11,12 +11,12 @@ import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
 import PointsWidget from './PointsWidget';
-
 interface MyCardProps {
   onClose: () => void;
 }
-
-const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
+const MyCard: React.FC<MyCardProps> = ({
+  onClose
+}) => {
   const [cardData, setCardData] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [showCreateCard, setShowCreateCard] = useState(false);
@@ -32,36 +32,36 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [isNewUser, setIsNewUser] = useState(false);
   const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
-
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   };
-
   const getGenderDisplay = (gender: string) => {
     switch (gender) {
-      case 'male': return '男性';
-      case 'female': return '女性';
-      case 'other': return '其他';
-      default: return gender;
+      case 'male':
+        return '男性';
+      case 'female':
+        return '女性';
+      case 'other':
+        return '其他';
+      default:
+        return gender;
     }
   };
-
   useEffect(() => {
     const savedCardData = localStorage.getItem('aile-card-data');
     const savedUserData = localStorage.getItem('aile-user-data');
-    
+
     // 檢查是否有註冊歷史記錄
     const registrationHistory = localStorage.getItem('aile-registration-history');
     if (registrationHistory) {
       setHasRegistrationHistory(true);
     }
-    
     if (savedCardData) {
       const cardInfo = JSON.parse(savedCardData);
       setCardData(cardInfo);
-      
+
       // 自動生成QR Code資料
       const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
@@ -74,15 +74,12 @@ ${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDispl
 ${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
 LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
-      
       setQrCodeData(qrInfo);
       console.log('生成QR Code:', qrInfo);
     }
-    
     if (savedUserData) {
       setUserData(JSON.parse(savedUserData));
     }
-
     const savedSettings = localStorage.getItem('aile-profile-settings');
     if (savedSettings) {
       setPublicSettings(JSON.parse(savedSettings));
@@ -94,7 +91,6 @@ LINE: ${cardInfo.line || ''}
       setCurrentPoints(parseInt(savedPoints));
     }
   }, []);
-
   const handleVerificationComplete = (phone: string) => {
     // 手機驗證完成後創建用戶資料
     const phoneUser = {
@@ -108,14 +104,14 @@ LINE: ${cardInfo.line || ''}
 
     // 儲存用戶登入資訊和註冊歷史
     localStorage.setItem('aile-user-data', JSON.stringify(phoneUser));
-    localStorage.setItem('aile-registration-history', JSON.stringify({ 
-      registeredAt: new Date(), 
+    localStorage.setItem('aile-registration-history', JSON.stringify({
+      registeredAt: new Date(),
       method: 'phone',
-      hasRegistered: true 
+      hasRegistered: true
     }));
     setUserData(phoneUser);
     setHasRegistrationHistory(true);
-    
+
     // 創建預設名片資料（只包含手機號碼）
     const defaultCardData = {
       companyName: '',
@@ -128,11 +124,11 @@ LINE: ${cardInfo.line || ''}
       instagram: '',
       photo: null
     };
-    
+
     // 儲存預設名片資料
     localStorage.setItem('aile-card-data', JSON.stringify(defaultCardData));
     setCardData(defaultCardData);
-    
+
     // 生成QR Code資料
     const qrInfo = `名片資訊
 姓名: ${defaultCardData.name || ''}
@@ -141,14 +137,12 @@ LINE: ${cardInfo.line || ''}
 Email: ${defaultCardData.email || ''}
 LINE: ${defaultCardData.line || ''}
 網站: ${defaultCardData.website || ''}`;
-    
     setQrCodeData(qrInfo);
-    
+
     // 標記為新用戶並關閉驗證界面
     setIsNewUser(true);
     setShowOTPVerification(false);
   };
-
   const handleLineLogin = () => {
     // 模擬 LINE 登入 - 生成模擬的 LINE 用戶資料
     const mockLineUser = {
@@ -163,11 +157,10 @@ LINE: ${defaultCardData.line || ''}
     // 儲存用戶登入資訊
     localStorage.setItem('aile-user-data', JSON.stringify(mockLineUser));
     setUserData(mockLineUser);
-    
+
     // 檢查是否有現有名片資料
     const existingCardData = localStorage.getItem('aile-card-data');
     let cardInfo;
-    
     if (existingCardData) {
       // 如果有現有名片資料，保留並更新LINE相關資訊
       cardInfo = JSON.parse(existingCardData);
@@ -192,11 +185,11 @@ LINE: ${defaultCardData.line || ''}
         photo: mockLineUser.pictureUrl
       };
     }
-    
+
     // 儲存名片資料
     localStorage.setItem('aile-card-data', JSON.stringify(cardInfo));
     setCardData(cardInfo);
-    
+
     // 生成QR Code資料
     const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
@@ -205,10 +198,8 @@ LINE: ${defaultCardData.line || ''}
 Email: ${cardInfo.email || ''}
 LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
-    
     setQrCodeData(qrInfo);
   };
-
   const handleCardCreated = () => {
     setShowCreateCard(false);
     setIsNewUser(false);
@@ -217,7 +208,7 @@ LINE: ${cardInfo.line || ''}
     if (savedCardData) {
       const cardInfo = JSON.parse(savedCardData);
       setCardData(cardInfo);
-      
+
       // 重新生成QR Code資料
       const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
@@ -230,19 +221,17 @@ ${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDispl
 ${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
 LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
-      
       setQrCodeData(qrInfo);
       console.log('生成QR Code:', qrInfo);
     }
   };
-
   const handleLogout = () => {
     // 清除當前用戶資料，但保留註冊歷史
     localStorage.removeItem('aile-card-data');
     localStorage.removeItem('aile-user-data');
     localStorage.removeItem('aile-profile-settings');
     localStorage.removeItem('aile-user-points');
-    
+
     // 重置狀態，但保留註冊歷史
     setCardData(null);
     setUserData(null);
@@ -256,42 +245,29 @@ LINE: ${cardInfo.line || ''}
       isPublicProfile: false,
       receiveNotifications: true
     });
-    
     toast({
       title: "已登出",
       description: "您已成功登出，可重新登入使用服務。"
     });
   };
-
   const generateQRCode = (data: string) => {
     const size = 8;
     const squares = [];
-    
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
         const isBlack = (i + j + data.length) % 3 === 0;
-        squares.push(
-          <div
-            key={`${i}-${j}`}
-            className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`}
-          />
-        );
+        squares.push(<div key={`${i}-${j}`} className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`} />);
       }
     }
-    
-    return (
-      <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
+    return <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
         {squares}
-      </div>
-    );
+      </div>;
   };
-
   const handleLineClick = (lineUrl: string) => {
     if (lineUrl) {
       window.open(lineUrl, '_blank');
     }
   };
-
   const downloadQRCode = () => {
     toast({
       title: "QR Code 已下載",
@@ -299,7 +275,6 @@ LINE: ${cardInfo.line || ''}
     });
     console.log('下載 QR Code');
   };
-
   const downloadCard = () => {
     toast({
       title: "名片已下載",
@@ -307,13 +282,12 @@ LINE: ${cardInfo.line || ''}
     });
     console.log('下載名片');
   };
-
   const shareCard = () => {
     if (navigator.share) {
       navigator.share({
         title: `${cardData.name}的電子名片`,
         text: `${cardData.companyName} - ${cardData.name}`,
-        url: window.location.href,
+        url: window.location.href
       });
     } else {
       navigator.clipboard.writeText(`${cardData.name}的電子名片 - ${cardData.companyName}`);
@@ -323,7 +297,6 @@ LINE: ${cardInfo.line || ''}
       });
     }
   };
-
   const handleSettingChange = (key: string, value: boolean) => {
     const newSettings = {
       ...publicSettings,
@@ -331,14 +304,12 @@ LINE: ${cardInfo.line || ''}
     };
     setPublicSettings(newSettings);
     localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
-    
+
     // 根據設定顯示相應的提示訊息
     if (key === 'receiveNotifications') {
       toast({
         title: value ? "已開啟通知" : "已關閉通知",
-        description: value
-          ? "當有用戶加入您的名片時，將在Aipower聊天室中彈跳通知提醒。"
-          : "將不再接收用戶加入名片的通知提醒。"
+        description: value ? "當有用戶加入您的名片時，將在Aipower聊天室中彈跳通知提醒。" : "將不再接收用戶加入名片的通知提醒。"
       });
     } else {
       toast({
@@ -347,52 +318,34 @@ LINE: ${cardInfo.line || ''}
       });
     }
   };
-
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
   }
-
   if (showCreateCard) {
     return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
   }
-
   if (showPoints) {
     return <Points onClose={() => setShowPoints(false)} />;
   }
-
-  return (
-    <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
+  return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
+            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="font-bold text-lg">
               {userData && cardData ? '我的電子名片' : hasRegistrationHistory ? 'LINE 快速登入' : '手機號碼註冊'}
             </h1>
           </div>
-          {userData && cardData && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleLogout}
-              className="text-white hover:bg-white/20"
-            >
+          {userData && cardData && <Button variant="ghost" size="sm" onClick={handleLogout} className="text-white hover:bg-white/20">
               <LogOut className="w-4 h-4" />
-            </Button>
-          )}
+            </Button>}
         </div>
       </div>
 
       {/* 如果沒有用戶資料或名片資料，顯示登入/註冊介面 */}
-      {(!userData || !cardData) && (
-        <div className="p-4">
+      {(!userData || !cardData) && <div className="p-4">
           {/* 歡迎區塊 */}
           <div className="text-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
@@ -409,11 +362,7 @@ LINE: ${cardInfo.line || ''}
           {/* 登入/註冊選項 */}
           <div className="space-y-3 mb-6">
             {/* 沒有註冊歷史時顯示手機註冊 */}
-            {!hasRegistrationHistory && (
-              <Card 
-                className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer"
-                onClick={() => setShowOTPVerification(true)}
-              >
+            {!hasRegistrationHistory && <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowOTPVerification(true)}>
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -425,20 +374,15 @@ LINE: ${cardInfo.line || ''}
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* 有註冊歷史時顯示 LINE 登入 */}
-            {hasRegistrationHistory && (
-              <Card 
-                className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer"
-                onClick={handleLineLogin}
-              >
+            {hasRegistrationHistory && <Card className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer" onClick={handleLineLogin}>
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
                       <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
+                        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z" />
                       </svg>
                     </div>
                     <div className="flex-1">
@@ -447,51 +391,34 @@ LINE: ${cardInfo.line || ''}
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
           </div>
 
           {/* 註冊/登入按鈕 */}
           <div className="space-y-3">
-            {!hasRegistrationHistory ? (
-              <Button 
-                onClick={() => setShowOTPVerification(true)}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg"
-              >
+            {!hasRegistrationHistory ? <Button onClick={() => setShowOTPVerification(true)} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg">
                 <Smartphone className="w-4 h-4 mr-2" />
                 開始手機註冊
-              </Button>
-            ) : (
-              <Button 
-                onClick={handleLineLogin}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg"
-              >
+              </Button> : <Button onClick={handleLineLogin} className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg">
                 <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z"/>
+                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z" />
                 </svg>
                 LINE 快速登入
-              </Button>
-            )}
+              </Button>}
           </div>
 
           {/* 有註冊歷史時，新增立即註冊連結區塊 */}
-          {hasRegistrationHistory && (
-            <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          {hasRegistrationHistory && <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
               <div className="text-center">
-                <Button
-                  onClick={() => {
-                    // 清除註冊歷史，讓用戶回到首次註冊流程
-                    setHasRegistrationHistory(false);
-                  }}
-                  variant="outline"
-                  className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-                >
+                <Button onClick={() => {
+            // 清除註冊歷史，讓用戶回到首次註冊流程
+            setHasRegistrationHistory(false);
+          }} variant="outline" className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
                   <Smartphone className="w-4 h-4 mr-2" />
                   立即註冊
                 </Button>
               </div>
-            </div>
-          )}
+            </div>}
 
           {/* 功能說明 */}
           <Card className="mt-6 bg-blue-50 border border-blue-200">
@@ -525,234 +452,112 @@ LINE: ${cardInfo.line || ''}
               <span className="text-blue-500 underline cursor-pointer mx-1">隱私政策</span>
             </p>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* 已登入用戶的名片管理介面 */}
-      {userData && cardData && (
-        <div className="p-6">
+      {userData && cardData && <div className="p-6">
           {/* 新用戶提示 */}
-          {isNewUser && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+          {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-700 font-medium">
                 🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
               </p>
-            </div>
-          )}
+            </div>}
 
-          {/* 名片預覽 - 使用與 Flex Message 相同的樣式 */}
-          <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm mx-auto mb-6">
-            {/* 頭部資訊 */}
-            <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-              <div className="flex items-center space-x-3">
-                {cardData.photo && (
-                  <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
-                    <img src={cardData.photo} alt="頭像" className="w-14 h-14 rounded-full object-cover" />
+          {/* 名片預覽 - 包含 QR Code */}
+          <Card className="mb-6 shadow-xl border-2 border-green-200">
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-br from-green-500 to-blue-600 p-6 text-white">
+                <div className="flex items-center space-x-4 mb-4">
+                  {cardData.photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                      <AvatarImage src={cardData.photo} alt="照片" />
+                      <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
+                        {cardData.name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>}
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold mb-1">{cardData.name && cardData.nameVisible !== false ? cardData.name : '您的姓名'}</h2>
+                    {cardData.jobTitle && cardData.jobTitleVisible !== false && <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>}
+                    {cardData.companyName && cardData.companyNameVisible !== false && <p className="text-green-100 text-lg">{cardData.companyName}</p>}
                   </div>
-                )}
-                <div className="flex-1">
-                  {cardData.companyName && cardData.companyNameVisible !== false && (
-                    <p className="text-blue-100 text-sm">{cardData.companyName}</p>
-                  )}
-                  <h3 className="text-white text-lg font-semibold mb-1">
-                    {(cardData.name && cardData.nameVisible !== false) ? cardData.name : '您的姓名'}
-                  </h3>
-                  {cardData.jobTitle && cardData.jobTitleVisible !== false && (
-                    <p className="text-blue-100 text-sm">{cardData.jobTitle}</p>
-                  )}
                 </div>
+
+                <div className="space-y-2 text-sm">
+                  {cardData.phone && cardData.phoneVisible !== false && <div className="flex items-center">
+                      <span className="mr-2">📱</span>
+                      <span>{cardData.phone}</span>
+                    </div>}
+                  {cardData.email && cardData.emailVisible !== false && <div className="flex items-center">
+                      <span className="mr-2">✉️</span>
+                      <span>{cardData.email}</span>
+                    </div>}
+                  {cardData.website && cardData.websiteVisible !== false}
+                  {cardData.address && cardData.addressVisible && <div className="flex items-center">
+                      <span className="mr-2">📍</span>
+                      <span>{cardData.address}</span>
+                    </div>}
+                  {cardData.birthday && cardData.birthdayVisible && <div className="flex items-center">
+                      <span className="mr-2">🎂</span>
+                      <span>{formatBirthdayDisplay(cardData.birthday)}</span>
+                    </div>}
+                  {cardData.gender && cardData.genderVisible && <div className="flex items-center">
+                      <span className="mr-2">👤</span>
+                      <span>{getGenderDisplay(cardData.gender)}</span>
+                    </div>}
+                </div>
+
+                {/* 社群資訊 */}
+                {(cardData.line && cardData.lineVisible !== false || cardData.facebook && cardData.facebookVisible !== false || cardData.instagram && cardData.instagramVisible !== false) && <div className="mt-4 pt-4 border-t border-green-300/50">
+                    <div className="flex flex-wrap gap-3">
+                      {cardData.line && cardData.lineVisible !== false && <button onClick={() => handleLineClick(cardData.line)} className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer">
+                          <span className="mr-1">💬</span>
+                          <span>加入 LINE</span>
+                        </button>}
+                      {cardData.facebook && cardData.facebookVisible !== false && <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                          <span className="mr-1">📘</span>
+                          <span>FB: {cardData.facebook}</span>
+                        </div>}
+                      {cardData.instagram && cardData.instagramVisible !== false && <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
+                          <span className="mr-1">📷</span>
+                          <span>IG: {cardData.instagram}</span>
+                        </div>}
+                    </div>
+                  </div>}
               </div>
-            </div>
-
-            {/* 自我介紹 */}
-            {cardData.introduction && cardData.introductionVisible !== false && (
-              <div className="px-4 pb-2">
-                <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
-                  <p className="text-sm text-gray-700 leading-relaxed">{cardData.introduction}</p>
-                </div>
-              </div>
-            )}
-
-            {/* 聯絡資訊 */}
-            <div className="px-4 pb-4 space-y-3">
-              {/* 手機 */}
-              {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">手機</p>
-                  <p className="text-sm font-medium text-gray-800">{cardData.mobilePhone}</p>
-                </div>
-              )}
-
-              {/* 公司電話 */}
-              {cardData.phone && cardData.phoneVisible !== false && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">公司電話</p>
-                  <p className="text-sm font-medium text-gray-800">{cardData.phone}</p>
-                </div>
-              )}
-
-              {/* Email */}
-              {cardData.email && cardData.emailVisible !== false && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">Email</p>
-                  <p className="text-sm font-medium text-gray-800">{cardData.email}</p>
-                </div>
-              )}
-
-              {/* 網站 */}
-              {cardData.website && cardData.websiteVisible !== false && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">網站</p>
-                  <p className="text-sm font-medium text-gray-800">{cardData.website}</p>
-                </div>
-              )}
-
-              {/* 地址 */}
-              {cardData.address && cardData.addressVisible && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">地址</p>
-                  <p className="text-sm font-medium text-gray-800">{cardData.address}</p>
-                </div>
-              )}
-
-              {/* 生日 */}
-              {cardData.birthday && cardData.birthdayVisible && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">生日</p>
-                  <p className="text-sm font-medium text-gray-800">{formatBirthdayDisplay(cardData.birthday)}</p>
-                </div>
-              )}
-
-              {/* 性別 */}
-              {cardData.gender && cardData.genderVisible && (
-                <div className="border-l-2 border-blue-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">性別</p>
-                  <p className="text-sm font-medium text-gray-800">{getGenderDisplay(cardData.gender)}</p>
-                </div>
-              )}
-
-              {/* 其他資訊 */}
-              {cardData.otherInfo && cardData.otherInfoVisible !== false && (
-                <div className="border-l-2 border-gray-200 pl-3">
-                  <p className="text-xs text-gray-500 mb-1">其他資訊</p>
-                  <p className="text-sm text-gray-600">{cardData.otherInfo}</p>
-                </div>
-              )}
-            </div>
-
-            {/* 社群媒體與操作區域 */}
-            <div className="p-4 bg-gray-50 border-t border-gray-200">
-              {/* 社群媒體符號 */}
-              {(cardData.line || cardData.facebook || cardData.instagram || (cardData.socialMedia && cardData.socialMedia.length > 0)) && (
-                <div className="flex justify-center flex-wrap gap-3 mb-4">
-                  {cardData.line && cardData.lineVisible !== false && (
-                    <a 
-                      href={cardData.line} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                    >
-                      <span className="text-white text-lg">💬</span>
-                    </a>
-                  )}
-                  {cardData.facebook && cardData.facebookVisible !== false && (
-                    <a 
-                      href={cardData.facebook} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                    >
-                      <span className="text-white text-lg">📘</span>
-                    </a>
-                  )}
-                  {cardData.instagram && cardData.instagramVisible !== false && (
-                    <a 
-                      href={cardData.instagram} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 bg-pink-500 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                    >
-                      <span className="text-white text-lg">📷</span>
-                    </a>
-                  )}
-                  
-                  {/* 其他社群媒體 */}
-                  {cardData.socialMedia && cardData.socialMedia.filter(item => item.visible).map((social) => (
-                    <a 
-                      key={social.id}
-                      href={social.url} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${
-                        social.platform === 'YouTube' ? 'bg-red-600 hover:bg-red-700' :
-                        social.platform === 'LinkedIn' ? 'bg-blue-700 hover:bg-blue-800' :
-                        social.platform === 'Threads' ? 'bg-gray-800 hover:bg-gray-900' :
-                        'bg-gray-600 hover:bg-gray-700'
-                      }`}
-                    >
-                      {social.platform === 'YouTube' && <span className="text-white text-lg">🎥</span>}
-                      {social.platform === 'LinkedIn' && <span className="text-white text-lg">💼</span>}
-                      {social.platform === 'Threads' && <span className="text-white text-lg">🧵</span>}
-                      {!['YouTube', 'LinkedIn', 'Threads'].includes(social.platform) && <span className="text-white text-lg">🔗</span>}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-          
-          {/* QR Code 區塊 */}
-          <Card className="mb-6 shadow-lg">
-            <CardContent className="p-4">
-              <Button
-                variant="ghost"
-                onClick={() => setShowQRCode(!showQRCode)}
-                className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
-              >
-                <div className="flex items-center">
-                  <QrCode className="w-4 h-4 mr-2" />
-                  <span className="font-semibold text-gray-800">我的名片 QR Code</span>
-                </div>
-                {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </Button>
               
-              {showQRCode && (
-                <div className="mt-3 text-center">
-                  <div className="flex justify-center mb-3">
-                    {generateQRCode(qrCodeData)}
+              {/* QR Code 區塊 - 移到名片內部 */}
+              <div className="p-4 bg-white border-t">
+                <Button variant="ghost" onClick={() => setShowQRCode(!showQRCode)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
+                  <div className="flex items-center">
+                    <QrCode className="w-4 h-4 mr-2" />
+                    <span className="font-semibold text-gray-800">我的名片 QR Code</span>
                   </div>
-                  <p className="text-xs text-gray-600 mb-3">
-                    掃描此QR Code即可獲得我的聯絡資訊
-                  </p>
-                  <Button
-                    onClick={downloadQRCode}
-                    variant="outline"
-                    size="sm"
-                    className="border-green-500 text-green-600 hover:bg-green-50"
-                  >
-                    <Download className="w-4 h-4 mr-1" />
-                    下載 QR Code
-                  </Button>
-                </div>
-              )}
+                  {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </Button>
+                
+                {showQRCode && <div className="mt-3 text-center">
+                    <div className="flex justify-center mb-3">
+                      {generateQRCode(qrCodeData)}
+                    </div>
+                    <p className="text-xs text-gray-600 mb-3">
+                      掃描此QR Code即可獲得我的聯絡資訊
+                    </p>
+                    <Button onClick={downloadQRCode} variant="outline" size="sm" className="border-green-500 text-green-600 hover:bg-green-50">
+                      <Download className="w-4 h-4 mr-1" />
+                      下載 QR Code
+                    </Button>
+                  </div>}
+              </div>
             </CardContent>
           </Card>
 
           {/* 操作按鈕 - 移到公開設定上方 */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <Button
-              onClick={() => setShowCreateCard(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
+            <Button onClick={() => setShowCreateCard(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
               <Edit className="w-4 h-4 mr-1" />
               編輯名片
             </Button>
 
-            <Button
-              onClick={shareCard}
-              variant="outline"
-              className="border-blue-500 text-blue-600 hover:bg-blue-50"
-            >
+            <Button onClick={shareCard} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
               <Share2 className="w-4 h-4 mr-1" />
               分享名片
             </Button>
@@ -761,11 +566,7 @@ LINE: ${cardInfo.line || ''}
           {/* 公開設定區塊 - 可折疊且預設縮合 */}
           <Card className="mb-6 shadow-lg">
             <CardContent className="p-4">
-              <Button
-                variant="ghost"
-                onClick={() => setShowPublicSettings(!showPublicSettings)}
-                className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
-              >
+              <Button variant="ghost" onClick={() => setShowPublicSettings(!showPublicSettings)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
                 <div className="flex items-center">
                   <Eye className="w-4 h-4 mr-2" />
                   <span className="font-semibold text-gray-800">公開設定</span>
@@ -773,8 +574,7 @@ LINE: ${cardInfo.line || ''}
                 {showPublicSettings ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </Button>
               
-              {showPublicSettings && (
-                <div className="mt-4 space-y-4">
+              {showPublicSettings && <div className="mt-4 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">公開電子名片</Label>
@@ -782,10 +582,7 @@ LINE: ${cardInfo.line || ''}
                         開啟後，其他人可以在智能推薦中找到您的名片
                       </p>
                     </div>
-                    <Switch
-                      checked={publicSettings.isPublicProfile}
-                      onCheckedChange={(checked) => handleSettingChange('isPublicProfile', checked)}
-                    />
+                    <Switch checked={publicSettings.isPublicProfile} onCheckedChange={checked => handleSettingChange('isPublicProfile', checked)} />
                   </div>
 
 
@@ -796,21 +593,14 @@ LINE: ${cardInfo.line || ''}
                         當有用戶加入您的名片時，系統將推播通知提醒，於Aipower聊天室中彈跳用戶加入您的電子名片卡訊息通知
                       </p>
                     </div>
-                    <Switch
-                      checked={publicSettings.receiveNotifications}
-                      onCheckedChange={(checked) => handleSettingChange('receiveNotifications', checked)}
-                    />
+                    <Switch checked={publicSettings.receiveNotifications} onCheckedChange={checked => handleSettingChange('receiveNotifications', checked)} />
                   </div>
-                </div>
-              )}
+                </div>}
             </CardContent>
           </Card>
 
           <PointsWidget onPointsClick={() => setShowPoints(true)} />
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default MyCard;
