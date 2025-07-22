@@ -389,7 +389,7 @@ const Scanner: React.FC<ScannerProps> = ({
           
           <Button onClick={simulateScan} className="w-full bg-purple-500 hover:bg-purple-600 text-white text-sm py-3 h-12 touch-manipulation">
             <Camera className="w-5 h-5 mr-2" />
-            開始掃描
+            開始辨別
           </Button>
         </div>
 
