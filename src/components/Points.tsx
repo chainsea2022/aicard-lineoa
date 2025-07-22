@@ -456,9 +456,14 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-purple-800">發送信件</span>
                         <span className="text-sm font-medium text-purple-700">15次</span>
                       </div>
-                      <div className="flex justify-between items-center py-2">
+                      <div className="flex justify-between items-start py-2">
                         <span className="text-sm text-purple-800">自訂名片樣式</span>
-                        <span className="text-sm font-medium text-purple-700">解鎖</span>
+                        <div className="text-right">
+                          <span className="text-sm font-medium text-purple-700 block">解鎖</span>
+                          <button className="px-2 py-1 rounded-md mt-1 transition-colors text-xs bg-yellow-100 text-orange-600">
+                            下載App解鎖
+                          </button>
+                        </div>
                       </div>
                     </div>
                     <div className="mt-4">
