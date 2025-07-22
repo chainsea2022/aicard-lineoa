@@ -39,9 +39,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [phone, setPhone] = useState(''); // 公司電話
   const [phoneVisible, setPhoneVisible] = useState(true);
   const [mobilePhone, setMobilePhone] = useState(''); // 手機號碼
-  const [mobilePhoneVisible, setMobilePhoneVisible] = useState(true);
+  const [mobilePhoneVisible, setMobilePhoneVisible] = useState(false); // 手機號碼預設不公開
   const [email, setEmail] = useState('');
-  const [emailVisible, setEmailVisible] = useState(true);
+  const [emailVisible, setEmailVisible] = useState(false); // Email預設不公開
   const [emailVerified, setEmailVerified] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [website, setWebsite] = useState('');
@@ -49,15 +49,15 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [address, setAddress] = useState('');
   const [addressVisible, setAddressVisible] = useState(true);
   const [introduction, setIntroduction] = useState(''); // 自我介紹
-  const [introductionVisible, setIntroductionVisible] = useState(true);
+  const [introductionVisible, setIntroductionVisible] = useState(false); // 自我介紹預設不公開
   const [birthdayVisible, setBirthdayVisible] = useState(false);
   const [genderVisible, setGenderVisible] = useState(false);
   const [line, setLine] = useState('');
-  const [lineVisible, setLineVisible] = useState(true);
+  const [lineVisible, setLineVisible] = useState(false); // LINE預設不公開
   const [facebook, setFacebook] = useState('');
-  const [facebookVisible, setFacebookVisible] = useState(true);
+  const [facebookVisible, setFacebookVisible] = useState(false); // Facebook預設不公開
   const [instagram, setInstagram] = useState('');
-  const [instagramVisible, setInstagramVisible] = useState(true);
+  const [instagramVisible, setInstagramVisible] = useState(false); // Instagram預設不公開
   const [photo, setPhoto] = useState<string | null>(null);
   const [cardPublic, setCardPublic] = useState(false);
   
@@ -1264,7 +1264,7 @@ LINE: ${line || ''}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-                  姓名
+                  姓名 <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
@@ -1287,7 +1287,7 @@ LINE: ${line || ''}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="company-name" className="text-sm font-medium text-gray-700">
-                  公司名稱
+                  公司名稱 <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
@@ -1333,7 +1333,7 @@ LINE: ${line || ''}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
-                  公司電話
+                  公司電話 <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
@@ -1359,7 +1359,7 @@ LINE: ${line || ''}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="mobile-phone" className="text-sm font-medium text-gray-700">
-                  手機號碼
+                  手機號碼 <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
@@ -1385,7 +1385,7 @@ LINE: ${line || ''}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Email
+                  Email <span className="text-red-500">*</span>
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
