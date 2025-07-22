@@ -482,27 +482,42 @@ LINE: ${cardInfo.line || ''}
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  {cardData.phone && cardData.phoneVisible !== false && <div className="flex items-center">
-                      <span className="mr-2">📱</span>
-                      <span>{cardData.phone}</span>
-                    </div>}
-                  {cardData.email && cardData.emailVisible !== false && <div className="flex items-center">
-                      <span className="mr-2">✉️</span>
-                      <span>{cardData.email}</span>
-                    </div>}
-                  {cardData.website && cardData.websiteVisible !== false}
-                  {cardData.address && cardData.addressVisible && <div className="flex items-center">
-                      <span className="mr-2">📍</span>
-                      <span>{cardData.address}</span>
-                    </div>}
-                  {cardData.birthday && cardData.birthdayVisible && <div className="flex items-center">
-                      <span className="mr-2">🎂</span>
-                      <span>{formatBirthdayDisplay(cardData.birthday)}</span>
-                    </div>}
-                  {cardData.gender && cardData.genderVisible && <div className="flex items-center">
-                      <span className="mr-2">👤</span>
-                      <span>{getGenderDisplay(cardData.gender)}</span>
-                    </div>}
+                  {cardData.phone && cardData.phoneVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.phone}</span>
+                    </div>
+                  )}
+                  {cardData.email && cardData.emailVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.email}</span>
+                    </div>
+                  )}
+                  {cardData.website && cardData.websiteVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.website}</span>
+                    </div>
+                  )}
+                  {cardData.address && cardData.addressVisible && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.address}</span>
+                    </div>
+                  )}
+                  {cardData.birthday && cardData.birthdayVisible && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{formatBirthdayDisplay(cardData.birthday)}</span>
+                    </div>
+                  )}
+                  {cardData.gender && cardData.genderVisible && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{getGenderDisplay(cardData.gender)}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* 社群資訊 */}
