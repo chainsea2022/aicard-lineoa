@@ -29,6 +29,8 @@ export interface Customer {
   isPublicProfile?: boolean;
   allowDirectContact?: boolean;
   isDigitalCard?: boolean; // true for digital cards, false for paper cards
+  isRegisteredUser?: boolean; // true for registered digital card users, false for unregistered
+  lineId?: string; // for unregistered users who only have LINE ID
 }
 
 export type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';

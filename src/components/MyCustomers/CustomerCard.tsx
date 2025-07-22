@@ -59,29 +59,88 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                     <Star className={`w-3 h-3 ${customer.isFavorite ? 'text-yellow-500 fill-current' : 'text-gray-400'}`} />
                   </button>}
                 
-                {/* 聯絡方式按鈕 - 所有電子名片都顯示 */}
+                {/* 聯絡方式按鈕 - 根據註冊狀態顯示不同按鈕 */}
                 <div className="flex items-center space-x-1 flex-shrink-0">
-                  {/* 官網按鈕 */}
-                  {customer.website && <button onClick={e => {
-                  e.stopPropagation();
-                  window.open(customer.website, '_blank');
-                }} className="p-1 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors" title="開啟官網">
-                      
-                    </button>}
-                  {/* LINE 按鈕 */}
-                  {customer.line && <button onClick={e => {
-                  e.stopPropagation();
-                  onLineClick(customer.line!);
-                }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
-                      <MessageSquare className="w-3 h-3 text-green-600" />
-                    </button>}
-                  {/* 電話按鈕 */}
-                  {customer.phone && <button onClick={e => {
-                  e.stopPropagation();
-                  onPhoneClick(customer.phone);
-                }} className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" title="撥打電話">
-                      <Phone className="w-3 h-3 text-blue-600" />
-                    </button>}
+                  {/* 已註冊電子名片用戶：顯示關注、LINE、電話 */}
+                  {customer.isDigitalCard && customer.isRegisteredUser !== false && (
+                    <>
+                      {/* 官網按鈕 */}
+                      {customer.website && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          window.open(customer.website, '_blank');
+                        }} className="p-1 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors" title="開啟官網">
+                          <Globe className="w-3 h-3 text-purple-600" />
+                        </button>
+                      )}
+                      {/* LINE 按鈕 */}
+                      {customer.line && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          onLineClick(customer.line!);
+                        }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
+                          <MessageSquare className="w-3 h-3 text-green-600" />
+                        </button>
+                      )}
+                      {/* 電話按鈕 */}
+                      {customer.phone && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          onPhoneClick(customer.phone);
+                        }} className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" title="撥打電話">
+                          <Phone className="w-3 h-3 text-blue-600" />
+                        </button>
+                      )}
+                    </>
+                  )}
+                  
+                  {/* 未註冊電子名片用戶：只顯示關注、LINE */}
+                  {customer.isDigitalCard && customer.isRegisteredUser === false && (
+                    <>
+                      {/* LINE 按鈕 - 使用 lineId 或 line */}
+                      {(customer.lineId || customer.line) && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          onLineClick(customer.lineId || customer.line!);
+                        }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
+                          <MessageSquare className="w-3 h-3 text-green-600" />
+                        </button>
+                      )}
+                    </>
+                  )}
+                  
+                  {/* 紙本名片：保持原有按鈕 */}
+                  {!customer.isDigitalCard && (
+                    <>
+                      {/* 官網按鈕 */}
+                      {customer.website && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          window.open(customer.website, '_blank');
+                        }} className="p-1 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors" title="開啟官網">
+                          <Globe className="w-3 h-3 text-purple-600" />
+                        </button>
+                      )}
+                      {/* LINE 按鈕 */}
+                      {customer.line && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          onLineClick(customer.line!);
+                        }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
+                          <MessageSquare className="w-3 h-3 text-green-600" />
+                        </button>
+                      )}
+                      {/* 電話按鈕 */}
+                      {customer.phone && (
+                        <button onClick={e => {
+                          e.stopPropagation();
+                          onPhoneClick(customer.phone);
+                        }} className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" title="撥打電話">
+                          <Phone className="w-3 h-3 text-blue-600" />
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
               
@@ -92,7 +151,20 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
             </div>
             
             <div className="text-xs text-gray-600 truncate mb-1">
-              {customer.company && customer.jobTitle ? `${customer.company} · ${customer.jobTitle}` : customer.company || customer.jobTitle || '無公司資訊'}
+              {/* 已註冊電子名片用戶：顯示公司、職稱 */}
+              {customer.isDigitalCard && customer.isRegisteredUser !== false && (
+                customer.company && customer.jobTitle ? `${customer.company} · ${customer.jobTitle}` : customer.company || customer.jobTitle || '無公司資訊'
+              )}
+              
+              {/* 未註冊電子名片用戶：顯示 LINE ID */}
+              {customer.isDigitalCard && customer.isRegisteredUser === false && customer.lineId && (
+                `LINE ID: ${customer.lineId}`
+              )}
+              
+              {/* 紙本名片：保持原有顯示 */}
+              {!customer.isDigitalCard && (
+                customer.company && customer.jobTitle ? `${customer.company} · ${customer.jobTitle}` : customer.company || customer.jobTitle || '無公司資訊'
+              )}
             </div>
             
             <div className="flex items-center justify-between">
