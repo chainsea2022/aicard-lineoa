@@ -1792,45 +1792,45 @@ LINE: ${line || ''}
                   </div>
                 )}
                 {phone && phoneVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">☎️</span>
-                    <span>公司: {phone}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{phone}</span>
                   </div>
                 )}
                 {mobilePhone && mobilePhoneVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">📱</span>
-                    <span>手機: {mobilePhone}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{mobilePhone}</span>
                   </div>
                 )}
                 {email && emailVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">✉️</span>
-                    <span>{email}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{email}</span>
                   </div>
                 )}
                 {website && websiteVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">🌐</span>
-                    <span>{website}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{website}</span>
                   </div>
                 )}
                 {address && addressVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">📍</span>
-                    <span>{address}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{address}</span>
                   </div>
                 )}
                 {birthday && birthdayVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">🎂</span>
-                    <span>{formatBirthdayDisplay(birthday)}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{formatBirthdayDisplay(birthday)}</span>
                   </div>
                 )}
                 {gender && genderVisible && (
-                  <div className="flex items-center">
-                    <span className="mr-2">👤</span>
-                    <span>{getGenderDisplay(gender)}</span>
+                  <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate">{getGenderDisplay(gender)}</span>
                   </div>
                 )}
               </div>
