@@ -375,41 +375,99 @@ const Scanner: React.FC<ScannerProps> = ({
             </div>
             
             {/* Electronic Business Card Preview */}
-            <div className="bg-white border-2 border-gray-200 rounded-lg shadow-md mb-2 overflow-hidden">
-              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-3 text-white">
-                <div className="flex items-center space-x-2 mb-2">
-                  {customerData.photo && <img src={customerData.photo} alt="照片" className="w-8 h-8 rounded-full object-cover border-2 border-white shadow-md flex-shrink-0" />}
-                  <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-bold mb-0.5 truncate">{customerData.name}</h3>
-                    <p className="text-blue-100 text-xs truncate">{customerData.company}</p>
-                    {customerData.jobTitle && <p className="text-blue-200 text-xs truncate">{customerData.jobTitle}</p>}
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden mb-2">
+              {/* 頭部資訊 */}
+              <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <div className="flex items-center space-x-3">
+                  {customerData.photo && (
+                    <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                      <img src={customerData.photo} alt="頭像" className="w-14 h-14 rounded-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    {customerData.company && (
+                      <p className="text-blue-100 text-sm">{customerData.company}</p>
+                    )}
+                    <h3 className="text-white text-lg font-semibold mb-1">
+                      {customerData.name}
+                    </h3>
+                    {customerData.jobTitle && (
+                      <p className="text-blue-100 text-sm">{customerData.jobTitle}</p>
+                    )}
                   </div>
                 </div>
-                
-                <div className="space-y-0.5 text-xs">
-                  {customerData.phone && <div className="flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                      <span className="truncate">{customerData.phone}</span>
-                    </div>}
-                  {customerData.email && <div className="flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                      <span className="truncate">{customerData.email}</span>
-                    </div>}
-                  {customerData.website && <div className="flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-white rounded-full flex-shrink-0"></span>
-                      <span className="truncate">{customerData.website}</span>
-                    </div>}
-                </div>
+              </div>
 
-                {/* Social Media Links */}
-                {(customerData.line || customerData.facebook || customerData.instagram) && <div className="mt-2 pt-2 border-t border-white/20">
-                    <p className="text-xs text-blue-100 mb-0.5">社群媒體</p>
-                    <div className="space-y-0.5 text-xs">
-                      {customerData.line && <div className="truncate">LINE: {customerData.line}</div>}
-                      {customerData.facebook && <div className="truncate">FB: {customerData.facebook}</div>}
-                      {customerData.instagram && <div className="truncate">IG: {customerData.instagram}</div>}
+              {/* 聯絡資訊 */}
+              <div className="p-4 space-y-3">
+                {/* 電話 */}
+                {customerData.phone && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-600">📱</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700">電話</p>
+                      <p className="text-sm text-gray-800">{customerData.phone}</p>
                     </div>
-                  </div>}
+                  </div>
+                )}
+
+                {/* Email */}
+                {customerData.email && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-600">✉️</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700">Email</p>
+                      <p className="text-sm text-gray-800">{customerData.email}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 網站 */}
+                {customerData.website && (
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-600">🌐</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700">網站</p>
+                      <p className="text-sm text-gray-800">{customerData.website}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 社群媒體 */}
+                {(customerData.line || customerData.facebook || customerData.instagram) && (
+                  <div>
+                    <p className="text-xs font-medium text-gray-700 mb-2">社群媒體</p>
+                    <div className="space-y-2">
+                      {customerData.line && (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-600">💬</span>
+                          <div>
+                            <p className="text-xs font-medium text-gray-700">LINE</p>
+                            <p className="text-sm text-gray-800">{customerData.line}</p>
+                          </div>
+                        </div>
+                      )}
+                      {customerData.facebook && (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-600">📘</span>
+                          <div>
+                            <p className="text-xs font-medium text-gray-700">Facebook</p>
+                            <p className="text-sm text-gray-800">{customerData.facebook}</p>
+                          </div>
+                        </div>
+                      )}
+                      {customerData.instagram && (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-gray-600">📷</span>
+                          <div>
+                            <p className="text-xs font-medium text-gray-700">Instagram</p>
+                            <p className="text-sm text-gray-800">{customerData.instagram}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
             
