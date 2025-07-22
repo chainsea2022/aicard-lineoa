@@ -637,7 +637,7 @@ LINE: ${cardInfo.line || ''}
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">接收通知</Label>
                       <p className="text-xs text-gray-600">
-                        您將收到所有與電子名片、人脈互動、活動邀請、點數變動等相關的系統通知與提醒
+                        您會收到所有關於電子名片、人脈互動、活動邀請和點數變動的系統通知
                       </p>
                     </div>
                     <Switch checked={publicSettings.receiveNotifications} onCheckedChange={checked => handleSettingChange('receiveNotifications', checked)} />
