@@ -343,7 +343,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             <div className="mt-2">
               <Input
                 type="search"
-                placeholder="搜尋聯絡人..."
+                placeholder="可搜尋公司、姓名、手機號、職稱"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full rounded-full"
