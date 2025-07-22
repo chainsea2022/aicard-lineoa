@@ -699,7 +699,10 @@ const ChatRoom = () => {
   };
 
   const handleViewFullCard = (cardData: any) => {
-    setFullCardData(cardData);
+    // 同步獲取最新的電子名片資料
+    const savedData = localStorage.getItem('aile-card-data');
+    const latestCardData = savedData ? JSON.parse(savedData) : cardData;
+    setFullCardData(latestCardData);
     setShowFullCardPopup(true);
   };
 
