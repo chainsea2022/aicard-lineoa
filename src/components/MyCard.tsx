@@ -24,7 +24,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [qrCodeData, setQrCodeData] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
-  const [showPublicSettings, setShowPublicSettings] = useState(false);
+  const [showPublicSettings, setShowPublicSettings] = useState(true);
   const [publicSettings, setPublicSettings] = useState({
     isPublicProfile: false,
     allowDirectContact: false,
