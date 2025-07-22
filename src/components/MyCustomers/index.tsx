@@ -10,6 +10,7 @@ import { CustomerDetailPage } from './CustomerDetailPage';
 import { ContactCard } from './ContactCard';
 import { ContactForm } from './ContactForm';
 import { SmartRecommendation } from './SmartRecommendation';
+import { InvitationDialog } from './InvitationDialog';
 import { Customer, RecommendedContact, CustomerRelationshipStatus } from './types';
 import { getRandomProfessionalAvatar } from './utils';
 import { generateMockCustomers } from './mockData';
@@ -60,6 +61,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [favoriteRecommendationIds, setFavoriteRecommendationIds] = useState<number[]>([]);
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Customer | null>(null);
+  const [invitationCustomer, setInvitationCustomer] = useState<Customer | null>(null);
   const [localCustomers, setLocalCustomers] = useState<Customer[]>(() => {
     const savedCustomers = localStorage.getItem('aile-customers');
     return savedCustomers ? JSON.parse(savedCustomers) : [...customers, ...generateMockCustomers()];
@@ -161,6 +163,36 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
       description: `開啟 LINE ID: ${lineId}`,
       className: "max-w-[280px] mx-auto"
     });
+  };
+
+  const handleShowInvitation = (customerId: number) => {
+    const customer = localCustomers.find(c => c.id === customerId);
+    if (customer) {
+      setInvitationCustomer(customer);
+    }
+  };
+
+  const handleSendInvitationFromDialog = () => {
+    if (invitationCustomer) {
+      toast({
+        title: "邀請已發送",
+        description: `已向 ${invitationCustomer.name} 發送電子名片邀請`,
+        className: "max-w-[280px] mx-auto"
+      });
+      setInvitationCustomer(null);
+    }
+  };
+
+  const handleShareLine = () => {
+    if (invitationCustomer) {
+      // 這裡可以實現 LINE 分享功能
+      toast({
+        title: "分享邀請",
+        description: "邀請連結已複製，可分享給 LINE 好友",
+        className: "max-w-[280px] mx-auto"
+      });
+      setInvitationCustomer(null);
+    }
   };
 
   const toggleFavoriteRecommendation = (contactId: number) => {
@@ -512,6 +544,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                         );
                         updateCustomers(updatedCustomers);
                       }}
+                      onShowInvitation={handleShowInvitation}
                     />
                   ))}
                   {filteredDigitalCards.length === 0 && (
@@ -581,6 +614,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         onClose={() => setIsContactFormOpen(false)}
         onSave={handleSaveContact}
         editingCustomer={editingContact}
+      />
+
+      {/* Invitation Dialog */}
+      <InvitationDialog
+        customer={invitationCustomer}
+        open={!!invitationCustomer}
+        onClose={() => setInvitationCustomer(null)}
+        onSendInvitation={handleSendInvitationFromDialog}
+        onShareLine={handleShareLine}
       />
     </div>
   );

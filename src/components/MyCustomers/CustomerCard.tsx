@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Bell, Star, Globe } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Bell, Star, Globe, Send } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,6 +12,7 @@ interface CustomerCardProps {
   onPhoneClick: (phoneNumber: string) => void;
   onLineClick: (lineId: string) => void;
   onToggleFavorite?: (customerId: number) => void;
+  onShowInvitation?: (customerId: number) => void;
 }
 export const CustomerCard: React.FC<CustomerCardProps> = ({
   customer,
@@ -19,7 +20,8 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   onAddFollower,
   onPhoneClick,
   onLineClick,
-  onToggleFavorite
+  onToggleFavorite,
+  onShowInvitation
 }) => {
   const statusDisplay = getRelationshipStatusDisplay(customer.relationshipStatus);
   const handleToggleFavorite = (e: React.MouseEvent) => {
@@ -31,6 +33,13 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
   const handleAddFollower = (e: React.MouseEvent) => {
     e.stopPropagation();
     onAddFollower(customer.id);
+  };
+
+  const handleShowInvitation = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onShowInvitation) {
+      onShowInvitation(customer.id);
+    }
   };
   return <Card className="mb-2 shadow-sm cursor-pointer transition-all duration-200 hover:shadow-md bg-white border border-gray-200" onClick={onClick}>
       <CardContent className="p-3">
@@ -94,9 +103,15 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                     </>
                   )}
                   
-                  {/* 未註冊電子名片用戶：只顯示關注、LINE */}
+                  {/* 未註冊電子名片用戶：顯示關注、邀請、LINE */}
                   {customer.isDigitalCard && customer.isRegisteredUser === false && (
                     <>
+                      {/* 邀請按鈕 */}
+                      {onShowInvitation && (
+                        <button onClick={handleShowInvitation} className="p-1 rounded-full bg-orange-100 hover:bg-orange-200 transition-colors" title="發送邀請">
+                          <Send className="w-3 h-3 text-orange-600" />
+                        </button>
+                      )}
                       {/* LINE 按鈕 - 使用 lineId 或 line */}
                       {(customer.lineId || customer.line) && (
                         <button onClick={e => {
