@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { CustomerCard } from './CustomerCard';
-import { ExpandedCard } from './ExpandedCard';
+import { CustomerDetailPage } from './CustomerDetailPage';
 import { ContactCard } from './ContactCard';
 import { ContactForm } from './ContactForm';
 import { SmartRecommendation } from './SmartRecommendation';
@@ -55,7 +55,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [filter, setFilter] = useState<CustomerFilter>({});
   const [activeTab, setActiveTab] = useState<'digital' | 'paper'>('digital');
   const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(false);
-  const [expandedCardId, setExpandedCardId] = useState<number | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [recommendedContacts, setRecommendedContacts] = useState<RecommendedContact[]>(mockRecommendedContacts);
   const [favoriteRecommendationIds, setFavoriteRecommendationIds] = useState<number[]>([]);
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
@@ -299,20 +299,53 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   };
 
   const handleCardClick = (customerId: number) => {
-    const isExpanding = expandedCardId !== customerId;
-    setExpandedCardId(isExpanding ? customerId : null);
-    
-    // If expanding a new addition, remove the new indicator
-    if (isExpanding) {
-      const updatedCustomers = localCustomers.map(customer => {
-        if (customer.id === customerId && customer.isNewAddition) {
-          return { ...customer, isNewAddition: false };
-        }
-        return customer;
-      });
-      updateCustomers(updatedCustomers);
+    const customer = localCustomers.find(c => c.id === customerId);
+    if (customer) {
+      setSelectedCustomer(customer);
+      
+      // If clicking on a new addition, remove the new indicator
+      if (customer.isNewAddition) {
+        const updatedCustomers = localCustomers.map(c => 
+          c.id === customerId ? { ...c, isNewAddition: false } : c
+        );
+        updateCustomers(updatedCustomers);
+      }
     }
   };
+
+  // 如果選中了客戶，顯示詳情頁面
+  if (selectedCustomer) {
+    return (
+      <CustomerDetailPage
+        customer={selectedCustomer}
+        onClose={() => setSelectedCustomer(null)}
+        onToggleFavorite={(id) => {
+          const updatedCustomers = localCustomers.map(c =>
+            c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+          );
+          updateCustomers(updatedCustomers);
+          setSelectedCustomer(prev => prev && prev.id === id ? { ...prev, isFavorite: !prev.isFavorite } : prev);
+        }}
+        onAddFollower={handleAddFollower}
+        onPhoneClick={handlePhoneClick}
+        onLineClick={handleLineClick}
+        onSendInvitation={handleSendInvitation}
+        onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
+          const updatedCustomers = localCustomers.map(c =>
+            c.id === customerId ? { ...c, ...updates } : c
+          );
+          updateCustomers(updatedCustomers);
+          setSelectedCustomer(prev => prev && prev.id === customerId ? { ...prev, ...updates } : prev);
+        }}
+        onDeleteCustomer={(id) => {
+          const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
+          updateCustomers(updatedCustomers);
+          setSelectedCustomer(null);
+        }}
+        activeSection={activeTab === 'digital' ? 'cards' : 'contacts'}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
@@ -351,7 +384,6 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 className="w-full rounded-full"
               />
             </div>
-
 
             {activeTab === 'digital' && (
               <div className="mt-3 space-y-3">
@@ -467,53 +499,20 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               <div className="flex-1 overflow-y-auto overflow-x-hidden" style={{ paddingBottom: '120px', WebkitOverflowScrolling: 'touch' }}>
                 <div className="p-3 space-y-2">
                   {filteredDigitalCards.map(customer => (
-                    <div key={customer.id} className="space-y-2">
-                      <CustomerCard
-                        customer={customer}
-                        onClick={() => handleCardClick(customer.id)}
-                        onAddFollower={handleAddFollower}
-                        onPhoneClick={handlePhoneClick}
-                        onLineClick={handleLineClick}
-                        onToggleFavorite={(id) => {
-                          const updatedCustomers = localCustomers.map(c =>
-                            c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                          );
-                          updateCustomers(updatedCustomers);
-                        }}
-                      />
-                      {expandedCardId === customer.id && (
-                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
-                          <ExpandedCard
-                            customer={customer}
-                            activeSection="cards"
-                            onToggleFavorite={(id) => {
-                              const updatedCustomers = localCustomers.map(c =>
-                                c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                              );
-                              updateCustomers(updatedCustomers);
-                            }}
-                            onAddFollower={handleAddFollower}
-                            onIgnoreFollower={() => {}}
-                            onPhoneClick={handlePhoneClick}
-                            onLineClick={handleLineClick}
-                            onSendInvitation={handleSendInvitation}
-                            onAddTag={() => {}}
-                            onRemoveTag={() => {}}
-                            onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
-                              const updatedCustomers = localCustomers.map(c =>
-                                c.id === customerId ? { ...c, ...updates } : c
-                              );
-                              updateCustomers(updatedCustomers);
-                            }}
-                            onDeleteCustomer={(id) => {
-                              const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
-                              updateCustomers(updatedCustomers);
-                            }}
-                            onCollapse={() => setExpandedCardId(null)}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    <CustomerCard
+                      key={customer.id}
+                      customer={customer}
+                      onClick={() => handleCardClick(customer.id)}
+                      onAddFollower={handleAddFollower}
+                      onPhoneClick={handlePhoneClick}
+                      onLineClick={handleLineClick}
+                      onToggleFavorite={(id) => {
+                        const updatedCustomers = localCustomers.map(c =>
+                          c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+                        );
+                        updateCustomers(updatedCustomers);
+                      }}
+                    />
                   ))}
                   {filteredDigitalCards.length === 0 && (
                     <div className="text-center py-8">
@@ -530,46 +529,13 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                 <div className="p-3 space-y-2">
                   {filteredPaperCards.length > 0 ? (
                     filteredPaperCards.map(customer => (
-                      <div key={customer.id} className="space-y-2">
-                        <ContactCard
-                          customer={customer}
-                          onClick={() => setExpandedCardId(expandedCardId === customer.id ? null : customer.id)}
-                          onSendInvitation={handleSendInvitation}
-                          onEdit={() => handleEditContact(customer)}
-                        />
-                        {expandedCardId === customer.id && (
-                          <div className="bg-gray-50 rounded-lg p-4 border border-gray-200 mx-1 shadow-sm">
-                            <ExpandedCard
-                              customer={customer}
-                              activeSection="contacts"
-                              onToggleFavorite={(id) => {
-                                const updatedCustomers = localCustomers.map(c =>
-                                  c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
-                                );
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onAddFollower={() => {}}
-                              onIgnoreFollower={() => {}}
-                              onPhoneClick={handlePhoneClick}
-                              onLineClick={handleLineClick}
-                              onSendInvitation={handleSendInvitation}
-                              onAddTag={() => {}}
-                              onRemoveTag={() => {}}
-                              onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
-                                const updatedCustomers = localCustomers.map(c =>
-                                  c.id === customerId ? { ...c, ...updates } : c
-                                );
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onDeleteCustomer={(id) => {
-                                const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
-                                updateCustomers(updatedCustomers);
-                              }}
-                              onCollapse={() => setExpandedCardId(null)}
-                            />
-                          </div>
-                        )}
-                      </div>
+                      <ContactCard
+                        key={customer.id}
+                        customer={customer}
+                        onClick={() => handleCardClick(customer.id)}
+                        onSendInvitation={handleSendInvitation}
+                        onEdit={() => handleEditContact(customer)}
+                      />
                     ))
                   ) : (
                     <div className="text-center py-8">
