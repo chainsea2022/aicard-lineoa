@@ -397,28 +397,19 @@ const Scanner: React.FC<ScannerProps> = ({
                 {/* 電話 */}
                 {customerData.phone && <div className="flex items-center space-x-2">
                     <span className="text-gray-600">📱</span>
-                    <div>
-                      
-                      <p className="text-sm text-gray-800">{customerData.phone}</p>
-                    </div>
+                    <p className="text-sm text-gray-800">{customerData.phone}</p>
                   </div>}
 
                 {/* Email */}
                 {customerData.email && <div className="flex items-center space-x-2">
                     <span className="text-gray-600">✉️</span>
-                    <div>
-                      <p className="text-xs font-medium text-gray-700">Email</p>
-                      <p className="text-sm text-gray-800">{customerData.email}</p>
-                    </div>
+                    <p className="text-sm text-gray-800">{customerData.email}</p>
                   </div>}
 
                 {/* 網站 */}
                 {customerData.website && <div className="flex items-center space-x-2">
                     <span className="text-gray-600">🌐</span>
-                    <div>
-                      <p className="text-xs font-medium text-gray-700">網站</p>
-                      <p className="text-sm text-gray-800">{customerData.website}</p>
-                    </div>
+                    <p className="text-sm text-gray-800">{customerData.website}</p>
                   </div>}
               </div>
 
