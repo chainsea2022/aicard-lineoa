@@ -1008,7 +1008,7 @@ const ChatRoom = () => {
                                       className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-7 font-medium rounded-lg"
                                     >
                                       <UserPlus className="w-3 h-3 mr-1.5" />
-                                      加入 Aipower LINE OA好友
+                                      加入名片好友
                                     </Button>
                                     {/* 儲存名片 */}
                                     <Button 
