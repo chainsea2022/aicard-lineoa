@@ -540,133 +540,233 @@ LINE: ${cardInfo.line || ''}
             </div>
           )}
 
-          {/* 名片預覽 - 包含 QR Code */}
-          <Card className="mb-6 shadow-xl border-2 border-green-200">
-            <CardContent className="p-0">
-              <div className="bg-gradient-to-br from-green-500 to-blue-600 p-6 text-white">
-                <div className="flex items-center space-x-4 mb-4">
-                  {cardData.photo && (
-                    <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
-                      <AvatarImage src={cardData.photo} alt="照片" />
-                      <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
-                        {cardData.name?.charAt(0) || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  <div className="flex-1">
-                    <h2 className="text-2xl font-bold mb-1">{(cardData.name && cardData.nameVisible !== false) ? cardData.name : '您的姓名'}</h2>
-                    {cardData.jobTitle && cardData.jobTitleVisible !== false && (
-                      <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>
-                    )}
-                    {cardData.companyName && cardData.companyNameVisible !== false && (
-                      <p className="text-green-100 text-lg">{cardData.companyName}</p>
-                    )}
+          {/* 名片預覽 - 使用與 Flex Message 相同的樣式 */}
+          <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm mx-auto mb-6">
+            {/* 頭部資訊 */}
+            <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+              <div className="flex items-center space-x-3">
+                {cardData.photo && (
+                  <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                    <img src={cardData.photo} alt="頭像" className="w-14 h-14 rounded-full object-cover" />
                   </div>
+                )}
+                <div className="flex-1">
+                  {cardData.companyName && cardData.companyNameVisible !== false && (
+                    <p className="text-blue-100 text-sm">{cardData.companyName}</p>
+                  )}
+                  <h3 className="text-white text-lg font-semibold mb-1">
+                    {(cardData.name && cardData.nameVisible !== false) ? cardData.name : '您的姓名'}
+                  </h3>
+                  {cardData.jobTitle && cardData.jobTitleVisible !== false && (
+                    <p className="text-blue-100 text-sm">{cardData.jobTitle}</p>
+                  )}
                 </div>
+              </div>
+            </div>
 
-                <div className="space-y-2 text-sm">
+            {/* 聯絡資訊 */}
+            <div className="p-4 space-y-3">
+              {/* 電話 */}
+              {((cardData.phone && cardData.phoneVisible !== false) || (cardData.mobilePhone && cardData.mobilePhoneVisible !== false)) && (
+                <div>
+                  {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
+                    <div className="flex items-center space-x-2 mb-2">
+                      <span className="text-gray-600">📱</span>
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">手機</p>
+                        <p className="text-sm text-gray-800">{cardData.mobilePhone}</p>
+                      </div>
+                    </div>
+                  )}
                   {cardData.phone && cardData.phoneVisible !== false && (
-                    <div className="flex items-center">
-                      <span className="mr-2">📱</span>
-                      <span>{cardData.phone}</span>
-                    </div>
-                  )}
-                  {cardData.email && cardData.emailVisible !== false && (
-                    <div className="flex items-center">
-                      <span className="mr-2">✉️</span>
-                      <span>{cardData.email}</span>
-                    </div>
-                  )}
-                  {cardData.website && cardData.websiteVisible !== false && (
-                    <div className="flex items-center">
-                      <span className="mr-2">🌐</span>
-                      <span>{cardData.website}</span>
-                    </div>
-                  )}
-                  {cardData.address && cardData.addressVisible && (
-                    <div className="flex items-center">
-                      <span className="mr-2">📍</span>
-                      <span>{cardData.address}</span>
-                    </div>
-                  )}
-                  {cardData.birthday && cardData.birthdayVisible && (
-                    <div className="flex items-center">
-                      <span className="mr-2">🎂</span>
-                      <span>{formatBirthdayDisplay(cardData.birthday)}</span>
-                    </div>
-                  )}
-                  {cardData.gender && cardData.genderVisible && (
-                    <div className="flex items-center">
-                      <span className="mr-2">👤</span>
-                      <span>{getGenderDisplay(cardData.gender)}</span>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-gray-600">☎️</span>
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">公司電話</p>
+                        <p className="text-sm text-gray-800">{cardData.phone}</p>
+                      </div>
                     </div>
                   )}
                 </div>
+              )}
 
-                {/* 社群資訊 */}
-                {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
-                  <div className="mt-4 pt-4 border-t border-green-300/50">
-                    <div className="flex flex-wrap gap-3">
-                      {cardData.line && cardData.lineVisible !== false && (
-                        <button
-                          onClick={() => handleLineClick(cardData.line)}
-                          className="flex items-center text-xs bg-white/20 px-2 py-1 rounded hover:bg-white/30 transition-colors cursor-pointer"
-                        >
-                          <span className="mr-1">💬</span>
-                          <span>加入 LINE</span>
-                        </button>
-                      )}
-                      {cardData.facebook && cardData.facebookVisible !== false && (
-                        <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
-                          <span className="mr-1">📘</span>
-                          <span>FB: {cardData.facebook}</span>
-                        </div>
-                      )}
-                      {cardData.instagram && cardData.instagramVisible !== false && (
-                        <div className="flex items-center text-xs bg-white/20 px-2 py-1 rounded">
-                          <span className="mr-1">📷</span>
-                          <span>IG: {cardData.instagram}</span>
-                        </div>
-                      )}
+              {/* Email */}
+              {cardData.email && cardData.emailVisible !== false && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-600">✉️</span>
+                  <div>
+                    <p className="text-xs font-medium text-gray-700">Email</p>
+                    <p className="text-sm text-gray-800">{cardData.email}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 網站 */}
+              {cardData.website && cardData.websiteVisible !== false && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-600">🌐</span>
+                  <div>
+                    <p className="text-xs font-medium text-gray-700">網站</p>
+                    <p className="text-sm text-gray-800">{cardData.website}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 地址 */}
+              {cardData.address && cardData.addressVisible && (
+                <div className="flex items-start space-x-2">
+                  <span className="text-gray-600 mt-0.5">📍</span>
+                  <div>
+                    <p className="text-xs font-medium text-gray-700">地址</p>
+                    <p className="text-sm text-gray-800">{cardData.address}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 生日 */}
+              {cardData.birthday && cardData.birthdayVisible && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-600">🎂</span>
+                  <div>
+                    <p className="text-xs font-medium text-gray-700">生日</p>
+                    <p className="text-sm text-gray-800">{formatBirthdayDisplay(cardData.birthday)}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 性別 */}
+              {cardData.gender && cardData.genderVisible && (
+                <div className="flex items-center space-x-2">
+                  <span className="text-gray-600">👤</span>
+                  <div>
+                    <p className="text-xs font-medium text-gray-700">性別</p>
+                    <p className="text-sm text-gray-800">{getGenderDisplay(cardData.gender)}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* 自我介紹 */}
+              {cardData.introduction && cardData.introductionVisible !== false && (
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-600 mt-0.5">💬</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 mb-1">自我介紹</p>
+                      <p className="text-sm text-gray-600">{cardData.introduction}</p>
                     </div>
                   </div>
-                )}
-              </div>
-              
-              {/* QR Code 區塊 - 移到名片內部 */}
-              <div className="p-4 bg-white border-t">
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowQRCode(!showQRCode)}
-                  className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
-                >
-                  <div className="flex items-center">
-                    <QrCode className="w-4 h-4 mr-2" />
-                    <span className="font-semibold text-gray-800">我的名片 QR Code</span>
-                  </div>
-                  {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                </Button>
-                
-                {showQRCode && (
-                  <div className="mt-3 text-center">
-                    <div className="flex justify-center mb-3">
-                      {generateQRCode(qrCodeData)}
+                </div>
+              )}
+
+              {/* 其他資訊 */}
+              {cardData.otherInfo && cardData.otherInfoVisible !== false && (
+                <div className="p-3 bg-white/50 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-600 mt-0.5">📋</span>
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 mb-1">其他資訊</p>
+                      <p className="text-xs text-gray-600">{cardData.otherInfo}</p>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3">
-                      掃描此QR Code即可獲得我的聯絡資訊
-                    </p>
-                    <Button
-                      onClick={downloadQRCode}
-                      variant="outline"
-                      size="sm"
-                      className="border-green-500 text-green-600 hover:bg-green-50"
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 社群媒體與操作區域 */}
+            <div className="p-4 bg-gray-50 border-t border-gray-200">
+              {/* 社群媒體符號 */}
+              {(cardData.line || cardData.facebook || cardData.instagram || (cardData.socialMedia && cardData.socialMedia.length > 0)) && (
+                <div className="flex justify-center flex-wrap gap-3 mb-4">
+                  {cardData.line && cardData.lineVisible !== false && (
+                    <a 
+                      href={cardData.line} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
                     >
-                      <Download className="w-4 h-4 mr-1" />
-                      下載 QR Code
-                    </Button>
+                      <span className="text-white text-lg">💬</span>
+                    </a>
+                  )}
+                  {cardData.facebook && cardData.facebookVisible !== false && (
+                    <a 
+                      href={cardData.facebook} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
+                    >
+                      <span className="text-white text-lg">📘</span>
+                    </a>
+                  )}
+                  {cardData.instagram && cardData.instagramVisible !== false && (
+                    <a 
+                      href={cardData.instagram} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-pink-500 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
+                    >
+                      <span className="text-white text-lg">📷</span>
+                    </a>
+                  )}
+                  
+                  {/* 其他社群媒體 */}
+                  {cardData.socialMedia && cardData.socialMedia.filter(item => item.visible).map((social) => (
+                    <a 
+                      key={social.id}
+                      href={social.url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${
+                        social.platform === 'YouTube' ? 'bg-red-600 hover:bg-red-700' :
+                        social.platform === 'LinkedIn' ? 'bg-blue-700 hover:bg-blue-800' :
+                        social.platform === 'Threads' ? 'bg-gray-800 hover:bg-gray-900' :
+                        'bg-gray-600 hover:bg-gray-700'
+                      }`}
+                    >
+                      {social.platform === 'YouTube' && <span className="text-white text-lg">🎥</span>}
+                      {social.platform === 'LinkedIn' && <span className="text-white text-lg">💼</span>}
+                      {social.platform === 'Threads' && <span className="text-white text-lg">🧵</span>}
+                      {!['YouTube', 'LinkedIn', 'Threads'].includes(social.platform) && <span className="text-white text-lg">🔗</span>}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* QR Code 區塊 */}
+          <Card className="mb-6 shadow-lg">
+            <CardContent className="p-4">
+              <Button
+                variant="ghost"
+                onClick={() => setShowQRCode(!showQRCode)}
+                className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
+              >
+                <div className="flex items-center">
+                  <QrCode className="w-4 h-4 mr-2" />
+                  <span className="font-semibold text-gray-800">我的名片 QR Code</span>
+                </div>
+                {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+              
+              {showQRCode && (
+                <div className="mt-3 text-center">
+                  <div className="flex justify-center mb-3">
+                    {generateQRCode(qrCodeData)}
                   </div>
-                )}
-              </div>
+                  <p className="text-xs text-gray-600 mb-3">
+                    掃描此QR Code即可獲得我的聯絡資訊
+                  </p>
+                  <Button
+                    onClick={downloadQRCode}
+                    variant="outline"
+                    size="sm"
+                    className="border-green-500 text-green-600 hover:bg-green-50"
+                  >
+                    <Download className="w-4 h-4 mr-1" />
+                    下載 QR Code
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 

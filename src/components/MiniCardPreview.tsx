@@ -60,88 +60,75 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-sm bg-background rounded-2xl overflow-hidden shadow-2xl transform transition-all" style={{ maxHeight: '75vh' }}>
+      {/* 使用與 Flex Message 相同的樣式 */}
+      <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm w-full">
         {/* 關閉按鈕 */}
         <div className="flex justify-end p-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="h-8 w-8 rounded-full hover:bg-muted"
+            className="h-8 w-8 rounded-full hover:bg-gray-100"
           >
             <X className="h-4 w-4" />
           </Button>
         </div>
 
-        {/* Hero Section - 大頭照區域 */}
-        <div className="px-6 pb-4">
-          <div className="flex justify-center">
-            <Avatar className="w-24 h-24 border-4 border-background shadow-lg">
-              <AvatarImage src={cardData?.avatar} alt={cardData?.name} />
-              <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground text-xl font-semibold">
-                {cardData?.name ? cardData.name.charAt(0) : 'U'}
-              </AvatarFallback>
-            </Avatar>
+        {/* 頭部資訊 */}
+        <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white mx-4 mb-4 rounded-xl">
+          <div className="flex items-center space-x-3">
+            {cardData?.photo && (
+              <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                <img src={cardData.photo} alt="頭像" className="w-14 h-14 rounded-full object-cover" />
+              </div>
+            )}
+            <div className="flex-1">
+              {cardData?.companyName && (
+                <p className="text-blue-100 text-sm">{cardData.companyName}</p>
+              )}
+              <h3 className="text-white text-lg font-semibold mb-1">
+                {cardData?.name || '未設定姓名'}
+              </h3>
+              {cardData?.jobTitle && (
+                <p className="text-blue-100 text-sm">{cardData.jobTitle}</p>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Body Section - 基本資料區 */}
-        <CardContent className="px-6 pb-4 space-y-3">
-          {/* 公司名稱 */}
-          {cardData?.companyName && (
-            <div className="text-center">
-              <p className="text-sm font-medium text-muted-foreground truncate" title={cardData.companyName}>
-                {cardData.companyName.length > 20 ? `${cardData.companyName.substring(0, 20)}...` : cardData.companyName}
-              </p>
+        {/* 聯絡資訊 */}
+        <div className="px-4 pb-4 space-y-3">
+          {/* 電話 */}
+          {cardData?.phone && (
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-600">📱</span>
+              <div>
+                <p className="text-xs font-medium text-gray-700">電話</p>
+                <p className="text-sm text-gray-800">{cardData.phone}</p>
+              </div>
             </div>
           )}
 
-          {/* 職稱 */}
-          {cardData?.jobTitle && (
-            <div className="text-center">
-              <p className="text-base font-medium text-foreground">{cardData.jobTitle}</p>
+          {/* Email */}
+          {cardData?.email && (
+            <div className="flex items-center space-x-2">
+              <span className="text-gray-600">✉️</span>
+              <div>
+                <p className="text-xs font-medium text-gray-700">Email</p>
+                <p className="text-sm text-gray-800">{cardData.email}</p>
+              </div>
             </div>
           )}
 
-          {/* 姓名 */}
-          <div className="text-center">
-            <h3 className="text-lg font-bold text-foreground">
-              {cardData?.name || '未設定姓名'}
-            </h3>
-          </div>
-
-          {/* 聯絡資訊 */}
-          <div className="space-y-2">
-            {cardData?.phone && (
-              <a 
-                href={`tel:${cardData.phone}`}
-                className="flex items-center text-sm text-foreground hover:text-primary transition-colors"
-              >
-                <span className="w-12 text-muted-foreground">電話:</span>
-                <span className="underline">{cardData.phone}</span>
-              </a>
-            )}
-            
-            {cardData?.email && (
-              <a 
-                href={`mailto:${cardData.email}`}
-                className="flex items-center text-sm text-foreground hover:text-primary transition-colors"
-              >
-                <span className="w-12 text-muted-foreground">Email:</span>
-                <span className="truncate underline">{cardData.email}</span>
-              </a>
-            )}
-          </div>
-
-          {/* 其他按鈕 */}
+          {/* 查看更多按鈕 */}
           <Button
             onClick={onShowFullCard}
             variant="outline"
             className="w-full"
           >
-            🔘 其他
+            查看更多
           </Button>
-        </CardContent>
+        </div>
 
         {/* Footer Section - 操作按鈕區 */}
         <div className="px-6 pb-6">
@@ -176,7 +163,7 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 };
