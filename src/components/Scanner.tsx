@@ -405,7 +405,7 @@ const Scanner: React.FC<ScannerProps> = ({
                   <div className="flex items-center space-x-2">
                     <span className="text-gray-600">📱</span>
                     <div>
-                      <p className="text-xs font-medium text-gray-700">電話</p>
+                      <p className="text-xs font-medium text-gray-700">手機</p>
                       <p className="text-sm text-gray-800">{customerData.phone}</p>
                     </div>
                   </div>
@@ -432,43 +432,30 @@ const Scanner: React.FC<ScannerProps> = ({
                     </div>
                   </div>
                 )}
-
-                {/* 社群媒體 */}
-                {(customerData.line || customerData.facebook || customerData.instagram) && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-700 mb-2">社群媒體</p>
-                    <div className="space-y-2">
-                      {customerData.line && (
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-600">💬</span>
-                          <div>
-                            <p className="text-xs font-medium text-gray-700">LINE</p>
-                            <p className="text-sm text-gray-800">{customerData.line}</p>
-                          </div>
-                        </div>
-                      )}
-                      {customerData.facebook && (
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-600">📘</span>
-                          <div>
-                            <p className="text-xs font-medium text-gray-700">Facebook</p>
-                            <p className="text-sm text-gray-800">{customerData.facebook}</p>
-                          </div>
-                        </div>
-                      )}
-                      {customerData.instagram && (
-                        <div className="flex items-center space-x-2">
-                          <span className="text-gray-600">📷</span>
-                          <div>
-                            <p className="text-xs font-medium text-gray-700">Instagram</p>
-                            <p className="text-sm text-gray-800">{customerData.instagram}</p>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
+
+              {/* 社群媒體與操作區域 */}
+              {(customerData.line || customerData.facebook || customerData.instagram) && (
+                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                  <div className="flex justify-center flex-wrap gap-3">
+                    {customerData.line && (
+                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
+                        <span className="text-white text-lg">💬</span>
+                      </div>
+                    )}
+                    {customerData.facebook && (
+                      <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
+                        <span className="text-white text-lg">📘</span>
+                      </div>
+                    )}
+                    {customerData.instagram && (
+                      <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shadow-sm">
+                        <span className="text-white text-lg">📷</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
