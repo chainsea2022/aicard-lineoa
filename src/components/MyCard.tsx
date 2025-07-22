@@ -466,7 +466,7 @@ LINE: ${cardInfo.line || ''}
           {/* 名片預覽 - 包含 QR Code */}
           <Card className="mb-6 shadow-xl border-2 border-green-200">
             <CardContent className="p-0">
-              <div className="bg-gradient-to-br from-green-500 to-blue-600 p-6 text-white">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
                 <div className="flex items-center space-x-4 mb-4">
                   {cardData.photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
                       <AvatarImage src={cardData.photo} alt="照片" />
