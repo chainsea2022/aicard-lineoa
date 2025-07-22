@@ -385,6 +385,10 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm font-medium text-blue-700">10張</span>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-blue-200">
+                        <span className="text-sm text-blue-800">名片夾數量</span>
+                        <span className="text-sm font-medium text-blue-700 text-right">500張<br />{'>'}500張，30點/張</span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-blue-200">
                         <span className="text-sm text-blue-800">完整數據分析</span>
                         <span className="text-sm font-medium text-blue-700">解鎖</span>
                       </div>
