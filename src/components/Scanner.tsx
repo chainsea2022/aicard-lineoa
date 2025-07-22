@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X, Plus } from 'lucide-react';
+import { ArrowLeft, Camera, CheckCircle, UserPlus, QrCode, FileText, X, Plus, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -417,13 +417,13 @@ const Scanner: React.FC<ScannerProps> = ({
               {(customerData.line || customerData.facebook || customerData.instagram) && <div className="p-4 bg-gray-50 border-t border-gray-200">
                   <div className="flex justify-center flex-wrap gap-3">
                     {customerData.line && <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-sm">
-                        <span className="text-white text-lg">💬</span>
+                        <MessageCircle className="w-5 h-5 text-white" />
                       </div>}
                     {customerData.facebook && <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-sm">
-                        <span className="text-white text-lg">📘</span>
+                        <Facebook className="w-5 h-5 text-white" />
                       </div>}
                     {customerData.instagram && <div className="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center shadow-sm">
-                        <span className="text-white text-lg">📷</span>
+                        <Instagram className="w-5 h-5 text-white" />
                       </div>}
                   </div>
                 </div>}
