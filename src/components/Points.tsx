@@ -331,7 +331,7 @@ const Points: React.FC<PointsProps> = ({
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-green-200">
                         <span className="text-sm text-green-800">名片夾數量</span>
-                        <span className="text-sm font-medium text-green-700 text-right">200張<br/>{'>'} 200張，30點/張</span>
+                        <span className="text-sm font-medium text-green-700 text-right">200張<br />{'>'} 200張，30點/張</span>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-green-200">
                         <span className="text-sm text-green-800">完整數據分析</span>
@@ -359,9 +359,7 @@ const Points: React.FC<PointsProps> = ({
                         </div>
                       </div>
                       <div className="px-2 py-1">
-                        <p className="text-xs text-green-600 text-center">
-                          📱 請下載 Aipower App 使用此功能
-                        </p>
+                        
                       </div>
                     </div>
                     <div className="mt-4">
@@ -472,9 +470,9 @@ const Points: React.FC<PointsProps> = ({
                     <tbody>
                       <tr>
                         <td className="border border-gray-300 p-3 font-medium">智慧人脈記錄</td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>30點/張<br/><span className="text-gray-600">名片夾數量：200張<br/>{'>'}200張，30點/張</span></td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">10張<br/><span className="text-gray-600">名片夾數量：500張<br/>{'>'}500張，30點/張</span></td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">30張<br/><span className="text-gray-600">無上限</span></td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />30點/張<br /><span className="text-gray-600">名片夾數量：200張<br />{'>'}200張，30點/張</span></td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">10張<br /><span className="text-gray-600">名片夾數量：500張<br />{'>'}500張，30點/張</span></td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">30張<br /><span className="text-gray-600">無上限</span></td>
                       </tr>
                       <tr className="bg-gray-50">
                         <td className="border border-gray-300 p-3 font-medium">完整數據分析</td>
@@ -483,20 +481,20 @@ const Points: React.FC<PointsProps> = ({
                         <td className="border border-gray-300 p-3 text-center">解鎖</td>
                       </tr>
                       <tr>
-                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br/>新增行程</td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>30點/次</td>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br />新增行程</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />30點/次</td>
                         <td className="border border-gray-300 p-3 text-center">10次</td>
                         <td className="border border-gray-300 p-3 text-center">20次</td>
                       </tr>
                       <tr className="bg-gray-50">
-                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br/>語音記錄</td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>50點/次</td>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br />語音記錄</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />50點/次</td>
                         <td className="border border-gray-300 p-3 text-center">5次</td>
                         <td className="border border-gray-300 p-3 text-center">15次</td>
                       </tr>
                       <tr>
-                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br/>發送信件</td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br/>50點/次</td>
+                        <td className="border border-gray-300 p-3 font-medium">行程管理：<br />發送信件</td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />50點/次</td>
                         <td className="border border-gray-300 p-3 text-center">5次</td>
                         <td className="border border-gray-300 p-3 text-center">15次</td>
                       </tr>
