@@ -16,6 +16,7 @@ interface ScannerProps {
   onClose: () => void;
 }
 interface CustomerData {
+  id?: number;
   name: string;
   phone: string;
   email: string;
@@ -31,7 +32,7 @@ const Scanner: React.FC<ScannerProps> = ({
   onClose
 }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
-  const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card'>('none');
+  const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card' | 'duplicate-detected'>('none');
   const [scanCount, setScanCount] = useState(() => {
     // Get scan count from localStorage to persist across visits
     return parseInt(localStorage.getItem('scanner-scan-count') || '0');
@@ -46,6 +47,11 @@ const Scanner: React.FC<ScannerProps> = ({
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [invitationUrl, setInvitationUrl] = useState('');
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
+  const [duplicateData, setDuplicateData] = useState<{
+    existing: CustomerData;
+    updated: CustomerData;
+    changes: Array<{ field: string; oldValue: string; newValue: string; label: string }>;
+  } | null>(null);
   useEffect(() => {
     // Initialize LIFF
     const initializeLiff = async () => {
@@ -66,15 +72,15 @@ const Scanner: React.FC<ScannerProps> = ({
     initializeLiff();
   }, []);
   const simulateScan = () => {
-    // Alternate between digital card and paper card based on persistent count
+    const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
     const newScanCount = scanCount + 1;
     setScanCount(newScanCount);
-    // Save to localStorage for persistence
     localStorage.setItem('scanner-scan-count', newScanCount.toString());
-    if (newScanCount % 2 === 1) {
-      // Odd count - Digital card (Aipower card)
-      setScanResult('aipower-card');
-      setCustomerData({
+    
+    // 模擬掃描不同類型的名片
+    if (newScanCount % 3 === 1) {
+      // 第1次：電子名片
+      const scannedData = {
         name: '張小明',
         phone: '0912-345-678',
         email: 'zhang@example.com',
@@ -85,9 +91,41 @@ const Scanner: React.FC<ScannerProps> = ({
         facebook: 'ABC.Tech.Official',
         instagram: 'abc_tech_official',
         photo: '/placeholder.svg'
-      });
-    } else {
-      // Even count - Paper card
+      };
+      
+      // 檢查是否為重複掃描
+      const existingCustomer = customers.find(c => c.name === scannedData.name && c.company === scannedData.company);
+      if (existingCustomer && newScanCount > 3) {
+        // 模擬資料變動 - 職稱從業務經理變為業務總監
+        const updatedData = {
+          ...scannedData,
+          jobTitle: '業務總監'
+        };
+        
+        const changes = [];
+        if (existingCustomer.jobTitle !== updatedData.jobTitle) {
+          changes.push({
+            field: 'jobTitle',
+            oldValue: existingCustomer.jobTitle,
+            newValue: updatedData.jobTitle,
+            label: '職稱'
+          });
+        }
+        
+        setDuplicateData({
+          existing: existingCustomer,
+          updated: updatedData,
+          changes
+        });
+        setScanResult('duplicate-detected');
+        setCustomerData(updatedData);
+        return;
+      }
+      
+      setScanResult('aipower-card');
+      setCustomerData(scannedData);
+    } else if (newScanCount % 3 === 2) {
+      // 第2次：紙本名片
       setScanResult('paper-card');
       setCustomerData({
         name: '李大華',
@@ -97,6 +135,64 @@ const Scanner: React.FC<ScannerProps> = ({
         jobTitle: '行銷總監'
       });
       setInvitationUrl(generateInvitationUrl());
+    } else {
+      // 第3次：重複掃描模擬 - 手動觸發重複偵測
+      const scannedData = {
+        name: '王美玲',
+        phone: '0934-567-890',
+        email: 'wang@tech.com',
+        company: '未來科技',
+        jobTitle: '專案經理'
+      };
+      
+      // 檢查是否已存在
+      const existingCustomer = customers.find(c => c.name === scannedData.name);
+      if (existingCustomer) {
+        // 模擬職稱變動
+        const updatedData = {
+          ...scannedData,
+          jobTitle: '專案總監'
+        };
+        
+        const changes = [];
+        if (existingCustomer.jobTitle !== updatedData.jobTitle) {
+          changes.push({
+            field: 'jobTitle',
+            oldValue: existingCustomer.jobTitle,
+            newValue: updatedData.jobTitle,
+            label: '職稱'
+          });
+        }
+        
+        setDuplicateData({
+          existing: existingCustomer,
+          updated: updatedData,
+          changes
+        });
+        setScanResult('duplicate-detected');
+        setCustomerData(updatedData);
+      } else {
+        // 如果不存在，先建立一個用於後續演示
+        const newCustomer = {
+          id: Date.now(),
+          name: scannedData.name,
+          phone: scannedData.phone,
+          email: scannedData.email,
+          company: scannedData.company,
+          jobTitle: '專案經理',
+          hasCard: false,
+          addedDate: new Date().toISOString(),
+          notes: '系統建立用於演示',
+          isInvited: false,
+          invitationSent: false,
+          isDigitalCard: false
+        };
+        customers.push(newCustomer);
+        localStorage.setItem('aile-customers', JSON.stringify(customers));
+        
+        setScanResult('paper-card');
+        setCustomerData(scannedData);
+      }
     }
   };
   const generateInvitationUrl = () => {
@@ -194,6 +290,77 @@ const Scanner: React.FC<ScannerProps> = ({
         customer: newCustomer
       }
     }));
+  };
+
+  const handleDuplicateAction = (action: 'update' | 'create-new' | 'ignore') => {
+    if (!duplicateData) return;
+    
+    const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
+    const existingIndex = customers.findIndex(c => c.id === duplicateData.existing.id);
+    const currentDate = new Date().toLocaleDateString('zh-TW');
+    const changeDesc = duplicateData.changes.map(c => `${c.label}原「${c.oldValue}」變為「${c.newValue}」`).join('，');
+    
+    let noteText = '';
+    
+    if (action === 'update') {
+      // 更新現有名片
+      if (existingIndex !== -1) {
+        customers[existingIndex] = {
+          ...customers[existingIndex],
+          ...duplicateData.updated,
+          notes: `${customers[existingIndex].notes || ''}\n${currentDate}掃描${duplicateData.updated.name}名片，${changeDesc}，選擇：更新名片夾`.trim()
+        };
+        noteText = '已更新現有名片資料';
+      }
+    } else if (action === 'create-new') {
+      // 建立新版本
+      const newCustomer = {
+        id: Date.now(),
+        name: duplicateData.updated.name,
+        phone: duplicateData.updated.phone,
+        email: duplicateData.updated.email,
+        company: duplicateData.updated.company,
+        jobTitle: duplicateData.updated.jobTitle,
+        website: duplicateData.updated.website,
+        line: duplicateData.updated.line,
+        facebook: duplicateData.updated.facebook,
+        instagram: duplicateData.updated.instagram,
+        photo: duplicateData.updated.photo,
+        hasCard: true,
+        addedDate: new Date().toISOString(),
+        notes: `${currentDate}掃描${duplicateData.updated.name}名片，${changeDesc}，選擇：建立新版本`,
+        isInvited: false,
+        invitationSent: false,
+        isDigitalCard: true
+      };
+      customers.push(newCustomer);
+      noteText = '已建立新版本名片';
+    } else if (action === 'ignore') {
+      // 更新備註但不改變資料
+      if (existingIndex !== -1) {
+        customers[existingIndex].notes = `${customers[existingIndex].notes || ''}\n${currentDate}掃描${duplicateData.updated.name}名片，${changeDesc}，選擇：忽略此次變更`.trim();
+      }
+      noteText = '已忽略此次變更';
+    }
+    
+    localStorage.setItem('aile-customers', JSON.stringify(customers));
+    
+    // 顯示成功訊息
+    toast({
+      title: "處理完成！",
+      description: noteText
+    });
+    
+    // 重置狀態
+    setScanResult('none');
+    setDuplicateData(null);
+    setCustomerData({
+      name: '',
+      phone: '',
+      email: '',
+      company: '',
+      jobTitle: ''
+    });
   };
 
   // Show loading if LIFF is not ready
@@ -440,6 +607,60 @@ const Scanner: React.FC<ScannerProps> = ({
               儲存到我的電子名片夾
             </Button>
           </div>}
+
+        {/* Duplicate Detection Results */}
+        {scanResult === 'duplicate-detected' && duplicateData && (
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+            <div className="flex items-center space-x-2 mb-3">
+              <span className="text-orange-600 text-lg">⚠️</span>
+              <h3 className="font-bold text-orange-800 text-sm">系統偵測資料變動</h3>
+            </div>
+            
+            <div className="bg-white border border-orange-200 rounded-lg p-3 mb-3">
+              <p className="text-sm text-gray-700 mb-2">
+                {new Date().toLocaleDateString('zh-TW')}發現{duplicateData.updated.name}
+              </p>
+              
+              {duplicateData.changes.map((change, index) => (
+                <div key={index} className="text-sm text-gray-600 mb-1">
+                  {change.label}原「<span className="text-red-600 font-medium">{change.oldValue}</span>」變為「<span className="text-green-600 font-medium">{change.newValue}</span>」
+                </div>
+              ))}
+              
+              <p className="text-xs text-gray-500 mt-2">您可選擇：</p>
+            </div>
+            
+            <div className="space-y-2">
+              <Button 
+                onClick={() => handleDuplicateAction('update')} 
+                className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs py-2 h-9 touch-manipulation"
+              >
+                1️⃣ 更新名片夾（直接同步修改）
+              </Button>
+              
+              <Button 
+                onClick={() => handleDuplicateAction('create-new')} 
+                className="w-full bg-green-500 hover:bg-green-600 text-white text-xs py-2 h-9 touch-manipulation"
+              >
+                2️⃣ 建立新版本（保留兩筆資料）
+              </Button>
+              
+              <Button 
+                onClick={() => handleDuplicateAction('ignore')} 
+                variant="outline"
+                className="w-full text-xs py-2 h-9 touch-manipulation"
+              >
+                3️⃣ 忽略此次變更（不處理）
+              </Button>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-3">
+              <p className="text-xs text-blue-700">
+                💡 選擇處理方式後，系統會自動在備註欄位記錄此次變更歷程
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Contact Form Dialog */}
