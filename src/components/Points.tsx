@@ -353,6 +353,11 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-green-800">自訂名片樣式</span>
                         <span className="text-sm font-medium text-green-700">50點</span>
                       </div>
+                      <div className="px-2 py-1">
+                        <p className="text-xs text-green-600 text-center">
+                          📱 請下載 Aipower App 使用此功能
+                        </p>
+                      </div>
                     </div>
                     <div className="mt-4">
                       <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2">
