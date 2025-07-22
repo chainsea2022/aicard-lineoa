@@ -63,8 +63,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [editingContact, setEditingContact] = useState<Customer | null>(null);
   const [invitationCustomer, setInvitationCustomer] = useState<Customer | null>(null);
   const [localCustomers, setLocalCustomers] = useState<Customer[]>(() => {
-    const savedCustomers = localStorage.getItem('aile-customers');
-    return savedCustomers ? JSON.parse(savedCustomers) : [...customers, ...generateMockCustomers()];
+    // 清除舊的緩存資料，使用最新的模擬資料
+    localStorage.removeItem('aile-customers');
+    return [...(customers || []), ...generateMockCustomers()];
   });
 
   const [addedRecommendationsCount, setAddedRecommendationsCount] = useState<number>(() => {
