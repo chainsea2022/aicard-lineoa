@@ -349,9 +349,14 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-green-800">發送信件</span>
                         <span className="text-sm font-medium text-green-700">１次免費，50點/次</span>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-green-200">
+                      <div className="flex justify-between items-start py-2 border-b border-green-200">
                         <span className="text-sm text-green-800">自訂名片樣式</span>
-                        <span className="text-sm font-medium text-green-700">50點</span>
+                        <div className="text-right">
+                          <span className="text-sm font-medium text-green-700 block">50點</span>
+                          <button className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-md mt-1 hover:bg-green-200 transition-colors">
+                            下載App解鎖
+                          </button>
+                        </div>
                       </div>
                       <div className="px-2 py-1">
                         <p className="text-xs text-green-600 text-center">
