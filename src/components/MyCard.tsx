@@ -627,7 +627,7 @@ LINE: ${cardInfo.line || ''}
                     <div className="space-y-1">
                       <Label className="text-sm font-medium">允許直接加入</Label>
                       <p className="text-xs text-gray-600">
-                        啟用後，其他用戶在加入您的電子名片時，將可直接將您的名片儲存至他們的名片夾。未啟用，當他人想加入您的名片時，系統將透過 LINE OA 通知，您需點選「同意」後，對方的名片夾中才會顯示您的電子名片
+                        啟用後，其他用戶可以直接把您的電子名片存到他們的名片夾。未啟用時，對方必須等您同意後，才能收到您的電子名片
                       </p>
                     </div>
                     <Switch checked={publicSettings.allowDirectContact} onCheckedChange={checked => handleSettingChange('allowDirectContact', checked)} />
