@@ -77,9 +77,9 @@ const Scanner: React.FC<ScannerProps> = ({
     setScanCount(newScanCount);
     localStorage.setItem('scanner-scan-count', newScanCount.toString());
     
-    // 模擬掃描不同類型的名片
+    // 依照點擊次數輪流顯示3種情境
     if (newScanCount % 3 === 1) {
-      // 第1次：電子名片
+      // 第1種情境：辨識到電子名片
       const scannedData = {
         name: '張小明',
         phone: '0912-345-678',
@@ -93,39 +93,10 @@ const Scanner: React.FC<ScannerProps> = ({
         photo: '/placeholder.svg'
       };
       
-      // 檢查是否為重複掃描
-      const existingCustomer = customers.find(c => c.name === scannedData.name && c.company === scannedData.company);
-      if (existingCustomer && newScanCount > 3) {
-        // 模擬資料變動 - 職稱從業務經理變為業務總監
-        const updatedData = {
-          ...scannedData,
-          jobTitle: '業務總監'
-        };
-        
-        const changes = [];
-        if (existingCustomer.jobTitle !== updatedData.jobTitle) {
-          changes.push({
-            field: 'jobTitle',
-            oldValue: existingCustomer.jobTitle,
-            newValue: updatedData.jobTitle,
-            label: '職稱'
-          });
-        }
-        
-        setDuplicateData({
-          existing: existingCustomer,
-          updated: updatedData,
-          changes
-        });
-        setScanResult('duplicate-detected');
-        setCustomerData(updatedData);
-        return;
-      }
-      
       setScanResult('aipower-card');
       setCustomerData(scannedData);
     } else if (newScanCount % 3 === 2) {
-      // 第2次：紙本名片
+      // 第2種情境：辨識到紙本名片
       setScanResult('paper-card');
       setCustomerData({
         name: '李大華',
@@ -136,8 +107,9 @@ const Scanner: React.FC<ScannerProps> = ({
       });
       setInvitationUrl(generateInvitationUrl());
     } else {
-      // 第3次：重複掃描模擬 - 手動觸發重複偵測
-      const scannedData = {
+      // 第3種情境：辨識到資料異動
+      const existingData = {
+        id: 1,
         name: '王美玲',
         phone: '0934-567-890',
         email: 'wang@tech.com',
@@ -145,54 +117,25 @@ const Scanner: React.FC<ScannerProps> = ({
         jobTitle: '專案經理'
       };
       
-      // 檢查是否已存在
-      const existingCustomer = customers.find(c => c.name === scannedData.name);
-      if (existingCustomer) {
-        // 模擬職稱變動
-        const updatedData = {
-          ...scannedData,
-          jobTitle: '專案總監'
-        };
-        
-        const changes = [];
-        if (existingCustomer.jobTitle !== updatedData.jobTitle) {
-          changes.push({
-            field: 'jobTitle',
-            oldValue: existingCustomer.jobTitle,
-            newValue: updatedData.jobTitle,
-            label: '職稱'
-          });
-        }
-        
-        setDuplicateData({
-          existing: existingCustomer,
-          updated: updatedData,
-          changes
-        });
-        setScanResult('duplicate-detected');
-        setCustomerData(updatedData);
-      } else {
-        // 如果不存在，先建立一個用於後續演示
-        const newCustomer = {
-          id: Date.now(),
-          name: scannedData.name,
-          phone: scannedData.phone,
-          email: scannedData.email,
-          company: scannedData.company,
-          jobTitle: '專案經理',
-          hasCard: false,
-          addedDate: new Date().toISOString(),
-          notes: '系統建立用於演示',
-          isInvited: false,
-          invitationSent: false,
-          isDigitalCard: false
-        };
-        customers.push(newCustomer);
-        localStorage.setItem('aile-customers', JSON.stringify(customers));
-        
-        setScanResult('paper-card');
-        setCustomerData(scannedData);
-      }
+      const updatedData = {
+        ...existingData,
+        jobTitle: '專案總監'
+      };
+      
+      const changes = [{
+        field: 'jobTitle',
+        oldValue: '專案經理',
+        newValue: '專案總監',
+        label: '職稱'
+      }];
+      
+      setDuplicateData({
+        existing: existingData,
+        updated: updatedData,
+        changes
+      });
+      setScanResult('duplicate-detected');
+      setCustomerData(updatedData);
     }
   };
   const generateInvitationUrl = () => {
