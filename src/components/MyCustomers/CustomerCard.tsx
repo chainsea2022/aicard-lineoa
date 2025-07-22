@@ -106,6 +106,9 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                   {/* 未註冊電子名片用戶：顯示關注、邀請、LINE */}
                   {customer.isDigitalCard && customer.isRegisteredUser === false && (
                     <>
+                      {/* 調試信息 */}
+                      {console.log(`Customer ${customer.name}: isDigitalCard=${customer.isDigitalCard}, isRegisteredUser=${customer.isRegisteredUser}, showing invitation button`)}
+                      
                       {/* 邀請按鈕 */}
                       {onShowInvitation && (
                         <button onClick={handleShowInvitation} className="p-1 rounded-full bg-orange-100 hover:bg-orange-200 transition-colors" title="發送邀請">
