@@ -564,110 +564,78 @@ LINE: ${cardInfo.line || ''}
               </div>
             </div>
 
+            {/* 自我介紹 */}
+            {cardData.introduction && cardData.introductionVisible !== false && (
+              <div className="px-4 pb-2">
+                <div className="p-3 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg border border-blue-100">
+                  <p className="text-sm text-gray-700 leading-relaxed">{cardData.introduction}</p>
+                </div>
+              </div>
+            )}
+
             {/* 聯絡資訊 */}
-            <div className="p-4 space-y-3">
-              {/* 電話 */}
-              {((cardData.phone && cardData.phoneVisible !== false) || (cardData.mobilePhone && cardData.mobilePhoneVisible !== false)) && (
-                <div>
-                  {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="text-gray-600">📱</span>
-                      <div>
-                        <p className="text-xs font-medium text-gray-700">手機</p>
-                        <p className="text-sm text-gray-800">{cardData.mobilePhone}</p>
-                      </div>
-                    </div>
-                  )}
-                  {cardData.phone && cardData.phoneVisible !== false && (
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-600">☎️</span>
-                      <div>
-                        <p className="text-xs font-medium text-gray-700">公司電話</p>
-                        <p className="text-sm text-gray-800">{cardData.phone}</p>
-                      </div>
-                    </div>
-                  )}
+            <div className="px-4 pb-4 space-y-3">
+              {/* 手機 */}
+              {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">手機</p>
+                  <p className="text-sm font-medium text-gray-800">{cardData.mobilePhone}</p>
+                </div>
+              )}
+
+              {/* 公司電話 */}
+              {cardData.phone && cardData.phoneVisible !== false && (
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">公司電話</p>
+                  <p className="text-sm font-medium text-gray-800">{cardData.phone}</p>
                 </div>
               )}
 
               {/* Email */}
               {cardData.email && cardData.emailVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">✉️</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">Email</p>
-                    <p className="text-sm text-gray-800">{cardData.email}</p>
-                  </div>
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">Email</p>
+                  <p className="text-sm font-medium text-gray-800">{cardData.email}</p>
                 </div>
               )}
 
               {/* 網站 */}
               {cardData.website && cardData.websiteVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">🌐</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">網站</p>
-                    <p className="text-sm text-gray-800">{cardData.website}</p>
-                  </div>
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">網站</p>
+                  <p className="text-sm font-medium text-gray-800">{cardData.website}</p>
                 </div>
               )}
 
               {/* 地址 */}
               {cardData.address && cardData.addressVisible && (
-                <div className="flex items-start space-x-2">
-                  <span className="text-gray-600 mt-0.5">📍</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">地址</p>
-                    <p className="text-sm text-gray-800">{cardData.address}</p>
-                  </div>
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">地址</p>
+                  <p className="text-sm font-medium text-gray-800">{cardData.address}</p>
                 </div>
               )}
 
               {/* 生日 */}
               {cardData.birthday && cardData.birthdayVisible && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">🎂</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">生日</p>
-                    <p className="text-sm text-gray-800">{formatBirthdayDisplay(cardData.birthday)}</p>
-                  </div>
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">生日</p>
+                  <p className="text-sm font-medium text-gray-800">{formatBirthdayDisplay(cardData.birthday)}</p>
                 </div>
               )}
 
               {/* 性別 */}
               {cardData.gender && cardData.genderVisible && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">👤</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">性別</p>
-                    <p className="text-sm text-gray-800">{getGenderDisplay(cardData.gender)}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 自我介紹 */}
-              {cardData.introduction && cardData.introductionVisible !== false && (
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <div className="flex items-start space-x-2">
-                    <span className="text-gray-600 mt-0.5">💬</span>
-                    <div>
-                      <p className="text-xs font-medium text-gray-700 mb-1">自我介紹</p>
-                      <p className="text-sm text-gray-600">{cardData.introduction}</p>
-                    </div>
-                  </div>
+                <div className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">性別</p>
+                  <p className="text-sm font-medium text-gray-800">{getGenderDisplay(cardData.gender)}</p>
                 </div>
               )}
 
               {/* 其他資訊 */}
               {cardData.otherInfo && cardData.otherInfoVisible !== false && (
-                <div className="p-3 bg-white/50 rounded-lg">
-                  <div className="flex items-start space-x-2">
-                    <span className="text-gray-600 mt-0.5">📋</span>
-                    <div>
-                      <p className="text-xs font-medium text-gray-700 mb-1">其他資訊</p>
-                      <p className="text-xs text-gray-600">{cardData.otherInfo}</p>
-                    </div>
-                  </div>
+                <div className="border-l-2 border-gray-200 pl-3">
+                  <p className="text-xs text-gray-500 mb-1">其他資訊</p>
+                  <p className="text-sm text-gray-600">{cardData.otherInfo}</p>
                 </div>
               )}
             </div>
