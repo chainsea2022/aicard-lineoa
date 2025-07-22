@@ -264,7 +264,7 @@ const Scanner: React.FC<ScannerProps> = ({
           <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20 p-1.5 h-8 w-8">
             <ArrowLeft className="w-4 h-4" />
           </Button>
-          <h1 className="font-bold text-base">掃描</h1>
+          <h1 className="font-bold text-base">名片辨識</h1>
         </div>
       </div>
 
