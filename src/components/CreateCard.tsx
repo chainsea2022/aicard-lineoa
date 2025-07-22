@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon, Mail, CheckCircle, Camera, Mic, MicOff, Play, Square, Plus, Youtube, Linkedin } from 'lucide-react';
+import { ArrowLeft, Save, Upload, X, Eye, EyeOff, Info, ChevronDown, ChevronUp, Edit, QrCode, Download, Share2, Calendar as CalendarIcon, Mail, CheckCircle, Camera, Mic, MicOff, Play, Square, Plus, Youtube, Linkedin, MessageCircle, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -1838,36 +1838,36 @@ LINE: ${line || ''}
               {/* 社群資訊 */}
               {((line && lineVisible) || (facebook && facebookVisible) || (instagram && instagramVisible)) && (
                 <div className="mt-4 pt-4 border-t border-green-300/50">
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-3 justify-center">
                     {line && lineVisible && (
                       <button
                         onClick={() => window.open(line, '_blank')}
-                        className="w-8 h-8 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-colors cursor-pointer"
+                        className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
                       >
-                        <span className="text-white text-sm">💬</span>
+                        <MessageCircle className="w-5 h-5 text-white" />
                       </button>
                     )}
                     {facebook && facebookVisible && (
-                      <div className="w-8 h-8 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-colors cursor-pointer">
-                        <span className="text-white text-sm">📘</span>
+                      <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                        <Facebook className="w-5 h-5 text-white" />
                       </div>
                     )}
                     {instagram && instagramVisible && (
-                      <div className="w-8 h-8 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-colors cursor-pointer">
-                        <span className="text-white text-sm">📷</span>
+                      <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                        <Instagram className="w-5 h-5 text-white" />
                       </div>
                     )}
                     {/* 新增的社群媒體 */}
                     {socialMedia.filter(item => item.visible).map((item) => (
-                      <div key={item.id} className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                      <div key={item.id} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer ${
                         item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' :
                         item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' :
                         item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' :
                         'bg-gray-600 hover:bg-gray-700'
                       }`}>
-                        {item.platform === 'youtube' && <span className="text-white text-sm">📺</span>}
-                        {item.platform === 'linkedin' && <span className="text-white text-sm">💼</span>}
-                        {item.platform === 'threads' && <span className="text-white text-sm">🧵</span>}
+                        {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-white" />}
+                        {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-white" />}
+                        {item.platform === 'threads' && <MessageCircle className="w-5 h-5 text-white" />}
                       </div>
                     ))}
                   </div>
