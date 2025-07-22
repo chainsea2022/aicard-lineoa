@@ -63,9 +63,11 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [editingContact, setEditingContact] = useState<Customer | null>(null);
   const [invitationCustomer, setInvitationCustomer] = useState<Customer | null>(null);
   const [localCustomers, setLocalCustomers] = useState<Customer[]>(() => {
-    // 清除舊的緩存資料，使用最新的模擬資料
+    // 每次都清除舊的緩存資料，確保使用最新的模擬資料
     localStorage.removeItem('aile-customers');
-    return [...(customers || []), ...generateMockCustomers()];
+    const mockData = generateMockCustomers();
+    console.log('Mock data loaded:', mockData.filter(c => c.isRegisteredUser === false));
+    return [...(customers || []), ...mockData];
   });
 
   const [addedRecommendationsCount, setAddedRecommendationsCount] = useState<number>(() => {

@@ -139,7 +139,7 @@ export const generateMockCustomers = (): Customer[] => {
   const tags = [['朋友'], ['客戶'], ['供應商'], ['投資人'], ['顧問']];
 
   const paperCards: Customer[] = Array.from({ length: 5 }, (_, i) => ({
-    id: i + 6,
+    id: i + 10, // 改為從10開始，避免與未註冊用戶ID衝突
     name: names[i % names.length],
     phone: `09${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}`,
     email: `${names[i % names.length].toLowerCase()}@${companies[i % companies.length].toLowerCase()}.com`,
