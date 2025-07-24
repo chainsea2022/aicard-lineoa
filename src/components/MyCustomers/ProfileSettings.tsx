@@ -326,20 +326,20 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                           <p className="text-xs text-blue-600 mt-1">已發送至 {phone}</p>
                         </div>
                         
-                        <div className="flex justify-center">
+                        <div className="w-full overflow-hidden">
                           <InputOTP 
                             maxLength={6} 
                             value={phoneOTP} 
                             onChange={setPhoneOTP}
-                            className="justify-center"
+                            containerClassName="flex justify-center w-full"
                           >
-                            <InputOTPGroup className="gap-2">
-                              <InputOTPSlot index={0} className="w-12 h-12 text-lg" />
-                              <InputOTPSlot index={1} className="w-12 h-12 text-lg" />
-                              <InputOTPSlot index={2} className="w-12 h-12 text-lg" />
-                              <InputOTPSlot index={3} className="w-12 h-12 text-lg" />
-                              <InputOTPSlot index={4} className="w-12 h-12 text-lg" />
-                              <InputOTPSlot index={5} className="w-12 h-12 text-lg" />
+                            <InputOTPGroup className="flex gap-2">
+                              <InputOTPSlot index={0} className="w-10 h-10 text-base border-2" />
+                              <InputOTPSlot index={1} className="w-10 h-10 text-base border-2" />
+                              <InputOTPSlot index={2} className="w-10 h-10 text-base border-2" />
+                              <InputOTPSlot index={3} className="w-10 h-10 text-base border-2" />
+                              <InputOTPSlot index={4} className="w-10 h-10 text-base border-2" />
+                              <InputOTPSlot index={5} className="w-10 h-10 text-base border-2" />
                             </InputOTPGroup>
                           </InputOTP>
                         </div>
