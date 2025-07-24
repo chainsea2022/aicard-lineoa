@@ -524,25 +524,52 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                       <CalendarIcon className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 max-w-sm" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={birthdayDate}
-                      onSelect={handleBirthdayDateSelect}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                      captionLayout="dropdown-buttons"
-                      fromYear={1900}
-                      toYear={new Date().getFullYear()}
-                      className="pointer-events-auto p-2"
-                      formatters={{
-                        formatCaption: (date: Date) => date.getFullYear().toString(),
-                        formatMonthCaption: (date: Date) => (date.getMonth() + 1).toString(),
-                        formatYearCaption: (date: Date) => date.getFullYear().toString()
-                      }}
-                    />
+                  <PopoverContent className="w-auto p-0 shadow-xl border-0 rounded-2xl bg-white" align="end">
+                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl overflow-hidden">
+                      <Calendar
+                        mode="single"
+                        selected={birthdayDate}
+                        onSelect={handleBirthdayDateSelect}
+                        disabled={(date) =>
+                          date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                        captionLayout="dropdown-buttons"
+                        fromYear={1900}
+                        toYear={new Date().getFullYear()}
+                        className="pointer-events-auto p-4 bg-transparent border-0"
+                        classNames={{
+                          months: "space-y-4",
+                          month: "space-y-4",
+                          caption: "flex justify-center pt-1 relative items-center",
+                          caption_label: "text-lg font-semibold text-gray-800",
+                          caption_dropdowns: "flex justify-center gap-2",
+                          nav: "space-x-1 flex items-center",
+                          nav_button: "h-8 w-8 bg-white/80 hover:bg-white rounded-lg transition-colors border-0 shadow-sm",
+                          nav_button_previous: "absolute left-2",
+                          nav_button_next: "absolute right-2",
+                          table: "w-full border-collapse space-y-1",
+                          head_row: "flex",
+                          head_cell: "text-gray-600 rounded-md w-10 font-normal text-sm",
+                          row: "flex w-full mt-2",
+                          cell: "h-10 w-10 text-center text-sm relative",
+                          day: "h-10 w-10 p-0 font-normal rounded-lg hover:bg-white/70 transition-colors",
+                          day_range_end: "day-range-end",
+                          day_selected: "bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-medium",
+                          day_today: "bg-blue-100 text-blue-900 font-medium rounded-lg",
+                          day_outside: "text-gray-400 opacity-50",
+                          day_disabled: "text-gray-400 opacity-30",
+                          day_range_middle: "aria-selected:bg-blue-100 aria-selected:text-blue-900",
+                          day_hidden: "invisible",
+                          dropdown: "bg-white rounded-lg border shadow-lg px-2 py-1 text-sm font-medium min-w-[60px]",
+                        }}
+                        formatters={{
+                          formatCaption: (date: Date) => date.getFullYear().toString(),
+                          formatMonthCaption: (date: Date) => (date.getMonth() + 1).toString(),
+                          formatYearCaption: (date: Date) => date.getFullYear().toString()
+                        }}
+                      />
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
