@@ -1042,9 +1042,18 @@ LINE: ${line || ''}
             {/* 手機號碼 */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="mobile-phone" className="text-sm font-medium text-gray-700">
-                  手機號碼 <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="mobile-phone" className="text-sm font-medium text-gray-700">
+                    手機號碼 <span className="text-red-500">*</span>
+                  </Label>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    mobilePhone === registeredPhone && registeredPhone 
+                      ? 'text-green-600 bg-green-50' 
+                      : 'text-orange-600 bg-orange-50'
+                  }`}>
+                    {mobilePhone === registeredPhone && registeredPhone ? '已驗證' : '未驗證'}
+                  </span>
+                </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
                   <Switch
@@ -1068,9 +1077,18 @@ LINE: ${line || ''}
             {/* Email */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Email <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                    Email <span className="text-red-500">*</span>
+                  </Label>
+                  <span className={`text-xs px-2 py-1 rounded ${
+                    emailVerified 
+                      ? 'text-green-600 bg-green-50' 
+                      : 'text-orange-600 bg-orange-50'
+                  }`}>
+                    {emailVerified ? '已驗證' : '未驗證'}
+                  </span>
+                </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
                   <Switch
