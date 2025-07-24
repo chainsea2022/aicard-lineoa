@@ -11,6 +11,7 @@ import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
 import PointsWidget from './PointsWidget';
+import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MyCardProps {
   onClose: () => void;
 }
@@ -22,14 +23,9 @@ const MyCard: React.FC<MyCardProps> = ({
   const [showCreateCard, setShowCreateCard] = useState(false);
   const [showPoints, setShowPoints] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [qrCodeData, setQrCodeData] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
-  const [showPublicSettings, setShowPublicSettings] = useState(true);
-  const [publicSettings, setPublicSettings] = useState({
-    isPublicProfile: false,
-    allowDirectContact: false,
-    receiveNotifications: true
-  });
   const [isNewUser, setIsNewUser] = useState(false);
   const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
@@ -80,10 +76,6 @@ LINE: ${cardInfo.line || ''}
     }
     if (savedUserData) {
       setUserData(JSON.parse(savedUserData));
-    }
-    const savedSettings = localStorage.getItem('aile-profile-settings');
-    if (savedSettings) {
-      setPublicSettings(JSON.parse(savedSettings));
     }
 
     // 載入點數資訊
@@ -240,13 +232,9 @@ LINE: ${cardInfo.line || ''}
     setShowCreateCard(false);
     setShowPoints(false);
     setShowOTPVerification(false);
+    setShowProfileSettings(false);
     setIsNewUser(false);
     setCurrentPoints(0);
-    setPublicSettings({
-      isPublicProfile: false,
-      allowDirectContact: false,
-      receiveNotifications: true
-    });
     toast({
       title: "已登出",
       description: "您已成功登出，可重新登入使用服務。"
@@ -299,27 +287,6 @@ LINE: ${cardInfo.line || ''}
       });
     }
   };
-  const handleSettingChange = (key: string, value: boolean) => {
-    const newSettings = {
-      ...publicSettings,
-      [key]: value
-    };
-    setPublicSettings(newSettings);
-    localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
-
-    // 根據設定顯示相應的提示訊息
-    if (key === 'receiveNotifications') {
-      toast({
-        title: value ? "已開啟通知" : "已關閉通知",
-        description: value ? "當有用戶加入您的名片時，將在Aipower聊天室中彈跳通知提醒。" : "將不再接收用戶加入名片的通知提醒。"
-      });
-    } else {
-      toast({
-        title: "設定已儲存",
-        description: "您的電子名片設定已更新。"
-      });
-    }
-  };
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
   }
@@ -328,6 +295,9 @@ LINE: ${cardInfo.line || ''}
   }
   if (showPoints) {
     return <Points onClose={() => setShowPoints(false)} />;
+  }
+  if (showProfileSettings) {
+    return <ProfileSettings onClose={() => setShowProfileSettings(false)} />;
   }
   return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
@@ -483,7 +453,7 @@ LINE: ${cardInfo.line || ''}
               </Card>
 
               {/* 資料設定 */}
-              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowPublicSettings(!showPublicSettings)}>
+              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowProfileSettings(true)}>
                 <CardContent className="p-3 text-center">
                   <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <User className="w-4 h-4 text-green-600" />
@@ -638,50 +608,6 @@ LINE: ${cardInfo.line || ''}
             </Button>
           </div>
 
-          {/* 公開設定區塊 - 可折疊且預設縮合 */}
-          <Card className="mb-6 shadow-lg">
-            <CardContent className="p-4">
-              <Button variant="ghost" onClick={() => setShowPublicSettings(!showPublicSettings)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
-                <div className="flex items-center">
-                  <Eye className="w-4 h-4 mr-2" />
-                  <span className="font-semibold text-gray-800">公開設定</span>
-                </div>
-                {showPublicSettings ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-              </Button>
-              
-              {showPublicSettings && <div className="mt-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">公開電子名片</Label>
-                      <p className="text-xs text-gray-600">
-                        您的名片將可被其他用戶在智能推薦中搜尋與發現
-                      </p>
-                    </div>
-                    <Switch checked={publicSettings.isPublicProfile} onCheckedChange={checked => handleSettingChange('isPublicProfile', checked)} />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">允許直接加入</Label>
-                      <p className="text-xs text-gray-600">
-                        啟用後，其他用戶可以直接把您的電子名片存到他們的名片夾。未啟用時，對方必須等您同意後，才能收到您的電子名片
-                      </p>
-                    </div>
-                    <Switch checked={publicSettings.allowDirectContact} onCheckedChange={checked => handleSettingChange('allowDirectContact', checked)} />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <Label className="text-sm font-medium">接收通知</Label>
-                      <p className="text-xs text-gray-600">
-                        您會收到所有關於電子名片、人脈互動、活動邀請和點數變動的系統通知
-                      </p>
-                    </div>
-                    <Switch checked={publicSettings.receiveNotifications} onCheckedChange={checked => handleSettingChange('receiveNotifications', checked)} />
-                  </div>
-                </div>}
-            </CardContent>
-          </Card>
 
           <PointsWidget onPointsClick={() => setShowPoints(true)} />
           </div>
