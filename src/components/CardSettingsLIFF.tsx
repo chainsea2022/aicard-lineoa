@@ -44,6 +44,7 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
 
   const [activeTab, setActiveTab] = useState('basic');
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
     // 載入現有名片資料
@@ -55,6 +56,35 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   }, []);
 
   const handleSave = () => {
+    // 驗證必填欄位
+    const requiredFields = [
+      { key: 'name', label: '姓名' },
+      { key: 'phone', label: '電話號碼' },
+      { key: 'email', label: 'Email' }
+    ];
+    
+    const missingFields = requiredFields.filter(field => !cardData[field.key] || cardData[field.key].trim() === '');
+    
+    if (missingFields.length > 0) {
+      setValidationErrors(missingFields.map(field => field.key));
+      
+      toast({
+        title: "請填寫必填欄位",
+        description: `請填寫：${missingFields.map(field => field.label).join('、')}`,
+        variant: "destructive"
+      });
+      
+      // 切換到基本資料頁面顯示錯誤
+      if (activeTab !== 'basic') {
+        setActiveTab('basic');
+      }
+      
+      return;
+    }
+    
+    // 清除驗證錯誤
+    setValidationErrors([]);
+    
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
     
     // 觸發自定義事件，通知其他組件資料已更新
@@ -245,15 +275,16 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">姓名</Label>
-                  <Input
-                    id="name"
-                    value={cardData.name || ''}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    placeholder="請輸入您的姓名"
-                  />
-                </div>
+                 <div className="space-y-2">
+                   <Label htmlFor="name">姓名 *</Label>
+                   <Input
+                     id="name"
+                     value={cardData.name || ''}
+                     onChange={(e) => handleInputChange('name', e.target.value)}
+                     placeholder="請輸入您的姓名"
+                     className={validationErrors.includes('name') ? 'border-red-500 focus:border-red-500' : ''}
+                   />
+                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="jobTitle">職稱</Label>
@@ -297,16 +328,16 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="phone">電話號碼</Label>
-                  <div className="relative">
-                    <Input
-                      id="phone"
-                      value={cardData.phone || ''}
-                      onChange={(e) => handleInputChange('phone', e.target.value)}
-                      placeholder="請輸入電話號碼"
-                      className="pr-10"
-                    />
+                 <div className="space-y-2">
+                   <Label htmlFor="phone">電話號碼 *</Label>
+                   <div className="relative">
+                     <Input
+                       id="phone"
+                       value={cardData.phone || ''}
+                       onChange={(e) => handleInputChange('phone', e.target.value)}
+                       placeholder="請輸入電話號碼"
+                       className={validationErrors.includes('phone') ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}
+                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
                       {cardData.phone && (
                         checkPhoneVerification(cardData.phone) ? (
@@ -340,17 +371,17 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                   )}
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <div className="relative">
-                    <Input
-                      id="email"
-                      type="email"
-                      value={cardData.email || ''}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="請輸入Email地址"
-                      className="pr-10"
-                    />
+                 <div className="space-y-2">
+                   <Label htmlFor="email">Email *</Label>
+                   <div className="relative">
+                     <Input
+                       id="email"
+                       type="email"
+                       value={cardData.email || ''}
+                       onChange={(e) => handleInputChange('email', e.target.value)}
+                       placeholder="請輸入Email地址"
+                       className={validationErrors.includes('email') ? 'border-red-500 focus:border-red-500 pr-10' : 'pr-10'}
+                     />
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
                       {cardData.email && (
                         checkEmailVerification(cardData.email) ? (
