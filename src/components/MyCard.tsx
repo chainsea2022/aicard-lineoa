@@ -427,8 +427,7 @@ LINE: ${cardInfo.line || ''}
         </div>}
 
       {/* 已登入用戶的名片管理介面 */}
-      {userData && cardData && (
-        <div>
+      {userData && cardData && <div>
           {/* 新增功能區塊 */}
           <div className="p-4 bg-gray-50">
             <div className="grid grid-cols-3 gap-3">
@@ -438,7 +437,7 @@ LINE: ${cardInfo.line || ''}
                   <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
                     <Edit className="w-4 h-4 text-blue-600" />
                   </div>
-                  <h3 className="text-xs font-medium text-gray-800">名片設置</h3>
+                  <h3 className="text-xs font-medium text-gray-800">名片設定</h3>
                 </CardContent>
               </Card>
 
@@ -491,81 +490,54 @@ LINE: ${cardInfo.line || ''}
                 </div>
 
                 <div className="space-y-2 text-sm">
-                  {cardData.introduction && cardData.introductionVisible !== false && (
-                    <div className="bg-white/10 p-2 rounded text-xs mb-3">
+                  {cardData.introduction && cardData.introductionVisible !== false && <div className="bg-white/10 p-2 rounded text-xs mb-3">
                       <span className="mr-2">💬</span>
                       <span>{cardData.introduction}</span>
-                    </div>
-                  )}
-                  {cardData.phone && cardData.phoneVisible !== false && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.phone && cardData.phoneVisible !== false && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{cardData.phone}</span>
-                    </div>
-                  )}
-                  {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{cardData.mobilePhone}</span>
-                    </div>
-                  )}
-                  {cardData.email && cardData.emailVisible !== false && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.email && cardData.emailVisible !== false && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{cardData.email}</span>
-                    </div>
-                  )}
-                  {cardData.website && cardData.websiteVisible !== false && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.website && cardData.websiteVisible !== false && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{cardData.website}</span>
-                    </div>
-                  )}
-                  {cardData.address && cardData.addressVisible && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.address && cardData.addressVisible && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{cardData.address}</span>
-                    </div>
-                  )}
-                  {cardData.birthday && cardData.birthdayVisible && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.birthday && cardData.birthdayVisible && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{formatBirthdayDisplay(cardData.birthday)}</span>
-                    </div>
-                  )}
-                  {cardData.gender && cardData.genderVisible && (
-                    <div className="flex items-center space-x-3">
+                    </div>}
+                  {cardData.gender && cardData.genderVisible && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">{getGenderDisplay(cardData.gender)}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
 
                 {/* 社群資訊 */}
-                {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
-                  <div className="mt-4 pt-4 border-t border-green-300/50">
+                {(cardData.line && cardData.lineVisible !== false || cardData.facebook && cardData.facebookVisible !== false || cardData.instagram && cardData.instagramVisible !== false) && <div className="mt-4 pt-4 border-t border-green-300/50">
                     <div className="flex flex-wrap gap-3 justify-center">
-                      {cardData.line && cardData.lineVisible !== false && (
-                        <button
-                          onClick={() => handleLineClick(cardData.line)}
-                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                        >
+                      {cardData.line && cardData.lineVisible !== false && <button onClick={() => handleLineClick(cardData.line)} className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                           <MessageCircle className="w-5 h-5 text-white" />
-                        </button>
-                      )}
-                      {cardData.facebook && cardData.facebookVisible !== false && (
-                        <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                        </button>}
+                      {cardData.facebook && cardData.facebookVisible !== false && <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                           <Facebook className="w-5 h-5 text-white" />
-                        </div>
-                      )}
-                      {cardData.instagram && cardData.instagramVisible !== false && (
-                        <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                        </div>}
+                      {cardData.instagram && cardData.instagramVisible !== false && <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                           <Instagram className="w-5 h-5 text-white" />
-                        </div>
-                      )}
+                        </div>}
                     </div>
-                  </div>
-                )}
+                  </div>}
 
               </div>
               
@@ -611,8 +583,7 @@ LINE: ${cardInfo.line || ''}
 
           <PointsWidget onPointsClick={() => setShowPoints(true)} />
           </div>
-        </div>
-      )}
+        </div>}
     </div>;
 };
 export default MyCard;
