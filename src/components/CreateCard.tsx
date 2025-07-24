@@ -1298,9 +1298,9 @@ LINE: ${line || ''}
                     {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-red-500" />}
                     {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-blue-600" />}
                     {item.platform === 'threads' && <span className="text-lg">🧵</span>}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm capitalize">{item.platform}</p>
-                      <p className="text-xs text-gray-500 truncate">{item.url}</p>
+                      <p className="text-xs text-gray-500 truncate break-all max-w-full overflow-hidden">{item.url}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
