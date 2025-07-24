@@ -487,61 +487,43 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                 生日日期
               </Label>
               
-              <div className="flex items-center space-x-2">
-                <Input
-                  id="birthday"
-                  type="text"
-                  placeholder="輸入：19900325 或 1990/03/25"
-                  value={birthday}
-                  onChange={handleBirthdayInputChange}
-                  onBlur={() => {
-                    if (birthday && !validateBirthday(birthday)) {
-                      toast({
-                        title: "日期格式錯誤",
-                        description: "請輸入正確的日期格式，例如：1990/03/25",
-                        duration: 3000,
-                      });
+              <Popover open={showBirthdayCalendar} onOpenChange={setShowBirthdayCalendar}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-10",
+                      !birthdayDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {birthdayDate ? (
+                      format(birthdayDate, "yyyy年MM月dd日")
+                    ) : (
+                      <span>請選擇生日日期</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={birthdayDate}
+                    onSelect={handleBirthdayDateSelect}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date("1900-01-01")
                     }
-                  }}
-                  className={cn(
-                    "text-base",
-                    birthday && !validateBirthday(birthday) && birthday.length >= 8 
-                      ? "border-red-500 focus:border-red-500" 
-                      : ""
-                  )}
-                />
-                
-                <Popover open={showBirthdayCalendar} onOpenChange={setShowBirthdayCalendar}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="shrink-0 px-3 h-10"
-                    >
-                      <CalendarIcon className="h-4 w-4" />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      mode="single"
-                      selected={birthdayDate}
-                      onSelect={handleBirthdayDateSelect}
-                      disabled={(date) =>
-                        date > new Date() || date < new Date("1900-01-01")
-                      }
-                      initialFocus
-                      captionLayout="dropdown-buttons"
-                      fromYear={1900}
-                      toYear={new Date().getFullYear()}
-                      className="pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+                    initialFocus
+                    captionLayout="dropdown-buttons"
+                    fromYear={1900}
+                    toYear={new Date().getFullYear()}
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
               
-              {birthday && !validateBirthday(birthday) && birthday.length >= 8 && (
-                <p className="text-xs text-red-600">
-                  請輸入正確的日期格式，例如：1990/03/25
+              {birthdayDate && (
+                <p className="text-xs text-gray-600">
+                  已選擇：{format(birthdayDate, "yyyy年MM月dd日")}
                 </p>
               )}
             </div>
