@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Eye, EyeOff, Shield, Bell, User, Mail, CheckCircle, Calendar as CalendarIcon, Smartphone } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Shield, Bell, User, Mail, CheckCircle, Calendar as CalendarIcon, Smartphone, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -219,6 +219,14 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
             </Button>
             <h1 className="font-bold text-lg">資料設定</h1>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-white hover:bg-white/20"
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 

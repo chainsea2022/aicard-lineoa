@@ -802,16 +802,26 @@ LINE: ${line || ''}
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white p-4 shadow-lg">
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onClose}
+              className="text-white hover:bg-white/20"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="font-bold text-lg">編輯電子名片</h1>
+          </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={onClose}
             className="text-white hover:bg-white/20"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <X className="w-5 h-5" />
           </Button>
-          <h1 className="font-bold text-lg">編輯電子名片</h1>
         </div>
       </div>
 
