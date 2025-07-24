@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Eye, EyeOff, Shield, Bell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,12 +10,10 @@ interface ProfileSettingsProps {
   onClose: () => void;
 }
 
-export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => {
+const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => {
   const [settings, setSettings] = useState({
     isPublicProfile: false,
-    showPhoneNumber: true,
-    showLineId: true,
-    showEmail: true,
+    allowDirectContact: false,
     receiveNotifications: true
   });
 
@@ -32,7 +29,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     localStorage.setItem('aile-profile-settings', JSON.stringify(settings));
     toast({
       title: "設定已儲存",
-      description: "您的電子名片公開設定已更新。"
+      description: "您的電子名片設定已更新。"
     });
     onClose();
   };
@@ -42,12 +39,32 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
       ...prev,
       [key]: value
     }));
+
+    // 即時保存設定並顯示提示訊息
+    const newSettings = {
+      ...settings,
+      [key]: value
+    };
+    localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
+
+    // 根據設定顯示相應的提示訊息
+    if (key === 'receiveNotifications') {
+      toast({
+        title: value ? "已開啟通知" : "已關閉通知",
+        description: value ? "當有用戶加入您的名片時，將在Aipower聊天室中彈跳通知提醒。" : "將不再接收用戶加入名片的通知提醒。"
+      });
+    } else {
+      toast({
+        title: "設定已儲存",
+        description: "您的電子名片設定已更新。"
+      });
+    }
   };
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Button
@@ -58,25 +75,17 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">電子名片公開設定</h1>
+            <h1 className="font-bold text-lg">資料設定</h1>
           </div>
-          <Button
-            onClick={handleSaveSettings}
-            className="bg-white/20 hover:bg-white/30 text-white"
-            size="sm"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            儲存
-          </Button>
         </div>
       </div>
 
       <div className="p-6 space-y-6">
         {/* 公開設定 */}
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
-              <Eye className="w-5 h-5 mr-2" />
+              <Eye className="w-5 h-5 mr-2 text-green-600" />
               公開設定
             </CardTitle>
           </CardHeader>
@@ -85,7 +94,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               <div className="space-y-1">
                 <Label className="text-sm font-medium">公開電子名片</Label>
                 <p className="text-xs text-gray-600">
-                  開啟後，其他人可以在智能推薦中找到您的名片
+                  您的名片將可被其他用戶在智能推薦中搜尋與發現
                 </p>
               </div>
               <Switch
@@ -94,58 +103,35 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               />
             </div>
 
-          </CardContent>
-        </Card>
-
-        {/* 聯絡資訊顯示 */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center text-lg">
-              <Shield className="w-5 h-5 mr-2" />
-              聯絡資訊顯示
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">顯示電話號碼</Label>
+              <div className="space-y-1">
+                <Label className="text-sm font-medium">允許直接加入</Label>
+                <p className="text-xs text-gray-600">
+                  啟用後，其他用戶可以直接把您的電子名片存到他們的名片夾。未啟用時，對方必須等您同意後，才能收到您的電子名片
+                </p>
+              </div>
               <Switch
-                checked={settings.showPhoneNumber}
-                onCheckedChange={(checked) => handleSettingChange('showPhoneNumber', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">顯示 LINE ID</Label>
-              <Switch
-                checked={settings.showLineId}
-                onCheckedChange={(checked) => handleSettingChange('showLineId', checked)}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">顯示 Email</Label>
-              <Switch
-                checked={settings.showEmail}
-                onCheckedChange={(checked) => handleSettingChange('showEmail', checked)}
+                checked={settings.allowDirectContact}
+                onCheckedChange={(checked) => handleSettingChange('allowDirectContact', checked)}
               />
             </div>
           </CardContent>
         </Card>
 
         {/* 通知設定 */}
-        <Card>
+        <Card className="shadow-lg">
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
-              <Bell className="w-5 h-5 mr-2" />
+              <Bell className="w-5 h-5 mr-2 text-orange-600" />
               通知設定
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <Label className="text-sm font-medium">接收加入通知</Label>
+                <Label className="text-sm font-medium">接收通知</Label>
                 <p className="text-xs text-gray-600">
-                  當有用戶加入您的名片時，系統將推播通知提醒，於Aipower聊天室中彈跳用戶加入您的電子名片卡訊息通知
+                  您會收到所有關於電子名片、人脈互動、活動邀請和點數變動的系統通知
                 </p>
               </div>
               <Switch
@@ -162,7 +148,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
             <h4 className="font-medium text-blue-800 mb-2">設定說明</h4>
             <ul className="text-xs text-blue-700 space-y-1">
               <li>• 公開電子名片：開啟後其他用戶可以在智能推薦中找到您</li>
-              <li>• 聯絡資訊顯示：控制哪些聯絡方式對其他人可見</li>
+              <li>• 允許直接加入：控制其他用戶是否可以直接加入您的名片</li>
               <li>• 通知設定：管理您希望接收的通知類型，包含聊天室彈跳通知</li>
             </ul>
           </CardContent>
@@ -171,3 +157,5 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     </div>
   );
 };
+
+export default ProfileSettings;
