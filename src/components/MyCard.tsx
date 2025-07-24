@@ -457,13 +457,50 @@ LINE: ${cardInfo.line || ''}
         </div>}
 
       {/* 已登入用戶的名片管理介面 */}
-      {userData && cardData && <div className="p-6">
-          {/* 新用戶提示 */}
-          {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-sm text-green-700 font-medium">
-                🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
-              </p>
-            </div>}
+      {userData && cardData && (
+        <div>
+          {/* 新增功能區塊 */}
+          <div className="p-4 bg-gray-50">
+            <div className="grid grid-cols-3 gap-3">
+              {/* 名片設置 */}
+              <Card className="border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowCreateCard(true)}>
+                <CardContent className="p-3 text-center">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Edit className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <h3 className="text-xs font-medium text-gray-800">名片設置</h3>
+                </CardContent>
+              </Card>
+
+              {/* 會員點數 */}
+              <Card className="border border-gray-200 hover:border-yellow-300 transition-colors cursor-pointer" onClick={() => setShowPoints(true)}>
+                <CardContent className="p-3 text-center">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Award className="w-4 h-4 text-yellow-600" />
+                  </div>
+                  <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
+                </CardContent>
+              </Card>
+
+              {/* 資料設定 */}
+              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowPublicSettings(!showPublicSettings)}>
+                <CardContent className="p-3 text-center">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <User className="w-4 h-4 text-green-600" />
+                  </div>
+                  <h3 className="text-xs font-medium text-gray-800">資料設定</h3>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          <div className="p-6">
+            {/* 新用戶提示 */}
+            {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700 font-medium">
+                  🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
+                </p>
+              </div>}
 
           {/* 名片預覽 - 包含 QR Code */}
           <Card className="mb-6 shadow-xl border-2 border-green-200">
@@ -647,7 +684,9 @@ LINE: ${cardInfo.line || ''}
           </Card>
 
           <PointsWidget onPointsClick={() => setShowPoints(true)} />
-        </div>}
+          </div>
+        </div>
+      )}
     </div>;
 };
 export default MyCard;
