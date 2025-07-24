@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Save, Eye, EyeOff, Shield, Bell, User, Mail, CheckCircle, Calendar as CalendarIcon } from 'lucide-react';
+import { ArrowLeft, Save, Eye, EyeOff, Shield, Bell, User, Mail, CheckCircle, Calendar as CalendarIcon, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -27,6 +28,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
 
   // Personal data
   const [gender, setGender] = useState('');
+  const [phone, setPhone] = useState('');
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [showPhoneOTP, setShowPhoneOTP] = useState(false);
+  const [phoneOTP, setPhoneOTP] = useState('');
+  const [phoneOTPSent, setPhoneOTPSent] = useState(false);
   const [email, setEmail] = useState('');
   const [emailVerified, setEmailVerified] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
@@ -93,6 +99,30 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     setShowBirthdayCalendar(false);
   };
 
+  // Phone number OTP verification functions
+  const handleSendPhoneOTP = () => {
+    if (phone.length === 10) {
+      setPhoneOTPSent(true);
+      toast({
+        title: "驗證碼已發送",
+        description: `驗證碼已發送至 ${phone}，請輸入6位數驗證碼。`,
+      });
+    }
+  };
+
+  const handleVerifyPhoneOTP = () => {
+    if (phoneOTP.length === 6) {
+      setPhoneVerified(true);
+      setShowPhoneOTP(false);
+      setPhoneOTP('');
+      setPhoneOTPSent(false);
+      toast({
+        title: "手機號碼驗證成功",
+        description: "您的手機號碼已成功驗證並綁定。",
+      });
+    }
+  };
+
   useEffect(() => {
     // 載入公開設定
     const savedPublicSettings = localStorage.getItem('aile-profile-settings');
@@ -105,6 +135,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     if (savedCardData) {
       const cardInfo = JSON.parse(savedCardData);
       setGender(cardInfo.gender || '');
+      setPhone(cardInfo.phone || '');
+      setPhoneVerified(cardInfo.phoneVerified || false);
       setEmail(cardInfo.email || '');
       setEmailVerified(cardInfo.emailVerified || false);
       setEmailVerificationSent(cardInfo.emailVerificationSent || false);
@@ -115,6 +147,16 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
         if (!isNaN(date.getTime())) {
           setBirthdayDate(date);
         }
+      }
+    }
+
+    // 從註冊資料載入手機號碼
+    const savedUserData = localStorage.getItem('aile-user-data');
+    if (savedUserData) {
+      const userData = JSON.parse(savedUserData);
+      if (userData.phone && !phone) {
+        setPhone(userData.phone);
+        setPhoneVerified(true);
       }
     }
   }, []);
@@ -130,6 +172,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     const updatedCardData = {
       ...cardData,
       gender,
+      phone,
+      phoneVerified,
       email,
       emailVerified,
       emailVerificationSent,
@@ -204,6 +248,124 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                   <SelectItem value="other">其他</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* 手機號碼 */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                  手機號碼
+                </Label>
+                {phoneVerified && (
+                  <div className="flex items-center space-x-1 text-green-600">
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="text-xs">已驗證</span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="請輸入10位手機號碼"
+                    value={phone}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setPhone(value);
+                      if (phoneVerified && value !== phone) {
+                        setPhoneVerified(false);
+                        setShowPhoneOTP(false);
+                        setPhoneOTPSent(false);
+                      }
+                    }}
+                    className={cn(
+                      "text-base",
+                      phoneVerified && "border-green-500 bg-green-50"
+                    )}
+                    maxLength={10}
+                  />
+                  
+                  {phone.length === 10 && !phoneVerified && !showPhoneOTP && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => setShowPhoneOTP(true)}
+                      className="shrink-0 bg-blue-600 hover:bg-blue-700"
+                    >
+                      變更驗證
+                    </Button>
+                  )}
+                </div>
+                
+                {showPhoneOTP && (
+                  <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <Smartphone className="w-4 h-4 text-blue-600 mt-0.5" />
+                      <div className="text-sm text-blue-800">
+                        <p className="font-medium">手機號碼驗證</p>
+                        <p className="text-xs mt-1">
+                          將發送驗證碼至 {phone}
+                        </p>
+                      </div>
+                    </div>
+                    
+                    {!phoneOTPSent ? (
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleSendPhoneOTP}
+                        className="w-full bg-blue-600 hover:bg-blue-700"
+                      >
+                        發送驗證碼
+                      </Button>
+                    ) : (
+                      <div className="space-y-2">
+                        <p className="text-xs text-blue-700">請輸入6位數驗證碼：</p>
+                        <InputOTP 
+                          maxLength={6} 
+                          value={phoneOTP} 
+                          onChange={setPhoneOTP}
+                        >
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                        
+                        <div className="flex space-x-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={handleVerifyPhoneOTP}
+                            disabled={phoneOTP.length !== 6}
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                          >
+                            驗證
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setShowPhoneOTP(false);
+                              setPhoneOTPSent(false);
+                              setPhoneOTP('');
+                            }}
+                          >
+                            取消
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Email */}
@@ -354,6 +516,10 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                         date > new Date() || date < new Date("1900-01-01")
                       }
                       initialFocus
+                      captionLayout="dropdown-buttons"
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
+                      className="pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
