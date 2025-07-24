@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { toast } from '@/hooks/use-toast';
+import { ProfileSettings } from '@/components/MyCustomers/ProfileSettings';
 
 interface CardSettingsLIFFProps {
   onClose: () => void;
@@ -42,6 +43,7 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   });
 
   const [activeTab, setActiveTab] = useState('basic');
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
 
   useEffect(() => {
     // 載入現有名片資料
@@ -64,11 +66,41 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     });
   };
 
+  const checkEmailVerification = (email: string) => {
+    if (!email) return true;
+    
+    // 檢查email是否已在ProfileSettings中驗證
+    const personalData = localStorage.getItem('personal-data');
+    if (personalData) {
+      const data = JSON.parse(personalData);
+      if (data.email === email && data.emailVerified) {
+        return true;
+      }
+    }
+    return false;
+  };
+
   const handleInputChange = (field: string, value: any) => {
     setCardData((prev: any) => ({
       ...prev,
       [field]: value
     }));
+
+    // 如果是email欄位且輸入完成，檢查驗證狀態
+    if (field === 'email' && value && value.includes('@')) {
+      const isVerified = checkEmailVerification(value);
+      if (!isVerified) {
+        // 顯示提示並跳轉到驗證流程
+        toast({
+          title: "需要驗證Email",
+          description: "請先完成Email驗證才能使用此功能",
+          duration: 3000,
+        });
+        setTimeout(() => {
+          setShowProfileSettings(true);
+        }, 1000);
+      }
+    }
   };
 
   const handleVisibilityChange = (field: string, visible: boolean) => {
@@ -77,6 +109,26 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
       [`${field}Visible`]: visible
     }));
   };
+
+  const handleProfileSettingsClose = () => {
+    setShowProfileSettings(false);
+    // 重新檢查email驗證狀態
+    if (cardData.email) {
+      const isVerified = checkEmailVerification(cardData.email);
+      if (isVerified) {
+        toast({
+          title: "驗證完成",
+          description: "Email驗證已完成，可以繼續編輯名片",
+          duration: 3000,
+        });
+      }
+    }
+  };
+
+  // 如果顯示ProfileSettings，渲染ProfileSettings組件
+  if (showProfileSettings) {
+    return <ProfileSettings onClose={handleProfileSettingsClose} />;
+  }
 
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
