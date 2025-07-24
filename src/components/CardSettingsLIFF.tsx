@@ -70,9 +70,9 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     if (!email) return true;
     
     // 檢查email是否已在ProfileSettings中驗證
-    const personalData = localStorage.getItem('personal-data');
-    if (personalData) {
-      const data = JSON.parse(personalData);
+    const cardData = localStorage.getItem('aile-card-data');
+    if (cardData) {
+      const data = JSON.parse(cardData);
       if (data.email === email && data.emailVerified) {
         return true;
       }
@@ -125,9 +125,9 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     }
   };
 
-  // 如果顯示ProfileSettings，渲染ProfileSettings組件
+  // 如果顯示ProfileSettings，渲染ProfileSettings組件並聚焦到email驗證
   if (showProfileSettings) {
-    return <ProfileSettings onClose={handleProfileSettingsClose} />;
+    return <ProfileSettings onClose={handleProfileSettingsClose} focusEmail={true} />;
   }
 
   return (

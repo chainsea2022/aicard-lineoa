@@ -16,9 +16,10 @@ import { zhTW } from 'date-fns/locale';
 
 interface ProfileSettingsProps {
   onClose: () => void;
+  focusEmail?: boolean; // 新增參數，用於聚焦到email驗證
 }
 
-export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => {
+export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focusEmail = false }) => {
   // Public settings
   const [publicSettings, setPublicSettings] = useState({
     isPublicProfile: false,
@@ -124,6 +125,19 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
       });
     }
   };
+
+  
+  // 如果需要聚焦email，則自動展開email驗證
+  useEffect(() => {
+    if (focusEmail && email && !emailVerified) {
+      setEmailVerificationSent(false);
+      toast({
+        title: "請完成Email驗證",
+        description: "請驗證您的Email地址以完成設定",
+        duration: 5000,
+      });
+    }
+  }, [focusEmail, email, emailVerified]);
 
   useEffect(() => {
     // 載入公開設定
