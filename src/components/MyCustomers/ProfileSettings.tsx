@@ -524,7 +524,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                       <CalendarIcon className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
+                  <PopoverContent className="w-auto p-0 max-w-sm" align="end">
                     <Calendar
                       mode="single"
                       selected={birthdayDate}
@@ -536,10 +536,10 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                       captionLayout="dropdown-buttons"
                       fromYear={1900}
                       toYear={new Date().getFullYear()}
-                      className="pointer-events-auto"
+                      className="pointer-events-auto p-2"
                       formatters={{
                         formatCaption: (date: Date) => date.getFullYear().toString(),
-                        formatMonthCaption: (date: Date) => `${date.getMonth() + 1}月`,
+                        formatMonthCaption: (date: Date) => (date.getMonth() + 1).toString(),
                         formatYearCaption: (date: Date) => date.getFullYear().toString()
                       }}
                     />
