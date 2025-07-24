@@ -524,8 +524,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                       <CalendarIcon className="h-4 w-4" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 shadow-xl border-0 rounded-2xl bg-white" align="center">
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl overflow-hidden">
+                  <PopoverContent className="w-auto p-0 shadow-2xl border border-gray-100 rounded-xl bg-white" align="center">
+                    <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
                       <Calendar
                         mode="single"
                         selected={birthdayDate}
@@ -537,36 +537,39 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                         captionLayout="dropdown-buttons"
                         fromYear={1900}
                         toYear={new Date().getFullYear()}
-                        className="pointer-events-auto p-4 bg-transparent border-0"
+                        className="pointer-events-auto p-3 bg-white border-0"
                         classNames={{
-                          months: "space-y-4",
-                          month: "space-y-4",
-                          caption: "flex justify-center pt-2 pb-1 relative items-center",
-                          caption_label: "px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm font-medium shadow-md",
-                          caption_dropdowns: "flex justify-center gap-1",
+                          months: "space-y-3",
+                          month: "space-y-3 w-full",
+                          caption: "flex justify-center py-2 relative items-center bg-gray-50 border-b border-gray-100",
+                          caption_label: "hidden",
+                          caption_dropdowns: "flex items-center gap-3",
                           nav: "space-x-1 flex items-center",
-                          nav_button: "h-7 w-7 bg-white/80 hover:bg-white rounded-lg transition-colors border-0 shadow-sm",
-                          nav_button_previous: "absolute left-2",
-                          nav_button_next: "absolute right-2",
-                          table: "w-full border-collapse space-y-1",
-                          head_row: "flex",
-                          head_cell: "text-gray-600 rounded-md w-9 font-normal text-xs",
-                          row: "flex w-full mt-1",
-                          cell: "h-9 w-9 text-center text-sm relative",
-                          day: "h-9 w-9 p-0 font-normal text-sm rounded-lg hover:bg-white/70 transition-colors",
+                          nav_button: "h-8 w-8 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border-0",
+                          nav_button_previous: "absolute left-3",
+                          nav_button_next: "absolute right-3",
+                          table: "w-full border-collapse mt-3",
+                          head_row: "flex border-b border-gray-100 pb-2 mb-2",
+                          head_cell: "text-gray-500 text-center w-10 font-medium text-xs uppercase tracking-wide",
+                          row: "flex w-full",
+                          cell: "h-10 w-10 text-center text-sm relative p-0",
+                          day: "h-10 w-10 p-0 font-normal text-sm rounded-lg hover:bg-blue-50 transition-all duration-200 flex items-center justify-center",
                           day_range_end: "day-range-end",
-                          day_selected: "bg-blue-600 text-white hover:bg-blue-700 rounded-lg font-medium",
-                          day_today: "bg-blue-100 text-blue-900 font-medium rounded-lg",
-                          day_outside: "text-gray-400 opacity-50",
-                          day_disabled: "text-gray-400 opacity-30",
+                          day_selected: "bg-blue-500 text-white hover:bg-blue-600 shadow-md font-medium",
+                          day_today: "bg-blue-100 text-blue-700 font-medium",
+                          day_outside: "text-gray-300 opacity-50",
+                          day_disabled: "text-gray-300 opacity-30 cursor-not-allowed",
                           day_range_middle: "aria-selected:bg-blue-100 aria-selected:text-blue-900",
                           day_hidden: "invisible",
-                          dropdown: "bg-white rounded-md border shadow-md px-2 py-1 text-xs font-normal min-w-[50px] max-h-32 overflow-y-auto",
+                          dropdown: "bg-white rounded-lg border border-gray-200 shadow-lg px-3 py-2 text-sm font-medium min-w-[80px] max-h-40 overflow-y-auto",
                         }}
                         formatters={{
-                          formatCaption: (date: Date) => `${date.getFullYear()}年 ${date.getMonth() + 1}月`,
-                          formatMonthCaption: (date: Date) => (date.getMonth() + 1).toString(),
-                          formatYearCaption: (date: Date) => date.getFullYear().toString()
+                          formatCaption: (date: Date) => "",
+                          formatMonthCaption: (date: Date) => {
+                            const months = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
+                            return months[date.getMonth()];
+                          },
+                          formatYearCaption: (date: Date) => `${date.getFullYear()}年`
                         }}
                       />
                     </div>
