@@ -315,26 +315,34 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                         size="sm"
                         onClick={handleSendPhoneOTP}
                         className="w-full bg-blue-600 hover:bg-blue-700"
+                        disabled={phone.length !== 10}
                       >
                         發送驗證碼
                       </Button>
                     ) : (
-                      <div className="space-y-2">
-                        <p className="text-xs text-blue-700">請輸入6位數驗證碼：</p>
-                        <InputOTP 
-                          maxLength={6} 
-                          value={phoneOTP} 
-                          onChange={setPhoneOTP}
-                        >
-                          <InputOTPGroup>
-                            <InputOTPSlot index={0} />
-                            <InputOTPSlot index={1} />
-                            <InputOTPSlot index={2} />
-                            <InputOTPSlot index={3} />
-                            <InputOTPSlot index={4} />
-                            <InputOTPSlot index={5} />
-                          </InputOTPGroup>
-                        </InputOTP>
+                      <div className="space-y-3">
+                        <div className="text-center">
+                          <p className="text-sm text-blue-700 font-medium">請輸入6位數驗證碼</p>
+                          <p className="text-xs text-blue-600 mt-1">已發送至 {phone}</p>
+                        </div>
+                        
+                        <div className="flex justify-center">
+                          <InputOTP 
+                            maxLength={6} 
+                            value={phoneOTP} 
+                            onChange={setPhoneOTP}
+                            className="justify-center"
+                          >
+                            <InputOTPGroup className="gap-2">
+                              <InputOTPSlot index={0} className="w-12 h-12 text-lg" />
+                              <InputOTPSlot index={1} className="w-12 h-12 text-lg" />
+                              <InputOTPSlot index={2} className="w-12 h-12 text-lg" />
+                              <InputOTPSlot index={3} className="w-12 h-12 text-lg" />
+                              <InputOTPSlot index={4} className="w-12 h-12 text-lg" />
+                              <InputOTPSlot index={5} className="w-12 h-12 text-lg" />
+                            </InputOTPGroup>
+                          </InputOTP>
+                        </div>
                         
                         <div className="flex space-x-2">
                           <Button
@@ -342,9 +350,9 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                             size="sm"
                             onClick={handleVerifyPhoneOTP}
                             disabled={phoneOTP.length !== 6}
-                            className="flex-1 bg-green-600 hover:bg-green-700"
+                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:opacity-50"
                           >
-                            驗證
+                            驗證 ({phoneOTP.length}/6)
                           </Button>
                           <Button
                             type="button"
