@@ -541,8 +541,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                         classNames={{
                           months: "space-y-4",
                           month: "space-y-4",
-                          caption: "flex justify-center pt-1 relative items-center gap-2",
-                          caption_label: "text-sm font-medium text-gray-700",
+                          caption: "flex justify-center pt-2 pb-1 relative items-center",
+                          caption_label: "px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-full text-sm font-medium shadow-md",
                           caption_dropdowns: "flex justify-center gap-1",
                           nav: "space-x-1 flex items-center",
                           nav_button: "h-7 w-7 bg-white/80 hover:bg-white rounded-lg transition-colors border-0 shadow-sm",
