@@ -483,7 +483,7 @@ LINE: ${cardInfo.line || ''}
             <button onClick={() => setShowPoints(true)} className="flex-1 py-3 text-center font-medium text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors">
               <Award className="w-4 h-4 inline-block mr-1" />
               會員點數
-              <div className="text-xs text-yellow-500 mt-0.5">目前 {currentPoints} 點</div>
+              <div className="text-xs text-yellow-500 mt-0.5">{currentPoints} 點</div>
             </button>
             <button onClick={() => setShowProfileSettings(true)} className="flex-1 py-3 text-center font-medium text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors">
               <User className="w-4 h-4 inline-block mr-1" />
