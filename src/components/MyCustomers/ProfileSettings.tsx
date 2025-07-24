@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Save, Eye, EyeOff, Shield, Bell, User, Mail, CheckCircle, Calendar as CalendarIcon, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -212,14 +211,6 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
             </Button>
             <h1 className="font-bold text-lg">資料設定</h1>
           </div>
-          <Button
-            onClick={handleSaveSettings}
-            className="bg-white/20 hover:bg-white/30 text-white"
-            size="sm"
-          >
-            <Save className="w-4 h-4 mr-2" />
-            儲存
-          </Button>
         </div>
       </div>
 
@@ -534,6 +525,18 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                   已選擇：{format(birthdayDate, "yyyy年MM月dd日")}
                 </p>
               )}
+            </div>
+            
+            {/* 儲存按鈕 */}
+            <div className="pt-6 border-t border-gray-100">
+              <Button
+                onClick={handleSaveSettings}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                size="lg"
+              >
+                <Save className="w-5 h-5 mr-2" />
+                儲存個人資料
+              </Button>
             </div>
           </CardContent>
         </Card>
