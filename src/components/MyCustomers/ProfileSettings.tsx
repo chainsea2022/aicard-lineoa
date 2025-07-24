@@ -88,6 +88,8 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     if (formatted.length === 10 && validateBirthday(formatted)) {
       setBirthdayDate(new Date(formatted));
     }
+    
+    setTimeout(handleAutoSave, 500);
   };
 
   const handleBirthdayDateSelect = (date: Date | undefined) => {
@@ -161,10 +163,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     }
   }, []);
 
-  const handleSaveSettings = () => {
-    // 儲存公開設定
-    localStorage.setItem('aile-profile-settings', JSON.stringify(publicSettings));
-    
+  const handleAutoSave = () => {
     // 儲存個人資料到名片資料
     const savedCardData = localStorage.getItem('aile-card-data');
     const cardData = savedCardData ? JSON.parse(savedCardData) : {};
@@ -181,19 +180,24 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     };
     
     localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
-    
-    toast({
-      title: "設定已儲存",
-      description: "您的資料設定已更新。"
-    });
-    onClose();
+  };
+
+  const handleSavePublicSettings = () => {
+    localStorage.setItem('aile-profile-settings', JSON.stringify(publicSettings));
   };
 
   const handlePublicSettingChange = (key: string, value: boolean) => {
-    setPublicSettings(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setPublicSettings(prev => {
+      const updated = {
+        ...prev,
+        [key]: value
+      };
+      // 自動儲存公開設定
+      setTimeout(() => {
+        localStorage.setItem('aile-profile-settings', JSON.stringify(updated));
+      }, 100);
+      return updated;
+    });
   };
 
   return (
@@ -230,7 +234,10 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               <Label htmlFor="gender" className="text-sm font-medium text-gray-700">
                 性別
               </Label>
-              <Select value={gender} onValueChange={setGender}>
+              <Select value={gender} onValueChange={(value) => {
+                setGender(value);
+                setTimeout(handleAutoSave, 100);
+              }}>
                 <SelectTrigger>
                   <SelectValue placeholder="請選擇性別" />
                 </SelectTrigger>
@@ -393,6 +400,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                         setEmailVerified(false);
                         setEmailVerificationSent(false);
                       }
+                      setTimeout(handleAutoSave, 500);
                     }}
                     className={cn(
                       "text-base",
@@ -584,17 +592,6 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               )}
             </div>
             
-            {/* 儲存按鈕 */}
-            <div className="pt-6 border-t border-gray-100">
-              <Button
-                onClick={handleSaveSettings}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
-                size="lg"
-              >
-                <Save className="w-5 h-5 mr-2" />
-                儲存
-              </Button>
-            </div>
           </CardContent>
         </Card>
 
