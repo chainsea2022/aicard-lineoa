@@ -10,7 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
-import PointsWidget from './PointsWidget';
+
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MyCardProps {
   onClose: () => void;
@@ -577,7 +577,7 @@ LINE: ${cardInfo.line || ''}
           </div>
 
 
-          <PointsWidget onPointsClick={() => setShowPoints(true)} />
+          
           </div>
         </div>}
     </div>;
