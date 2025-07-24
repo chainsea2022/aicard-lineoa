@@ -69,37 +69,56 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   const checkEmailVerification = (email: string) => {
     if (!email) return true;
     
+    console.log('Checking email verification for:', email);
+    
     // 檢查email是否已在ProfileSettings中驗證
     const cardData = localStorage.getItem('aile-card-data');
+    console.log('Card data from localStorage:', cardData);
+    
     if (cardData) {
       const data = JSON.parse(cardData);
+      console.log('Parsed card data:', data);
+      console.log('Email match:', data.email === email);
+      console.log('Email verified:', data.emailVerified);
+      
       if (data.email === email && data.emailVerified) {
         return true;
       }
     }
+    console.log('Email verification check failed');
     return false;
   };
 
   const handleInputChange = (field: string, value: any) => {
+    console.log('Input change:', field, value);
+    
     setCardData((prev: any) => ({
       ...prev,
       [field]: value
     }));
 
     // 如果是email欄位且輸入完成，檢查驗證狀態
-    if (field === 'email' && value && value.includes('@')) {
-      const isVerified = checkEmailVerification(value);
-      if (!isVerified) {
-        // 顯示提示並跳轉到驗證流程
-        toast({
-          title: "需要驗證Email",
-          description: "請先完成Email驗證才能使用此功能",
-          duration: 3000,
-        });
-        setTimeout(() => {
+    if (field === 'email' && value && value.includes('@') && value.includes('.')) {
+      console.log('Email validation triggered for:', value);
+      
+      // 延遲檢查，讓用戶有時間完成輸入
+      setTimeout(() => {
+        const isVerified = checkEmailVerification(value);
+        console.log('Email verification result:', isVerified);
+        
+        if (!isVerified) {
+          console.log('Email not verified, showing ProfileSettings');
+          // 顯示提示並跳轉到驗證流程
+          toast({
+            title: "需要驗證Email",
+            description: "請先完成Email驗證才能使用此功能",
+            duration: 3000,
+          });
+          
+          // 立即跳轉到驗證介面
           setShowProfileSettings(true);
-        }, 1000);
-      }
+        }
+      }, 1500); // 增加延遲時間讓用戶完成輸入
     }
   };
 
