@@ -12,6 +12,7 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { zhTW } from 'date-fns/locale';
 
 interface ProfileSettingsProps {
   onClose: () => void;
@@ -535,7 +536,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                       captionLayout="dropdown-buttons"
                       fromYear={1900}
                       toYear={new Date().getFullYear()}
+                      locale={zhTW}
                       className="pointer-events-auto"
+                      formatters={{
+                        formatCaption: (date: Date) => {
+                          return date.getFullYear().toString();
+                        }
+                      }}
                     />
                   </PopoverContent>
                 </Popover>
