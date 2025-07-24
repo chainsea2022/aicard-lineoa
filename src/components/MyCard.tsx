@@ -489,11 +489,22 @@ LINE: ${cardInfo.line || ''}
 
               {/* 會員點數 */}
               <Card className="border border-gray-200 hover:border-yellow-300 transition-colors cursor-pointer" onClick={() => setShowPoints(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Award className="w-4 h-4 text-yellow-600" />
+                <CardContent className="p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <Award className="w-4 h-4 text-yellow-600" />
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-yellow-600">{currentPoints}</div>
+                      <div className="text-xs text-gray-500">點</div>
+                    </div>
                   </div>
                   <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
+                  {currentPoints >= 50 ? (
+                    <div className="text-xs text-green-600 mt-1">✓ 可兌換商務版</div>
+                  ) : (
+                    <div className="text-xs text-gray-500 mt-1">還需 {50 - currentPoints} 點</div>
+                  )}
                 </CardContent>
               </Card>
 
