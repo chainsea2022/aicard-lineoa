@@ -474,53 +474,22 @@ LINE: ${cardInfo.line || ''}
 
       {/* 已登入用戶的名片管理介面 */}
       {userData && cardData && <div>
-          {/* 新增功能區塊 */}
-          <div className="p-4 bg-gray-50">
-            <div className="grid grid-cols-3 gap-3">
-              {/* 名片設置 */}
-              <Card className="border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowCreateCard(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Edit className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">名片設定</h3>
-                </CardContent>
-              </Card>
-
-              {/* 會員點數 */}
-              <Card className="border border-gray-200 hover:border-yellow-300 transition-colors cursor-pointer" onClick={() => setShowPoints(true)}>
-                <CardContent className="p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <Award className="w-4 h-4 text-yellow-600" />
-                    </div>
-                    <div className="text-right">
-                      <div className="text-lg font-bold text-yellow-600">{currentPoints}</div>
-                      <div className="text-xs text-gray-500">點</div>
-                    </div>
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
-                  {currentPoints >= 50 ? (
-                    <div className="text-xs text-green-600 mt-1">✓ 可兌換商務版</div>
-                  ) : (
-                    <div className="text-xs text-gray-500 mt-1">還需 {50 - currentPoints} 點</div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* 資料設定 */}
-              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowProfileSettings(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <User className="w-4 h-4 text-green-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">資料設定</h3>
-                </CardContent>
-              </Card>
-            </div>
+          {/* 新增功能區塊 - 改為分頁樣式 */}
+          <div className="flex bg-white border-b border-gray-200">
+            <button onClick={() => setShowCreateCard(true)} className="flex-1 py-3 text-center font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 transition-colors">
+              <Edit className="w-4 h-4 inline-block mr-1" />
+              名片設定
+            </button>
+            <button onClick={() => setShowPoints(true)} className="flex-1 py-3 text-center font-medium text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 transition-colors">
+              <Award className="w-4 h-4 inline-block mr-1" />
+              會員點數
+            </button>
+            <button onClick={() => setShowProfileSettings(true)} className="flex-1 py-3 text-center font-medium text-green-600 hover:text-green-700 hover:bg-green-50 transition-colors">
+              <User className="w-4 h-4 inline-block mr-1" />
+              資料設定
+            </button>
           </div>
-
-          <div className="p-6">
+          <div className="p-4">
             {/* 新用戶提示 */}
             {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700 font-medium">
