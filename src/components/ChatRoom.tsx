@@ -46,8 +46,8 @@ const menuItems: MenuItem[] = [
   { id: 'customers', title: '名片夾', icon: Users, color: 'bg-gradient-to-br from-orange-500 to-orange-600' },
   { id: 'my-card', title: '我的電子名片', icon: Zap, color: 'bg-gradient-to-br from-green-500 to-green-600' },
   { id: 'scanner', title: '名片識別', icon: Scan, color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
-  { id: 'analytics', title: '數據分析', icon: BarChart3, color: 'bg-gradient-to-br from-red-500 to-red-600' },
   { id: 'schedule', title: '行程管理', icon: Calendar, color: 'bg-gradient-to-br from-indigo-500 to-indigo-600' },
+  { id: 'analytics', title: '數據分析', icon: BarChart3, color: 'bg-gradient-to-br from-red-500 to-red-600' },
 ];
 
 // 統一使用的客戶名稱
