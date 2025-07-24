@@ -1338,6 +1338,11 @@ LINE: ${line || ''}
                     placeholder="請輸入完整網址（如：https://...）"
                     value={newSocialMedia.url}
                     onChange={(e) => setNewSocialMedia(prev => ({...prev, url: e.target.value}))}
+                    className="break-all overflow-hidden text-ellipsis"
+                    style={{ 
+                      wordBreak: 'break-all',
+                      overflowWrap: 'break-word'
+                    }}
                   />
                   <div className="flex space-x-2">
                     <Button
