@@ -287,16 +287,14 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                     maxLength={10}
                   />
                   
-                  {phone.length === 10 && !phoneVerified && !showPhoneOTP && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={() => setShowPhoneOTP(true)}
-                      className="shrink-0 bg-blue-600 hover:bg-blue-700"
-                    >
-                      變更驗證
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setShowPhoneOTP(true)}
+                    className="shrink-0 bg-blue-600 hover:bg-blue-700"
+                  >
+                    修改
+                  </Button>
                 </div>
                 
                 {showPhoneOTP && (
@@ -383,25 +381,41 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
               </div>
               
               <div className="space-y-2">
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="請輸入您的 Email 地址"
-                  value={email}
-                  onChange={(e) => {
-                    setEmail(e.target.value);
-                    if (emailVerified) {
-                      setEmailVerified(false);
-                      setEmailVerificationSent(false);
-                    }
-                  }}
-                  className={cn(
-                    "text-base",
-                    !email && "border-red-300",
-                    emailVerified && "border-green-500 bg-green-50"
-                  )}
-                  required
-                />
+                <div className="flex items-center space-x-2">
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="請輸入您的 Email 地址"
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      if (emailVerified) {
+                        setEmailVerified(false);
+                        setEmailVerificationSent(false);
+                      }
+                    }}
+                    className={cn(
+                      "text-base",
+                      !email && "border-red-300",
+                      emailVerified && "border-green-500 bg-green-50"
+                    )}
+                    required
+                  />
+                  
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => {
+                      if (emailVerified) {
+                        setEmailVerified(false);
+                        setEmailVerificationSent(false);
+                      }
+                    }}
+                    className="shrink-0 bg-blue-600 hover:bg-blue-700"
+                  >
+                    修改
+                  </Button>
+                </div>
                 
                 {email && !emailVerified && (
                   <div className="space-y-2">
