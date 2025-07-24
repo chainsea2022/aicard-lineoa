@@ -49,10 +49,33 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   useEffect(() => {
     // 載入現有名片資料
     const savedCardData = localStorage.getItem('aile-card-data');
+    let cardInfo = {};
+    
     if (savedCardData) {
-      const cardInfo = JSON.parse(savedCardData);
-      setCardData(cardInfo);
+      cardInfo = JSON.parse(savedCardData);
+    } else {
+      // 如果沒有現有資料，從其他來源初始化
+      const registeredPhone = localStorage.getItem('registeredPhone');
+      const lineProfile = localStorage.getItem('lineProfile');
+      
+      if (lineProfile) {
+        const profile = JSON.parse(lineProfile);
+        cardInfo = {
+          ...cardInfo,
+          name: profile.displayName || '', // 使用LINE顯示名稱作為預設姓名
+        };
+      }
+      
+      if (registeredPhone) {
+        cardInfo = {
+          ...cardInfo,
+          phone: registeredPhone, // 使用已驗證的手機號碼
+          phoneVerified: true
+        };
+      }
     }
+    
+    setCardData(cardInfo);
   }, []);
 
   const handleSave = () => {
@@ -75,6 +98,29 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
       });
       
       // 切換到基本資料頁面顯示錯誤
+      if (activeTab !== 'basic') {
+        setActiveTab('basic');
+      }
+      
+      return;
+    }
+    
+    // 檢查手機號碼和Email驗證狀態
+    const phoneVerified = checkPhoneVerification(cardData.phone);
+    const emailVerified = checkEmailVerification(cardData.email);
+    
+    if (!phoneVerified || !emailVerified) {
+      const unverifiedFields = [];
+      if (!phoneVerified) unverifiedFields.push('手機號碼');
+      if (!emailVerified) unverifiedFields.push('Email');
+      
+      toast({
+        title: "需要驗證",
+        description: `請先驗證：${unverifiedFields.join('、')}`,
+        variant: "destructive"
+      });
+      
+      // 切換到基本資料頁面
       if (activeTab !== 'basic') {
         setActiveTab('basic');
       }
