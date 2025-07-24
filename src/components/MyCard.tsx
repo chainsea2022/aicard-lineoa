@@ -47,20 +47,23 @@ const MyCard: React.FC<MyCardProps> = ({
     }
   };
   useEffect(() => {
-    const savedCardData = localStorage.getItem('aile-card-data');
-    const savedUserData = localStorage.getItem('aile-user-data');
+    // 載入初始資料的函數
+    const loadCardData = () => {
+      const savedCardData = localStorage.getItem('aile-card-data');
+      const savedUserData = localStorage.getItem('aile-user-data');
 
-    // 檢查是否有註冊歷史記錄
-    const registrationHistory = localStorage.getItem('aile-registration-history');
-    if (registrationHistory) {
-      setHasRegistrationHistory(true);
-    }
-    if (savedCardData) {
-      const cardInfo = JSON.parse(savedCardData);
-      setCardData(cardInfo);
+      // 檢查是否有註冊歷史記錄
+      const registrationHistory = localStorage.getItem('aile-registration-history');
+      if (registrationHistory) {
+        setHasRegistrationHistory(true);
+      }
+      
+      if (savedCardData) {
+        const cardInfo = JSON.parse(savedCardData);
+        setCardData(cardInfo);
 
-      // 自動生成QR Code資料
-      const qrInfo = `名片資訊
+        // 自動生成QR Code資料
+        const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
 ${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
 公司: ${cardInfo.companyName || ''}
@@ -71,12 +74,55 @@ ${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDispl
 ${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
 LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
-      setQrCodeData(qrInfo);
-      console.log('生成QR Code:', qrInfo);
-    }
-    if (savedUserData) {
-      setUserData(JSON.parse(savedUserData));
-    }
+        setQrCodeData(qrInfo);
+        console.log('生成QR Code:', qrInfo);
+      }
+      
+      if (savedUserData) {
+        setUserData(JSON.parse(savedUserData));
+      }
+    };
+
+    // 初始載入資料
+    loadCardData();
+
+    // 監聽localStorage變化，實現即時同步
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'aile-card-data' && e.newValue) {
+        const cardInfo = JSON.parse(e.newValue);
+        setCardData(cardInfo);
+        
+        // 同步更新QR Code資料
+        const qrInfo = `名片資訊
+姓名: ${cardInfo.name || ''}
+${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
+公司: ${cardInfo.companyName || ''}
+電話: ${cardInfo.phone || ''}
+Email: ${cardInfo.email || ''}
+${cardInfo.address && cardInfo.addressVisible ? `地址: ${cardInfo.address}` : ''}
+${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardInfo.birthday)}` : ''}
+${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
+LINE: ${cardInfo.line || ''}
+網站: ${cardInfo.website || ''}`;
+        setQrCodeData(qrInfo);
+      }
+    };
+
+    // 監聽跨標籤頁的localStorage變化
+    window.addEventListener('storage', handleStorageChange);
+
+    // 監聽同一頁面內的localStorage變化（自定義事件）
+    const handleCustomStorageChange = () => {
+      loadCardData();
+    };
+    
+    window.addEventListener('cardDataUpdated', handleCustomStorageChange);
+
+    // 清理監聽器
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('cardDataUpdated', handleCustomStorageChange);
+    };
 
     // 載入點數資訊
     const savedPoints = localStorage.getItem('aile-user-points');

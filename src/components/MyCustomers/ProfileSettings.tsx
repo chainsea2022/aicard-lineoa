@@ -180,6 +180,9 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
     };
     
     localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
+    
+    // 觸發自定義事件，通知其他組件資料已更新
+    window.dispatchEvent(new CustomEvent('cardDataUpdated'));
   };
 
   const handleSavePublicSettings = () => {

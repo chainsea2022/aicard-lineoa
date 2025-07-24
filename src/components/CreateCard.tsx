@@ -431,6 +431,10 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       otherInfoVisible
     };
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+    
+    // 觸發自定義事件，通知其他組件資料已更新
+    window.dispatchEvent(new CustomEvent('cardDataUpdated'));
+    
     toast({
       title: "名片已儲存",
       description: "您的電子名片已成功儲存。"
