@@ -535,7 +535,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                 size="lg"
               >
                 <Save className="w-5 h-5 mr-2" />
-                儲存個人資料
+                儲存
               </Button>
             </div>
           </CardContent>
