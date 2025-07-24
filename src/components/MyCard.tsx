@@ -10,7 +10,6 @@ import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
-import ProfileSettings from './ProfileSettings';
 import PointsWidget from './PointsWidget';
 interface MyCardProps {
   onClose: () => void;
@@ -23,10 +22,14 @@ const MyCard: React.FC<MyCardProps> = ({
   const [showCreateCard, setShowCreateCard] = useState(false);
   const [showPoints, setShowPoints] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
-  const [showProfileSettings, setShowProfileSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState('cardSettings');
   const [qrCodeData, setQrCodeData] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
+  const [showPublicSettings, setShowPublicSettings] = useState(true);
+  const [publicSettings, setPublicSettings] = useState({
+    isPublicProfile: false,
+    allowDirectContact: false,
+    receiveNotifications: true
+  });
   const [isNewUser, setIsNewUser] = useState(false);
   const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
@@ -77,6 +80,10 @@ LINE: ${cardInfo.line || ''}
     }
     if (savedUserData) {
       setUserData(JSON.parse(savedUserData));
+    }
+    const savedSettings = localStorage.getItem('aile-profile-settings');
+    if (savedSettings) {
+      setPublicSettings(JSON.parse(savedSettings));
     }
 
     // 載入點數資訊
@@ -235,6 +242,11 @@ LINE: ${cardInfo.line || ''}
     setShowOTPVerification(false);
     setIsNewUser(false);
     setCurrentPoints(0);
+    setPublicSettings({
+      isPublicProfile: false,
+      allowDirectContact: false,
+      receiveNotifications: true
+    });
     toast({
       title: "已登出",
       description: "您已成功登出，可重新登入使用服務。"
@@ -287,6 +299,27 @@ LINE: ${cardInfo.line || ''}
       });
     }
   };
+  const handleSettingChange = (key: string, value: boolean) => {
+    const newSettings = {
+      ...publicSettings,
+      [key]: value
+    };
+    setPublicSettings(newSettings);
+    localStorage.setItem('aile-profile-settings', JSON.stringify(newSettings));
+
+    // 根據設定顯示相應的提示訊息
+    if (key === 'receiveNotifications') {
+      toast({
+        title: value ? "已開啟通知" : "已關閉通知",
+        description: value ? "當有用戶加入您的名片時，將在Aipower聊天室中彈跳通知提醒。" : "將不再接收用戶加入名片的通知提醒。"
+      });
+    } else {
+      toast({
+        title: "設定已儲存",
+        description: "您的電子名片設定已更新。"
+      });
+    }
+  };
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
   }
@@ -295,9 +328,6 @@ LINE: ${cardInfo.line || ''}
   }
   if (showPoints) {
     return <Points onClose={() => setShowPoints(false)} />;
-  }
-  if (showProfileSettings) {
-    return <ProfileSettings onClose={() => setShowProfileSettings(false)} />;
   }
   return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
@@ -429,209 +459,231 @@ LINE: ${cardInfo.line || ''}
       {/* 已登入用戶的名片管理介面 */}
       {userData && cardData && (
         <div>
-          {/* 功能選項標籤頁 */}
-          <div className="flex bg-white border-b border-gray-200">
-            <button 
-              onClick={() => setActiveTab('cardSettings')} 
-              className={`flex-1 py-3 text-center font-medium transition-colors ${
-                activeTab === 'cardSettings' 
-                  ? 'text-blue-600 border-b-2 border-blue-600' 
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
-              <Edit className="w-4 h-4 inline-block mr-1" />
-              名片設置
-            </button>
-            <button 
-              onClick={() => setActiveTab('points')} 
-              className={`flex-1 py-3 text-center font-medium transition-colors ${
-                activeTab === 'points' 
-                  ? 'text-orange-600 border-b-2 border-orange-600' 
-                  : 'text-gray-600 hover:text-orange-600'
-              }`}
-            >
-              <Award className="w-4 h-4 inline-block mr-1" />
-              會員點數
-            </button>
-            <button 
-              onClick={() => setActiveTab('settings')}
-              className={`flex-1 py-3 text-center font-medium transition-colors ${
-                activeTab === 'settings' 
-                  ? 'text-green-600 border-b-2 border-green-600' 
-                  : 'text-gray-600 hover:text-green-600'
-              }`}
-            >
-              <User className="w-4 h-4 inline-block mr-1" />
-              資料設定
-            </button>
+          {/* 新增功能區塊 */}
+          <div className="p-4 bg-gray-50">
+            <div className="grid grid-cols-3 gap-3">
+              {/* 名片設置 */}
+              <Card className="border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowCreateCard(true)}>
+                <CardContent className="p-3 text-center">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Edit className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <h3 className="text-xs font-medium text-gray-800">名片設置</h3>
+                </CardContent>
+              </Card>
+
+              {/* 會員點數 */}
+              <Card className="border border-gray-200 hover:border-yellow-300 transition-colors cursor-pointer" onClick={() => setShowPoints(true)}>
+                <CardContent className="p-3 text-center">
+                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Award className="w-4 h-4 text-yellow-600" />
+                  </div>
+                  <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
+                </CardContent>
+              </Card>
+
+              {/* 資料設定 */}
+              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowPublicSettings(!showPublicSettings)}>
+                <CardContent className="p-3 text-center">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <User className="w-4 h-4 text-green-600" />
+                  </div>
+                  <h3 className="text-xs font-medium text-gray-800">資料設定</h3>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           <div className="p-6">
-            {/* 根據選中的標籤顯示對應內容 */}
-            {activeTab === 'cardSettings' && (
-              <CreateCard 
-                onClose={() => {}} 
-                onRegistrationComplete={handleCardCreated} 
-                userData={userData}
-              />
-            )}
-            
-            {activeTab === 'points' && (
-              <Points onClose={() => {}} />
-            )}
-            
-            {activeTab === 'settings' && (
-              <ProfileSettings onClose={() => {}} />
-            )}
-            
             {/* 新用戶提示 */}
-            {isNewUser && activeTab === 'cardSettings' && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700 font-medium">
-                  🎉 註冊成功！您的電子名片已建立，完善您的資訊
+                  🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
                 </p>
               </div>}
 
-            {/* 名片預覽 - 只在非編輯模式下顯示 */}
-            {activeTab !== 'cardSettings' && activeTab !== 'points' && activeTab !== 'settings' && (
-              <>
-                <Card className="mb-6 shadow-xl border-2 border-green-200">
-                  <CardContent className="p-0">
-                    <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
-                      <div className="flex items-center space-x-4 mb-4">
-                        {cardData.photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
-                            <AvatarImage src={cardData.photo} alt="照片" />
-                            <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
-                              {cardData.name?.charAt(0) || 'U'}
-                            </AvatarFallback>
-                          </Avatar>}
-                        <div className="flex-1">
-                          <h2 className="text-2xl font-bold mb-1">{cardData.name && cardData.nameVisible !== false ? cardData.name : '您的姓名'}</h2>
-                          {cardData.jobTitle && cardData.jobTitleVisible !== false && <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>}
-                          {cardData.companyName && cardData.companyNameVisible !== false && <p className="text-green-100 text-lg">{cardData.companyName}</p>}
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 text-sm">
-                        {cardData.introduction && cardData.introductionVisible !== false && (
-                          <div className="bg-white/10 p-2 rounded text-xs mb-3">
-                            <span className="mr-2">💬</span>
-                            <span>{cardData.introduction}</span>
-                          </div>
-                        )}
-                        {cardData.phone && cardData.phoneVisible !== false && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{cardData.phone}</span>
-                          </div>
-                        )}
-                        {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{cardData.mobilePhone}</span>
-                          </div>
-                        )}
-                        {cardData.email && cardData.emailVisible !== false && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{cardData.email}</span>
-                          </div>
-                        )}
-                        {cardData.website && cardData.websiteVisible !== false && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{cardData.website}</span>
-                          </div>
-                        )}
-                        {cardData.address && cardData.addressVisible && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{cardData.address}</span>
-                          </div>
-                        )}
-                        {cardData.birthday && cardData.birthdayVisible && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{formatBirthdayDisplay(cardData.birthday)}</span>
-                          </div>
-                        )}
-                        {cardData.gender && cardData.genderVisible && (
-                          <div className="flex items-center space-x-3">
-                            <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                            <span className="truncate">{getGenderDisplay(cardData.gender)}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 社群資訊 */}
-                      {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
-                        <div className="mt-4 pt-4 border-t border-green-300/50">
-                          <div className="flex flex-wrap gap-3 justify-center">
-                            {cardData.line && cardData.lineVisible !== false && (
-                              <button
-                                onClick={() => handleLineClick(cardData.line)}
-                                className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                              >
-                                <MessageCircle className="w-5 h-5 text-white" />
-                              </button>
-                            )}
-                            {cardData.facebook && cardData.facebookVisible !== false && (
-                              <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
-                                <Facebook className="w-5 h-5 text-white" />
-                              </div>
-                            )}
-                            {cardData.instagram && cardData.instagramVisible !== false && (
-                              <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
-                                <Instagram className="w-5 h-5 text-white" />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                    </div>
-                    
-                    {/* QR Code 區塊 - 移到名片內部 */}
-                    <div className="p-4 bg-white border-t">
-                      <Button variant="ghost" onClick={() => setShowQRCode(!showQRCode)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
-                        <div className="flex items-center">
-                          <QrCode className="w-4 h-4 mr-2" />
-                          <span className="font-semibold text-gray-800">我的名片 QR Code</span>
-                        </div>
-                        {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </Button>
-                      
-                      {showQRCode && <div className="mt-3 text-center">
-                          <div className="flex justify-center mb-3">
-                            {generateQRCode(qrCodeData)}
-                          </div>
-                          <p className="text-xs text-gray-600 mb-3">
-                            掃描此QR Code即可獲得我的聯絡資訊
-                          </p>
-                          <Button onClick={downloadQRCode} variant="outline" size="sm" className="border-green-500 text-green-600 hover:bg-green-50">
-                            <Download className="w-4 h-4 mr-1" />
-                            下載 QR Code
-                          </Button>
-                        </div>}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 操作按鈕 - 移到公開設定上方 */}
-                <div className="grid grid-cols-2 gap-3 mb-6">
-                  <Button onClick={() => setActiveTab('cardSettings')} className="bg-blue-500 hover:bg-blue-600 text-white">
-                    <Edit className="w-4 h-4 mr-1" />
-                    編輯名片
-                  </Button>
-
-                  <Button onClick={shareCard} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
-                    <Share2 className="w-4 h-4 mr-1" />
-                    分享名片
-                  </Button>
+          {/* 名片預覽 - 包含 QR Code */}
+          <Card className="mb-6 shadow-xl border-2 border-green-200">
+            <CardContent className="p-0">
+              <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
+                <div className="flex items-center space-x-4 mb-4">
+                  {cardData.photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                      <AvatarImage src={cardData.photo} alt="照片" />
+                      <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
+                        {cardData.name?.charAt(0) || 'U'}
+                      </AvatarFallback>
+                    </Avatar>}
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-bold mb-1">{cardData.name && cardData.nameVisible !== false ? cardData.name : '您的姓名'}</h2>
+                    {cardData.jobTitle && cardData.jobTitleVisible !== false && <p className="text-green-100 text-sm mb-1">{cardData.jobTitle}</p>}
+                    {cardData.companyName && cardData.companyNameVisible !== false && <p className="text-green-100 text-lg">{cardData.companyName}</p>}
+                  </div>
                 </div>
 
-                <PointsWidget onPointsClick={() => setActiveTab('points')} />
-              </>
-            )}
+                <div className="space-y-2 text-sm">
+                  {cardData.introduction && cardData.introductionVisible !== false && (
+                    <div className="bg-white/10 p-2 rounded text-xs mb-3">
+                      <span className="mr-2">💬</span>
+                      <span>{cardData.introduction}</span>
+                    </div>
+                  )}
+                  {cardData.phone && cardData.phoneVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.phone}</span>
+                    </div>
+                  )}
+                  {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.mobilePhone}</span>
+                    </div>
+                  )}
+                  {cardData.email && cardData.emailVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.email}</span>
+                    </div>
+                  )}
+                  {cardData.website && cardData.websiteVisible !== false && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.website}</span>
+                    </div>
+                  )}
+                  {cardData.address && cardData.addressVisible && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{cardData.address}</span>
+                    </div>
+                  )}
+                  {cardData.birthday && cardData.birthdayVisible && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{formatBirthdayDisplay(cardData.birthday)}</span>
+                    </div>
+                  )}
+                  {cardData.gender && cardData.genderVisible && (
+                    <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">{getGenderDisplay(cardData.gender)}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 社群資訊 */}
+                {((cardData.line && cardData.lineVisible !== false) || (cardData.facebook && cardData.facebookVisible !== false) || (cardData.instagram && cardData.instagramVisible !== false)) && (
+                  <div className="mt-4 pt-4 border-t border-green-300/50">
+                    <div className="flex flex-wrap gap-3 justify-center">
+                      {cardData.line && cardData.lineVisible !== false && (
+                        <button
+                          onClick={() => handleLineClick(cardData.line)}
+                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                        >
+                          <MessageCircle className="w-5 h-5 text-white" />
+                        </button>
+                      )}
+                      {cardData.facebook && cardData.facebookVisible !== false && (
+                        <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                          <Facebook className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                      {cardData.instagram && cardData.instagramVisible !== false && (
+                        <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                          <Instagram className="w-5 h-5 text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              </div>
+              
+              {/* QR Code 區塊 - 移到名片內部 */}
+              <div className="p-4 bg-white border-t">
+                <Button variant="ghost" onClick={() => setShowQRCode(!showQRCode)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
+                  <div className="flex items-center">
+                    <QrCode className="w-4 h-4 mr-2" />
+                    <span className="font-semibold text-gray-800">我的名片 QR Code</span>
+                  </div>
+                  {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </Button>
+                
+                {showQRCode && <div className="mt-3 text-center">
+                    <div className="flex justify-center mb-3">
+                      {generateQRCode(qrCodeData)}
+                    </div>
+                    <p className="text-xs text-gray-600 mb-3">
+                      掃描此QR Code即可獲得我的聯絡資訊
+                    </p>
+                    <Button onClick={downloadQRCode} variant="outline" size="sm" className="border-green-500 text-green-600 hover:bg-green-50">
+                      <Download className="w-4 h-4 mr-1" />
+                      下載 QR Code
+                    </Button>
+                  </div>}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* 操作按鈕 - 移到公開設定上方 */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <Button onClick={() => setShowCreateCard(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
+              <Edit className="w-4 h-4 mr-1" />
+              編輯名片
+            </Button>
+
+            <Button onClick={shareCard} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
+              <Share2 className="w-4 h-4 mr-1" />
+              分享名片
+            </Button>
+          </div>
+
+          {/* 公開設定區塊 - 可折疊且預設縮合 */}
+          <Card className="mb-6 shadow-lg">
+            <CardContent className="p-4">
+              <Button variant="ghost" onClick={() => setShowPublicSettings(!showPublicSettings)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
+                <div className="flex items-center">
+                  <Eye className="w-4 h-4 mr-2" />
+                  <span className="font-semibold text-gray-800">公開設定</span>
+                </div>
+                {showPublicSettings ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </Button>
+              
+              {showPublicSettings && <div className="mt-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">公開電子名片</Label>
+                      <p className="text-xs text-gray-600">
+                        您的名片將可被其他用戶在智能推薦中搜尋與發現
+                      </p>
+                    </div>
+                    <Switch checked={publicSettings.isPublicProfile} onCheckedChange={checked => handleSettingChange('isPublicProfile', checked)} />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">允許直接加入</Label>
+                      <p className="text-xs text-gray-600">
+                        啟用後，其他用戶可以直接把您的電子名片存到他們的名片夾。未啟用時，對方必須等您同意後，才能收到您的電子名片
+                      </p>
+                    </div>
+                    <Switch checked={publicSettings.allowDirectContact} onCheckedChange={checked => handleSettingChange('allowDirectContact', checked)} />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-sm font-medium">接收通知</Label>
+                      <p className="text-xs text-gray-600">
+                        您會收到所有關於電子名片、人脈互動、活動邀請和點數變動的系統通知
+                      </p>
+                    </div>
+                    <Switch checked={publicSettings.receiveNotifications} onCheckedChange={checked => handleSettingChange('receiveNotifications', checked)} />
+                  </div>
+                </div>}
+            </CardContent>
+          </Card>
+
+          <PointsWidget onPointsClick={() => setShowPoints(true)} />
           </div>
         </div>
       )}
