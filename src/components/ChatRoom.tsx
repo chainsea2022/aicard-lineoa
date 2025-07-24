@@ -419,7 +419,7 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
 };
 
 const ChatRoom = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(true); // 預設展開圖文選單
   const [activeView, setActiveView] = useState<string | null>('create-card');
   const [messages, setMessages] = useState<Message[]>([
     { id: 1, text: '歡迎使用 Aipower！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }

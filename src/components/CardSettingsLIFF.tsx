@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Settings, Eye, EyeOff, Save, Edit3, Smartphone, Mail, MapPin, Calendar, Globe, MessageCircle, Facebook, Instagram } from 'lucide-react';
+import { X, User, Settings, Eye, EyeOff, Save, Edit3, Smartphone, Mail, MapPin, Calendar, Globe, MessageCircle, Facebook, Instagram, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -86,6 +86,20 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
       }
     }
     console.log('Email verification check failed');
+    return false;
+  };
+
+  const checkPhoneVerification = (phone: string) => {
+    if (!phone) return true;
+    
+    // 檢查手機號碼是否已在ProfileSettings中驗證
+    const cardData = localStorage.getItem('aile-card-data');
+    if (cardData) {
+      const data = JSON.parse(cardData);
+      if (data.phone === phone && data.phoneVerified) {
+        return true;
+      }
+    }
     return false;
   };
 
@@ -285,23 +299,89 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="phone">電話號碼</Label>
-                  <Input
-                    id="phone"
-                    value={cardData.phone || ''}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    placeholder="請輸入電話號碼"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="phone"
+                      value={cardData.phone || ''}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      placeholder="請輸入電話號碼"
+                      className="pr-10"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                      {cardData.phone && (
+                        checkPhoneVerification(cardData.phone) ? (
+                          <div className="flex items-center text-green-600" title="已驗證">
+                            <CheckCircle className="w-4 h-4" />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setShowProfileSettings(true)}
+                            className="flex items-center text-orange-600 hover:text-orange-700"
+                            title="點擊驗證"
+                          >
+                            <AlertCircle className="w-4 h-4" />
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                  {cardData.phone && !checkPhoneVerification(cardData.phone) && (
+                    <p className="text-xs text-orange-600">
+                      未驗證 - 
+                      <button
+                        type="button"
+                        onClick={() => setShowProfileSettings(true)}
+                        className="underline hover:no-underline ml-1"
+                      >
+                        點擊前往驗證
+                      </button>
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={cardData.email || ''}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    placeholder="請輸入Email地址"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="email"
+                      type="email"
+                      value={cardData.email || ''}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      placeholder="請輸入Email地址"
+                      className="pr-10"
+                    />
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center space-x-1">
+                      {cardData.email && (
+                        checkEmailVerification(cardData.email) ? (
+                          <div className="flex items-center text-green-600" title="已驗證">
+                            <CheckCircle className="w-4 h-4" />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setShowProfileSettings(true)}
+                            className="flex items-center text-orange-600 hover:text-orange-700"
+                            title="點擊驗證"
+                          >
+                            <AlertCircle className="w-4 h-4" />
+                          </button>
+                        )
+                      )}
+                    </div>
+                  </div>
+                  {cardData.email && !checkEmailVerification(cardData.email) && (
+                    <p className="text-xs text-orange-600">
+                      未驗證 - 
+                      <button
+                        type="button"
+                        onClick={() => setShowProfileSettings(true)}
+                        className="underline hover:no-underline ml-1"
+                      >
+                        點擊前往驗證
+                      </button>
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
