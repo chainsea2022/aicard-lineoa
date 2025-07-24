@@ -536,12 +536,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose }) => 
                       captionLayout="dropdown-buttons"
                       fromYear={1900}
                       toYear={new Date().getFullYear()}
-                      locale={zhTW}
                       className="pointer-events-auto"
                       formatters={{
-                        formatCaption: (date: Date) => {
-                          return date.getFullYear().toString();
-                        }
+                        formatCaption: (date: Date) => date.getFullYear().toString(),
+                        formatMonthCaption: (date: Date) => `${date.getMonth() + 1}月`,
+                        formatYearCaption: (date: Date) => date.getFullYear().toString()
                       }}
                     />
                   </PopoverContent>
