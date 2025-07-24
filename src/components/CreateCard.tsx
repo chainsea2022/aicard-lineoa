@@ -78,6 +78,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const [newSocialMedia, setNewSocialMedia] = useState({platform: '', url: ''});
+  const [editingSocialMedia, setEditingSocialMedia] = useState<{id: string, platform: string, url: string} | null>(null);
   
   // 語音錄製相關
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -321,6 +322,31 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     setSocialMedia(prev => prev.map(item => 
       item.id === id ? {...item, visible} : item
     ));
+  };
+
+  const handleEditSocialMedia = (item: {id: string, platform: string, url: string}) => {
+    setEditingSocialMedia(item);
+    setNewSocialMedia({platform: item.platform, url: item.url});
+    setShowSocialMediaForm(true);
+  };
+
+  const handleUpdateSocialMedia = () => {
+    if (editingSocialMedia && newSocialMedia.platform && newSocialMedia.url) {
+      setSocialMedia(prev => prev.map(item => 
+        item.id === editingSocialMedia.id 
+          ? {...item, platform: newSocialMedia.platform, url: newSocialMedia.url}
+          : item
+      ));
+      setEditingSocialMedia(null);
+      setShowSocialMediaForm(false);
+      setNewSocialMedia({platform: '', url: ''});
+    }
+  };
+
+  const handleCancelSocialMediaEdit = () => {
+    setEditingSocialMedia(null);
+    setShowSocialMediaForm(false);
+    setNewSocialMedia({platform: '', url: ''});
   };
 
   const handlePhoneChange = () => {
@@ -1294,16 +1320,20 @@ LINE: ${line || ''}
               {/* 顯示已新增的社群媒體 */}
               {socialMedia.map((item) => (
                 <div key={item.id} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-2 flex-1">
+                  <div className="flex items-center space-x-2 flex-1 min-w-0">
                     {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-red-500" />}
                     {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-blue-600" />}
                     {item.platform === 'threads' && <span className="text-lg">🧵</span>}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm capitalize">{item.platform}</p>
-                      <p className="text-xs text-gray-500 truncate break-all max-w-full overflow-hidden">{item.url}</p>
+                      <p className="text-xs text-gray-500 truncate w-full" style={{
+                        wordBreak: 'break-all',
+                        overflowWrap: 'break-word',
+                        maxWidth: '100%'
+                      }}>{item.url}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-1 shrink-0">
                     <Switch
                       checked={item.visible}
                       onCheckedChange={(visible) => handleSocialMediaVisibilityChange(item.id, visible)}
@@ -1312,8 +1342,17 @@ LINE: ${line || ''}
                       type="button"
                       size="sm"
                       variant="ghost"
+                      onClick={() => handleEditSocialMedia(item)}
+                      className="text-blue-500 hover:bg-blue-50 p-1"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
                       onClick={() => handleRemoveSocialMedia(item.id)}
-                      className="text-red-500 hover:bg-red-50"
+                      className="text-red-500 hover:bg-red-50 p-1"
                     >
                       <X className="w-4 h-4" />
                     </Button>
@@ -1321,9 +1360,12 @@ LINE: ${line || ''}
                 </div>
               ))}
 
-              {/* 社群媒體新增表單 */}
+              {/* 社群媒體新增/編輯表單 */}
               {showSocialMediaForm && (
                 <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+                  <h4 className="font-medium text-sm text-gray-800">
+                    {editingSocialMedia ? '編輯社群媒體' : '新增社群媒體'}
+                  </h4>
                   <Select value={newSocialMedia.platform} onValueChange={(value) => setNewSocialMedia(prev => ({...prev, platform: value}))}>
                     <SelectTrigger>
                       <SelectValue placeholder="選擇社群平台" />
@@ -1338,26 +1380,27 @@ LINE: ${line || ''}
                     placeholder="請輸入完整網址（如：https://...）"
                     value={newSocialMedia.url}
                     onChange={(e) => setNewSocialMedia(prev => ({...prev, url: e.target.value}))}
-                    className="break-all overflow-hidden text-ellipsis"
+                    className="w-full"
                     style={{ 
                       wordBreak: 'break-all',
-                      overflowWrap: 'break-word'
+                      overflowWrap: 'break-word',
+                      whiteSpace: 'pre-wrap'
                     }}
                   />
                   <div className="flex space-x-2">
                     <Button
                       type="button"
                       size="sm"
-                      onClick={handleSaveSocialMedia}
+                      onClick={editingSocialMedia ? handleUpdateSocialMedia : handleSaveSocialMedia}
                       className="bg-blue-600 hover:bg-blue-700 text-white"
                     >
-                      確認新增
+                      {editingSocialMedia ? '更新' : '確認新增'}
                     </Button>
                     <Button
                       type="button"
                       size="sm"
                       variant="outline"
-                      onClick={() => setShowSocialMediaForm(false)}
+                      onClick={editingSocialMedia ? handleCancelSocialMediaEdit : () => setShowSocialMediaForm(false)}
                     >
                       取消
                     </Button>
