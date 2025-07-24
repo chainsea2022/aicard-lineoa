@@ -571,19 +571,61 @@ LINE: ${cardInfo.line || ''}
                 </div>
 
                 {/* 社群資訊 */}
-                {(cardData.line && cardData.lineVisible !== false || cardData.facebook && cardData.facebookVisible !== false || cardData.instagram && cardData.instagramVisible !== false) && <div className="mt-4 pt-4 border-t border-green-300/50">
+                {(cardData.line && cardData.lineVisible !== false || 
+                  cardData.facebook && cardData.facebookVisible !== false || 
+                  cardData.instagram && cardData.instagramVisible !== false ||
+                  (cardData.socialMedia && cardData.socialMedia.some((item: any) => item.visible))) && 
+                  <div className="mt-4 pt-4 border-t border-green-300/50">
                     <div className="flex flex-wrap gap-3 justify-center">
-                      {cardData.line && cardData.lineVisible !== false && <button onClick={() => handleLineClick(cardData.line)} className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                      {cardData.line && cardData.lineVisible !== false && 
+                        <button onClick={() => handleLineClick(cardData.line)} className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                           <MessageCircle className="w-5 h-5 text-white" />
                         </button>}
-                      {cardData.facebook && cardData.facebookVisible !== false && <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                      {cardData.facebook && cardData.facebookVisible !== false && 
+                        <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                           <Facebook className="w-5 h-5 text-white" />
                         </div>}
-                      {cardData.instagram && cardData.instagramVisible !== false && <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                      {cardData.instagram && cardData.instagramVisible !== false && 
+                        <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                           <Instagram className="w-5 h-5 text-white" />
                         </div>}
+                      
+                      {/* 新增的社群媒體 */}
+                      {cardData.socialMedia && cardData.socialMedia.filter((item: any) => item.visible).map((item: any) => (
+                        <button 
+                          key={item.id}
+                          onClick={() => window.open(item.url, '_blank')}
+                          className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          style={{
+                            backgroundColor: 
+                              item.platform === 'youtube' ? '#ff0000' : 
+                              item.platform === 'linkedin' ? '#0077b5' : 
+                              item.platform === 'threads' ? '#000000' : '#666666'
+                          }}
+                          title={item.platform}
+                        >
+                          {item.platform === 'youtube' && <span className="text-white font-bold text-xs">YT</span>}
+                          {item.platform === 'linkedin' && <span className="text-white font-bold text-xs">in</span>}
+                          {item.platform === 'threads' && <span className="text-white">🧵</span>}
+                        </button>
+                      ))}
                     </div>
                   </div>}
+
+                {/* 其他資訊 */}
+                {cardData.otherInfo && cardData.otherInfoVisible !== false && (
+                  <div className="mt-4 pt-4 border-t border-green-300/50">
+                    <div className="bg-white/10 p-3 rounded-lg">
+                      <div className="flex items-start space-x-2">
+                        <span className="text-sm opacity-75">📝</span>
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium mb-1 opacity-90">其他資訊</h4>
+                          <p className="text-xs opacity-80 leading-relaxed">{cardData.otherInfo}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
               </div>
               
