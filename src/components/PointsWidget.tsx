@@ -18,8 +18,6 @@ const PointsWidget: React.FC<PointsWidgetProps> = ({
       setCanRedeem(points >= 50);
     }
   }, []);
-  return <Card className="mb-4 bg-gradient-to-br from-yellow-50 via-orange-50 to-red-50 border-orange-200 shadow-lg cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]" onClick={onPointsClick}>
-      
-    </Card>;
+  return null;
 };
 export default PointsWidget;
