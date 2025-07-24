@@ -459,39 +459,29 @@ LINE: ${cardInfo.line || ''}
       {/* 已登入用戶的名片管理介面 */}
       {userData && cardData && (
         <div>
-          {/* 新增功能區塊 */}
-          <div className="p-4 bg-gray-50">
-            <div className="grid grid-cols-3 gap-3">
-              {/* 名片設置 */}
-              <Card className="border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowCreateCard(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Edit className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">名片設置</h3>
-                </CardContent>
-              </Card>
-
-              {/* 會員點數 */}
-              <Card className="border border-gray-200 hover:border-yellow-300 transition-colors cursor-pointer" onClick={() => setShowPoints(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Award className="w-4 h-4 text-yellow-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
-                </CardContent>
-              </Card>
-
-              {/* 資料設定 */}
-              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowPublicSettings(!showPublicSettings)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <User className="w-4 h-4 text-green-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">資料設定</h3>
-                </CardContent>
-              </Card>
-            </div>
+          {/* 功能選項標籤頁 */}
+          <div className="flex bg-white border-b border-gray-200">
+            <button 
+              onClick={() => setShowCreateCard(true)} 
+              className="flex-1 py-3 text-center font-medium text-gray-600 hover:text-blue-600 transition-colors"
+            >
+              <Edit className="w-4 h-4 inline-block mr-1" />
+              名片設置
+            </button>
+            <button 
+              onClick={() => setShowPoints(true)} 
+              className="flex-1 py-3 text-center font-medium text-gray-600 hover:text-orange-600 transition-colors"
+            >
+              <Award className="w-4 h-4 inline-block mr-1" />
+              會員點數
+            </button>
+            <button 
+              onClick={() => setShowPublicSettings(!showPublicSettings)} 
+              className="flex-1 py-3 text-center font-medium text-gray-600 hover:text-green-600 transition-colors"
+            >
+              <User className="w-4 h-4 inline-block mr-1" />
+              資料設定
+            </button>
           </div>
 
           <div className="p-6">
