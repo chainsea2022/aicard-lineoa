@@ -89,7 +89,8 @@ ${cardInfo.tiktok && cardInfo.tiktokVisible !== false ? `TikTok: ${cardInfo.tikt
 ${cardInfo.threads && cardInfo.threadsVisible !== false ? `Threads: ${cardInfo.threads}` : ''}
 ${cardInfo.wechat && cardInfo.wechatVisible !== false ? `WeChat: ${cardInfo.wechat}` : ''}
 ${cardInfo.whatsapp && cardInfo.whatsappVisible !== false ? `WhatsApp: ${cardInfo.whatsapp}` : ''}
-${cardInfo.introduction && cardInfo.introductionVisible !== false ? `個人介紹: ${cardInfo.introduction}` : ''}`;
+${cardInfo.introduction && cardInfo.introductionVisible !== false ? `個人介紹: ${cardInfo.introduction}` : ''}
+${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${cardInfo.otherInfo}` : ''}`;
         setQrCodeData(qrInfo);
         console.log('生成QR Code:', qrInfo);
       }
@@ -616,7 +617,7 @@ LINE: ${cardInfo.line || ''}
                           className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
                           title="LINE"
                         >
-                          <MessageCircle className="w-5 h-5 text-white" />
+                          <span className="text-white text-lg">💬</span>
                         </button>
                       )}
                       {cardData.facebook && cardData.facebookVisible !== false && (
@@ -627,7 +628,7 @@ LINE: ${cardInfo.line || ''}
                           className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
                           title="Facebook"
                         >
-                          <Facebook className="w-5 h-5 text-white" />
+                          <span className="text-white text-lg">📘</span>
                         </a>
                       )}
                       {cardData.instagram && cardData.instagramVisible !== false && (
@@ -638,7 +639,7 @@ LINE: ${cardInfo.line || ''}
                           className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
                           title="Instagram"
                         >
-                          <Instagram className="w-5 h-5 text-white" />
+                          <span className="text-white text-lg">📷</span>
                         </a>
                       )}
                       {cardData.youtube && cardData.youtubeVisible !== false && (
@@ -649,7 +650,7 @@ LINE: ${cardInfo.line || ''}
                           className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
                           title="YouTube"
                         >
-                          <Youtube className="w-5 h-5 text-white" />
+                          <span className="text-white text-lg">🎥</span>
                         </a>
                       )}
                       {cardData.linkedin && cardData.linkedinVisible !== false && (
@@ -660,7 +661,7 @@ LINE: ${cardInfo.line || ''}
                           className="w-10 h-10 rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
                           title="LinkedIn"
                         >
-                          <Linkedin className="w-5 h-5 text-white" />
+                          <span className="text-white text-lg">💼</span>
                         </a>
                       )}
                       {cardData.twitter && cardData.twitterVisible !== false && (
