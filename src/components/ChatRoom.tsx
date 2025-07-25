@@ -879,17 +879,17 @@ const ChatRoom = () => {
                             <div className="bg-white rounded-2xl shadow-lg max-w-[260px] border border-gray-100 overflow-hidden">
                               {/* Business Card Header - 更緊湊的設計 */}
               <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   {message.cardData.photo && (
                     <img 
                       src={message.cardData.photo} 
                       alt="照片" 
-                      className="w-32 h-32 rounded-full object-cover border-2 border-white flex-shrink-0 shadow-lg" 
+                      className="w-28 h-28 rounded-full object-cover border-2 border-white flex-shrink-0 shadow-lg" 
                     />
                   )}
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-lg font-bold truncate mb-1">{message.cardData.name}</h3>
-                    <p className="text-blue-100 text-sm truncate mb-0.5">{message.cardData.companyName}</p>
+                    <h3 className="text-xl font-bold truncate mb-1">{message.cardData.name}</h3>
+                    <p className="text-blue-100 text-base truncate mb-1">{message.cardData.companyName}</p>
                     {message.cardData.jobTitle && (
                       <p className="text-blue-200 text-sm truncate">{message.cardData.jobTitle}</p>
                     )}
