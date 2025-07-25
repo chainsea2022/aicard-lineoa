@@ -580,14 +580,34 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className="w-80 max-w-[90vw] p-0 shadow-2xl border border-gray-100 rounded-xl bg-white z-50 mx-auto" 
+                    className="w-full max-w-xs p-0 shadow-2xl border border-gray-100 rounded-xl bg-white z-[9999]" 
                     align="center" 
-                    side="bottom" 
+                    side="top" 
                     sideOffset={8}
                     avoidCollisions={true}
-                    collisionPadding={16}
+                    collisionPadding={8}
+                    style={{
+                      position: 'fixed',
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      maxWidth: '300px',
+                      maxHeight: '90vh',
+                      overflow: 'auto'
+                    }}
                   >
-                    <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
+                    <div className="bg-white rounded-xl overflow-hidden">
+                      <div className="flex items-center justify-between p-3 border-b border-gray-100 bg-gray-50">
+                        <h3 className="font-medium text-gray-900 text-sm">選擇生日日期</h3>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowBirthdayCalendar(false)}
+                          className="h-6 w-6 p-0 hover:bg-gray-200"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
                       <Calendar
                         mode="single"
                         selected={birthdayDate}
