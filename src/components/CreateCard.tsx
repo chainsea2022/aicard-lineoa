@@ -982,7 +982,7 @@ LINE: ${line || ''}
                        }
                      }}
                    >
-                     {mobilePhone === registeredPhone && registeredPhone ? '已驗證' : '請至「資料設定」完成驗證'}
+                     {mobilePhone === registeredPhone && registeredPhone ? '已驗證' : '至「資料設定」驗證'}
                    </span>
                 </div>
                 <div className="flex items-center space-x-2">
