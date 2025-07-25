@@ -241,9 +241,7 @@ const CreateCard: React.FC<CreateCardProps> = ({
         setEmailVerified(cardInfo.emailVerified || false);
       }
     };
-
     window.addEventListener('cardDataUpdated', handleCardDataUpdate);
-
     return () => {
       window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
     };
@@ -972,16 +970,13 @@ LINE: ${line || ''}
                   <Label htmlFor="mobile-phone" className="text-sm font-medium text-gray-700">
                     手機號碼 <span className="text-red-500">*</span>
                   </Label>
-                   <span 
-                     className={`text-xs px-2 py-1 rounded cursor-pointer ${mobilePhone === registeredPhone && registeredPhone ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'}`}
-                     onClick={() => {
-                       if (!(mobilePhone === registeredPhone && registeredPhone)) {
-                         // 跳轉到資料設定中的個人資料區塊手機號碼驗證流程
-                         onClose();
-                         window.dispatchEvent(new CustomEvent('navigateToPersonalDataPhoneVerification'));
-                       }
-                     }}
-                   >
+                   <span className={`text-xs px-2 py-1 rounded cursor-pointer ${mobilePhone === registeredPhone && registeredPhone ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'}`} onClick={() => {
+                  if (!(mobilePhone === registeredPhone && registeredPhone)) {
+                    // 跳轉到資料設定中的個人資料區塊手機號碼驗證流程
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('navigateToPersonalDataPhoneVerification'));
+                  }
+                }}>
                      {mobilePhone === registeredPhone && registeredPhone ? '已驗證' : '至「資料設定」驗證'}
                    </span>
                 </div>
@@ -1003,16 +998,13 @@ LINE: ${line || ''}
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email <span className="text-red-500">*</span>
                   </Label>
-                  <span 
-                    className={`text-xs px-2 py-1 rounded cursor-pointer ${emailVerified ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'}`}
-                    onClick={() => {
-                      if (!emailVerified) {
-                        // 跳轉到資料設定中的個人資料區塊Email驗證流程
-                        onClose();
-                        window.dispatchEvent(new CustomEvent('navigateToPersonalDataEmailVerification'));
-                      }
-                    }}
-                  >
+                  <span className={`text-xs px-2 py-1 rounded cursor-pointer ${emailVerified ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'}`} onClick={() => {
+                  if (!emailVerified) {
+                    // 跳轉到資料設定中的個人資料區塊Email驗證流程
+                    onClose();
+                    window.dispatchEvent(new CustomEvent('navigateToPersonalDataEmailVerification'));
+                  }
+                }}>
                     {emailVerified ? '已驗證' : '至「資料設定」驗證'}
                   </span>
                 </div>
@@ -1291,52 +1283,52 @@ LINE: ${line || ''}
           </CardHeader>
           <CardContent className="p-0">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
-              <div className="flex items-start space-x-5 mb-4">
-                {photo && <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
-                    <AvatarImage src={photo} alt="照片" className="object-cover" />
-                    <AvatarFallback className="bg-white text-green-600 font-bold text-3xl">
+              <div className="flex items-center space-x-4 mb-4">
+                {photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                    <AvatarImage src={photo} alt="照片" />
+                    <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
                       {name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>}
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-2xl font-bold mb-1 leading-tight">{name && nameVisible ? name : '您的姓名'}</h2>
+                <div className="flex-1">
+                  <h2 className="text-2xl font-bold mb-1">{name && nameVisible ? name : '您的姓名'}</h2>
                   {jobTitle && jobTitleVisible && <p className="text-green-100 text-sm mb-1">{jobTitle}</p>}
-                  {companyName && companyNameVisible && <p className="text-green-100 text-base font-medium">{companyName}</p>}
+                  {companyName && companyNameVisible && <p className="text-green-100 text-lg">{companyName}</p>}
                 </div>
               </div>
 
-              <div className="space-y-1.5 text-sm">
-                {introduction && introductionVisible && <div className="bg-white/10 p-2 rounded text-xs mb-2">
+              <div className="space-y-2 text-sm">
+                {introduction && introductionVisible && <div className="bg-white/10 p-2 rounded text-xs mb-3">
                     <span className="mr-2">💬</span>
                     <span>{introduction}</span>
                   </div>}
                 {phone && phoneVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{phone}</span>
+                    <span className="truncate">{phone}</span>
                   </div>}
                 {mobilePhone && mobilePhoneVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{mobilePhone}</span>
+                    <span className="truncate">{mobilePhone}</span>
                   </div>}
                 {email && emailVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{email}</span>
+                    <span className="truncate">{email}</span>
                   </div>}
                 {website && websiteVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{website}</span>
+                    <span className="truncate">{website}</span>
                   </div>}
                 {address && addressVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{address}</span>
+                    <span className="truncate">{address}</span>
                   </div>}
                 {birthday && birthdayVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{formatBirthdayDisplay(birthday)}</span>
+                    <span className="truncate">{formatBirthdayDisplay(birthday)}</span>
                   </div>}
                 {gender && genderVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-sm">{getGenderDisplay(gender)}</span>
+                    <span className="truncate">{getGenderDisplay(gender)}</span>
                   </div>}
               </div>
 
