@@ -608,7 +608,8 @@ LINE: ${cardInfo.line || ''}
                   cardData.tiktok && cardData.tiktokVisible !== false ||
                   cardData.threads && cardData.threadsVisible !== false ||
                   cardData.wechat && cardData.wechatVisible !== false ||
-                  cardData.whatsapp && cardData.whatsappVisible !== false) && 
+                  cardData.whatsapp && cardData.whatsappVisible !== false ||
+                  (cardData.socialMedia && cardData.socialMedia.some(item => item.visible))) &&
                 <div className="mt-4 pt-4 border-t border-white/20">
                     <div className="flex justify-center flex-wrap gap-3 mb-4">
                       {cardData.line && cardData.lineVisible !== false && (
@@ -717,6 +718,31 @@ LINE: ${cardInfo.line || ''}
                           </svg>
                         </a>
                       )}
+                      
+                      {/* 動態新增的社群媒體 */}
+                      {cardData.socialMedia && cardData.socialMedia.filter(item => item.visible).map(item => (
+                        <a 
+                          key={item.id}
+                          href={item.url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${
+                            item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' :
+                            item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' :
+                            item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' :
+                            'bg-gray-600 hover:bg-gray-700'
+                          }`}
+                        >
+                          {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-white" />}
+                          {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-white" />}
+                          {item.platform === 'threads' && (
+                            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M15.8 8.7c-.4-.8-1.1-1.4-2-1.7-1.1-.4-2.4-.3-3.5.1-.8.3-1.4.8-1.9 1.4-.3.4-.5.8-.6 1.3H6.2c.1-.8.4-1.5.8-2.2.6-1 1.4-1.8 2.4-2.3 1.4-.7 3.1-.8 4.6-.3 1.2.4 2.2 1.2 2.9 2.2.7 1 1 2.2.9 3.4v.1c0 1.1-.3 2.1-.8 3-.5.9-1.2 1.6-2.1 2.1-1.8.9-4 .9-5.8 0-.9-.5-1.6-1.2-2.1-2.1-.5-.9-.8-1.9-.8-3V8c0-2.2 1.8-4 4-4s4 1.8 4 4v3.2c0 .4-.1.8-.3 1.2-.2.4-.5.7-.9.9-.3.2-.7.3-1.1.3-.4 0-.8-.1-1.1-.3-.4-.2-.7-.5-.9-.9-.2-.4-.3-.8-.3-1.2V8h1.6v3.2c0 .2.1.4.2.5.1.1.3.2.5.2s.4-.1.5-.2c.1-.1.2-.3.2-.5V8c0-1.3-1.1-2.4-2.4-2.4S9.6 6.7 9.6 8v3.2c0 .8.2 1.5.6 2.2.4.7.9 1.2 1.6 1.6 1.3.7 2.9.7 4.2 0 .7-.4 1.2-.9 1.6-1.6.4-.7.6-1.4.6-2.2V8.7z"/>
+                            </svg>
+                          )}
+                          {!['youtube', 'linkedin', 'threads'].includes(item.platform) && <span className="text-white text-lg">🔗</span>}
+                        </a>
+                      ))}
                     </div>
                   </div>}
 
