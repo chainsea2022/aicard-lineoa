@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info, Crown, Star, Shield, X, Edit, User } from 'lucide-react';
+import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info, Crown, Star, Shield, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -189,49 +189,17 @@ const Points: React.FC<PointsProps> = ({
             </Button>
             <h1 className="font-bold text-lg">會員點數</h1>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="text-white hover:bg-white/20"
+          >
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
-      {/* 功能區塊 */}
-      <div className="p-4 bg-gray-50">
-        <div className="grid grid-cols-3 gap-3">
-          {/* 名片設置 */}
-          <Card className="border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => {
-            onClose();
-            // 這裡需要觸發顯示名片設定界面的邏輯
-          }}>
-            <CardContent className="p-3 text-center">
-              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Edit className="w-4 h-4 text-blue-600" />
-              </div>
-              <h3 className="text-xs font-medium text-gray-800">名片設定</h3>
-            </CardContent>
-          </Card>
-
-          {/* 會員點數 */}
-          <Card className="border border-yellow-300 bg-yellow-50 cursor-pointer">
-            <CardContent className="p-3 text-center">
-              <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <Award className="w-4 h-4 text-yellow-600" />
-              </div>
-              <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
-            </CardContent>
-          </Card>
-
-          {/* 資料設定 */}
-          <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => {
-            onClose();
-            // 這裡需要觸發顯示資料設定界面的邏輯
-          }}>
-            <CardContent className="p-3 text-center">
-              <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                <User className="w-4 h-4 text-green-600" />
-              </div>
-              <h3 className="text-xs font-medium text-gray-800">資料設定</h3>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
       <div className="flex bg-white border-b border-gray-200">
         <button onClick={() => setActiveTab('overview')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'overview' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
           <TrendingUp className="w-4 h-4 inline-block mr-1" />
