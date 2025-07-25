@@ -889,7 +889,7 @@ const ChatRoom = () => {
                   )}
                   <div className="min-w-0 flex-1">
                     <h3 className="text-xl font-bold truncate mb-1">{message.cardData.name}</h3>
-                    <p className="text-blue-100 text-base truncate mb-1">{message.cardData.companyName}</p>
+                    <p className="text-blue-100 text-base mb-1">{message.cardData.companyName}</p>
                     {message.cardData.jobTitle && (
                       <p className="text-blue-200 text-sm truncate">{message.cardData.jobTitle}</p>
                     )}
