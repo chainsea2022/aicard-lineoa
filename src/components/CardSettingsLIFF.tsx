@@ -110,6 +110,8 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   }, []);
 
   const handleSave = () => {
+    console.log('handleSave called, cardData:', cardData);
+    
     // 驗證必填欄位
     const requiredFields = [
       { key: 'name', label: '姓名' },
@@ -117,9 +119,19 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
       { key: 'email', label: 'Email' }
     ];
     
-    const missingFields = requiredFields.filter(field => !cardData[field.key] || cardData[field.key].trim() === '');
+    const missingFields = requiredFields.filter(field => {
+      const value = cardData[field.key];
+      const isEmpty = !value || value.trim() === '';
+      console.log(`Field ${field.key}: value="${value}", isEmpty=${isEmpty}`);
+      return isEmpty;
+    });
+    
+    console.log('Missing fields:', missingFields);
+    
     const phoneVerified = checkPhoneVerification(cardData.phone);
     const emailVerified = checkEmailVerification(cardData.email);
+    
+    console.log('Phone verified:', phoneVerified, 'Email verified:', emailVerified);
     
     // 收集所有問題
     const issues = [];
@@ -137,6 +149,8 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     if (unverifiedFields.length > 0) {
       issues.push(`請至「資料設定」完成驗證：${unverifiedFields.join('、')}`);
     }
+    
+    console.log('Issues collected:', issues);
     
     // 如果有任何問題，顯示提示
     if (issues.length > 0) {
