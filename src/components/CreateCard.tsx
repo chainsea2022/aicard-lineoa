@@ -965,7 +965,17 @@ LINE: ${line || ''}
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email <span className="text-red-500">*</span>
                   </Label>
-                  <span className={`text-xs px-2 py-1 rounded ${emailVerified ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50'}`}>
+                  <span 
+                    className={`text-xs px-2 py-1 rounded cursor-pointer ${emailVerified ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'}`}
+                    onClick={() => {
+                      if (!emailVerified) {
+                        // 跳轉到資料設定中的Email驗證流程
+                        onClose();
+                        // 這裡需要觸發跳轉到資料設定的邏輯
+                        window.dispatchEvent(new CustomEvent('navigateToEmailVerification'));
+                      }
+                    }}
+                  >
                     {emailVerified ? '已驗證' : '未驗證'}
                   </span>
                 </div>
