@@ -596,7 +596,10 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
         {/* 儲存按鈕 */}
         <div className="sticky bottom-0 bg-white p-4 border-t border-gray-200 -mx-6 -mb-6">
           <Button
-            onClick={handleSave}
+            onClick={() => {
+              console.log('Button clicked!');
+              handleSave();
+            }}
             className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium py-3"
           >
             <Save className="w-5 h-5 mr-2" />
