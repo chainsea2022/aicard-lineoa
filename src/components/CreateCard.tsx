@@ -1003,6 +1003,18 @@ LINE: ${line || ''}
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email <span className="text-red-500">*</span>
                   </Label>
+                  <span 
+                    className={`text-xs px-2 py-1 rounded cursor-pointer ${emailVerified ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50 hover:bg-orange-100'}`}
+                    onClick={() => {
+                      if (!emailVerified) {
+                        // 跳轉到資料設定中的個人資料區塊Email驗證流程
+                        onClose();
+                        window.dispatchEvent(new CustomEvent('navigateToPersonalDataEmailVerification'));
+                      }
+                    }}
+                  >
+                    {emailVerified ? '已驗證' : '至「資料設定」驗證'}
+                  </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
