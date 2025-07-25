@@ -580,12 +580,13 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className="w-80 max-w-[90vw] p-0 shadow-2xl border border-gray-100 rounded-xl bg-white z-50 mx-auto" 
-                    align="center" 
+                    className="w-72 p-0 shadow-lg border border-gray-200 rounded-lg bg-white z-50" 
+                    align="start" 
                     side="bottom" 
-                    sideOffset={8}
+                    sideOffset={4}
                     avoidCollisions={true}
-                    collisionPadding={16}
+                    collisionPadding={12}
+                    sticky="always"
                   >
                     <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
                       <Calendar
