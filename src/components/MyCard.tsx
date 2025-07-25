@@ -47,42 +47,62 @@ const MyCard: React.FC<MyCardProps> = ({
     }
   };
   useEffect(() => {
-    const savedCardData = localStorage.getItem('aile-card-data');
-    const savedUserData = localStorage.getItem('aile-user-data');
+    const loadCardData = () => {
+      const savedCardData = localStorage.getItem('aile-card-data');
+      const savedUserData = localStorage.getItem('aile-user-data');
 
-    // 檢查是否有註冊歷史記錄
-    const registrationHistory = localStorage.getItem('aile-registration-history');
-    if (registrationHistory) {
-      setHasRegistrationHistory(true);
-    }
-    if (savedCardData) {
-      const cardInfo = JSON.parse(savedCardData);
-      setCardData(cardInfo);
+      // 檢查是否有註冊歷史記錄
+      const registrationHistory = localStorage.getItem('aile-registration-history');
+      if (registrationHistory) {
+        setHasRegistrationHistory(true);
+      }
+      if (savedCardData) {
+        const cardInfo = JSON.parse(savedCardData);
+        setCardData(cardInfo);
 
-      // 自動生成QR Code資料
-      const qrInfo = `名片資訊
+        // 自動生成QR Code資料，包含所有欄位和社群媒體
+        const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
 ${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
 公司: ${cardInfo.companyName || ''}
 電話: ${cardInfo.phone || ''}
 Email: ${cardInfo.email || ''}
+${cardInfo.website && cardInfo.websiteVisible !== false ? `網站: ${cardInfo.website}` : ''}
 ${cardInfo.address && cardInfo.addressVisible ? `地址: ${cardInfo.address}` : ''}
 ${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardInfo.birthday)}` : ''}
 ${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
-LINE: ${cardInfo.line || ''}
-網站: ${cardInfo.website || ''}`;
-      setQrCodeData(qrInfo);
-      console.log('生成QR Code:', qrInfo);
-    }
-    if (savedUserData) {
-      setUserData(JSON.parse(savedUserData));
-    }
+${cardInfo.line && cardInfo.lineVisible !== false ? `LINE: ${cardInfo.line}` : ''}
+${cardInfo.facebook && cardInfo.facebookVisible !== false ? `Facebook: ${cardInfo.facebook}` : ''}
+${cardInfo.instagram && cardInfo.instagramVisible !== false ? `Instagram: ${cardInfo.instagram}` : ''}
+${cardInfo.introduction && cardInfo.introductionVisible !== false ? `個人介紹: ${cardInfo.introduction}` : ''}`;
+        setQrCodeData(qrInfo);
+        console.log('生成QR Code:', qrInfo);
+      }
+      if (savedUserData) {
+        setUserData(JSON.parse(savedUserData));
+      }
 
-    // 載入點數資訊
-    const savedPoints = localStorage.getItem('aile-user-points');
-    if (savedPoints) {
-      setCurrentPoints(parseInt(savedPoints));
-    }
+      // 載入點數資訊
+      const savedPoints = localStorage.getItem('aile-user-points');
+      if (savedPoints) {
+        setCurrentPoints(parseInt(savedPoints));
+      }
+    };
+
+    // 初始載入
+    loadCardData();
+
+    // 監聽名片資料更新事件
+    const handleCardDataUpdate = () => {
+      console.log('MyCard: cardDataUpdated event received');
+      loadCardData();
+    };
+
+    window.addEventListener('cardDataUpdated', handleCardDataUpdate);
+
+    return () => {
+      window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
+    };
   }, []);
   const handleVerificationComplete = (phone: string) => {
     // 手機驗證完成後創建用戶資料
@@ -478,11 +498,21 @@ LINE: ${cardInfo.line || ''}
                 <div className="flex items-center space-x-4 mb-4">
                   {cardData.photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
                       <AvatarImage src={cardData.photo} alt="照片" />
-                      <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
+                      <AvatarFallback className="bg-white text-blue-600 font-bold text-xl">
                         {cardData.name?.charAt(0) || 'U'}
                       </AvatarFallback>
                     </Avatar>}
-                  
+                  <div className="flex-1">
+                    {cardData.name && cardData.nameVisible !== false && (
+                      <h2 className="text-xl font-bold mb-1">{cardData.name}</h2>
+                    )}
+                    {cardData.jobTitle && cardData.jobTitleVisible !== false && (
+                      <p className="text-white/90 text-sm mb-1">{cardData.jobTitle}</p>
+                    )}
+                    {cardData.companyName && cardData.companyNameVisible !== false && (
+                      <p className="text-white/80 text-sm">{cardData.companyName}</p>
+                    )}
+                  </div>
                 </div>
 
                 <div className="space-y-2 text-sm">
