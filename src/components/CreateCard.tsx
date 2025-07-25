@@ -14,14 +14,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
-
 interface CreateCardProps {
   onClose: () => void;
   onRegistrationComplete: () => void;
   userData: any;
 }
-
-const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete, userData }) => {
+const CreateCard: React.FC<CreateCardProps> = ({
+  onClose,
+  onRegistrationComplete,
+  userData
+}) => {
   // Personal Info States
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
@@ -60,9 +62,14 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [instagramVisible, setInstagramVisible] = useState(false); // Instagram預設不公開
   const [photo, setPhoto] = useState<string | null>(null);
   const [cardPublic, setCardPublic] = useState(false);
-  
+
   // 新增社群媒體狀態
-  const [socialMedia, setSocialMedia] = useState<Array<{id: string, platform: string, url: string, visible: boolean}>>([]);
+  const [socialMedia, setSocialMedia] = useState<Array<{
+    id: string;
+    platform: string;
+    url: string;
+    visible: boolean;
+  }>>([]);
   const [otherInfo, setOtherInfo] = useState(''); // 其他資訊
   const [otherInfoVisible, setOtherInfoVisible] = useState(true);
 
@@ -77,9 +84,16 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const [showSocialMediaForm, setShowSocialMediaForm] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
-  const [newSocialMedia, setNewSocialMedia] = useState({platform: '', url: ''});
-  const [editingSocialMedia, setEditingSocialMedia] = useState<{id: string, platform: string, url: string} | null>(null);
-  
+  const [newSocialMedia, setNewSocialMedia] = useState({
+    platform: '',
+    url: ''
+  });
+  const [editingSocialMedia, setEditingSocialMedia] = useState<{
+    id: string;
+    platform: string;
+    url: string;
+  } | null>(null);
+
   // 語音錄製相關
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -88,7 +102,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const formatBirthdayInput = (value: string) => {
     // Remove all non-numeric characters except forward slashes
     const cleaned = value.replace(/[^\d/]/g, '');
-    
+
     // If user is typing with slashes, preserve them
     if (cleaned.includes('/')) {
       const parts = cleaned.split('/');
@@ -105,7 +119,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       // Handle pure numeric input (e.g., 19900325)
       const numbers = cleaned.replace(/\D/g, '');
       const limitedNumbers = numbers.slice(0, 8);
-      
+
       // Only auto-format when user has entered complete segments
       if (limitedNumbers.length === 8) {
         const year = limitedNumbers.slice(0, 4);
@@ -117,35 +131,30 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       return limitedNumbers;
     }
   };
-
   const validateBirthday = (dateStr: string) => {
     if (!dateStr || dateStr.length < 10) return false;
-    
     const date = new Date(dateStr);
     const today = new Date();
-    
+
     // Check if date is valid
     if (isNaN(date.getTime())) return false;
-    
+
     // Check if date is not in the future
     if (date > today) return false;
-    
+
     // Check if date is reasonable (not before 1900)
     if (date.getFullYear() < 1900) return false;
-    
     return true;
   };
-
   const handleBirthdayInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formatted = formatBirthdayInput(e.target.value);
     setBirthday(formatted);
-    
+
     // Convert to Date object for calendar state
     if (formatted.length === 10 && validateBirthday(formatted)) {
       setBirthdayDate(new Date(formatted));
     }
   };
-
   const handleBirthdayDateSelect = (date: Date | undefined) => {
     if (date) {
       const formatted = format(date, 'yyyy/MM/dd');
@@ -154,7 +163,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     }
     setShowBirthdayCalendar(false);
   };
-
   useEffect(() => {
     // 設置註冊手機號碼
     if (userData?.phone) {
@@ -201,7 +209,7 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       setSocialMedia(cardInfo.socialMedia || []);
       setOtherInfo(cardInfo.otherInfo || '');
       setOtherInfoVisible(cardInfo.otherInfoVisible !== false);
-      
+
       // Convert birthday to Date object for calendar
       if (cardInfo.birthday) {
         const date = new Date(cardInfo.birthday);
@@ -211,7 +219,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       }
     }
   }, [userData]);
-
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -222,7 +229,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       reader.readAsDataURL(file);
     }
   };
-
   const handleRemovePhoto = () => {
     setPhoto(null);
   };
@@ -231,7 +237,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   const handleOCRCapture = () => {
     setShowOCRCapture(true);
   };
-
   const handleOCRResult = (ocrData: any) => {
     // 模擬 OCR 辨識結果，實際應用時需要整合真實的 OCR API
     if (ocrData.name) setName(ocrData.name);
@@ -240,7 +245,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     if (ocrData.phone) setPhone(ocrData.phone);
     if (ocrData.email) setEmail(ocrData.email);
     if (ocrData.address) setAddress(ocrData.address);
-    
     setShowOCRCapture(false);
     toast({
       title: "名片辨識完成",
@@ -251,31 +255,29 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   // 語音錄製處理
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: true
+      });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
-      
       const audioChunks: BlobPart[] = [];
-      
-      mediaRecorder.ondataavailable = (event) => {
+      mediaRecorder.ondataavailable = event => {
         audioChunks.push(event.data);
       };
-      
       mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+        const audioBlob = new Blob(audioChunks, {
+          type: 'audio/wav'
+        });
         // 這裡可以整合語音轉文字 API
         setIntroduction(prev => prev + " [語音錄製內容]");
         stream.getTracks().forEach(track => track.stop());
       };
-      
       mediaRecorder.start();
       setIsRecording(true);
       setRecordingTime(0);
-      
       recordingIntervalRef.current = setInterval(() => {
         setRecordingTime(prev => prev + 1);
       }, 1000);
-      
     } catch (error) {
       toast({
         title: "錄音失敗",
@@ -283,7 +285,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       });
     }
   };
-
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
@@ -297,9 +298,11 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
   // 社群媒體處理
   const handleAddSocialMedia = () => {
     setShowSocialMediaForm(true);
-    setNewSocialMedia({platform: '', url: ''});
+    setNewSocialMedia({
+      platform: '',
+      url: ''
+    });
   };
-
   const handleSaveSocialMedia = () => {
     if (newSocialMedia.platform && newSocialMedia.url) {
       const newItem = {
@@ -310,45 +313,56 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       };
       setSocialMedia(prev => [...prev, newItem]);
       setShowSocialMediaForm(false);
-      setNewSocialMedia({platform: '', url: ''});
+      setNewSocialMedia({
+        platform: '',
+        url: ''
+      });
     }
   };
-
   const handleRemoveSocialMedia = (id: string) => {
     setSocialMedia(prev => prev.filter(item => item.id !== id));
   };
-
   const handleSocialMediaVisibilityChange = (id: string, visible: boolean) => {
-    setSocialMedia(prev => prev.map(item => 
-      item.id === id ? {...item, visible} : item
-    ));
+    setSocialMedia(prev => prev.map(item => item.id === id ? {
+      ...item,
+      visible
+    } : item));
   };
-
-  const handleEditSocialMedia = (item: {id: string, platform: string, url: string}) => {
+  const handleEditSocialMedia = (item: {
+    id: string;
+    platform: string;
+    url: string;
+  }) => {
     setEditingSocialMedia(item);
-    setNewSocialMedia({platform: item.platform, url: item.url});
+    setNewSocialMedia({
+      platform: item.platform,
+      url: item.url
+    });
     setShowSocialMediaForm(true);
   };
-
   const handleUpdateSocialMedia = () => {
     if (editingSocialMedia && newSocialMedia.platform && newSocialMedia.url) {
-      setSocialMedia(prev => prev.map(item => 
-        item.id === editingSocialMedia.id 
-          ? {...item, platform: newSocialMedia.platform, url: newSocialMedia.url}
-          : item
-      ));
+      setSocialMedia(prev => prev.map(item => item.id === editingSocialMedia.id ? {
+        ...item,
+        platform: newSocialMedia.platform,
+        url: newSocialMedia.url
+      } : item));
       setEditingSocialMedia(null);
       setShowSocialMediaForm(false);
-      setNewSocialMedia({platform: '', url: ''});
+      setNewSocialMedia({
+        platform: '',
+        url: ''
+      });
     }
   };
-
   const handleCancelSocialMediaEdit = () => {
     setEditingSocialMedia(null);
     setShowSocialMediaForm(false);
-    setNewSocialMedia({platform: '', url: ''});
+    setNewSocialMedia({
+      platform: '',
+      url: ''
+    });
   };
-
   const handlePhoneChange = () => {
     setShowOTPInput(true);
     toast({
@@ -356,7 +370,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       description: "請輸入發送到您手機的驗證碼"
     });
   };
-
   const handleOTPVerification = () => {
     if (otpCode.length === 6) {
       setRegisteredPhone(phone);
@@ -373,25 +386,23 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       });
     }
   };
-
   const handleSave = () => {
     // 檢查必填欄位
     if (!email) {
       toast({
         title: "請填寫必填項目",
-        description: "Email 為必填項目，請填寫後再儲存。",
+        description: "Email 為必填項目，請填寫後再儲存。"
       });
       return;
     }
-    
     if (!emailVerified) {
       toast({
         title: "請完成 Email 驗證",
-        description: "請先完成 Email 驗證後再儲存名片。",
+        description: "請先完成 Email 驗證後再儲存名片。"
       });
       return;
     }
-    
+
     // 儲存名片資料到 localStorage
     const cardData = {
       name,
@@ -431,55 +442,45 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       otherInfoVisible
     };
     localStorage.setItem('aile-card-data', JSON.stringify(cardData));
-    
+
     // 觸發自定義事件，通知其他組件資料已更新
     window.dispatchEvent(new CustomEvent('cardDataUpdated'));
-    
     toast({
       title: "名片已儲存",
       description: "您的電子名片已成功儲存。"
     });
     onRegistrationComplete();
   };
-
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   };
-
   const getGenderDisplay = (gender: string) => {
     switch (gender) {
-      case 'male': return '男性';
-      case 'female': return '女性';
-      case 'other': return '其他';
-      default: return gender;
+      case 'male':
+        return '男性';
+      case 'female':
+        return '女性';
+      case 'other':
+        return '其他';
+      default:
+        return gender;
     }
   };
-
   const generateQRCode = (data: string) => {
     const size = 8;
     const squares = [];
-    
     for (let i = 0; i < size; i++) {
       for (let j = 0; j < size; j++) {
         const isBlack = (i + j + data.length) % 3 === 0;
-        squares.push(
-          <div
-            key={`${i}-${j}`}
-            className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`}
-          />
-        );
+        squares.push(<div key={`${i}-${j}`} className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`} />);
       }
     }
-    
-    return (
-      <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
+    return <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
         {squares}
-      </div>
-    );
+      </div>;
   };
-
   const downloadQRCode = () => {
     toast({
       title: "QR Code 已下載",
@@ -487,7 +488,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     });
     console.log('下載 QR Code');
   };
-
   const downloadCard = () => {
     toast({
       title: "名片已下載",
@@ -495,13 +495,12 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     });
     console.log('下載名片');
   };
-
   const shareCard = () => {
     if (navigator.share) {
       navigator.share({
         title: `${name}的電子名片`,
         text: `${companyName} - ${name}`,
-        url: window.location.href,
+        url: window.location.href
       });
     } else {
       navigator.clipboard.writeText(`${name}的電子名片 - ${companyName}`);
@@ -511,7 +510,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       });
     }
   };
-
   const showFacebookHelp = () => {
     const htmlContent = `
 <!DOCTYPE html>
@@ -616,7 +614,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     </div>
 </body>
 </html>`;
-
     if (window.liff) {
       window.liff.openWindow({
         url: `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`,
@@ -628,11 +625,9 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       alert(instructions);
     }
   };
-
   const showInstagramHelp = () => {
     setShowInstagramTutorial(!showInstagramTutorial);
   };
-
   const showInstagramHelpOld = () => {
     const htmlContent = `
 <!DOCTYPE html>
@@ -773,7 +768,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
     </div>
 </body>
 </html>`;
-
     if (window.liff) {
       window.liff.openWindow({
         url: `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`,
@@ -785,7 +779,6 @@ const CreateCard: React.FC<CreateCardProps> = ({ onClose, onRegistrationComplete
       alert(instructions);
     }
   };
-
   const qrCodeData = `名片資訊
 姓名: ${name || ''}
 ${jobTitle && jobTitleVisible ? `職稱: ${jobTitle}` : ''}
@@ -797,29 +790,17 @@ ${birthday && birthdayVisible ? `生日: ${formatBirthdayDisplay(birthday)}` : '
 ${gender && genderVisible ? `性別: ${getGenderDisplay(gender)}` : ''}
 LINE: ${line || ''}
 網站: ${website || ''}`;
-
-  return (
-    <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
+  return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
       <div className="bg-gradient-to-r from-green-500 to-blue-500 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
+            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="font-bold text-lg">編輯電子名片</h1>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-white hover:bg-white/20"
-          >
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
             <X className="w-5 h-5" />
           </Button>
         </div>
@@ -836,13 +817,9 @@ LINE: ${line || ''}
             {/* 照片上傳 */}
             <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-start gap-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
               <Avatar className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
-                {photo ? (
-                  <AvatarImage src={photo} alt="照片" />
-                ) : (
-                  <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-gray-700 font-semibold text-lg">
+                {photo ? <AvatarImage src={photo} alt="照片" /> : <AvatarFallback className="bg-gradient-to-br from-blue-100 to-purple-100 text-gray-700 font-semibold text-lg">
                     {name?.charAt(0) || 'U'}
-                  </AvatarFallback>
-                )}
+                  </AvatarFallback>}
               </Avatar>
               <div className="flex-1 min-w-0 space-y-3">
                 <div>
@@ -850,31 +827,15 @@ LINE: ${line || ''}
                     上傳頭像
                   </Label>
                   <div className="flex flex-wrap items-center gap-2">
-                    <Input
-                      id="photo-upload"
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handlePhotoUpload}
-                    />
-                    <label
-                      htmlFor="photo-upload"
-                      className="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm"
-                    >
+                    <Input id="photo-upload" type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
+                    <label htmlFor="photo-upload" className="cursor-pointer inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm">
                       <Upload className="w-4 h-4 mr-2" />
                       選擇照片
                     </label>
-                    {photo && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={handleRemovePhoto}
-                        className="text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
-                      >
+                    {photo && <Button variant="ghost" size="sm" onClick={handleRemovePhoto} className="text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200">
                         <X className="w-4 h-4 mr-1" />
                         移除
-                      </Button>
-                    )}
+                      </Button>}
                   </div>
                 </div>
               </div>
@@ -882,10 +843,7 @@ LINE: ${line || ''}
 
             {/* OCR 名片辨識 */}
             <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200">
-              <Button
-                onClick={handleOCRCapture}
-                className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
-              >
+              <Button onClick={handleOCRCapture} className="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-medium py-3 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg">
                 <Camera className="w-5 h-5 mr-2" />
                 OCR 名片辨識
               </Button>
@@ -902,44 +860,19 @@ LINE: ${line || ''}
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={introductionVisible}
-                    onCheckedChange={setIntroductionVisible}
-                  />
+                  <Switch checked={introductionVisible} onCheckedChange={setIntroductionVisible} />
                 </div>
               </div>
               <div className="space-y-2">
-                <Textarea
-                  id="introduction"
-                  placeholder="請輸入自我介紹..."
-                  value={introduction}
-                  onChange={(e) => setIntroduction(e.target.value)}
-                  rows={3}
-                />
+                <Textarea id="introduction" placeholder="請輸入自我介紹..." value={introduction} onChange={e => setIntroduction(e.target.value)} rows={3} />
                 <div className="flex items-center space-x-2">
-                  {!isRecording ? (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={startRecording}
-                      className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                    >
+                  {!isRecording ? <Button type="button" size="sm" variant="outline" onClick={startRecording} className="text-blue-600 border-blue-300 hover:bg-blue-50">
                       <Mic className="w-4 h-4 mr-2" />
                       語音輸入
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      onClick={stopRecording}
-                      className="bg-red-500 hover:bg-red-600"
-                    >
+                    </Button> : <Button type="button" size="sm" variant="destructive" onClick={stopRecording} className="bg-red-500 hover:bg-red-600">
                       <Square className="w-4 h-4 mr-2" />
                       停止錄音 ({recordingTime}s)
-                    </Button>
-                  )}
+                    </Button>}
                 </div>
               </div>
             </div>
@@ -952,42 +885,24 @@ LINE: ${line || ''}
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={nameVisible}
-                    onCheckedChange={setNameVisible}
-                  />
+                  <Switch checked={nameVisible} onCheckedChange={setNameVisible} />
                 </div>
               </div>
-              <Input
-                id="name"
-                type="text"
-                placeholder="您的姓名"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
+              <Input id="name" type="text" placeholder="您的姓名" value={name} onChange={e => setName(e.target.value)} />
             </div>
 
             {/* 公司名稱 */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="company-name" className="text-sm font-medium text-gray-700">
-                  公司名稱 <span className="text-red-500">*</span>
+                  公司名稱 
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={companyNameVisible}
-                    onCheckedChange={setCompanyNameVisible}
-                  />
+                  <Switch checked={companyNameVisible} onCheckedChange={setCompanyNameVisible} />
                 </div>
               </div>
-              <Input
-                id="company-name"
-                type="text"
-                placeholder="您的公司名稱"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-              />
+              <Input id="company-name" type="text" placeholder="您的公司名稱" value={companyName} onChange={e => setCompanyName(e.target.value)} />
             </div>
 
             {/* 職稱 */}
@@ -998,19 +913,10 @@ LINE: ${line || ''}
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={jobTitleVisible}
-                    onCheckedChange={setJobTitleVisible}
-                  />
+                  <Switch checked={jobTitleVisible} onCheckedChange={setJobTitleVisible} />
                 </div>
               </div>
-              <Input
-                id="job-title"
-                type="text"
-                placeholder="您的職稱"
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-              />
+              <Input id="job-title" type="text" placeholder="您的職稱" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
             </div>
 
             {/* 公司電話 */}
@@ -1021,19 +927,10 @@ LINE: ${line || ''}
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={phoneVisible}
-                    onCheckedChange={setPhoneVisible}
-                  />
+                  <Switch checked={phoneVisible} onCheckedChange={setPhoneVisible} />
                 </div>
               </div>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="公司聯絡電話"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-              />
+              <Input id="phone" type="tel" placeholder="公司聯絡電話" value={phone} onChange={e => setPhone(e.target.value)} />
               <p className="text-xs text-gray-500 mt-1">
                 填入公司主要聯絡電話或名片上的電話號碼
               </p>
@@ -1046,29 +943,16 @@ LINE: ${line || ''}
                   <Label htmlFor="mobile-phone" className="text-sm font-medium text-gray-700">
                     手機號碼 <span className="text-red-500">*</span>
                   </Label>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    mobilePhone === registeredPhone && registeredPhone 
-                      ? 'text-green-600 bg-green-50' 
-                      : 'text-orange-600 bg-orange-50'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded ${mobilePhone === registeredPhone && registeredPhone ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50'}`}>
                     {mobilePhone === registeredPhone && registeredPhone ? '已驗證' : '未驗證'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={mobilePhoneVisible}
-                    onCheckedChange={setMobilePhoneVisible}
-                  />
+                  <Switch checked={mobilePhoneVisible} onCheckedChange={setMobilePhoneVisible} />
                 </div>
               </div>
-              <Input
-                id="mobile-phone"
-                type="tel"
-                placeholder="您的手機號碼"
-                value={mobilePhone}
-                onChange={(e) => setMobilePhone(e.target.value)}
-              />
+              <Input id="mobile-phone" type="tel" placeholder="您的手機號碼" value={mobilePhone} onChange={e => setMobilePhone(e.target.value)} />
               <p className="text-xs text-gray-500 mt-1">
                 預設為註冊時的手機號碼
               </p>
@@ -1081,29 +965,16 @@ LINE: ${line || ''}
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">
                     Email <span className="text-red-500">*</span>
                   </Label>
-                  <span className={`text-xs px-2 py-1 rounded ${
-                    emailVerified 
-                      ? 'text-green-600 bg-green-50' 
-                      : 'text-orange-600 bg-orange-50'
-                  }`}>
+                  <span className={`text-xs px-2 py-1 rounded ${emailVerified ? 'text-green-600 bg-green-50' : 'text-orange-600 bg-orange-50'}`}>
                     {emailVerified ? '已驗證' : '未驗證'}
                   </span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={emailVisible}
-                    onCheckedChange={setEmailVisible}
-                  />
+                  <Switch checked={emailVisible} onCheckedChange={setEmailVisible} />
                 </div>
               </div>
-              <Input
-                id="email"
-                type="email"
-                placeholder="您的Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
+              <Input id="email" type="email" placeholder="您的Email" value={email} onChange={e => setEmail(e.target.value)} />
             </div>
 
             {/* 網站 */}
@@ -1114,19 +985,10 @@ LINE: ${line || ''}
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={websiteVisible}
-                    onCheckedChange={setWebsiteVisible}
-                  />
+                  <Switch checked={websiteVisible} onCheckedChange={setWebsiteVisible} />
                 </div>
               </div>
-              <Input
-                id="website"
-                type="url"
-                placeholder="您的網站"
-                value={website}
-                onChange={(e) => setWebsite(e.target.value)}
-              />
+              <Input id="website" type="url" placeholder="您的網站" value={website} onChange={e => setWebsite(e.target.value)} />
             </div>
 
             {/* 地址 */}
@@ -1137,19 +999,10 @@ LINE: ${line || ''}
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={addressVisible}
-                    onCheckedChange={setAddressVisible}
-                  />
+                  <Switch checked={addressVisible} onCheckedChange={setAddressVisible} />
                 </div>
               </div>
-              <Input
-                id="address"
-                type="text"
-                placeholder="您的地址"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-              />
+              <Input id="address" type="text" placeholder="您的地址" value={address} onChange={e => setAddress(e.target.value)} />
             </div>
 
             {/* LINE */}
@@ -1159,34 +1012,19 @@ LINE: ${line || ''}
                   <Label htmlFor="line" className="text-sm font-medium text-gray-700">
                     LINE
                   </Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowLineTutorial(!showLineTutorial)}
-                    className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setShowLineTutorial(!showLineTutorial)} className="p-1 h-6 w-6 rounded-full hover:bg-gray-100">
                     <Info className="w-4 h-4 text-blue-500" />
                   </Button>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={lineVisible}
-                    onCheckedChange={setLineVisible}
-                  />
+                  <Switch checked={lineVisible} onCheckedChange={setLineVisible} />
                 </div>
               </div>
-              <Input
-                id="line"
-                type="url"
-                placeholder="您的LINE個人網址"
-                value={line}
-                onChange={(e) => setLine(e.target.value)}
-              />
+              <Input id="line" type="url" placeholder="您的LINE個人網址" value={line} onChange={e => setLine(e.target.value)} />
               
               {/* LINE Tutorial */}
-              {showLineTutorial && (
-                <Card className="mt-2 bg-blue-50 border-blue-200 animate-fade-in">
+              {showLineTutorial && <Card className="mt-2 bg-blue-50 border-blue-200 animate-fade-in">
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-3">
                       <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -1209,8 +1047,7 @@ LINE: ${line || ''}
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </div>
 
             {/* Facebook */}
@@ -1220,34 +1057,19 @@ LINE: ${line || ''}
                   <Label htmlFor="facebook" className="text-sm font-medium text-gray-700">
                     Facebook
                   </Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowFacebookTutorial(!showFacebookTutorial)}
-                    className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
-                  >
+                  <Button variant="ghost" size="sm" onClick={() => setShowFacebookTutorial(!showFacebookTutorial)} className="p-1 h-6 w-6 rounded-full hover:bg-gray-100">
                     <Info className="w-4 h-4 text-blue-500" />
                   </Button>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={facebookVisible}
-                    onCheckedChange={setFacebookVisible}
-                  />
+                  <Switch checked={facebookVisible} onCheckedChange={setFacebookVisible} />
                 </div>
               </div>
-              <Input
-                id="facebook"
-                type="text"
-                placeholder="您的Facebook用戶名稱或連結"
-                value={facebook}
-                onChange={(e) => setFacebook(e.target.value)}
-              />
+              <Input id="facebook" type="text" placeholder="您的Facebook用戶名稱或連結" value={facebook} onChange={e => setFacebook(e.target.value)} />
 
               {/* Facebook Tutorial */}
-              {showFacebookTutorial && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
+              {showFacebookTutorial && <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 space-y-3">
                   <h4 className="font-semibold text-blue-800 flex items-center">
                     📱 Facebook URL 設置說明
                   </h4>
@@ -1278,8 +1100,7 @@ LINE: ${line || ''}
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* Instagram */}
@@ -1289,34 +1110,19 @@ LINE: ${line || ''}
                   <Label htmlFor="instagram" className="text-sm font-medium text-gray-700">
                     Instagram
                   </Label>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={showInstagramHelp}
-                    className="p-1 h-6 w-6 rounded-full hover:bg-gray-100"
-                  >
+                  <Button variant="ghost" size="sm" onClick={showInstagramHelp} className="p-1 h-6 w-6 rounded-full hover:bg-gray-100">
                     <Info className="w-4 h-4 text-blue-500" />
                   </Button>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={instagramVisible}
-                    onCheckedChange={setInstagramVisible}
-                  />
+                  <Switch checked={instagramVisible} onCheckedChange={setInstagramVisible} />
                 </div>
               </div>
-              <Input
-                id="instagram"
-                type="text"
-                placeholder="您的Instagram用戶名稱或連結"
-                value={instagram}
-                onChange={(e) => setInstagram(e.target.value)}
-              />
+              <Input id="instagram" type="text" placeholder="您的Instagram用戶名稱或連結" value={instagram} onChange={e => setInstagram(e.target.value)} />
 
               {/* Instagram Tutorial */}
-              {showInstagramTutorial && (
-                <Card className="mt-2 bg-blue-50 border-blue-200">
+              {showInstagramTutorial && <Card className="mt-2 bg-blue-50 border-blue-200">
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-3">
                       <Info className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
@@ -1329,29 +1135,21 @@ LINE: ${line || ''}
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </div>
 
             {/* 新增社群媒體 */}
             <div className="space-y-4 pt-4 border-t border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-800">社群媒體</h3>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={handleAddSocialMedia}
-                  className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                >
+                <Button type="button" size="sm" variant="outline" onClick={handleAddSocialMedia} className="text-blue-600 border-blue-300 hover:bg-blue-50">
                   <Plus className="w-4 h-4 mr-2" />
                   新增社群
                 </Button>
               </div>
 
               {/* 顯示已新增的社群媒體 */}
-              {socialMedia.map((item) => (
-                <div key={item.id} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
+              {socialMedia.map(item => <div key={item.id} className="flex items-center space-x-2 p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-2 flex-1 min-w-0">
                     {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-red-500" />}
                     {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-blue-600" />}
@@ -1359,46 +1157,32 @@ LINE: ${line || ''}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm capitalize">{item.platform}</p>
                       <p className="text-xs text-gray-500 truncate w-full" style={{
-                        wordBreak: 'break-all',
-                        overflowWrap: 'break-word',
-                        maxWidth: '100%'
-                      }}>{item.url}</p>
+                    wordBreak: 'break-all',
+                    overflowWrap: 'break-word',
+                    maxWidth: '100%'
+                  }}>{item.url}</p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-1 shrink-0">
-                    <Switch
-                      checked={item.visible}
-                      onCheckedChange={(visible) => handleSocialMediaVisibilityChange(item.id, visible)}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEditSocialMedia(item)}
-                      className="text-blue-500 hover:bg-blue-50 p-1"
-                    >
+                    <Switch checked={item.visible} onCheckedChange={visible => handleSocialMediaVisibilityChange(item.id, visible)} />
+                    <Button type="button" size="sm" variant="ghost" onClick={() => handleEditSocialMedia(item)} className="text-blue-500 hover:bg-blue-50 p-1">
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleRemoveSocialMedia(item.id)}
-                      className="text-red-500 hover:bg-red-50 p-1"
-                    >
+                    <Button type="button" size="sm" variant="ghost" onClick={() => handleRemoveSocialMedia(item.id)} className="text-red-500 hover:bg-red-50 p-1">
                       <X className="w-4 h-4" />
                     </Button>
                   </div>
-                </div>
-              ))}
+                </div>)}
 
               {/* 社群媒體新增/編輯表單 */}
-              {showSocialMediaForm && (
-                <div className="p-4 bg-gray-50 rounded-lg space-y-3">
+              {showSocialMediaForm && <div className="p-4 bg-gray-50 rounded-lg space-y-3">
                   <h4 className="font-medium text-sm text-gray-800">
                     {editingSocialMedia ? '編輯社群媒體' : '新增社群媒體'}
                   </h4>
-                  <Select value={newSocialMedia.platform} onValueChange={(value) => setNewSocialMedia(prev => ({...prev, platform: value}))}>
+                  <Select value={newSocialMedia.platform} onValueChange={value => setNewSocialMedia(prev => ({
+                ...prev,
+                platform: value
+              }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="選擇社群平台" />
                     </SelectTrigger>
@@ -1408,37 +1192,23 @@ LINE: ${line || ''}
                       <SelectItem value="threads">Threads</SelectItem>
                     </SelectContent>
                   </Select>
-                  <Input
-                    placeholder="請輸入完整網址（如：https://...）"
-                    value={newSocialMedia.url}
-                    onChange={(e) => setNewSocialMedia(prev => ({...prev, url: e.target.value}))}
-                    className="w-full"
-                    style={{ 
-                      wordBreak: 'break-all',
-                      overflowWrap: 'break-word',
-                      whiteSpace: 'pre-wrap'
-                    }}
-                  />
+                  <Input placeholder="請輸入完整網址（如：https://...）" value={newSocialMedia.url} onChange={e => setNewSocialMedia(prev => ({
+                ...prev,
+                url: e.target.value
+              }))} className="w-full" style={{
+                wordBreak: 'break-all',
+                overflowWrap: 'break-word',
+                whiteSpace: 'pre-wrap'
+              }} />
                   <div className="flex space-x-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={editingSocialMedia ? handleUpdateSocialMedia : handleSaveSocialMedia}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
-                    >
+                    <Button type="button" size="sm" onClick={editingSocialMedia ? handleUpdateSocialMedia : handleSaveSocialMedia} className="bg-blue-600 hover:bg-blue-700 text-white">
                       {editingSocialMedia ? '更新' : '確認新增'}
                     </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      onClick={editingSocialMedia ? handleCancelSocialMediaEdit : () => setShowSocialMediaForm(false)}
-                    >
+                    <Button type="button" size="sm" variant="outline" onClick={editingSocialMedia ? handleCancelSocialMediaEdit : () => setShowSocialMediaForm(false)}>
                       取消
                     </Button>
                   </div>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* 其他資訊 */}
@@ -1448,39 +1218,21 @@ LINE: ${line || ''}
                   其他資訊
                 </Label>
                 <div className="flex items-center space-x-2">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setOtherInfo('')}
-                    className="text-blue-600 border-blue-300 hover:bg-blue-50"
-                  >
+                  <Button type="button" size="sm" variant="outline" onClick={() => setOtherInfo('')} className="text-blue-600 border-blue-300 hover:bg-blue-50">
                     <Plus className="w-4 h-4 mr-2" />
                     新增其他
                   </Button>
                   <Label className="text-xs text-gray-500">公開</Label>
-                  <Switch
-                    checked={otherInfoVisible}
-                    onCheckedChange={setOtherInfoVisible}
-                  />
+                  <Switch checked={otherInfoVisible} onCheckedChange={setOtherInfoVisible} />
                 </div>
               </div>
-              <Textarea
-                id="other-info"
-                placeholder="可補充其他相關資訊、備註等..."
-                value={otherInfo}
-                onChange={(e) => setOtherInfo(e.target.value)}
-                rows={3}
-              />
+              <Textarea id="other-info" placeholder="可補充其他相關資訊、備註等..." value={otherInfo} onChange={e => setOtherInfo(e.target.value)} rows={3} />
             </div>
           </CardContent>
         </Card>
 
         {/* 儲存按鈕 */}
-        <Button 
-          onClick={handleSave}
-          className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 text-lg font-semibold shadow-lg mb-6"
-        >
+        <Button onClick={handleSave} className="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white py-3 text-lg font-semibold shadow-lg mb-6">
           <Save className="w-5 h-5 mr-2" />
           儲存電子名片
         </Button>
@@ -1493,131 +1245,85 @@ LINE: ${line || ''}
           <CardContent className="p-0">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
               <div className="flex items-center space-x-4 mb-4">
-                {photo && (
-                  <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                {photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
                     <AvatarImage src={photo} alt="照片" />
                     <AvatarFallback className="bg-white text-green-600 font-bold text-xl">
                       {name?.charAt(0) || 'U'}
                     </AvatarFallback>
-                  </Avatar>
-                )}
+                  </Avatar>}
                 <div className="flex-1">
-                  <h2 className="text-2xl font-bold mb-1">{(name && nameVisible) ? name : '您的姓名'}</h2>
-                  {jobTitle && jobTitleVisible && (
-                    <p className="text-green-100 text-sm mb-1">{jobTitle}</p>
-                  )}
-                  {companyName && companyNameVisible && (
-                    <p className="text-green-100 text-lg">{companyName}</p>
-                  )}
+                  <h2 className="text-2xl font-bold mb-1">{name && nameVisible ? name : '您的姓名'}</h2>
+                  {jobTitle && jobTitleVisible && <p className="text-green-100 text-sm mb-1">{jobTitle}</p>}
+                  {companyName && companyNameVisible && <p className="text-green-100 text-lg">{companyName}</p>}
                 </div>
               </div>
 
               <div className="space-y-2 text-sm">
-                {introduction && introductionVisible && (
-                  <div className="bg-white/10 p-2 rounded text-xs mb-3">
+                {introduction && introductionVisible && <div className="bg-white/10 p-2 rounded text-xs mb-3">
                     <span className="mr-2">💬</span>
                     <span>{introduction}</span>
-                  </div>
-                )}
-                {phone && phoneVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {phone && phoneVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{phone}</span>
-                  </div>
-                )}
-                {mobilePhone && mobilePhoneVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {mobilePhone && mobilePhoneVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{mobilePhone}</span>
-                  </div>
-                )}
-                {email && emailVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {email && emailVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{email}</span>
-                  </div>
-                )}
-                {website && websiteVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {website && websiteVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{website}</span>
-                  </div>
-                )}
-                {address && addressVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {address && addressVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{address}</span>
-                  </div>
-                )}
-                {birthday && birthdayVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {birthday && birthdayVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{formatBirthdayDisplay(birthday)}</span>
-                  </div>
-                )}
-                {gender && genderVisible && (
-                  <div className="flex items-center space-x-3">
+                  </div>}
+                {gender && genderVisible && <div className="flex items-center space-x-3">
                     <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                     <span className="truncate">{getGenderDisplay(gender)}</span>
-                  </div>
-                )}
+                  </div>}
               </div>
 
               {/* 社群資訊 */}
-              {((line && lineVisible) || (facebook && facebookVisible) || (instagram && instagramVisible)) && (
-                <div className="mt-4 pt-4 border-t border-green-300/50">
+              {(line && lineVisible || facebook && facebookVisible || instagram && instagramVisible) && <div className="mt-4 pt-4 border-t border-green-300/50">
                   <div className="flex flex-wrap gap-3 justify-center">
-                    {line && lineVisible && (
-                      <button
-                        onClick={() => window.open(line, '_blank')}
-                        className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                      >
+                    {line && lineVisible && <button onClick={() => window.open(line, '_blank')} className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                         <MessageCircle className="w-5 h-5 text-white" />
-                      </button>
-                    )}
-                    {facebook && facebookVisible && (
-                      <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                      </button>}
+                    {facebook && facebookVisible && <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                         <Facebook className="w-5 h-5 text-white" />
-                      </div>
-                    )}
-                    {instagram && instagramVisible && (
-                      <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                      </div>}
+                    {instagram && instagramVisible && <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
                         <Instagram className="w-5 h-5 text-white" />
-                      </div>
-                    )}
+                      </div>}
                     {/* 新增的社群媒體 */}
-                    {socialMedia.filter(item => item.visible).map((item) => (
-                      <div key={item.id} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer ${
-                        item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' :
-                        item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' :
-                        item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' :
-                        'bg-gray-600 hover:bg-gray-700'
-                      }`}>
+                    {socialMedia.filter(item => item.visible).map(item => <div key={item.id} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer ${item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' : item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' : item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' : 'bg-gray-600 hover:bg-gray-700'}`}>
                         {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-white" />}
                         {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-white" />}
                         {item.platform === 'threads' && <MessageCircle className="w-5 h-5 text-white" />}
-                      </div>
-                    ))}
+                      </div>)}
                   </div>
-                  {otherInfo && otherInfoVisible && (
-                    <div className="mt-3 pt-3 border-t border-white/20">
+                  {otherInfo && otherInfoVisible && <div className="mt-3 pt-3 border-t border-white/20">
                       <div className="text-xs bg-white/10 p-2 rounded">
                         <span className="mr-2">📝</span>
                         <span>{otherInfo}</span>
                       </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                    </div>}
+                </div>}
             </div>
             
             {/* QR Code 區塊 */}
             <div className="p-4 bg-white border-t">
-              <Button
-                variant="ghost"
-                onClick={() => setShowQRCode(!showQRCode)}
-                className="w-full flex items-center justify-between p-2 hover:bg-gray-50"
-              >
+              <Button variant="ghost" onClick={() => setShowQRCode(!showQRCode)} className="w-full flex items-center justify-between p-2 hover:bg-gray-50">
                 <div className="flex items-center">
                   <QrCode className="w-4 h-4 mr-2" />
                   <span className="font-semibold text-gray-800">我的名片 QR Code</span>
@@ -1625,34 +1331,23 @@ LINE: ${line || ''}
                 {showQRCode ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
               </Button>
               
-              {showQRCode && (
-                <div className="mt-3 text-center">
+              {showQRCode && <div className="mt-3 text-center">
                   <div className="flex justify-center mb-3">
                     {generateQRCode(qrCodeData)}
                   </div>
                   <p className="text-xs text-gray-600 mb-3">
                     掃描此QR Code即可獲得我的聯絡資訊
                   </p>
-                  <Button
-                    onClick={downloadQRCode}
-                    variant="outline"
-                    size="sm"
-                    className="border-green-500 text-green-600 hover:bg-green-50"
-                  >
+                  <Button onClick={downloadQRCode} variant="outline" size="sm" className="border-green-500 text-green-600 hover:bg-green-50">
                     <Download className="w-4 h-4 mr-1" />
                     下載 QR Code
                   </Button>
-                </div>
-              )}
+                </div>}
             </div>
 
             {/* 名片操作按鈕 */}
             <div className="p-4 bg-gray-50 border-t">
-              <Button
-                onClick={shareCard}
-                variant="outline"
-                className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
-              >
+              <Button onClick={shareCard} variant="outline" className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
                 <Share2 className="w-4 h-4 mr-1" />
                 分享電子名片
               </Button>
@@ -1661,16 +1356,11 @@ LINE: ${line || ''}
         </Card>
 
         {/* OCR 名片辨識模態框 */}
-        {showOCRCapture && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        {showOCRCapture && <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-6 w-full max-w-md">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold">名片辨識</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowOCRCapture(false)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => setShowOCRCapture(false)}>
                   <X className="w-5 h-5" />
                 </Button>
               </div>
@@ -1684,28 +1374,21 @@ LINE: ${line || ''}
                 </div>
                 
                 <div className="flex space-x-2">
-                  <Button
-                    onClick={() => {
-                      // 模擬 OCR 辨識結果
-                      handleOCRResult({
-                        name: '王小明',
-                        company: 'AI科技股份有限公司',
-                        jobTitle: '產品經理',
-                        phone: '02-1234-5678',
-                        email: 'wang@aitech.com',
-                        address: '台北市信義區信義路五段7號'
-                      });
-                    }}
-                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
-                  >
+                  <Button onClick={() => {
+                // 模擬 OCR 辨識結果
+                handleOCRResult({
+                  name: '王小明',
+                  company: 'AI科技股份有限公司',
+                  jobTitle: '產品經理',
+                  phone: '02-1234-5678',
+                  email: 'wang@aitech.com',
+                  address: '台北市信義區信義路五段7號'
+                });
+              }} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
                     <Camera className="w-4 h-4 mr-2" />
                     拍攝辨識
                   </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowOCRCapture(false)}
-                    className="flex-1"
-                  >
+                  <Button variant="outline" onClick={() => setShowOCRCapture(false)} className="flex-1">
                     取消
                   </Button>
                 </div>
@@ -1715,11 +1398,8 @@ LINE: ${line || ''}
                 </p>
               </div>
             </div>
-          </div>
-        )}
+          </div>}
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default CreateCard;
