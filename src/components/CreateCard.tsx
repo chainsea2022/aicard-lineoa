@@ -1292,9 +1292,9 @@ LINE: ${line || ''}
           <CardContent className="p-0">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
               <div className="flex items-start space-x-5 mb-4">
-                {photo && <Avatar className="w-28 h-28 border-4 border-white shadow-xl">
+                {photo && <Avatar className="w-32 h-32 border-4 border-white shadow-xl">
                     <AvatarImage src={photo} alt="照片" className="object-cover" />
-                    <AvatarFallback className="bg-white text-green-600 font-bold text-2xl">
+                    <AvatarFallback className="bg-white text-green-600 font-bold text-3xl">
                       {name?.charAt(0) || 'U'}
                     </AvatarFallback>
                   </Avatar>}
