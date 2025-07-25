@@ -592,10 +592,14 @@ LINE: ${cardInfo.line || ''}
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                       <span className="truncate">職位: {cardData.position}</span>
                     </div>}
-                  {cardData.skills && cardData.skillsVisible !== false && <div className="flex items-center space-x-3">
-                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                      <span className="truncate">專長: {cardData.skills}</span>
-                    </div>}
+                   {cardData.skills && cardData.skillsVisible !== false && <div className="flex items-center space-x-3">
+                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                       <span className="truncate">專長: {cardData.skills}</span>
+                     </div>}
+                   {cardData.otherInfo && cardData.otherInfoVisible !== false && <div className="bg-white/10 p-2 rounded text-xs mt-3">
+                       <span className="mr-2">📝</span>
+                       <span>{cardData.otherInfo}</span>
+                     </div>}
                 </div>
 
                 {/* 社群資訊 */}
