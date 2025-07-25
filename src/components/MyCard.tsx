@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -64,16 +64,31 @@ const MyCard: React.FC<MyCardProps> = ({
         const qrInfo = `名片資訊
 姓名: ${cardInfo.name || ''}
 ${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
-公司: ${cardInfo.companyName || ''}
+${cardInfo.companyName && cardInfo.companyNameVisible !== false ? `公司: ${cardInfo.companyName}` : ''}
+${cardInfo.department && cardInfo.departmentVisible !== false ? `部門: ${cardInfo.department}` : ''}
+${cardInfo.position && cardInfo.positionVisible !== false ? `職位: ${cardInfo.position}` : ''}
 電話: ${cardInfo.phone || ''}
+${cardInfo.mobilePhone && cardInfo.mobilePhoneVisible !== false ? `手機: ${cardInfo.mobilePhone}` : ''}
+${cardInfo.officePhone && cardInfo.officePhoneVisible !== false ? `辦公室: ${cardInfo.officePhone}` : ''}
+${cardInfo.fax && cardInfo.faxVisible !== false ? `傳真: ${cardInfo.fax}` : ''}
 Email: ${cardInfo.email || ''}
+${cardInfo.email2 && cardInfo.email2Visible !== false ? `副信箱: ${cardInfo.email2}` : ''}
 ${cardInfo.website && cardInfo.websiteVisible !== false ? `網站: ${cardInfo.website}` : ''}
 ${cardInfo.address && cardInfo.addressVisible ? `地址: ${cardInfo.address}` : ''}
+${cardInfo.companyAddress && cardInfo.companyAddressVisible !== false ? `公司地址: ${cardInfo.companyAddress}` : ''}
 ${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardInfo.birthday)}` : ''}
 ${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
+${cardInfo.skills && cardInfo.skillsVisible !== false ? `專長: ${cardInfo.skills}` : ''}
 ${cardInfo.line && cardInfo.lineVisible !== false ? `LINE: ${cardInfo.line}` : ''}
 ${cardInfo.facebook && cardInfo.facebookVisible !== false ? `Facebook: ${cardInfo.facebook}` : ''}
 ${cardInfo.instagram && cardInfo.instagramVisible !== false ? `Instagram: ${cardInfo.instagram}` : ''}
+${cardInfo.youtube && cardInfo.youtubeVisible !== false ? `YouTube: ${cardInfo.youtube}` : ''}
+${cardInfo.linkedin && cardInfo.linkedinVisible !== false ? `LinkedIn: ${cardInfo.linkedin}` : ''}
+${cardInfo.twitter && cardInfo.twitterVisible !== false ? `Twitter: ${cardInfo.twitter}` : ''}
+${cardInfo.tiktok && cardInfo.tiktokVisible !== false ? `TikTok: ${cardInfo.tiktok}` : ''}
+${cardInfo.threads && cardInfo.threadsVisible !== false ? `Threads: ${cardInfo.threads}` : ''}
+${cardInfo.wechat && cardInfo.wechatVisible !== false ? `WeChat: ${cardInfo.wechat}` : ''}
+${cardInfo.whatsapp && cardInfo.whatsappVisible !== false ? `WhatsApp: ${cardInfo.whatsapp}` : ''}
 ${cardInfo.introduction && cardInfo.introductionVisible !== false ? `個人介紹: ${cardInfo.introduction}` : ''}`;
         setQrCodeData(qrInfo);
         console.log('生成QR Code:', qrInfo);
@@ -520,48 +535,186 @@ LINE: ${cardInfo.line || ''}
                       <span className="mr-2">💬</span>
                       <span>{cardData.introduction}</span>
                     </div>}
+                  
+                  {/* 聯絡資訊 */}
                   {cardData.phone && cardData.phoneVisible !== false && <div className="flex items-center space-x-3">
-                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <Phone className="w-4 h-4 text-white/80" />
                       <span className="truncate">{cardData.phone}</span>
                     </div>}
                   {cardData.mobilePhone && cardData.mobilePhoneVisible !== false && <div className="flex items-center space-x-3">
-                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <Smartphone className="w-4 h-4 text-white/80" />
                       <span className="truncate">{cardData.mobilePhone}</span>
                     </div>}
+                  {cardData.officePhone && cardData.officePhoneVisible !== false && <div className="flex items-center space-x-3">
+                      <Phone className="w-4 h-4 text-white/80" />
+                      <span className="truncate">辦公室: {cardData.officePhone}</span>
+                    </div>}
+                  {cardData.fax && cardData.faxVisible !== false && <div className="flex items-center space-x-3">
+                      <Phone className="w-4 h-4 text-white/80" />
+                      <span className="truncate">傳真: {cardData.fax}</span>
+                    </div>}
                   {cardData.email && cardData.emailVisible !== false && <div className="flex items-center space-x-3">
-                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <Mail className="w-4 h-4 text-white/80" />
                       <span className="truncate">{cardData.email}</span>
                     </div>}
+                  {cardData.email2 && cardData.email2Visible !== false && <div className="flex items-center space-x-3">
+                      <Mail className="w-4 h-4 text-white/80" />
+                      <span className="truncate">副信箱: {cardData.email2}</span>
+                    </div>}
                   {cardData.website && cardData.websiteVisible !== false && <div className="flex items-center space-x-3">
-                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <Globe className="w-4 h-4 text-white/80" />
                       <span className="truncate">{cardData.website}</span>
                     </div>}
+                  
+                  {/* 地址和其他資訊 */}
                   {cardData.address && cardData.addressVisible && <div className="flex items-center space-x-3">
-                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <MapPin className="w-4 h-4 text-white/80" />
                       <span className="truncate">{cardData.address}</span>
+                    </div>}
+                  {cardData.companyAddress && cardData.companyAddressVisible !== false && <div className="flex items-center space-x-3">
+                      <MapPin className="w-4 h-4 text-white/80" />
+                      <span className="truncate">公司: {cardData.companyAddress}</span>
                     </div>}
                   {cardData.birthday && cardData.birthdayVisible && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                      <span className="truncate">{formatBirthdayDisplay(cardData.birthday)}</span>
+                      <span className="truncate">生日: {formatBirthdayDisplay(cardData.birthday)}</span>
                     </div>}
                   {cardData.gender && cardData.genderVisible && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
-                      <span className="truncate">{getGenderDisplay(cardData.gender)}</span>
+                      <span className="truncate">性別: {getGenderDisplay(cardData.gender)}</span>
+                    </div>}
+                  {cardData.department && cardData.departmentVisible !== false && <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">部門: {cardData.department}</span>
+                    </div>}
+                  {cardData.position && cardData.positionVisible !== false && <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">職位: {cardData.position}</span>
+                    </div>}
+                  {cardData.skills && cardData.skillsVisible !== false && <div className="flex items-center space-x-3">
+                      <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                      <span className="truncate">專長: {cardData.skills}</span>
                     </div>}
                 </div>
 
                 {/* 社群資訊 */}
-                {(cardData.line && cardData.lineVisible !== false || cardData.facebook && cardData.facebookVisible !== false || cardData.instagram && cardData.instagramVisible !== false) && <div className="mt-4 pt-4 border-t border-green-300/50">
+                {(cardData.line && cardData.lineVisible !== false || 
+                  cardData.facebook && cardData.facebookVisible !== false || 
+                  cardData.instagram && cardData.instagramVisible !== false ||
+                  cardData.youtube && cardData.youtubeVisible !== false ||
+                  cardData.linkedin && cardData.linkedinVisible !== false ||
+                  cardData.twitter && cardData.twitterVisible !== false ||
+                  cardData.tiktok && cardData.tiktokVisible !== false ||
+                  cardData.threads && cardData.threadsVisible !== false ||
+                  cardData.wechat && cardData.wechatVisible !== false ||
+                  cardData.whatsapp && cardData.whatsappVisible !== false) && 
+                <div className="mt-4 pt-4 border-t border-white/20">
                     <div className="flex flex-wrap gap-3 justify-center">
-                      {cardData.line && cardData.lineVisible !== false && <button onClick={() => handleLineClick(cardData.line)} className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                      {cardData.line && cardData.lineVisible !== false && (
+                        <button 
+                          onClick={() => handleLineClick(cardData.line)} 
+                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="LINE"
+                        >
                           <MessageCircle className="w-5 h-5 text-white" />
-                        </button>}
-                      {cardData.facebook && cardData.facebookVisible !== false && <div className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                        </button>
+                      )}
+                      {cardData.facebook && cardData.facebookVisible !== false && (
+                        <a 
+                          href={cardData.facebook} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="Facebook"
+                        >
                           <Facebook className="w-5 h-5 text-white" />
-                        </div>}
-                      {cardData.instagram && cardData.instagramVisible !== false && <div className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer">
+                        </a>
+                      )}
+                      {cardData.instagram && cardData.instagramVisible !== false && (
+                        <a 
+                          href={cardData.instagram} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="Instagram"
+                        >
                           <Instagram className="w-5 h-5 text-white" />
-                        </div>}
+                        </a>
+                      )}
+                      {cardData.youtube && cardData.youtubeVisible !== false && (
+                        <a 
+                          href={cardData.youtube} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="YouTube"
+                        >
+                          <Youtube className="w-5 h-5 text-white" />
+                        </a>
+                      )}
+                      {cardData.linkedin && cardData.linkedinVisible !== false && (
+                        <a 
+                          href={cardData.linkedin} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="LinkedIn"
+                        >
+                          <Linkedin className="w-5 h-5 text-white" />
+                        </a>
+                      )}
+                      {cardData.twitter && cardData.twitterVisible !== false && (
+                        <a 
+                          href={cardData.twitter} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-sky-500 hover:bg-sky-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="Twitter"
+                        >
+                          <span className="text-white text-lg font-bold">𝕏</span>
+                        </a>
+                      )}
+                      {cardData.tiktok && cardData.tiktokVisible !== false && (
+                        <a 
+                          href={cardData.tiktok} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-black hover:bg-gray-800 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="TikTok"
+                        >
+                          <span className="text-white text-lg">🎵</span>
+                        </a>
+                      )}
+                      {cardData.threads && cardData.threadsVisible !== false && (
+                        <a 
+                          href={cardData.threads} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-900 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="Threads"
+                        >
+                          <span className="text-white text-lg">🧵</span>
+                        </a>
+                      )}
+                      {cardData.wechat && cardData.wechatVisible !== false && (
+                        <div 
+                          className="w-10 h-10 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="WeChat"
+                        >
+                          <span className="text-white text-lg">💬</span>
+                        </div>
+                      )}
+                      {cardData.whatsapp && cardData.whatsappVisible !== false && (
+                        <a 
+                          href={`https://wa.me/${cardData.whatsapp}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          title="WhatsApp"
+                        >
+                          <span className="text-white text-lg">📱</span>
+                        </a>
+                      )}
                     </div>
                   </div>}
 
