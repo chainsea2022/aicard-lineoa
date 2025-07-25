@@ -586,7 +586,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                     sideOffset={4}
                     avoidCollisions={true}
                     collisionPadding={12}
-                    sticky="always"
+                    alignOffset={-200}
                   >
                     <div className="bg-white rounded-xl overflow-hidden border border-gray-100">
                       <Calendar
