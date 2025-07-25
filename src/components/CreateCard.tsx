@@ -218,6 +218,32 @@ const CreateCard: React.FC<CreateCardProps> = ({
         }
       }
     }
+
+    // 監聽名片資料更新事件（包括手機驗證狀態更新）
+    const handleCardDataUpdate = () => {
+      const updatedCardData = localStorage.getItem('aile-card-data');
+      if (updatedCardData) {
+        const cardInfo = JSON.parse(updatedCardData);
+        // 更新手機驗證相關狀態
+        if (cardInfo.phone) {
+          setMobilePhone(cardInfo.phone);
+        }
+        if (cardInfo.phoneVerified !== undefined) {
+          // 如果手機號碼已驗證，更新registeredPhone
+          if (cardInfo.phoneVerified && cardInfo.phone) {
+            setRegisteredPhone(cardInfo.phone);
+          }
+        }
+        // 更新其他可能變更的欄位
+        setEmailVerified(cardInfo.emailVerified || false);
+      }
+    };
+
+    window.addEventListener('cardDataUpdated', handleCardDataUpdate);
+
+    return () => {
+      window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
+    };
   }, [userData]);
   const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

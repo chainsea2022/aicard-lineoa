@@ -123,6 +123,9 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
         title: "手機號碼驗證成功",
         description: "您的手機號碼已成功驗證並綁定。",
       });
+      
+      // 立即保存驗證狀態
+      handleAutoSave();
     }
   };
 

@@ -76,6 +76,21 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     }
     
     setCardData(cardInfo);
+
+    // 監聽名片資料更新事件（包括手機驗證狀態更新）
+    const handleCardDataUpdate = () => {
+      const updatedCardData = localStorage.getItem('aile-card-data');
+      if (updatedCardData) {
+        const updatedInfo = JSON.parse(updatedCardData);
+        setCardData(updatedInfo);
+      }
+    };
+
+    window.addEventListener('cardDataUpdated', handleCardDataUpdate);
+
+    return () => {
+      window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
+    };
   }, []);
 
   const handleSave = () => {
