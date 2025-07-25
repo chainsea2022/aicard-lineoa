@@ -606,7 +606,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                           month: "space-y-3 w-full",
                           caption: "flex justify-center py-2 relative items-center bg-gray-50 border-b border-gray-100",
                           caption_label: "hidden",
-                          caption_dropdowns: "flex items-center justify-center gap-1",
+                          caption_dropdowns: "flex items-center justify-center gap-2 order-2",
                           nav: "space-x-1 flex items-center",
                           nav_button: "h-8 w-8 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border-0",
                           nav_button_previous: "absolute left-3",
