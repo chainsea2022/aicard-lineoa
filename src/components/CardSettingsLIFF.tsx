@@ -218,29 +218,8 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
       [field]: value
     }));
 
-    // 如果是email欄位且輸入完成，檢查驗證狀態
-    if (field === 'email' && value && value.includes('@') && value.includes('.')) {
-      console.log('Email validation triggered for:', value);
-      
-      // 延遲檢查，讓用戶有時間完成輸入
-      setTimeout(() => {
-        const isVerified = checkEmailVerification(value);
-        console.log('Email verification result:', isVerified);
-        
-        if (!isVerified) {
-          console.log('Email not verified, showing ProfileSettings');
-          // 顯示提示並跳轉到驗證流程
-          toast({
-            title: "需要驗證Email",
-            description: "請先完成Email驗證才能使用此功能",
-            duration: 3000,
-          });
-          
-          // 立即跳轉到驗證介面
-          setShowProfileSettings(true);
-        }
-      }, 1500); // 增加延遲時間讓用戶完成輸入
-    }
+    // Email輸入不自動觸發彈跳視窗，由用戶主動點擊驗證
+    // 移除自動驗證提示邏輯
   };
 
   const handleVisibilityChange = (field: string, visible: boolean) => {
@@ -436,13 +415,12 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                   </div>
                   {cardData.phone && !checkPhoneVerification(cardData.phone) && (
                     <p className="text-xs text-orange-600">
-                      未驗證 - 
                       <button
                         type="button"
                         onClick={() => setShowProfileSettings(true)}
-                        className="underline hover:no-underline ml-1"
+                        className="underline hover:no-underline"
                       >
-                        點擊前往驗證
+                        請至「資料設定」完成驗證
                       </button>
                     </p>
                   )}
@@ -480,13 +458,12 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                   </div>
                   {cardData.email && !checkEmailVerification(cardData.email) && (
                     <p className="text-xs text-orange-600">
-                      未驗證 - 
                       <button
                         type="button"
                         onClick={() => setShowProfileSettings(true)}
-                        className="underline hover:no-underline ml-1"
+                        className="underline hover:no-underline"
                       >
-                        點擊前往驗證
+                        請至「資料設定」完成驗證
                       </button>
                     </p>
                   )}
