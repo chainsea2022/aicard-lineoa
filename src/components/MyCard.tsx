@@ -596,11 +596,7 @@ LINE: ${cardInfo.line || ''}
                        <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
                        <span className="truncate">專長: {cardData.skills}</span>
                      </div>}
-                   {cardData.otherInfo && cardData.otherInfoVisible !== false && <div className="bg-white/10 p-2 rounded text-xs mt-3">
-                       <span className="mr-2">📝</span>
-                       <span>{cardData.otherInfo}</span>
-                     </div>}
-                </div>
+                 </div>
 
                 {/* 社群資訊 */}
                 {(cardData.line && cardData.lineVisible !== false || 
@@ -747,10 +743,20 @@ LINE: ${cardInfo.line || ''}
                           {!['youtube', 'linkedin', 'threads'].includes(item.platform) && <span className="text-white text-lg">🔗</span>}
                         </a>
                       ))}
-                    </div>
-                  </div>}
+                     </div>
+                   </div>}
 
-              </div>
+                  {/* 其他資訊區塊 - 放在社群區塊下方 */}
+                  {cardData.otherInfo && cardData.otherInfoVisible !== false && (
+                    <div className="mt-4 pt-4 border-t border-white/20">
+                      <div className="bg-white/10 p-3 rounded text-sm">
+                        <span className="mr-2">📝</span>
+                        <span>{cardData.otherInfo}</span>
+                      </div>
+                    </div>
+                  )}
+
+               </div>
               
               {/* QR Code 區塊 - 移到名片內部 */}
               <div className="p-4 bg-white border-t">
