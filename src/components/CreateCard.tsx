@@ -1292,8 +1292,8 @@ LINE: ${line || ''}
                   </Avatar>}
                 <div className="flex-1">
                   <h2 className="text-2xl font-bold mb-1">{name && nameVisible ? name : '您的姓名'}</h2>
-                  {companyName && companyNameVisible && <p className="text-green-100 text-lg mb-1">{companyName}</p>}
-                  {jobTitle && jobTitleVisible && <p className="text-green-100 text-sm">{jobTitle}</p>}
+                  {jobTitle && jobTitleVisible && <p className="text-green-100 text-sm mb-1">{jobTitle}</p>}
+                  {companyName && companyNameVisible && <p className="text-green-100 text-lg">{companyName}</p>}
                 </div>
               </div>
 
