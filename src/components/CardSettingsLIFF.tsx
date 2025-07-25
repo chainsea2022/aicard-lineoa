@@ -118,40 +118,37 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     ];
     
     const missingFields = requiredFields.filter(field => !cardData[field.key] || cardData[field.key].trim() === '');
+    const phoneVerified = checkPhoneVerification(cardData.phone);
+    const emailVerified = checkEmailVerification(cardData.email);
     
+    // 收集所有問題
+    const issues = [];
+    
+    // 檢查必填欄位
     if (missingFields.length > 0) {
+      issues.push(`請填寫必填欄位：${missingFields.map(field => field.label).join('、')}`);
+    }
+    
+    // 檢查驗證狀態
+    const unverifiedFields = [];
+    if (cardData.phone && !phoneVerified) unverifiedFields.push('手機號碼');
+    if (cardData.email && !emailVerified) unverifiedFields.push('Email');
+    
+    if (unverifiedFields.length > 0) {
+      issues.push(`請至「資料設定」完成驗證：${unverifiedFields.join('、')}`);
+    }
+    
+    // 如果有任何問題，顯示提示
+    if (issues.length > 0) {
       setValidationErrors(missingFields.map(field => field.key));
       
       toast({
-        title: "請填寫必填欄位",
-        description: `請填寫：${missingFields.map(field => field.label).join('、')}`,
+        title: "無法儲存電子名片",
+        description: issues.join('\n'),
         variant: "destructive"
       });
       
       // 切換到基本資料頁面顯示錯誤
-      if (activeTab !== 'basic') {
-        setActiveTab('basic');
-      }
-      
-      return;
-    }
-    
-    // 檢查手機號碼和Email驗證狀態
-    const phoneVerified = checkPhoneVerification(cardData.phone);
-    const emailVerified = checkEmailVerification(cardData.email);
-    
-    if (!phoneVerified || !emailVerified) {
-      const unverifiedFields = [];
-      if (!phoneVerified) unverifiedFields.push('手機號碼');
-      if (!emailVerified) unverifiedFields.push('Email');
-      
-      toast({
-        title: "需要驗證",
-        description: `請先驗證：${unverifiedFields.join('、')}`,
-        variant: "destructive"
-      });
-      
-      // 切換到基本資料頁面
       if (activeTab !== 'basic') {
         setActiveTab('basic');
       }
