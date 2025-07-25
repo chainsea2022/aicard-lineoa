@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Mail, X, Plus, UserPlus } from 'lucide-react';
+import { ArrowLeft, Users, Mail, X, Plus, UserPlus, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -400,7 +400,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="digital" className="relative">
-                我的名片夾<span className="text-gray-400 text-xs ml-1">已註冊</span>
+                我的名片夾<span className="text-gray-400 text-xs ml-1 flex items-center"><Check className="w-3 h-3 mr-0.5" />已註冊</span>
                 {followingMeCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
                     {followingMeCount}
