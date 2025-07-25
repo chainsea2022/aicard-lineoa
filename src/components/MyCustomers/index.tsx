@@ -400,7 +400,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="digital" className="relative">
-                我的名片夾<span className="text-gray-500 text-xs">+已註冊</span>
+                我的名片夾<span className="text-gray-400 text-xs">+已註冊</span>
                 {followingMeCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
                     {followingMeCount}
