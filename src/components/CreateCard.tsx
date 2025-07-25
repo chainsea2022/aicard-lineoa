@@ -1291,7 +1291,7 @@ LINE: ${line || ''}
           </CardHeader>
           <CardContent className="p-0">
             <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
-              <div className="flex items-start space-x-6 mb-6">
+              <div className="flex items-start space-x-5 mb-4">
                 {photo && <Avatar className="w-28 h-28 border-4 border-white shadow-xl">
                     <AvatarImage src={photo} alt="照片" className="object-cover" />
                     <AvatarFallback className="bg-white text-green-600 font-bold text-2xl">
@@ -1299,44 +1299,44 @@ LINE: ${line || ''}
                     </AvatarFallback>
                   </Avatar>}
                 <div className="flex-1 min-w-0">
-                  <h2 className="text-3xl font-bold mb-2 leading-tight">{name && nameVisible ? name : '您的姓名'}</h2>
-                  {jobTitle && jobTitleVisible && <p className="text-green-100 text-base mb-2 font-medium">{jobTitle}</p>}
-                  {companyName && companyNameVisible && <p className="text-green-100 text-xl font-semibold">{companyName}</p>}
+                  <h2 className="text-2xl font-bold mb-1 leading-tight">{name && nameVisible ? name : '您的姓名'}</h2>
+                  {jobTitle && jobTitleVisible && <p className="text-green-100 text-sm mb-1">{jobTitle}</p>}
+                  {companyName && companyNameVisible && <p className="text-green-100 text-base font-medium">{companyName}</p>}
                 </div>
               </div>
 
-              <div className="space-y-3 text-base">
-                {introduction && introductionVisible && <div className="bg-white/10 p-3 rounded-lg text-sm mb-4">
-                    <span className="mr-2 text-lg">💬</span>
+              <div className="space-y-1.5 text-sm">
+                {introduction && introductionVisible && <div className="bg-white/10 p-2 rounded text-xs mb-2">
+                    <span className="mr-2">💬</span>
                     <span>{introduction}</span>
                   </div>}
-                {phone && phoneVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{phone}</span>
+                {phone && phoneVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{phone}</span>
                   </div>}
-                {mobilePhone && mobilePhoneVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{mobilePhone}</span>
+                {mobilePhone && mobilePhoneVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{mobilePhone}</span>
                   </div>}
-                {email && emailVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{email}</span>
+                {email && emailVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{email}</span>
                   </div>}
-                {website && websiteVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{website}</span>
+                {website && websiteVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{website}</span>
                   </div>}
-                {address && addressVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{address}</span>
+                {address && addressVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{address}</span>
                   </div>}
-                {birthday && birthdayVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{formatBirthdayDisplay(birthday)}</span>
+                {birthday && birthdayVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{formatBirthdayDisplay(birthday)}</span>
                   </div>}
-                {gender && genderVisible && <div className="flex items-center space-x-4">
-                    <span className="w-2.5 h-2.5 bg-white rounded-full flex-shrink-0"></span>
-                    <span className="truncate text-base">{getGenderDisplay(gender)}</span>
+                {gender && genderVisible && <div className="flex items-center space-x-3">
+                    <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
+                    <span className="truncate text-sm">{getGenderDisplay(gender)}</span>
                   </div>}
               </div>
 
