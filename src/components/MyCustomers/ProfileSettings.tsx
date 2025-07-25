@@ -289,6 +289,11 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                     <span className="text-xs">已驗證</span>
                   </div>
                 )}
+                {phone && !phoneVerified && (
+                  <div className="flex items-center space-x-1 text-orange-600">
+                    <span className="text-xs">未驗證</span>
+                  </div>
+                )}
               </div>
               
               <div className="space-y-2">

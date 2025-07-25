@@ -112,61 +112,19 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   const handleSave = () => {
     console.log('handleSave called, cardData:', cardData);
     
-    // 驗證必填欄位
-    const requiredFields = [
-      { key: 'name', label: '姓名' },
-      { key: 'phone', label: '電話號碼' },
-      { key: 'email', label: 'Email' }
-    ];
-    
-    const missingFields = requiredFields.filter(field => {
-      const value = cardData[field.key];
-      const isEmpty = !value || value.trim() === '';
-      console.log(`Field ${field.key}: value="${value}", isEmpty=${isEmpty}`);
-      return isEmpty;
+    // 檢查是否有任何欄位有內容（不再要求所有必填欄位都要填寫）
+    const hasAnyContent = Object.keys(cardData).some(key => {
+      if (key.includes('Visible')) return false; // 排除可見性設定
+      const value = cardData[key];
+      return value && value.toString().trim() !== '';
     });
     
-    console.log('Missing fields:', missingFields);
-    
-    const phoneVerified = checkPhoneVerification(cardData.phone);
-    const emailVerified = checkEmailVerification(cardData.email);
-    
-    console.log('Phone verified:', phoneVerified, 'Email verified:', emailVerified);
-    
-    // 收集所有問題
-    const issues = [];
-    
-    // 檢查必填欄位
-    if (missingFields.length > 0) {
-      issues.push(`請填寫必填欄位：${missingFields.map(field => field.label).join('、')}`);
-    }
-    
-    // 檢查驗證狀態
-    const unverifiedFields = [];
-    if (cardData.phone && !phoneVerified) unverifiedFields.push('手機號碼');
-    if (cardData.email && !emailVerified) unverifiedFields.push('Email');
-    
-    if (unverifiedFields.length > 0) {
-      issues.push(`請至「資料設定」完成驗證：${unverifiedFields.join('、')}`);
-    }
-    
-    console.log('Issues collected:', issues);
-    
-    // 如果有任何問題，顯示提示
-    if (issues.length > 0) {
-      setValidationErrors(missingFields.map(field => field.key));
-      
+    if (!hasAnyContent) {
       toast({
-        title: "無法儲存電子名片",
-        description: issues.join('\n'),
+        title: "請填寫至少一個欄位",
+        description: "請至少填寫一個欄位內容後再進行儲存。",
         variant: "destructive"
       });
-      
-      // 切換到基本資料頁面顯示錯誤
-      if (activeTab !== 'basic') {
-        setActiveTab('basic');
-      }
-      
       return;
     }
     
