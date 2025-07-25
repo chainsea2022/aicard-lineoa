@@ -79,20 +79,26 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
 
     // 監聽名片資料更新事件（包括手機驗證狀態更新）
     const handleCardDataUpdate = () => {
+      console.log('CardSettingsLIFF: cardDataUpdated event received');
       const updatedCardData = localStorage.getItem('aile-card-data');
       if (updatedCardData) {
         const updatedInfo = JSON.parse(updatedCardData);
-        setCardData(prev => ({
-          ...prev,
-          // 只更新驗證相關的欄位，保留用戶正在編輯的內容
-          phone: updatedInfo.phone || prev.phone,
-          phoneVerified: updatedInfo.phoneVerified || false,
-          email: updatedInfo.email || prev.email,
-          emailVerified: updatedInfo.emailVerified || false,
-          // 同步其他可能在ProfileSettings中更新的欄位
-          gender: updatedInfo.gender || prev.gender,
-          birthday: updatedInfo.birthday || prev.birthday
-        }));
+        console.log('CardSettingsLIFF: Updated data from localStorage:', updatedInfo);
+        setCardData(prev => {
+          const newData = {
+            ...prev,
+            // 只更新驗證相關的欄位，保留用戶正在編輯的內容
+            phone: updatedInfo.phone || prev.phone,
+            phoneVerified: updatedInfo.phoneVerified || false,
+            email: updatedInfo.email || prev.email,
+            emailVerified: updatedInfo.emailVerified || false,
+            // 同步其他可能在ProfileSettings中更新的欄位
+            gender: updatedInfo.gender || prev.gender,
+            birthday: updatedInfo.birthday || prev.birthday
+          };
+          console.log('CardSettingsLIFF: Setting new cardData:', newData);
+          return newData;
+        });
       }
     };
 

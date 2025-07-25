@@ -495,18 +495,29 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                               size="sm"
                               onClick={() => {
                                 setEmailVerified(true);
+                                
+                                // 立即更新localStorage
+                                const savedCardData = localStorage.getItem('aile-card-data');
+                                const cardData = savedCardData ? JSON.parse(savedCardData) : {};
+                                
+                                const updatedCardData = {
+                                  ...cardData,
+                                  email,
+                                  emailVerified: true,
+                                  emailVerificationSent: true
+                                };
+                                
+                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
+                                
                                 toast({
                                   title: "Email 驗證成功",
                                   description: "您的 Email 已成功驗證並綁定。",
                                 });
                                 
-                                // 立即保存驗證狀態並觸發同步
-                                handleAutoSave();
-                                
-                                // 觸發名片資料更新事件，通知其他組件更新
+                                // 觸發同步事件
                                 setTimeout(() => {
                                   window.dispatchEvent(new CustomEvent('cardDataUpdated'));
-                                }, 100);
+                                }, 200);
                               }}
                               className="mt-2 text-xs bg-green-600 hover:bg-green-700"
                             >
