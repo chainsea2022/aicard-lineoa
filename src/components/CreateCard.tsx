@@ -235,6 +235,9 @@ const CreateCard: React.FC<CreateCardProps> = ({
           }
         }
         // 更新其他可能變更的欄位
+        if (cardInfo.email) {
+          setEmail(cardInfo.email);
+        }
         setEmailVerified(cardInfo.emailVerified || false);
       }
     };
