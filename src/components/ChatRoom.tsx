@@ -884,7 +884,7 @@ const ChatRoom = () => {
                     <img 
                       src={message.cardData.photo} 
                       alt="照片" 
-                      className="w-16 h-16 rounded-full object-cover border-2 border-white flex-shrink-0 shadow-lg" 
+                      className="w-32 h-32 rounded-full object-cover border-2 border-white flex-shrink-0 shadow-lg" 
                     />
                   )}
                   <div className="min-w-0 flex-1">
