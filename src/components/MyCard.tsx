@@ -512,7 +512,7 @@ LINE: ${cardInfo.line || ''}
             <CardContent className="p-0">
               <div className="bg-gradient-to-br from-blue-500 to-purple-600 p-6 text-white">
                 <div className="flex items-center space-x-4 mb-4">
-                  {cardData.photo && <Avatar className="w-20 h-20 border-3 border-white shadow-lg">
+                  {cardData.photo && <Avatar className="w-32 h-32 border-3 border-white shadow-lg">
                       <AvatarImage src={cardData.photo} alt="照片" />
                       <AvatarFallback className="bg-white text-blue-600 font-bold text-xl">
                         {cardData.name?.charAt(0) || 'U'}
