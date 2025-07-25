@@ -719,16 +719,9 @@ LINE: ${cardInfo.line || ''}
             {/* 社群媒體與操作區域 */}
             <div className="p-4 bg-gray-50 border-t border-gray-200">
               {/* 社群媒體符號 */}
-              {(cardData.line && cardData.lineVisible !== false || 
-                cardData.facebook && cardData.facebookVisible !== false || 
-                cardData.instagram && cardData.instagramVisible !== false ||
-                cardData.youtube && cardData.youtubeVisible !== false ||
-                cardData.linkedin && cardData.linkedinVisible !== false ||
-                cardData.twitter && cardData.twitterVisible !== false ||
-                cardData.tiktok && cardData.tiktokVisible !== false ||
-                cardData.threads && cardData.threadsVisible !== false ||
-                cardData.wechat && cardData.wechatVisible !== false ||
-                cardData.whatsapp && cardData.whatsappVisible !== false) && (
+              {(cardData.line || cardData.facebook || cardData.instagram || 
+                cardData.youtube || cardData.linkedin || cardData.twitter || 
+                cardData.tiktok || cardData.threads || cardData.wechat || cardData.whatsapp) && (
                 <div className="flex justify-center flex-wrap gap-3 mb-4">
                   {cardData.line && cardData.lineVisible !== false && (
                     <a 
