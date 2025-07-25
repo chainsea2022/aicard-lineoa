@@ -399,8 +399,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'digital' | 'paper')} className="flex-1 flex flex-col min-h-0">
           <div className="px-3 py-2 bg-gray-50 border-b border-gray-200 flex-shrink-0">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="digital" className="relative">
-                我的名片夾<span className="text-gray-400 text-xs">+已註冊</span>
+              <TabsTrigger value="digital" className="relative flex flex-col">
+                <span>我的名片夾</span>
+                <span className="text-gray-400 text-xs">已註冊</span>
                 {followingMeCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-1 min-w-5 h-5 flex items-center justify-center rounded-full">
                     {followingMeCount}
