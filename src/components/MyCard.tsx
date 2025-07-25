@@ -610,23 +610,23 @@ LINE: ${cardInfo.line || ''}
                   cardData.wechat && cardData.wechatVisible !== false ||
                   cardData.whatsapp && cardData.whatsappVisible !== false) && 
                 <div className="mt-4 pt-4 border-t border-white/20">
-                    <div className="flex flex-wrap gap-3 justify-center">
+                    <div className="flex justify-center flex-wrap gap-3 mb-4">
                       {cardData.line && cardData.lineVisible !== false && (
-                        <button 
-                          onClick={() => handleLineClick(cardData.line)} 
-                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="LINE"
+                        <a 
+                          href={cardData.line} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">💬</span>
-                        </button>
+                        </a>
                       )}
                       {cardData.facebook && cardData.facebookVisible !== false && (
                         <a 
                           href={cardData.facebook} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-blue-600 hover:bg-blue-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="Facebook"
+                          className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">📘</span>
                         </a>
@@ -636,8 +636,7 @@ LINE: ${cardInfo.line || ''}
                           href={cardData.instagram} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-pink-500 hover:bg-pink-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="Instagram"
+                          className="w-10 h-10 bg-pink-500 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">📷</span>
                         </a>
@@ -647,8 +646,7 @@ LINE: ${cardInfo.line || ''}
                           href={cardData.youtube} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="YouTube"
+                          className="w-10 h-10 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">🎥</span>
                         </a>
@@ -658,8 +656,7 @@ LINE: ${cardInfo.line || ''}
                           href={cardData.linkedin} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-blue-700 hover:bg-blue-800 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="LinkedIn"
+                          className="w-10 h-10 bg-blue-700 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">💼</span>
                         </a>
@@ -669,8 +666,7 @@ LINE: ${cardInfo.line || ''}
                           href={cardData.twitter} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-sky-500 hover:bg-sky-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="Twitter"
+                          className="w-10 h-10 bg-sky-500 hover:bg-sky-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg font-bold">𝕏</span>
                         </a>
@@ -680,8 +676,7 @@ LINE: ${cardInfo.line || ''}
                           href={cardData.tiktok} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-black hover:bg-gray-800 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="TikTok"
+                          className="w-10 h-10 bg-black hover:bg-gray-800 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">🎵</span>
                         </a>
@@ -691,15 +686,14 @@ LINE: ${cardInfo.line || ''}
                           href={cardData.threads} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-gray-800 hover:bg-gray-900 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="Threads"
+                          className="w-10 h-10 bg-gray-800 hover:bg-gray-900 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">🧵</span>
                         </a>
                       )}
                       {cardData.wechat && cardData.wechatVisible !== false && (
                         <div 
-                          className="w-10 h-10 rounded-full bg-green-600 hover:bg-green-700 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
+                          className="w-10 h-10 bg-green-600 hover:bg-green-700 rounded-full flex items-center justify-center transition-colors shadow-sm cursor-pointer"
                           title="WeChat"
                         >
                           <span className="text-white text-lg">💬</span>
@@ -710,8 +704,7 @@ LINE: ${cardInfo.line || ''}
                           href={`https://wa.me/${cardData.whatsapp}`} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 flex items-center justify-center transition-all duration-200 hover:scale-105 cursor-pointer"
-                          title="WhatsApp"
+                          className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
                         >
                           <span className="text-white text-lg">📱</span>
                         </a>
