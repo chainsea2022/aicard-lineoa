@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Settings, Eye, EyeOff, Save, Edit3, Smartphone, Mail, MapPin, Calendar, Globe, MessageCircle, Facebook, Instagram, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, User, Settings, Eye, EyeOff, Save, Edit3, Smartphone, Mail, MapPin, Calendar, Globe, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,13 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     line: '',
     facebook: '',
     instagram: '',
+    youtube: '',
+    linkedin: '',
+    twitter: '',
+    tiktok: '',
+    threads: '',
+    wechat: '',
+    whatsapp: '',
     photo: null,
     // 可見性設定
     nameVisible: true,
@@ -39,7 +46,14 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     introductionVisible: true,
     lineVisible: true,
     facebookVisible: true,
-    instagramVisible: true
+    instagramVisible: true,
+    youtubeVisible: true,
+    linkedinVisible: true,
+    twitterVisible: true,
+    tiktokVisible: true,
+    threadsVisible: true,
+    wechatVisible: true,
+    whatsappVisible: true
   });
 
   const [activeTab, setActiveTab] = useState('basic');
@@ -498,6 +512,76 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                     placeholder="請輸入Instagram網址"
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="youtube">YouTube</Label>
+                  <Input
+                    id="youtube"
+                    value={cardData.youtube || ''}
+                    onChange={(e) => handleInputChange('youtube', e.target.value)}
+                    placeholder="請輸入YouTube頻道網址"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="linkedin">LinkedIn</Label>
+                  <Input
+                    id="linkedin"
+                    value={cardData.linkedin || ''}
+                    onChange={(e) => handleInputChange('linkedin', e.target.value)}
+                    placeholder="請輸入LinkedIn個人檔案網址"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="twitter">Twitter/X</Label>
+                  <Input
+                    id="twitter"
+                    value={cardData.twitter || ''}
+                    onChange={(e) => handleInputChange('twitter', e.target.value)}
+                    placeholder="請輸入Twitter/X網址"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="tiktok">TikTok</Label>
+                  <Input
+                    id="tiktok"
+                    value={cardData.tiktok || ''}
+                    onChange={(e) => handleInputChange('tiktok', e.target.value)}
+                    placeholder="請輸入TikTok網址"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="threads">Threads</Label>
+                  <Input
+                    id="threads"
+                    value={cardData.threads || ''}
+                    onChange={(e) => handleInputChange('threads', e.target.value)}
+                    placeholder="請輸入Threads網址"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="wechat">WeChat</Label>
+                  <Input
+                    id="wechat"
+                    value={cardData.wechat || ''}
+                    onChange={(e) => handleInputChange('wechat', e.target.value)}
+                    placeholder="請輸入微信號"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp">WhatsApp</Label>
+                  <Input
+                    id="whatsapp"
+                    value={cardData.whatsapp || ''}
+                    onChange={(e) => handleInputChange('whatsapp', e.target.value)}
+                    placeholder="請輸入WhatsApp號碼"
+                  />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -530,7 +614,14 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
                     { key: 'introduction', label: '個人介紹', value: cardData.introduction },
                     { key: 'line', label: 'LINE', value: cardData.line },
                     { key: 'facebook', label: 'Facebook', value: cardData.facebook },
-                    { key: 'instagram', label: 'Instagram', value: cardData.instagram }
+                    { key: 'instagram', label: 'Instagram', value: cardData.instagram },
+                    { key: 'youtube', label: 'YouTube', value: cardData.youtube },
+                    { key: 'linkedin', label: 'LinkedIn', value: cardData.linkedin },
+                    { key: 'twitter', label: 'Twitter/X', value: cardData.twitter },
+                    { key: 'tiktok', label: 'TikTok', value: cardData.tiktok },
+                    { key: 'threads', label: 'Threads', value: cardData.threads },
+                    { key: 'wechat', label: 'WeChat', value: cardData.wechat },
+                    { key: 'whatsapp', label: 'WhatsApp', value: cardData.whatsapp }
                   ].map((field) => (
                     <div key={field.key} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                       <div className="flex-1">
