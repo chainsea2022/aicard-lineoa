@@ -507,7 +507,7 @@ LINE: ${cardInfo.line || ''}
                 </p>
               </div>}
 
-          {/* 名片預覽 - 使用與 CardPreview 相同的樣式 */}
+          {/* 名片預覽 - 使用與 Flex Message 相同的樣式 */}
           <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm mx-auto mb-6">
             {/* 頭部資訊 */}
             <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
@@ -557,28 +557,6 @@ LINE: ${cardInfo.line || ''}
                 </div>
               )}
 
-              {/* 辦公室電話 */}
-              {cardData.officePhone && cardData.officePhoneVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">☎️</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">辦公室</p>
-                    <p className="text-sm text-gray-800">{cardData.officePhone}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 傳真 */}
-              {cardData.fax && cardData.faxVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">📠</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">傳真</p>
-                    <p className="text-sm text-gray-800">{cardData.fax}</p>
-                  </div>
-                </div>
-              )}
-
               {/* Email */}
               {cardData.email && cardData.emailVisible !== false && (
                 <div className="flex items-center space-x-2">
@@ -586,17 +564,6 @@ LINE: ${cardInfo.line || ''}
                   <div>
                     <p className="text-xs font-medium text-gray-700">Email</p>
                     <p className="text-sm text-gray-800">{cardData.email}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 副信箱 */}
-              {cardData.email2 && cardData.email2Visible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">✉️</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">副信箱</p>
-                    <p className="text-sm text-gray-800">{cardData.email2}</p>
                   </div>
                 </div>
               )}
@@ -619,50 +586,6 @@ LINE: ${cardInfo.line || ''}
                   <div>
                     <p className="text-xs font-medium text-gray-700">地址</p>
                     <p className="text-sm text-gray-800">{cardData.address}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 公司地址 */}
-              {cardData.companyAddress && cardData.companyAddressVisible !== false && (
-                <div className="flex items-start space-x-2">
-                  <span className="text-gray-600 mt-0.5">📍</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">公司地址</p>
-                    <p className="text-sm text-gray-800">{cardData.companyAddress}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 部門 */}
-              {cardData.department && cardData.departmentVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">🏢</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">部門</p>
-                    <p className="text-sm text-gray-800">{cardData.department}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 職位 */}
-              {cardData.position && cardData.positionVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">💼</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">職位</p>
-                    <p className="text-sm text-gray-800">{cardData.position}</p>
-                  </div>
-                </div>
-              )}
-
-              {/* 專長 */}
-              {cardData.skills && cardData.skillsVisible !== false && (
-                <div className="flex items-center space-x-2">
-                  <span className="text-gray-600">⭐</span>
-                  <div>
-                    <p className="text-xs font-medium text-gray-700">專長</p>
-                    <p className="text-sm text-gray-800">{cardData.skills}</p>
                   </div>
                 </div>
               )}
@@ -753,6 +676,8 @@ LINE: ${cardInfo.line || ''}
                       <span className="text-white text-lg">📷</span>
                     </a>
                   )}
+                  
+                  {/* 其他社群媒體 - 使用統一的字段來顯示 */}
                   {cardData.youtube && cardData.youtubeVisible !== false && (
                     <a 
                       href={cardData.youtube} 
@@ -773,26 +698,6 @@ LINE: ${cardInfo.line || ''}
                       <span className="text-white text-lg">💼</span>
                     </a>
                   )}
-                  {cardData.twitter && cardData.twitterVisible !== false && (
-                    <a 
-                      href={cardData.twitter} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 bg-sky-500 hover:bg-sky-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                    >
-                      <span className="text-white text-lg font-bold">𝕏</span>
-                    </a>
-                  )}
-                  {cardData.tiktok && cardData.tiktokVisible !== false && (
-                    <a 
-                      href={cardData.tiktok} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="w-10 h-10 bg-black hover:bg-gray-800 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                    >
-                      <span className="text-white text-lg">🎵</span>
-                    </a>
-                  )}
                   {cardData.threads && cardData.threadsVisible !== false && (
                     <a 
                       href={cardData.threads} 
@@ -803,22 +708,44 @@ LINE: ${cardInfo.line || ''}
                       <span className="text-white text-lg">🧵</span>
                     </a>
                   )}
-                  {cardData.wechat && cardData.wechatVisible !== false && (
-                    <div 
-                      className="w-10 h-10 bg-green-600 hover:bg-green-700 rounded-full flex items-center justify-center transition-colors shadow-sm cursor-pointer"
-                      title="WeChat"
+                  {cardData.twitter && cardData.twitterVisible !== false && (
+                    <a 
+                      href={cardData.twitter} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
                     >
-                      <span className="text-white text-lg">💬</span>
-                    </div>
+                      <span className="text-white text-lg">🔗</span>
+                    </a>
+                  )}
+                  {cardData.tiktok && cardData.tiktokVisible !== false && (
+                    <a 
+                      href={cardData.tiktok} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
+                    >
+                      <span className="text-white text-lg">🔗</span>
+                    </a>
+                  )}
+                  {cardData.wechat && cardData.wechatVisible !== false && (
+                    <a 
+                      href={cardData.wechat} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
+                    >
+                      <span className="text-white text-lg">🔗</span>
+                    </a>
                   )}
                   {cardData.whatsapp && cardData.whatsappVisible !== false && (
                     <a 
                       href={`https://wa.me/${cardData.whatsapp}`} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
+                      className="w-10 h-10 bg-gray-600 hover:bg-gray-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
                     >
-                      <span className="text-white text-lg">📱</span>
+                      <span className="text-white text-lg">🔗</span>
                     </a>
                   )}
                 </div>
