@@ -878,24 +878,24 @@ const ChatRoom = () => {
                           {message.isCard && message.cardData ? (
                             <div className="bg-white rounded-2xl shadow-lg max-w-[260px] border border-gray-100 overflow-hidden">
                               {/* Business Card Header - 更緊湊的設計 */}
-                              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-3 text-white">
-                                <div className="flex items-center space-x-2.5">
-                                  {message.cardData.photo && (
-                                    <img 
-                                      src={message.cardData.photo} 
-                                      alt="照片" 
-                                      className="w-9 h-9 rounded-full object-cover border-2 border-white flex-shrink-0" 
-                                    />
-                                  )}
-                                  <div className="min-w-0 flex-1">
-                                    <h3 className="text-sm font-bold truncate">{message.cardData.name}</h3>
-                                    <p className="text-blue-100 text-xs truncate">{message.cardData.companyName}</p>
-                                    {message.cardData.jobTitle && (
-                                      <p className="text-blue-200 text-xs truncate">{message.cardData.jobTitle}</p>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
+                <div className="flex items-center space-x-4">
+                  {message.cardData.photo && (
+                    <img 
+                      src={message.cardData.photo} 
+                      alt="照片" 
+                      className="w-16 h-16 rounded-full object-cover border-2 border-white flex-shrink-0 shadow-lg" 
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-lg font-bold truncate mb-1">{message.cardData.name}</h3>
+                    <p className="text-blue-100 text-sm truncate mb-0.5">{message.cardData.companyName}</p>
+                    {message.cardData.jobTitle && (
+                      <p className="text-blue-200 text-sm truncate">{message.cardData.jobTitle}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
                               
                               {/* 聯絡資訊 - 更緊湊的間距 */}
                               <div className="px-3 py-2 space-y-1.5">
