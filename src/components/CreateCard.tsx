@@ -167,13 +167,15 @@ const CreateCard: React.FC<CreateCardProps> = ({
     // 設置註冊手機號碼
     if (userData?.phone) {
       setRegisteredPhone(userData.phone);
-      setMobilePhone(userData.phone); // 預設為手機號碼
     }
 
-    // 從 localStorage 載入名片資料
-    const savedCardData = localStorage.getItem('aile-card-data');
-    if (savedCardData) {
-      const cardInfo = JSON.parse(savedCardData);
+    // 檢查是否為編輯模式
+    const editingCardData = localStorage.getItem('editing-card-data');
+    const creationMode = localStorage.getItem('card-creation-mode');
+    
+    if (editingCardData) {
+      // 編輯現有名片模式
+      const cardInfo = JSON.parse(editingCardData);
       setName(cardInfo.name || '');
       setNameVisible(cardInfo.nameVisible !== false);
       setCompanyName(cardInfo.companyName || '');
@@ -182,7 +184,7 @@ const CreateCard: React.FC<CreateCardProps> = ({
       setJobTitleVisible(cardInfo.jobTitleVisible !== false);
       setPhone(cardInfo.phone || '');
       setPhoneVisible(cardInfo.phoneVisible !== false);
-      setMobilePhone(cardInfo.mobilePhone || userData?.phone || '');
+      setMobilePhone(cardInfo.mobilePhone || '');
       setMobilePhoneVisible(cardInfo.mobilePhoneVisible !== false);
       setEmail(cardInfo.email || '');
       setEmailVisible(cardInfo.emailVisible !== false);
@@ -215,6 +217,74 @@ const CreateCard: React.FC<CreateCardProps> = ({
         const date = new Date(cardInfo.birthday);
         if (!isNaN(date.getTime())) {
           setBirthdayDate(date);
+        }
+      }
+    } else if (creationMode === 'new') {
+      // 新增名片模式 - 所有欄位保持空白
+      setName('');
+      setCompanyName('');
+      setJobTitle('');
+      setPhone('');
+      setMobilePhone(userData?.phone || '');
+      setEmail('');
+      setWebsite('');
+      setAddress('');
+      setIntroduction('');
+      setBirthday('');
+      setGender('');
+      setLine('');
+      setFacebook('');
+      setInstagram('');
+      setPhoto(null);
+      setSocialMedia([]);
+      setOtherInfo('');
+    } else {
+      // 預設載入主要名片資料（編輯預設名片）
+      const savedCardData = localStorage.getItem('aile-card-data');
+      if (savedCardData) {
+        const cardInfo = JSON.parse(savedCardData);
+        setName(cardInfo.name || '');
+        setNameVisible(cardInfo.nameVisible !== false);
+        setCompanyName(cardInfo.companyName || '');
+        setCompanyNameVisible(cardInfo.companyNameVisible !== false);
+        setJobTitle(cardInfo.jobTitle || '');
+        setJobTitleVisible(cardInfo.jobTitleVisible !== false);
+        setPhone(cardInfo.phone || '');
+        setPhoneVisible(cardInfo.phoneVisible !== false);
+        setMobilePhone(cardInfo.mobilePhone || userData?.phone || '');
+        setMobilePhoneVisible(cardInfo.mobilePhoneVisible !== false);
+        setEmail(cardInfo.email || '');
+        setEmailVisible(cardInfo.emailVisible !== false);
+        setEmailVerified(cardInfo.emailVerified || false);
+        setEmailVerificationSent(cardInfo.emailVerificationSent || false);
+        setWebsite(cardInfo.website || '');
+        setWebsiteVisible(cardInfo.websiteVisible !== false);
+        setAddress(cardInfo.address || '');
+        setAddressVisible(cardInfo.addressVisible !== false);
+        setIntroduction(cardInfo.introduction || '');
+        setIntroductionVisible(cardInfo.introductionVisible !== false);
+        setBirthday(cardInfo.birthday || '');
+        setBirthdayVisible(cardInfo.birthdayVisible || false);
+        setGender(cardInfo.gender || '');
+        setGenderVisible(cardInfo.genderVisible || false);
+        setLine(cardInfo.line || '');
+        setLineVisible(cardInfo.lineVisible !== false);
+        setFacebook(cardInfo.facebook || '');
+        setFacebookVisible(cardInfo.facebookVisible !== false);
+        setInstagram(cardInfo.instagram || '');
+        setInstagramVisible(cardInfo.instagramVisible !== false);
+        setPhoto(cardInfo.photo || null);
+        setCardPublic(cardInfo.cardPublic || false);
+        setSocialMedia(cardInfo.socialMedia || []);
+        setOtherInfo(cardInfo.otherInfo || '');
+        setOtherInfoVisible(cardInfo.otherInfoVisible !== false);
+
+        // Convert birthday to Date object for calendar
+        if (cardInfo.birthday) {
+          const date = new Date(cardInfo.birthday);
+          if (!isNaN(date.getTime())) {
+            setBirthdayDate(date);
+          }
         }
       }
     }
@@ -415,22 +485,14 @@ const CreateCard: React.FC<CreateCardProps> = ({
   };
   const handleSave = () => {
     // 檢查必填欄位
-    if (!email) {
+    if (!name) {
       toast({
         title: "請填寫必填項目",
-        description: "Email 為必填項目，請填寫後再儲存。"
-      });
-      return;
-    }
-    if (!emailVerified) {
-      toast({
-        title: "請完成 Email 驗證",
-        description: "請先完成 Email 驗證後再儲存名片。"
+        description: "姓名為必填項目，請填寫後再儲存。"
       });
       return;
     }
 
-    // 儲存名片資料到 localStorage
     const cardData = {
       name,
       nameVisible,
@@ -468,14 +530,61 @@ const CreateCard: React.FC<CreateCardProps> = ({
       otherInfo,
       otherInfoVisible
     };
-    localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+
+    // 檢查是否為編輯模式或新增模式
+    const editingCardData = localStorage.getItem('editing-card-data');
+    const creationMode = localStorage.getItem('card-creation-mode');
+    
+    if (editingCardData) {
+      // 編輯現有名片模式
+      const editingCard = JSON.parse(editingCardData);
+      
+      if (editingCard.id === 'current') {
+        // 編輯預設名片
+        localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+      } else {
+        // 編輯多名片列表中的名片
+        const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+        const updatedCards = existingCards.map((card: any) => 
+          card.id === editingCard.id ? { ...cardData, id: editingCard.id } : card
+        );
+        localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+      }
+      
+      // 清除編輯狀態
+      localStorage.removeItem('editing-card-data');
+      toast({
+        title: "名片已更新",
+        description: "您的電子名片已成功更新。"
+      });
+    } else if (creationMode === 'new') {
+      // 新增名片模式
+      const newCard = {
+        ...cardData,
+        id: Date.now().toString()
+      };
+      
+      const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+      const updatedCards = [...existingCards, newCard];
+      localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+      
+      // 清除新增狀態
+      localStorage.removeItem('card-creation-mode');
+      toast({
+        title: "名片已新增",
+        description: "新的電子名片已成功建立。"
+      });
+    } else {
+      // 預設模式 - 編輯主要名片
+      localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+      toast({
+        title: "名片已儲存",
+        description: "您的電子名片已成功儲存。"
+      });
+    }
 
     // 觸發自定義事件，通知其他組件資料已更新
     window.dispatchEvent(new CustomEvent('cardDataUpdated'));
-    toast({
-      title: "名片已儲存",
-      description: "您的電子名片已成功儲存。"
-    });
     onRegistrationComplete();
   };
   const formatBirthdayDisplay = (dateStr: string) => {
