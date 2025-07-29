@@ -559,16 +559,7 @@ LINE: ${cardInfo.line || ''}
                     // 清除編輯狀態，設定為新增模式
                     localStorage.removeItem('editing-card-data');
                     localStorage.setItem('card-creation-mode', 'new');
-                    
-                    // 導向電子名片設定頁
-                    if (window.liff) {
-                      window.liff.openWindow({
-                        url: `${window.location.origin}/card-settings`,
-                        external: false
-                      });
-                    } else {
-                      window.location.href = '/card-settings';
-                    }
+                    setShowCreateCard(true);
                   }}
                 >
                   <span className="text-lg font-bold mr-1">+</span>
