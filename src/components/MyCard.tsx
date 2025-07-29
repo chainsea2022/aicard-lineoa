@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
-
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MyCardProps {
   onClose: () => void;
@@ -30,7 +28,6 @@ const MyCard: React.FC<MyCardProps> = ({
   const [isNewUser, setIsNewUser] = useState(false);
   const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
-  const [additionalCards, setAdditionalCards] = useState<any[]>([]);
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -100,12 +97,6 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
         setUserData(JSON.parse(savedUserData));
       }
 
-      // 載入額外名片資料
-      const savedAdditionalCards = localStorage.getItem('aile-additional-cards');
-      if (savedAdditionalCards) {
-        setAdditionalCards(JSON.parse(savedAdditionalCards));
-      }
-
       // 載入點數資訊
       const savedPoints = localStorage.getItem('aile-user-points');
       if (savedPoints) {
@@ -121,9 +112,7 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
       console.log('MyCard: cardDataUpdated event received');
       loadCardData();
     };
-
     window.addEventListener('cardDataUpdated', handleCardDataUpdate);
-
     return () => {
       window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
     };
@@ -316,42 +305,20 @@ LINE: ${cardInfo.line || ''}
     });
     console.log('下載名片');
   };
-  const shareCard = (card = cardData) => {
+  const shareCard = () => {
     if (navigator.share) {
       navigator.share({
-        title: `${card.name}的電子名片`,
-        text: `${card.companyName} - ${card.name}`,
+        title: `${cardData.name}的電子名片`,
+        text: `${cardData.companyName} - ${cardData.name}`,
         url: window.location.href
       });
     } else {
-      navigator.clipboard.writeText(`${card.name}的電子名片 - ${card.companyName}`);
+      navigator.clipboard.writeText(`${cardData.name}的電子名片 - ${cardData.companyName}`);
       toast({
         title: "已複製到剪貼板",
         description: "名片資訊已複製，可以分享給朋友。"
       });
     }
-  };
-
-  const editCard = (card = cardData) => {
-    // 設定要編輯的名片資料到 localStorage
-    localStorage.setItem('editing-card-data', JSON.stringify(card));
-    setShowCreateCard(true);
-  };
-
-  const addNewCard = () => {
-    // 清除編輯狀態，創建新名片
-    localStorage.removeItem('editing-card-data');
-    setShowCreateCard(true);
-  };
-
-  const deleteAdditionalCard = (cardIndex: number) => {
-    const updatedCards = additionalCards.filter((_, index) => index !== cardIndex);
-    setAdditionalCards(updatedCards);
-    localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
-    toast({
-      title: "名片已刪除",
-      description: "電子名片已成功刪除。"
-    });
   };
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
@@ -541,31 +508,26 @@ LINE: ${cardInfo.line || ''}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">我的電子名片</h3>
-                <Button 
-                  size="sm" 
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                  onClick={() => {
-                    // 創建新名片邏輯
-                    const newCardId = `card_${Date.now()}`;
-                    const newCard = {
-                      id: newCardId,
-                      name: '新名片',
-                      companyName: '',
-                      phone: '',
-                      email: '',
-                      isDefault: false,
-                      isActive: true,
-                      createdAt: new Date().toISOString()
-                    };
-                    
-                    const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-                    const updatedCards = [...existingCards, newCard];
-                    localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
-                    
-                    // 重新載入頁面狀態
-                    window.location.reload();
-                  }}
-                >
+                <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => {
+              // 創建新名片邏輯
+              const newCardId = `card_${Date.now()}`;
+              const newCard = {
+                id: newCardId,
+                name: '新名片',
+                companyName: '',
+                phone: '',
+                email: '',
+                isDefault: false,
+                isActive: true,
+                createdAt: new Date().toISOString()
+              };
+              const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+              const updatedCards = [...existingCards, newCard];
+              localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+
+              // 重新載入頁面狀態
+              window.location.reload();
+            }}>
                   <span className="text-lg font-bold mr-1">+</span>
                   新增名片
                 </Button>
@@ -574,31 +536,20 @@ LINE: ${cardInfo.line || ''}
               {/* 名片列表 */}
               <div className="space-y-3">
                 {(() => {
-                  const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-                  const currentCard = cardData ? { ...cardData, id: 'current', name: cardData.name || '主要名片' } : null;
-                  const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
-                  
-                  return allCards.length > 0 ? allCards.map((card, index) => (
-                    <Card key={card.id || index} className="border border-gray-200 hover:border-blue-300 transition-colors">
+              const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+              const currentCard = cardData ? {
+                ...cardData,
+                id: 'current',
+                name: cardData.name || '主要名片'
+              } : null;
+              const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
+              return allCards.length > 0 ? allCards.map((card, index) => <Card key={card.id || index} className="border border-gray-200 hover:border-blue-300 transition-colors">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
-                          <div 
-                            className="flex-1 cursor-pointer"
-                            onClick={() => {
-                              if (card.id === 'current') {
-                                editCard(cardData);
-                              } else {
-                                // 點擊名片區域進行編輯
-                                localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                setShowCreateCard(true);
-                              }
-                            }}
-                          >
+                          <div className="flex-1">
                             <div className="flex items-center space-x-2 mb-1">
                               <h4 className="font-medium text-gray-800">{card.name}</h4>
-                              {card.id === 'current' && (
-                                <Badge variant="secondary" className="text-xs">預設</Badge>
-                              )}
+                              {card.id === 'current' && <Badge variant="secondary" className="text-xs">預設</Badge>}
                             </div>
                             <p className="text-sm text-gray-600">
                               {card.companyName && `${card.companyName} • `}
@@ -606,79 +557,44 @@ LINE: ${cardInfo.line || ''}
                             </p>
                           </div>
                           <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                if (card.id === 'current') {
-                                  editCard(cardData);
-                                } else {
-                                  // 編輯其他名片
-                                  localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                  setShowCreateCard(true);
-                                }
-                              }}
-                            >
+                            <Button size="sm" variant="outline" onClick={() => {
+                        if (card.id === 'current') {
+                          setShowCreateCard(true);
+                        } else {
+                          // 編輯其他名片
+                          localStorage.setItem('aile-editing-card', JSON.stringify(card));
+                          setShowCreateCard(true);
+                        }
+                      }}>
                               <Edit className="w-3 h-3 mr-1" />
                               編輯
                             </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => shareCard(card)}
-                            >
+                            <Button size="sm" variant="outline" onClick={() => {
+                        const shareData = {
+                          title: `${card.name}的電子名片`,
+                          text: `${card.companyName || ''} - ${card.name}`,
+                          url: window.location.href
+                        };
+                        if (navigator.share) {
+                          navigator.share(shareData);
+                        } else {
+                          navigator.clipboard.writeText(`${card.name}的電子名片 - ${card.companyName || ''}`);
+                          toast({
+                            title: "已複製到剪貼板",
+                            description: "名片資訊已複製，可以分享給朋友。"
+                          });
+                        }
+                      }}>
                               <Share2 className="w-3 h-3 mr-1" />
                               分享
                             </Button>
-                            {card.id !== 'current' && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-red-600 hover:bg-red-50 border-red-300"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>確認刪除名片</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      您確定要刪除「{card.name}」這張電子名片嗎？此操作無法復原。
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>取消</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                      className="bg-red-600 hover:bg-red-700"
-                                      onClick={() => {
-                                        const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-                                        const updatedCards = existingCards.filter(c => c.id !== card.id);
-                                        localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
-                                        window.location.reload();
-                                        toast({
-                                          title: "名片已刪除",
-                                          description: "電子名片已成功刪除。"
-                                        });
-                                      }}
-                                    >
-                                      確認刪除
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
                           </div>
                         </div>
                       </CardContent>
-                    </Card>
-                  )) : (
-                    <div className="text-center py-8 text-gray-500">
+                    </Card>) : <div className="text-center py-8 text-gray-500">
                       <p>尚未建立任何名片</p>
-                    </div>
-                  );
-                })()}
+                    </div>;
+            })()}
               </div>
             </div>
 
@@ -694,15 +610,9 @@ LINE: ${cardInfo.line || ''}
                       </AvatarFallback>
                     </Avatar>}
                   <div className="flex-1">
-                    {cardData.name && cardData.nameVisible !== false && (
-                      <h2 className="text-xl font-bold mb-1">{cardData.name}</h2>
-                    )}
-                    {cardData.jobTitle && cardData.jobTitleVisible !== false && (
-                      <p className="text-white/90 text-sm mb-1">{cardData.jobTitle}</p>
-                    )}
-                    {cardData.companyName && cardData.companyNameVisible !== false && (
-                      <p className="text-white/80 text-sm">{cardData.companyName}</p>
-                    )}
+                    {cardData.name && cardData.nameVisible !== false && <h2 className="text-xl font-bold mb-1">{cardData.name}</h2>}
+                    {cardData.jobTitle && cardData.jobTitleVisible !== false && <p className="text-white/90 text-sm mb-1">{cardData.jobTitle}</p>}
+                    {cardData.companyName && cardData.companyNameVisible !== false && <p className="text-white/80 text-sm">{cardData.companyName}</p>}
                   </div>
                 </div>
 
@@ -749,7 +659,7 @@ LINE: ${cardInfo.line || ''}
                     </div>}
                   {cardData.companyAddress && cardData.companyAddressVisible !== false && <div className="flex items-center space-x-3">
                       <MapPin className="w-4 h-4 text-white/80" />
-                      <span className="truncate">公司: {cardData.companyAddress}</span>
+                      
                     </div>}
                   {cardData.birthday && cardData.birthdayVisible && <div className="flex items-center space-x-3">
                       <span className="w-2 h-2 bg-white rounded-full flex-shrink-0"></span>
@@ -774,162 +684,66 @@ LINE: ${cardInfo.line || ''}
                  </div>
 
                 {/* 社群資訊 */}
-                {(cardData.line && cardData.lineVisible !== false || 
-                  cardData.facebook && cardData.facebookVisible !== false || 
-                  cardData.instagram && cardData.instagramVisible !== false ||
-                  cardData.youtube && cardData.youtubeVisible !== false ||
-                  cardData.linkedin && cardData.linkedinVisible !== false ||
-                  cardData.twitter && cardData.twitterVisible !== false ||
-                  cardData.tiktok && cardData.tiktokVisible !== false ||
-                  cardData.threads && cardData.threadsVisible !== false ||
-                  cardData.wechat && cardData.wechatVisible !== false ||
-                  cardData.whatsapp && cardData.whatsappVisible !== false ||
-                  (cardData.socialMedia && cardData.socialMedia.some(item => item.visible))) &&
-                <div className="mt-4 pt-4 border-t border-white/20">
+                {(cardData.line && cardData.lineVisible !== false || cardData.facebook && cardData.facebookVisible !== false || cardData.instagram && cardData.instagramVisible !== false || cardData.youtube && cardData.youtubeVisible !== false || cardData.linkedin && cardData.linkedinVisible !== false || cardData.twitter && cardData.twitterVisible !== false || cardData.tiktok && cardData.tiktokVisible !== false || cardData.threads && cardData.threadsVisible !== false || cardData.wechat && cardData.wechatVisible !== false || cardData.whatsapp && cardData.whatsappVisible !== false || cardData.socialMedia && cardData.socialMedia.some(item => item.visible)) && <div className="mt-4 pt-4 border-t border-white/20">
                     <div className="flex justify-center flex-wrap gap-3 mb-4">
-                      {cardData.line && cardData.lineVisible !== false && (
-                        <a 
-                          href={cardData.line} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                      {cardData.line && cardData.lineVisible !== false && <a href={cardData.line} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <MessageCircle className="w-5 h-5 text-white" />
-                        </a>
-                      )}
-                      {cardData.facebook && cardData.facebookVisible !== false && (
-                        <a 
-                          href={cardData.facebook} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.facebook && cardData.facebookVisible !== false && <a href={cardData.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-600 hover:bg-blue-700 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <Facebook className="w-5 h-5 text-white" />
-                        </a>
-                      )}
-                      {cardData.instagram && cardData.instagramVisible !== false && (
-                        <a 
-                          href={cardData.instagram} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-pink-500 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.instagram && cardData.instagramVisible !== false && <a href={cardData.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-pink-500 hover:bg-pink-600 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <Instagram className="w-5 h-5 text-white" />
-                        </a>
-                      )}
-                      {cardData.youtube && cardData.youtubeVisible !== false && (
-                        <a 
-                          href={cardData.youtube} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.youtube && cardData.youtubeVisible !== false && <a href={cardData.youtube} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-red-600 hover:bg-red-700 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <Youtube className="w-5 h-5 text-white" />
-                        </a>
-                      )}
-                      {cardData.linkedin && cardData.linkedinVisible !== false && (
-                        <a 
-                          href={cardData.linkedin} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-blue-700 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.linkedin && cardData.linkedinVisible !== false && <a href={cardData.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-blue-700 hover:bg-blue-800 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <Linkedin className="w-5 h-5 text-white" />
-                        </a>
-                      )}
-                      {cardData.twitter && cardData.twitterVisible !== false && (
-                        <a 
-                          href={cardData.twitter} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-sky-500 hover:bg-sky-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.twitter && cardData.twitterVisible !== false && <a href={cardData.twitter} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-sky-500 hover:bg-sky-600 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <Twitter className="w-5 h-5 text-white" />
-                        </a>
-                      )}
-                      {cardData.tiktok && cardData.tiktokVisible !== false && (
-                        <a 
-                          href={cardData.tiktok} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-black hover:bg-gray-800 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.tiktok && cardData.tiktokVisible !== false && <a href={cardData.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-black hover:bg-gray-800 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                            <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z" />
                           </svg>
-                        </a>
-                      )}
-                      {cardData.threads && cardData.threadsVisible !== false && (
-                        <a 
-                          href={cardData.threads} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-gray-800 hover:bg-gray-900 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </a>}
+                      {cardData.threads && cardData.threadsVisible !== false && <a href={cardData.threads} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-800 hover:bg-gray-900 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M15.8 8.7c-.4-.8-1.1-1.4-2-1.7-1.1-.4-2.4-.3-3.5.1-.8.3-1.4.8-1.9 1.4-.3.4-.5.8-.6 1.3H6.2c.1-.8.4-1.5.8-2.2.6-1 1.4-1.8 2.4-2.3 1.4-.7 3.1-.8 4.6-.3 1.2.4 2.2 1.2 2.9 2.2.7 1 1 2.2.9 3.4v.1c0 1.1-.3 2.1-.8 3-.5.9-1.2 1.6-2.1 2.1-1.8.9-4 .9-5.8 0-.9-.5-1.6-1.2-2.1-2.1-.5-.9-.8-1.9-.8-3V8c0-2.2 1.8-4 4-4s4 1.8 4 4v3.2c0 .4-.1.8-.3 1.2-.2.4-.5.7-.9.9-.3.2-.7.3-1.1.3-.4 0-.8-.1-1.1-.3-.4-.2-.7-.5-.9-.9-.2-.4-.3-.8-.3-1.2V8h1.6v3.2c0 .2.1.4.2.5.1.1.3.2.5.2s.4-.1.5-.2c.1-.1.2-.3.2-.5V8c0-1.3-1.1-2.4-2.4-2.4S9.6 6.7 9.6 8v3.2c0 .8.2 1.5.6 2.2.4.7.9 1.2 1.6 1.6 1.3.7 2.9.7 4.2 0 .7-.4 1.2-.9 1.6-1.6.4-.7.6-1.4.6-2.2V8.7z"/>
+                            <path d="M15.8 8.7c-.4-.8-1.1-1.4-2-1.7-1.1-.4-2.4-.3-3.5.1-.8.3-1.4.8-1.9 1.4-.3.4-.5.8-.6 1.3H6.2c.1-.8.4-1.5.8-2.2.6-1 1.4-1.8 2.4-2.3 1.4-.7 3.1-.8 4.6-.3 1.2.4 2.2 1.2 2.9 2.2.7 1 1 2.2.9 3.4v.1c0 1.1-.3 2.1-.8 3-.5.9-1.2 1.6-2.1 2.1-1.8.9-4 .9-5.8 0-.9-.5-1.6-1.2-2.1-2.1-.5-.9-.8-1.9-.8-3V8c0-2.2 1.8-4 4-4s4 1.8 4 4v3.2c0 .4-.1.8-.3 1.2-.2.4-.5.7-.9.9-.3.2-.7.3-1.1.3-.4 0-.8-.1-1.1-.3-.4-.2-.7-.5-.9-.9-.2-.4-.3-.8-.3-1.2V8h1.6v3.2c0 .2.1.4.2.5.1.1.3.2.5.2s.4-.1.5-.2c.1-.1.2-.3.2-.5V8c0-1.3-1.1-2.4-2.4-2.4S9.6 6.7 9.6 8v3.2c0 .8.2 1.5.6 2.2.4.7.9 1.2 1.6 1.6 1.3.7 2.9.7 4.2 0 .7-.4 1.2-.9 1.6-1.6.4-.7.6-1.4.6-2.2V8.7z" />
                           </svg>
-                        </a>
-                      )}
-                      {cardData.wechat && cardData.wechatVisible !== false && (
-                        <div 
-                          className="w-10 h-10 bg-green-600 hover:bg-green-700 rounded-full flex items-center justify-center transition-colors shadow-sm cursor-pointer"
-                          title="WeChat"
-                        >
+                        </a>}
+                      {cardData.wechat && cardData.wechatVisible !== false && <div className="w-10 h-10 bg-green-600 hover:bg-green-700 rounded-full flex items-center justify-center transition-colors shadow-sm cursor-pointer" title="WeChat">
                           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M18.5 9.5c0-4.1-3.6-7.5-8-7.5S2.5 5.4 2.5 9.5c0 2.4 1.2 4.5 3.1 5.8L4.5 17l2.4-1.2c.7.2 1.4.3 2.1.3.3 0 .6 0 .9-.1 0-.1 0-.2.1-.3 0-3.6 3-6.5 6.7-6.5.2 0 .5 0 .7.1.1-.2.1-.5.1-.8zM8.5 7.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm-3 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm13.5 4c0-3.1-2.5-5.5-5.5-5.5S8 8.4 8 11.5s2.5 5.5 5.5 5.5c.5 0 1-.1 1.5-.2L17 18l-1-1.5c1.5-1 2.5-2.7 2.5-4.5zm-7.5-1c-.4 0-.8-.3-.8-.8s.3-.8.8-.8.8.3.8.8-.4.8-.8.8zm3 0c-.4 0-.8-.3-.8-.8s.3-.8.8-.8.8.3.8.8-.4.8-.8.8z"/>
+                            <path d="M18.5 9.5c0-4.1-3.6-7.5-8-7.5S2.5 5.4 2.5 9.5c0 2.4 1.2 4.5 3.1 5.8L4.5 17l2.4-1.2c.7.2 1.4.3 2.1.3.3 0 .6 0 .9-.1 0-.1 0-.2.1-.3 0-3.6 3-6.5 6.7-6.5.2 0 .5 0 .7.1.1-.2.1-.5.1-.8zM8.5 7.5c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm-3 0c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm13.5 4c0-3.1-2.5-5.5-5.5-5.5S8 8.4 8 11.5s2.5 5.5 5.5 5.5c.5 0 1-.1 1.5-.2L17 18l-1-1.5c1.5-1 2.5-2.7 2.5-4.5zm-7.5-1c-.4 0-.8-.3-.8-.8s.3-.8.8-.8.8.3.8.8-.4.8-.8.8zm3 0c-.4 0-.8-.3-.8-.8s.3-.8.8-.8.8.3.8.8-.4.8-.8.8z" />
                           </svg>
-                        </div>
-                      )}
-                      {cardData.whatsapp && cardData.whatsappVisible !== false && (
-                        <a 
-                          href={`https://wa.me/${cardData.whatsapp}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm"
-                        >
+                        </div>}
+                      {cardData.whatsapp && cardData.whatsappVisible !== false && <a href={`https://wa.me/${cardData.whatsapp}`} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center transition-colors shadow-sm">
                           <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.516"/>
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.465 3.516" />
                           </svg>
-                        </a>
-                      )}
+                        </a>}
                       
                       {/* 動態新增的社群媒體 */}
-                      {cardData.socialMedia && cardData.socialMedia.filter(item => item.visible).map(item => (
-                        <a 
-                          key={item.id}
-                          href={item.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${
-                            item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' :
-                            item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' :
-                            item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' :
-                            'bg-gray-600 hover:bg-gray-700'
-                          }`}
-                        >
+                      {cardData.socialMedia && cardData.socialMedia.filter(item => item.visible).map(item => <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors shadow-sm ${item.platform === 'youtube' ? 'bg-red-600 hover:bg-red-700' : item.platform === 'linkedin' ? 'bg-blue-700 hover:bg-blue-800' : item.platform === 'threads' ? 'bg-gray-800 hover:bg-gray-900' : 'bg-gray-600 hover:bg-gray-700'}`}>
                           {item.platform === 'youtube' && <Youtube className="w-5 h-5 text-white" />}
                           {item.platform === 'linkedin' && <Linkedin className="w-5 h-5 text-white" />}
-                          {item.platform === 'threads' && (
-                            <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M15.8 8.7c-.4-.8-1.1-1.4-2-1.7-1.1-.4-2.4-.3-3.5.1-.8.3-1.4.8-1.9 1.4-.3.4-.5.8-.6 1.3H6.2c.1-.8.4-1.5.8-2.2.6-1 1.4-1.8 2.4-2.3 1.4-.7 3.1-.8 4.6-.3 1.2.4 2.2 1.2 2.9 2.2.7 1 1 2.2.9 3.4v.1c0 1.1-.3 2.1-.8 3-.5.9-1.2 1.6-2.1 2.1-1.8.9-4 .9-5.8 0-.9-.5-1.6-1.2-2.1-2.1-.5-.9-.8-1.9-.8-3V8c0-2.2 1.8-4 4-4s4 1.8 4 4v3.2c0 .4-.1.8-.3 1.2-.2.4-.5.7-.9.9-.3.2-.7.3-1.1.3-.4 0-.8-.1-1.1-.3-.4-.2-.7-.5-.9-.9-.2-.4-.3-.8-.3-1.2V8h1.6v3.2c0 .2.1.4.2.5.1.1.3.2.5.2s.4-.1.5-.2c.1-.1.2-.3.2-.5V8c0-1.3-1.1-2.4-2.4-2.4S9.6 6.7 9.6 8v3.2c0 .8.2 1.5.6 2.2.4.7.9 1.2 1.6 1.6 1.3.7 2.9.7 4.2 0 .7-.4 1.2-.9 1.6-1.6.4-.7.6-1.4.6-2.2V8.7z"/>
-                            </svg>
-                          )}
+                          {item.platform === 'threads' && <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M15.8 8.7c-.4-.8-1.1-1.4-2-1.7-1.1-.4-2.4-.3-3.5.1-.8.3-1.4.8-1.9 1.4-.3.4-.5.8-.6 1.3H6.2c.1-.8.4-1.5.8-2.2.6-1 1.4-1.8 2.4-2.3 1.4-.7 3.1-.8 4.6-.3 1.2.4 2.2 1.2 2.9 2.2.7 1 1 2.2.9 3.4v.1c0 1.1-.3 2.1-.8 3-.5.9-1.2 1.6-2.1 2.1-1.8.9-4 .9-5.8 0-.9-.5-1.6-1.2-2.1-2.1-.5-.9-.8-1.9-.8-3V8c0-2.2 1.8-4 4-4s4 1.8 4 4v3.2c0 .4-.1.8-.3 1.2-.2.4-.5.7-.9.9-.3.2-.7.3-1.1.3-.4 0-.8-.1-1.1-.3-.4-.2-.7-.5-.9-.9-.2-.4-.3-.8-.3-1.2V8h1.6v3.2c0 .2.1.4.2.5.1.1.3.2.5.2s.4-.1.5-.2c.1-.1.2-.3.2-.5V8c0-1.3-1.1-2.4-2.4-2.4S9.6 6.7 9.6 8v3.2c0 .8.2 1.5.6 2.2.4.7.9 1.2 1.6 1.6 1.3.7 2.9.7 4.2 0 .7-.4 1.2-.9 1.6-1.6.4-.7.6-1.4.6-2.2V8.7z" />
+                            </svg>}
                           {!['youtube', 'linkedin', 'threads'].includes(item.platform) && <span className="text-white text-lg">🔗</span>}
-                        </a>
-                      ))}
+                        </a>)}
                      </div>
                    </div>}
 
                   {/* 其他資訊區塊 - 放在社群區塊下方 */}
-                  {cardData.otherInfo && cardData.otherInfoVisible !== false && (
-                    <div className="mt-4 pt-4 border-t border-white/20">
+                  {cardData.otherInfo && cardData.otherInfoVisible !== false && <div className="mt-4 pt-4 border-t border-white/20">
                       <div className="bg-white/10 p-3 rounded text-sm">
                         <span className="mr-2">📝</span>
                         <span>{cardData.otherInfo}</span>
                       </div>
-                    </div>
-                  )}
+                    </div>}
 
                </div>
               
