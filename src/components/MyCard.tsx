@@ -339,9 +339,19 @@ LINE: ${cardInfo.line || ''}
   };
 
   const addNewCard = () => {
-    // 清除編輯狀態，創建新名片
+    // 清除編輯狀態，設定為新增模式
     localStorage.removeItem('editing-card-data');
-    setShowCreateCard(true);
+    localStorage.setItem('card-creation-mode', 'new');
+    
+    // 導向電子名片設定頁，使用路由導航
+    if (window.liff) {
+      window.liff.openWindow({
+        url: `${window.location.origin}/card-settings`,
+        external: false
+      });
+    } else {
+      window.location.href = '/card-settings';
+    }
   };
 
   const deleteAdditionalCard = (cardIndex: number) => {

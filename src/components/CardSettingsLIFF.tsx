@@ -61,31 +61,82 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    // 載入現有名片資料
-    const savedCardData = localStorage.getItem('aile-card-data');
+    // 檢查是否為新增模式
+    const creationMode = localStorage.getItem('card-creation-mode');
+    const editingCardData = localStorage.getItem('editing-card-data');
+    
     let cardInfo = {};
     
-    if (savedCardData) {
-      cardInfo = JSON.parse(savedCardData);
+    if (creationMode === 'new') {
+      // 新增模式：所有欄位預設為空值
+      cardInfo = {
+        name: '',
+        jobTitle: '',
+        companyName: '',
+        phone: '',
+        email: '',
+        website: '',
+        address: '',
+        introduction: '',
+        line: '',
+        facebook: '',
+        instagram: '',
+        youtube: '',
+        linkedin: '',
+        twitter: '',
+        tiktok: '',
+        threads: '',
+        wechat: '',
+        whatsapp: '',
+        photo: null,
+        // 可見性設定預設值
+        nameVisible: true,
+        jobTitleVisible: true,
+        companyNameVisible: true,
+        phoneVisible: true,
+        emailVisible: true,
+        websiteVisible: true,
+        addressVisible: false,
+        introductionVisible: true,
+        lineVisible: true,
+        facebookVisible: true,
+        instagramVisible: true,
+        youtubeVisible: true,
+        linkedinVisible: true,
+        twitterVisible: true,
+        tiktokVisible: true,
+        threadsVisible: true,
+        wechatVisible: true,
+        whatsappVisible: true
+      };
+    } else if (editingCardData) {
+      // 編輯模式：載入要編輯的名片資料
+      cardInfo = JSON.parse(editingCardData);
     } else {
-      // 如果沒有現有資料，從其他來源初始化
-      const registeredPhone = localStorage.getItem('registeredPhone');
-      const lineProfile = localStorage.getItem('lineProfile');
-      
-      if (lineProfile) {
-        const profile = JSON.parse(lineProfile);
-        cardInfo = {
-          ...cardInfo,
-          name: profile.displayName || '', // 使用LINE顯示名稱作為預設姓名
-        };
-      }
-      
-      if (registeredPhone) {
-        cardInfo = {
-          ...cardInfo,
-          phone: registeredPhone, // 使用已驗證的手機號碼
-          phoneVerified: true
-        };
+      // 預設模式：載入現有名片資料
+      const savedCardData = localStorage.getItem('aile-card-data');
+      if (savedCardData) {
+        cardInfo = JSON.parse(savedCardData);
+      } else {
+        // 如果沒有現有資料，從其他來源初始化
+        const registeredPhone = localStorage.getItem('registeredPhone');
+        const lineProfile = localStorage.getItem('lineProfile');
+        
+        if (lineProfile) {
+          const profile = JSON.parse(lineProfile);
+          cardInfo = {
+            ...cardInfo,
+            name: profile.displayName || '', // 使用LINE顯示名稱作為預設姓名
+          };
+        }
+        
+        if (registeredPhone) {
+          cardInfo = {
+            ...cardInfo,
+            phone: registeredPhone, // 使用已驗證的手機號碼
+            phoneVerified: true
+          };
+        }
       }
     }
     
@@ -145,15 +196,63 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     // 清除驗證錯誤
     setValidationErrors([]);
     
-    localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+    const creationMode = localStorage.getItem('card-creation-mode');
+    
+    if (creationMode === 'new') {
+      // 新增模式：將資料加入到額外名片列表
+      const additionalCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+      additionalCards.push({
+        ...cardData,
+        id: Date.now(), // 簡單的ID生成
+        createdAt: new Date().toISOString()
+      });
+      localStorage.setItem('aile-additional-cards', JSON.stringify(additionalCards));
+      
+      // 清除新增模式標記
+      localStorage.removeItem('card-creation-mode');
+      
+      toast({
+        title: "新名片已建立",
+        description: "您的新電子名片已成功建立。"
+      });
+    } else {
+      // 編輯模式：更新現有名片資料
+      const editingCardData = localStorage.getItem('editing-card-data');
+      if (editingCardData) {
+        // 更新額外名片或主名片
+        const additionalCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+        const editingCard = JSON.parse(editingCardData);
+        
+        if (editingCard.id) {
+          // 更新額外名片
+          const updatedCards = additionalCards.map(card => 
+            card.id === editingCard.id ? { ...cardData, id: editingCard.id, createdAt: editingCard.createdAt } : card
+          );
+          localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
+        } else {
+          // 更新主名片
+          localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+        }
+        
+        localStorage.removeItem('editing-card-data');
+      } else {
+        // 一般儲存
+        localStorage.setItem('aile-card-data', JSON.stringify(cardData));
+      }
+      
+      toast({
+        title: "名片設定已儲存",
+        description: "您的電子名片設定已成功更新。"
+      });
+    }
     
     // 觸發自定義事件，通知其他組件資料已更新
     window.dispatchEvent(new CustomEvent('cardDataUpdated'));
     
-    toast({
-      title: "名片設定已儲存",
-      description: "您的電子名片設定已成功更新。"
-    });
+    // 儲存後自動跳轉回預覽頁
+    setTimeout(() => {
+      onClose();
+    }, 1500);
   };
 
   const checkEmailVerification = (email: string) => {
