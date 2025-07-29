@@ -687,8 +687,7 @@ LINE: ${cardInfo.line || ''}
                                   if (card.id === 'current') {
                                     editCard(cardData);
                                   } else {
-                                    localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                    setShowCreateCard(true);
+                                    editCard(card);
                                   }
                                 }}
                               >
@@ -712,8 +711,7 @@ LINE: ${cardInfo.line || ''}
                                     if (card.id === 'current') {
                                       editCard(cardData);
                                     } else {
-                                      localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                      setShowCreateCard(true);
+                                      editCard(card);
                                     }
                                   }}
                                 >
