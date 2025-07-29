@@ -555,25 +555,19 @@ LINE: ${cardInfo.line || ''}
                   size="sm" 
                   className="bg-blue-500 hover:bg-blue-600 text-white"
                   onClick={() => {
-                    // 創建新名片邏輯
-                    const newCardId = `card_${Date.now()}`;
-                    const newCard = {
-                      id: newCardId,
-                      name: '新名片',
-                      companyName: '',
-                      phone: '',
-                      email: '',
-                      isDefault: false,
-                      isActive: true,
-                      createdAt: new Date().toISOString()
-                    };
+                    // 清除編輯狀態，設定為新增模式
+                    localStorage.removeItem('editing-card-data');
+                    localStorage.setItem('card-creation-mode', 'new');
                     
-                    const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-                    const updatedCards = [...existingCards, newCard];
-                    localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
-                    
-                    // 重新載入頁面狀態
-                    window.location.reload();
+                    // 導向電子名片設定頁
+                    if (window.liff) {
+                      window.liff.openWindow({
+                        url: `${window.location.origin}/card-settings`,
+                        external: false
+                      });
+                    } else {
+                      window.location.href = '/card-settings';
+                    }
                   }}
                 >
                   <span className="text-lg font-bold mr-1">+</span>
