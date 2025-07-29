@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import CardSettings from "./pages/CardSettings";
-import MultiCardManagerPage from "./pages/MultiCardManager";
 import Analytics from "./pages/Analytics";
 import Schedule from "./pages/Schedule";
 
@@ -21,7 +20,6 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/card-settings" element={<CardSettings />} />
-          <Route path="/multi-cards" element={<MultiCardManagerPage />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/schedule" element={<Schedule />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

@@ -61,15 +61,11 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   useEffect(() => {
-    // 載入名片資料，優先檢查是否有編輯中的名片資料
-    const editingCardData = localStorage.getItem('aile-editing-card-data');
+    // 載入現有名片資料
     const savedCardData = localStorage.getItem('aile-card-data');
     let cardInfo = {};
     
-    if (editingCardData) {
-      // 如果有編輯中的名片資料，優先使用
-      cardInfo = JSON.parse(editingCardData);
-    } else if (savedCardData) {
+    if (savedCardData) {
       cardInfo = JSON.parse(savedCardData);
     } else {
       // 如果沒有現有資料，從其他來源初始化
@@ -149,75 +145,7 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
     // 清除驗證錯誤
     setValidationErrors([]);
     
-    // 檢查是否為編輯多名片模式
-    const editingCardData = localStorage.getItem('aile-editing-card-data');
-    if (editingCardData) {
-      // 多名片編輯模式：更新多名片列表
-      const editingCard = JSON.parse(editingCardData);
-      const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-      
-      // 找到對應的名片並更新
-      const updatedCards = multiCards.map((card: any) => 
-        card.id === editingCard.id ? {
-          ...card,
-          name: cardData.name,
-          companyName: cardData.companyName,
-          jobTitle: cardData.jobTitle,
-          phone: cardData.phone,
-          email: cardData.email,
-          photo: cardData.photo,
-          lastModified: new Date().toISOString()
-        } : card
-      );
-      
-      // 如果找不到對應的名片，建立新名片
-      if (!updatedCards.find((card: any) => card.id === editingCard.id)) {
-        const newCard = {
-          id: editingCard.id || `card_${Date.now()}`,
-          name: cardData.name,
-          companyName: cardData.companyName,
-          jobTitle: cardData.jobTitle,
-          phone: cardData.phone,
-          email: cardData.email,
-          photo: cardData.photo,
-          isDefault: multiCards.length === 0,
-          isActive: true,
-          createdAt: new Date().toISOString(),
-          lastModified: new Date().toISOString(),
-          category: '商務'
-        };
-        updatedCards.push(newCard);
-      }
-      
-      localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
-      
-      // 如果編輯的是預設名片，同步更新主名片資料
-      const editedCard = updatedCards.find((card: any) => card.id === editingCard.id);
-      if (editedCard && editedCard.isDefault) {
-        localStorage.setItem('aile-card-data', JSON.stringify(cardData));
-      }
-    } else {
-      // 單一名片模式：直接儲存到主名片資料
-      localStorage.setItem('aile-card-data', JSON.stringify(cardData));
-      
-      // 同步更新多名片列表中的預設名片（如果存在）
-      const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-      if (multiCards.length > 0) {
-        const updatedCards = multiCards.map((card: any) => 
-          card.isDefault ? {
-            ...card,
-            name: cardData.name,
-            companyName: cardData.companyName,
-            jobTitle: cardData.jobTitle,
-            phone: cardData.phone,
-            email: cardData.email,
-            photo: cardData.photo,
-            lastModified: new Date().toISOString()
-          } : card
-        );
-        localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
-      }
-    }
+    localStorage.setItem('aile-card-data', JSON.stringify(cardData));
     
     // 觸發自定義事件，通知其他組件資料已更新
     window.dispatchEvent(new CustomEvent('cardDataUpdated'));
