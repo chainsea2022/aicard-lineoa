@@ -607,10 +607,18 @@ LINE: ${cardInfo.line || ''}
                     document.addEventListener('touchend', handleTouchEnd);
                   };
                   
+                  const handleCardClick = (cardId: string) => {
+                    // 電腦版：點擊切換刪除選項顯示
+                    if (cardId !== 'current') {
+                      setSwipedCardId(swipedCardId === cardId ? null : cardId);
+                    }
+                  };
+                  
                   const handleDeleteCard = (card: any) => {
                     const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
                     const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
                     localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+                    setSwipedCardId(null); // 重置滑動狀態
                     window.location.reload();
                     toast({
                       title: "名片已刪除",
@@ -623,6 +631,7 @@ LINE: ${cardInfo.line || ''}
                       key={card.id || index} 
                       className="relative overflow-hidden bg-white rounded-lg border border-gray-200"
                       onTouchStart={card.id !== 'current' ? (e) => handleSwipeStart(e, card.id) : undefined}
+                      onClick={() => handleCardClick(card.id)}
                     >
                       {/* 刪除背景 */}
                       {card.id !== 'current' && (
@@ -630,7 +639,10 @@ LINE: ${cardInfo.line || ''}
                           swipedCardId === card.id ? 'w-20' : 'w-0'
                         }`}>
                           <button
-                            onClick={() => handleDeleteCard(card)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCard(card);
+                            }}
                             className="h-full w-full flex items-center justify-center"
                           >
                             刪除
@@ -647,7 +659,8 @@ LINE: ${cardInfo.line || ''}
                             <div className="flex items-center justify-between">
                               <div 
                                 className="flex-1 cursor-pointer"
-                                onClick={() => {
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   if (card.id === 'current') {
                                     editCard(cardData);
                                   } else {
@@ -671,7 +684,8 @@ LINE: ${cardInfo.line || ''}
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => {
+                                  onClick={(e) => {
+                                    e.stopPropagation();
                                     if (card.id === 'current') {
                                       editCard(cardData);
                                     } else {
@@ -686,7 +700,10 @@ LINE: ${cardInfo.line || ''}
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => shareCard(card)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    shareCard(card);
+                                  }}
                                 >
                                   <Share2 className="w-3 h-3 mr-1" />
                                   分享
