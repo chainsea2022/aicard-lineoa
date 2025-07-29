@@ -582,101 +582,122 @@ LINE: ${cardInfo.line || ''}
                   const currentCard = cardData ? { ...cardData, id: 'current', name: cardData.name || '主要名片' } : null;
                   const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
                   
+                  const [swipedCardId, setSwipedCardId] = React.useState<string | null>(null);
+                  
+                  const handleSwipeStart = (e: React.TouchEvent, cardId: string) => {
+                    const touch = e.touches[0];
+                    const startX = touch.clientX;
+                    
+                    const handleTouchMove = (moveE: TouchEvent) => {
+                      const currentTouch = moveE.touches[0];
+                      const diffX = startX - currentTouch.clientX;
+                      
+                      if (diffX > 50) { // 左滑超過50px
+                        setSwipedCardId(cardId);
+                      } else if (diffX < -20) { // 右滑回復
+                        setSwipedCardId(null);
+                      }
+                    };
+                    
+                    const handleTouchEnd = () => {
+                      document.removeEventListener('touchmove', handleTouchMove);
+                      document.removeEventListener('touchend', handleTouchEnd);
+                    };
+                    
+                    document.addEventListener('touchmove', handleTouchMove);
+                    document.addEventListener('touchend', handleTouchEnd);
+                  };
+                  
+                  const handleDeleteCard = (card: any) => {
+                    const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+                    const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
+                    localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+                    window.location.reload();
+                    toast({
+                      title: "名片已刪除",
+                      description: "電子名片已成功刪除。"
+                    });
+                  };
+                  
                   return allCards.length > 0 ? allCards.map((card, index) => (
-                    <Card key={card.id || index} className="border border-gray-200 hover:border-blue-300 transition-colors">
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div 
-                            className="flex-1 cursor-pointer"
-                            onClick={() => {
-                              if (card.id === 'current') {
-                                editCard(cardData);
-                              } else {
-                                // 點擊名片區域進行編輯
-                                localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                setShowCreateCard(true);
-                              }
-                            }}
+                    <div 
+                      key={card.id || index} 
+                      className="relative overflow-hidden bg-white rounded-lg border border-gray-200"
+                      onTouchStart={card.id !== 'current' ? (e) => handleSwipeStart(e, card.id) : undefined}
+                    >
+                      {/* 刪除背景 */}
+                      {card.id !== 'current' && (
+                        <div className={`absolute right-0 top-0 h-full bg-red-500 flex items-center justify-center text-white font-medium transition-all duration-300 ${
+                          swipedCardId === card.id ? 'w-20' : 'w-0'
+                        }`}>
+                          <button
+                            onClick={() => handleDeleteCard(card)}
+                            className="h-full w-full flex items-center justify-center"
                           >
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h4 className="font-medium text-gray-800">{card.name}</h4>
-                              {card.id === 'current' && (
-                                <Badge variant="secondary" className="text-xs">預設</Badge>
-                              )}
-                            </div>
-                            <p className="text-sm text-gray-600">
-                              {card.companyName && `${card.companyName} • `}
-                              {card.phone || card.email || '待完善資訊'}
-                            </p>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => {
-                                if (card.id === 'current') {
-                                  editCard(cardData);
-                                } else {
-                                  // 編輯其他名片
-                                  localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                  setShowCreateCard(true);
-                                }
-                              }}
-                            >
-                              <Edit className="w-3 h-3 mr-1" />
-                              編輯
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => shareCard(card)}
-                            >
-                              <Share2 className="w-3 h-3 mr-1" />
-                              分享
-                            </Button>
-                            {card.id !== 'current' && (
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-red-600 hover:bg-red-50 border-red-300"
-                                  >
-                                    <X className="w-3 h-3" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>確認刪除名片</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      您確定要刪除「{card.name}」這張電子名片嗎？此操作無法復原。
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>取消</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                      className="bg-red-600 hover:bg-red-700"
-                                      onClick={() => {
-                                        const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
-                                        const updatedCards = existingCards.filter(c => c.id !== card.id);
-                                        localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
-                                        window.location.reload();
-                                        toast({
-                                          title: "名片已刪除",
-                                          description: "電子名片已成功刪除。"
-                                        });
-                                      }}
-                                    >
-                                      確認刪除
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            )}
-                          </div>
+                            刪除
+                          </button>
                         </div>
-                      </CardContent>
-                    </Card>
+                      )}
+                      
+                      {/* 名片內容 */}
+                      <div className={`bg-white transition-transform duration-300 ${
+                        swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'
+                      }`}>
+                        <Card className="border-0 shadow-none hover:border-blue-300 transition-colors">
+                          <CardContent className="p-4">
+                            <div className="flex items-center justify-between">
+                              <div 
+                                className="flex-1 cursor-pointer"
+                                onClick={() => {
+                                  if (card.id === 'current') {
+                                    editCard(cardData);
+                                  } else {
+                                    localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                    setShowCreateCard(true);
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <h4 className="font-medium text-gray-800">{card.name}</h4>
+                                  {card.id === 'current' && (
+                                    <Badge variant="secondary" className="text-xs">預設</Badge>
+                                  )}
+                                </div>
+                                <p className="text-sm text-gray-600">
+                                  {card.companyName && `${card.companyName} • `}
+                                  {card.phone || card.email || '待完善資訊'}
+                                </p>
+                              </div>
+                              <div className="flex space-x-2">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    if (card.id === 'current') {
+                                      editCard(cardData);
+                                    } else {
+                                      localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                      setShowCreateCard(true);
+                                    }
+                                  }}
+                                >
+                                  <Edit className="w-3 h-3 mr-1" />
+                                  編輯
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => shareCard(card)}
+                                >
+                                  <Share2 className="w-3 h-3 mr-1" />
+                                  分享
+                                </Button>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
                   )) : (
                     <div className="text-center py-8 text-gray-500">
                       <p>尚未建立任何名片</p>
