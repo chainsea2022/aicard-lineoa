@@ -336,16 +336,7 @@ LINE: ${cardInfo.line || ''}
   const editCard = (card = cardData) => {
     // 設定要編輯的名片資料到 localStorage
     localStorage.setItem('editing-card-data', JSON.stringify(card));
-    
-    // 導向電子名片設定頁，使用路由導航
-    if (window.liff) {
-      window.liff.openWindow({
-        url: `${window.location.origin}/card-settings`,
-        external: false
-      });
-    } else {
-      window.location.href = '/card-settings';
-    }
+    setShowCreateCard(true);
   };
 
   const addNewCard = () => {
@@ -628,21 +619,7 @@ LINE: ${cardInfo.line || ''}
                     const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
                     localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
                     setSwipedCardId(null); // 重置滑動狀態
-                    
-                    // 重新載入名片列表，不重新載入整個頁面
-                    const loadCardData = () => {
-                      const savedCardData = localStorage.getItem('aile-card-data');
-                      if (savedCardData) {
-                        setCardData(JSON.parse(savedCardData));
-                      }
-                      
-                      const savedAdditionalCards = localStorage.getItem('aile-additional-cards');
-                      if (savedAdditionalCards) {
-                        setAdditionalCards(JSON.parse(savedAdditionalCards));
-                      }
-                    };
-                    loadCardData();
-                    
+                    window.location.reload();
                     toast({
                       title: "名片已刪除",
                       description: "電子名片已成功刪除。"
@@ -687,7 +664,8 @@ LINE: ${cardInfo.line || ''}
                                   if (card.id === 'current') {
                                     editCard(cardData);
                                   } else {
-                                    editCard(card);
+                                    localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                    setShowCreateCard(true);
                                   }
                                 }}
                               >
@@ -711,7 +689,8 @@ LINE: ${cardInfo.line || ''}
                                     if (card.id === 'current') {
                                       editCard(cardData);
                                     } else {
-                                      editCard(card);
+                                      localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                      setShowCreateCard(true);
                                     }
                                   }}
                                 >
@@ -1023,7 +1002,7 @@ LINE: ${cardInfo.line || ''}
 
           {/* 操作按鈕 - 移到公開設定上方 */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <Button onClick={() => editCard(cardData)} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Button onClick={() => setShowCreateCard(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
               <Edit className="w-4 h-4 mr-1" />
               編輯名片
             </Button>
