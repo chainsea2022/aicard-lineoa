@@ -1023,7 +1023,7 @@ LINE: ${cardInfo.line || ''}
 
           {/* 操作按鈕 - 移到公開設定上方 */}
           <div className="grid grid-cols-2 gap-3 mb-6">
-            <Button onClick={() => setShowCreateCard(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
+            <Button onClick={() => editCard(cardData)} className="bg-blue-500 hover:bg-blue-600 text-white">
               <Edit className="w-4 h-4 mr-1" />
               編輯名片
             </Button>
