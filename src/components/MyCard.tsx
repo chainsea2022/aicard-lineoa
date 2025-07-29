@@ -10,6 +10,7 @@ import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import Points from './Points';
 import OTPVerification from './OTPVerification';
+import MultiCardManager from './MultiCardManager';
 
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MyCardProps {
@@ -24,6 +25,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [showPoints, setShowPoints] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [showMultiCardManager, setShowMultiCardManager] = useState(false);
   const [qrCodeData, setQrCodeData] = useState('');
   const [showQRCode, setShowQRCode] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
@@ -334,6 +336,9 @@ LINE: ${cardInfo.line || ''}
   }
   if (showProfileSettings) {
     return <ProfileSettings onClose={() => setShowProfileSettings(false)} />;
+  }
+  if (showMultiCardManager) {
+    return <MultiCardManager onClose={() => setShowMultiCardManager(false)} />;
   }
   return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
@@ -785,14 +790,19 @@ LINE: ${cardInfo.line || ''}
           </Card>
 
           {/* 操作按鈕 - 移到公開設定上方 */}
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            <Button onClick={() => setShowCreateCard(true)} className="bg-blue-500 hover:bg-blue-600 text-white">
-              <Edit className="w-4 h-4 mr-1" />
+          <div className="grid grid-cols-3 gap-2 mb-6">
+            <Button onClick={() => setShowCreateCard(true)} className="bg-blue-500 hover:bg-blue-600 text-white text-xs">
+              <Edit className="w-3 h-3 mr-1" />
               編輯名片
             </Button>
 
-            <Button onClick={shareCard} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
-              <Share2 className="w-4 h-4 mr-1" />
+            <Button onClick={() => setShowMultiCardManager(true)} className="bg-green-500 hover:bg-green-600 text-white text-xs">
+              <QrCode className="w-3 h-3 mr-1" />
+              多名片管理
+            </Button>
+
+            <Button onClick={shareCard} variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50 text-xs">
+              <Share2 className="w-3 h-3 mr-1" />
               分享名片
             </Button>
           </div>
