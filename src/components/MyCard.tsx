@@ -507,6 +507,117 @@ LINE: ${cardInfo.line || ''}
                 </p>
               </div>}
 
+            {/* 多名片管理區塊 */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-800">我的電子名片</h3>
+                <Button 
+                  size="sm" 
+                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                  onClick={() => {
+                    // 創建新名片邏輯
+                    const newCardId = `card_${Date.now()}`;
+                    const newCard = {
+                      id: newCardId,
+                      name: '新名片',
+                      companyName: '',
+                      phone: '',
+                      email: '',
+                      isDefault: false,
+                      isActive: true,
+                      createdAt: new Date().toISOString()
+                    };
+                    
+                    const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+                    const updatedCards = [...existingCards, newCard];
+                    localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+                    
+                    // 重新載入頁面狀態
+                    window.location.reload();
+                  }}
+                >
+                  <span className="text-lg font-bold mr-1">+</span>
+                  新增名片
+                </Button>
+              </div>
+
+              {/* 名片列表 */}
+              <div className="space-y-3">
+                {(() => {
+                  const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+                  const currentCard = cardData ? { ...cardData, id: 'current', name: cardData.name || '主要名片' } : null;
+                  const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
+                  
+                  return allCards.length > 0 ? allCards.map((card, index) => (
+                    <Card key={card.id || index} className="border border-gray-200 hover:border-blue-300 transition-colors">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-2 mb-1">
+                              <h4 className="font-medium text-gray-800">{card.name}</h4>
+                              {card.id === 'current' && (
+                                <Badge variant="secondary" className="text-xs">預設</Badge>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600">
+                              {card.companyName && `${card.companyName} • `}
+                              {card.phone || card.email || '待完善資訊'}
+                            </p>
+                          </div>
+                          <div className="flex space-x-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                if (card.id === 'current') {
+                                  setShowCreateCard(true);
+                                } else {
+                                  // 編輯其他名片
+                                  localStorage.setItem('aile-editing-card', JSON.stringify(card));
+                                  setShowCreateCard(true);
+                                }
+                              }}
+                            >
+                              <Edit className="w-3 h-3 mr-1" />
+                              編輯
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                const shareData = {
+                                  title: `${card.name}的電子名片`,
+                                  text: `${card.companyName || ''} - ${card.name}`,
+                                  url: window.location.href
+                                };
+                                
+                                if (navigator.share) {
+                                  navigator.share(shareData);
+                                } else {
+                                  navigator.clipboard.writeText(`${card.name}的電子名片 - ${card.companyName || ''}`);
+                                  toast({
+                                    title: "已複製到剪貼板",
+                                    description: "名片資訊已複製，可以分享給朋友。"
+                                  });
+                                }
+                              }}
+                            >
+                              <Share2 className="w-3 h-3 mr-1" />
+                              分享
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>尚未建立任何名片</p>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
           {/* 名片預覽 - 包含 QR Code */}
           <Card className="mb-6 shadow-xl border-2 border-green-200">
             <CardContent className="p-0">
