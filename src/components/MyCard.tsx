@@ -336,7 +336,16 @@ LINE: ${cardInfo.line || ''}
   const editCard = (card = cardData) => {
     // 設定要編輯的名片資料到 localStorage
     localStorage.setItem('editing-card-data', JSON.stringify(card));
-    setShowCreateCard(true);
+    
+    // 導向電子名片設定頁，使用路由導航
+    if (window.liff) {
+      window.liff.openWindow({
+        url: `${window.location.origin}/card-settings`,
+        external: false
+      });
+    } else {
+      window.location.href = '/card-settings';
+    }
   };
 
   const addNewCard = () => {
@@ -619,7 +628,21 @@ LINE: ${cardInfo.line || ''}
                     const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
                     localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
                     setSwipedCardId(null); // 重置滑動狀態
-                    window.location.reload();
+                    
+                    // 重新載入名片列表，不重新載入整個頁面
+                    const loadCardData = () => {
+                      const savedCardData = localStorage.getItem('aile-card-data');
+                      if (savedCardData) {
+                        setCardData(JSON.parse(savedCardData));
+                      }
+                      
+                      const savedAdditionalCards = localStorage.getItem('aile-additional-cards');
+                      if (savedAdditionalCards) {
+                        setAdditionalCards(JSON.parse(savedAdditionalCards));
+                      }
+                    };
+                    loadCardData();
+                    
                     toast({
                       title: "名片已刪除",
                       description: "電子名片已成功刪除。"
