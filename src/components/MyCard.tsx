@@ -31,6 +31,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
   const [additionalCards, setAdditionalCards] = useState<any[]>([]);
+  const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -581,8 +582,6 @@ LINE: ${cardInfo.line || ''}
                   const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
                   const currentCard = cardData ? { ...cardData, id: 'current', name: cardData.name || '主要名片' } : null;
                   const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
-                  
-                  const [swipedCardId, setSwipedCardId] = React.useState<string | null>(null);
                   
                   const handleSwipeStart = (e: React.TouchEvent, cardId: string) => {
                     const touch = e.touches[0];
