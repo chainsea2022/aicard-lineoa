@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import Points from './Points';
@@ -29,6 +30,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [isNewUser, setIsNewUser] = useState(false);
   const [hasRegistrationHistory, setHasRegistrationHistory] = useState(false);
   const [currentPoints, setCurrentPoints] = useState(0);
+  const [additionalCards, setAdditionalCards] = useState<any[]>([]);
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -96,6 +98,12 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
       }
       if (savedUserData) {
         setUserData(JSON.parse(savedUserData));
+      }
+
+      // 載入額外名片資料
+      const savedAdditionalCards = localStorage.getItem('aile-additional-cards');
+      if (savedAdditionalCards) {
+        setAdditionalCards(JSON.parse(savedAdditionalCards));
       }
 
       // 載入點數資訊
@@ -308,20 +316,42 @@ LINE: ${cardInfo.line || ''}
     });
     console.log('下載名片');
   };
-  const shareCard = () => {
+  const shareCard = (card = cardData) => {
     if (navigator.share) {
       navigator.share({
-        title: `${cardData.name}的電子名片`,
-        text: `${cardData.companyName} - ${cardData.name}`,
+        title: `${card.name}的電子名片`,
+        text: `${card.companyName} - ${card.name}`,
         url: window.location.href
       });
     } else {
-      navigator.clipboard.writeText(`${cardData.name}的電子名片 - ${cardData.companyName}`);
+      navigator.clipboard.writeText(`${card.name}的電子名片 - ${card.companyName}`);
       toast({
         title: "已複製到剪貼板",
         description: "名片資訊已複製，可以分享給朋友。"
       });
     }
+  };
+
+  const editCard = (card = cardData) => {
+    // 設定要編輯的名片資料到 localStorage
+    localStorage.setItem('editing-card-data', JSON.stringify(card));
+    setShowCreateCard(true);
+  };
+
+  const addNewCard = () => {
+    // 清除編輯狀態，創建新名片
+    localStorage.removeItem('editing-card-data');
+    setShowCreateCard(true);
+  };
+
+  const deleteAdditionalCard = (cardIndex: number) => {
+    const updatedCards = additionalCards.filter((_, index) => index !== cardIndex);
+    setAdditionalCards(updatedCards);
+    localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
+    toast({
+      title: "名片已刪除",
+      description: "電子名片已成功刪除。"
+    });
   };
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
@@ -552,7 +582,18 @@ LINE: ${cardInfo.line || ''}
                     <Card key={card.id || index} className="border border-gray-200 hover:border-blue-300 transition-colors">
                       <CardContent className="p-4">
                         <div className="flex items-center justify-between">
-                          <div className="flex-1">
+                          <div 
+                            className="flex-1 cursor-pointer"
+                            onClick={() => {
+                              if (card.id === 'current') {
+                                editCard(cardData);
+                              } else {
+                                // 點擊名片區域進行編輯
+                                localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                setShowCreateCard(true);
+                              }
+                            }}
+                          >
                             <div className="flex items-center space-x-2 mb-1">
                               <h4 className="font-medium text-gray-800">{card.name}</h4>
                               {card.id === 'current' && (
@@ -570,10 +611,10 @@ LINE: ${cardInfo.line || ''}
                               variant="outline"
                               onClick={() => {
                                 if (card.id === 'current') {
-                                  setShowCreateCard(true);
+                                  editCard(cardData);
                                 } else {
                                   // 編輯其他名片
-                                  localStorage.setItem('aile-editing-card', JSON.stringify(card));
+                                  localStorage.setItem('editing-card-data', JSON.stringify(card));
                                   setShowCreateCard(true);
                                 }
                               }}
@@ -584,27 +625,50 @@ LINE: ${cardInfo.line || ''}
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => {
-                                const shareData = {
-                                  title: `${card.name}的電子名片`,
-                                  text: `${card.companyName || ''} - ${card.name}`,
-                                  url: window.location.href
-                                };
-                                
-                                if (navigator.share) {
-                                  navigator.share(shareData);
-                                } else {
-                                  navigator.clipboard.writeText(`${card.name}的電子名片 - ${card.companyName || ''}`);
-                                  toast({
-                                    title: "已複製到剪貼板",
-                                    description: "名片資訊已複製，可以分享給朋友。"
-                                  });
-                                }
-                              }}
+                              onClick={() => shareCard(card)}
                             >
                               <Share2 className="w-3 h-3 mr-1" />
                               分享
                             </Button>
+                            {card.id !== 'current' && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-red-600 hover:bg-red-50 border-red-300"
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>確認刪除名片</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      您確定要刪除「{card.name}」這張電子名片嗎？此操作無法復原。
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>取消</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      className="bg-red-600 hover:bg-red-700"
+                                      onClick={() => {
+                                        const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+                                        const updatedCards = existingCards.filter(c => c.id !== card.id);
+                                        localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+                                        window.location.reload();
+                                        toast({
+                                          title: "名片已刪除",
+                                          description: "電子名片已成功刪除。"
+                                        });
+                                      }}
+                                    >
+                                      確認刪除
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
                           </div>
                         </div>
                       </CardContent>
