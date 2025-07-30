@@ -41,7 +41,8 @@ const MyCard: React.FC<MyCardProps> = ({
     birthday: '',
     isPhoneVerified: false,
     isEmailVerified: false,
-    publicProfile: true,
+    publicCard: false,
+    allowDirectAdd: false,
     receiveNotifications: true
   });
   const [showGenderDialog, setShowGenderDialog] = useState(false);
@@ -1244,32 +1245,49 @@ LINE: ${cardInfo.line || ''}
                       </DialogContent>
                     </Dialog>
 
-                    {/* 公開個人檔案 */}
+                    {/* 公開電子名片 */}
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                           <Eye className="w-4 h-4 text-blue-600" />
                         </div>
                         <div>
-                          <span className="font-medium text-gray-900">公開個人檔案</span>
-                          <p className="text-sm text-gray-600">允許他人查看您的基本資訊</p>
+                          <span className="font-medium text-gray-900">公開電子名片</span>
+                          <p className="text-sm text-gray-600">啟用後，您的名片將可被其他用戶在智能推薦中搜尋與發現</p>
                         </div>
                       </div>
                       <Switch 
-                        checked={profileData.publicProfile}
-                        onCheckedChange={(checked) => saveProfileData({ publicProfile: checked })}
+                        checked={profileData.publicCard}
+                        onCheckedChange={(checked) => saveProfileData({ publicCard: checked })}
                       />
                     </div>
 
-                    {/* 通知設定 */}
+                    {/* 允許直接加入 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <Plus className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">允許直接加入</span>
+                          <p className="text-sm text-gray-600">啟用後，其他用戶在加入您的電子名片時，將可直接將您的名片儲存至他們的名片夾</p>
+                        </div>
+                      </div>
+                      <Switch 
+                        checked={profileData.allowDirectAdd}
+                        onCheckedChange={(checked) => saveProfileData({ allowDirectAdd: checked })}
+                      />
+                    </div>
+
+                    {/* 接收通知 */}
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
                           <MessageCircle className="w-4 h-4 text-yellow-600" />
                         </div>
                         <div>
-                          <span className="font-medium text-gray-900">推送通知</span>
-                          <p className="text-sm text-gray-600">接收重要訊息通知</p>
+                          <span className="font-medium text-gray-900">接收通知</span>
+                          <p className="text-sm text-gray-600">您將收到所有與電子名片、人脈互動、活動邀請、點數變動等相關的系統通知與提醒</p>
                         </div>
                       </div>
                       <Switch 
