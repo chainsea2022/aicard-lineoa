@@ -1253,7 +1253,7 @@ LINE: ${cardInfo.line || ''}
                         </div>
                         <div>
                           <span className="font-medium text-gray-900">公開電子名片</span>
-                          <p className="text-sm text-gray-600">啟用後，您的名片將可被其他用戶在智能推薦中搜尋與發現</p>
+                          <p className="text-sm text-gray-600">您的名片可被其他用戶搜尋與發現</p>
                         </div>
                       </div>
                       <Switch 
