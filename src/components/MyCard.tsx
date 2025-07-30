@@ -1049,7 +1049,7 @@ LINE: ${cardInfo.line || ''}
                                 </div>
                                 <div className="flex justify-between">
                                   <span>行程管理：語音記錄</span>
-                                  <span>1次免費，50點/次</span>
+                                  <span className="text-green-600">1次免費，50點/次</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>行程管理：發送信件</span>
