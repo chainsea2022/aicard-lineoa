@@ -743,62 +743,105 @@ LINE: ${cardInfo.line || ''}
                       {/* 名片內容 */}
                       <div className={`bg-white transition-transform duration-300 ${swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'}`}>
                         <Card className="border-0 shadow-none hover:border-blue-300 transition-colors">
-                          <CardContent className="p-4">
-                             <div className="flex items-center justify-between">
-                               <div className="flex items-center space-x-3 flex-1 cursor-pointer" onClick={e => {
-                             e.stopPropagation();
-                             if (card.id === 'current') {
-                               editCard(cardData);
-                             } else {
-                               localStorage.setItem('editing-card-data', JSON.stringify(card));
-                               setShowCreateCard(true);
-                             }
-                           }}>
+                           <CardContent className="p-3">
+                             {/* 電子名片展示 */}
+                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 mb-3 cursor-pointer transition-all hover:shadow-md" onClick={e => {
+                               e.stopPropagation();
+                               if (card.id === 'current') {
+                                 editCard(cardData);
+                               } else {
+                                 localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                 setShowCreateCard(true);
+                               }
+                             }}>
+                               <div className="flex items-center space-x-3">
                                  {/* 大頭照 */}
                                  <div className="flex-shrink-0">
-                                   <Avatar className="w-12 h-12">
+                                   <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
                                      <AvatarImage src={card.avatar || card.profileImage} alt={card.name} />
-                                     <AvatarFallback className="bg-blue-100 text-blue-600 font-medium">
+                                     <AvatarFallback className="bg-blue-500 text-white font-semibold text-lg">
                                        {card.name ? card.name.charAt(0).toUpperCase() : 'U'}
                                      </AvatarFallback>
                                    </Avatar>
                                  </div>
                                  
-                                 {/* 名片資訊 */}
+                                 {/* 名片主要資訊 */}
                                  <div className="flex-1 min-w-0">
                                    <div className="flex items-center space-x-2 mb-1">
-                                     <h4 className="font-medium text-gray-800 truncate">{card.name}</h4>
-                                     {card.id === 'current' && <Badge variant="secondary" className="text-xs">預設</Badge>}
+                                     <h4 className="font-semibold text-gray-900 text-base truncate">{card.name}</h4>
+                                     {card.id === 'current' && (
+                                       <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
+                                         預設
+                                       </Badge>
+                                     )}
                                    </div>
-                                   <p className="text-sm text-gray-600 truncate">
-                                     {card.companyName && `${card.companyName} • `}
-                                     {card.phone || card.email || '待完善資訊'}
-                                   </p>
+                                   
+                                   {/* 職位與公司 */}
+                                   {card.position && (
+                                     <p className="text-sm font-medium text-gray-700 truncate mb-1">
+                                       {card.position}
+                                     </p>
+                                   )}
+                                   
+                                   {/* 公司名稱 */}
+                                   {card.companyName && (
+                                     <p className="text-sm text-gray-600 truncate mb-1">
+                                       {card.companyName}
+                                     </p>
+                                   )}
+                                   
+                                   {/* 聯絡資訊 */}
+                                   <div className="flex items-center space-x-3 text-xs text-gray-500">
+                                     {card.phone && (
+                                       <span className="flex items-center">
+                                         <Phone className="w-3 h-3 mr-1" />
+                                         {card.phone.length > 10 ? `${card.phone.slice(0, 10)}...` : card.phone}
+                                       </span>
+                                     )}
+                                     {card.email && (
+                                       <span className="flex items-center">
+                                         <Mail className="w-3 h-3 mr-1" />
+                                         {card.email.length > 15 ? `${card.email.slice(0, 15)}...` : card.email}
+                                       </span>
+                                     )}
+                                   </div>
                                  </div>
                                </div>
-                              <div className="flex space-x-2">
-                                <Button size="sm" variant="outline" onClick={e => {
-                              e.stopPropagation();
-                              if (card.id === 'current') {
-                                editCard(cardData);
-                              } else {
-                                localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                setShowCreateCard(true);
-                              }
-                            }}>
-                                  <Edit className="w-3 h-3 mr-1" />
-                                  編輯
-                                </Button>
-                                <Button size="sm" variant="outline" onClick={e => {
-                              e.stopPropagation();
-                              shareCard(card);
-                            }}>
-                                  <Share2 className="w-3 h-3 mr-1" />
-                                  分享
-                                </Button>
-                              </div>
-                            </div>
-                          </CardContent>
+                             </div>
+                             
+                             {/* 操作按鈕 */}
+                             <div className="flex space-x-2">
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="flex-1 h-8 text-xs"
+                                 onClick={e => {
+                                   e.stopPropagation();
+                                   if (card.id === 'current') {
+                                     editCard(cardData);
+                                   } else {
+                                     localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                     setShowCreateCard(true);
+                                   }
+                                 }}
+                               >
+                                 <Edit className="w-3 h-3 mr-1" />
+                                 編輯
+                               </Button>
+                               <Button 
+                                 size="sm" 
+                                 variant="outline" 
+                                 className="flex-1 h-8 text-xs"
+                                 onClick={e => {
+                                   e.stopPropagation();
+                                   shareCard(card);
+                                 }}
+                               >
+                                 <Share2 className="w-3 h-3 mr-1" />
+                                 分享
+                               </Button>
+                             </div>
+                           </CardContent>
                         </Card>
                       </div>
                     </div>) : <div className="text-center py-8 text-gray-500">
