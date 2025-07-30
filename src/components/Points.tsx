@@ -103,8 +103,8 @@ const Points: React.FC<PointsProps> = ({
     completed: false
   }, {
     id: 'share-ocr',
-    title: '分享好友OCR 名片掃描加入名片夾 (1人)',
-    description: '分享好友OCR 名片掃描加入名片夾',
+    title: '分享好友OCR 名片識別加入名片夾 (1人)',
+    description: '分享好友OCR 名片識別加入名片夾',
     points: 10,
     icon: <Camera className="w-5 h-5 text-white" />,
     bgGradient: 'from-teal-50 to-teal-100',
@@ -292,7 +292,7 @@ const Points: React.FC<PointsProps> = ({
                         </div>
                         <div>
                           <h4 className={`font-semibold ${milestone.achieved ? 'text-green-900' : 'text-gray-700'}`}>
-                            分享好友電子名片卡或掃描加入名片夾 {milestone.cardCount} 人
+                            分享好友加入名片夾 {milestone.cardCount} 人
                           </h4>
                           
                         </div>
@@ -481,8 +481,8 @@ const Points: React.FC<PointsProps> = ({
                     </div>
                     <div className="space-y-3">
                       <div className="flex justify-between items-center py-2 border-b border-purple-200">
-                        <span className="text-sm text-purple-800">智慧人脈記錄</span>
-                        <span className="text-sm font-medium text-purple-700">30張</span>
+                         <span className="text-sm text-purple-800">智慧人脈記錄</span>
+                         <span className="text-sm font-medium text-purple-700">50張</span>
                       </div>
                       <div className="flex justify-between items-center py-2 border-b border-purple-200">
                         <span className="text-sm text-purple-800">名片夾數量</span>
@@ -492,18 +492,18 @@ const Points: React.FC<PointsProps> = ({
                         <span className="text-sm text-purple-800">完整數據分析</span>
                         <span className="text-sm font-medium text-purple-700">解鎖</span>
                       </div>
-                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
-                        <span className="text-sm text-purple-800">新增行程</span>
-                        <span className="text-sm font-medium text-purple-700">20次</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
-                        <span className="text-sm text-purple-800">語音記錄</span>
-                        <span className="text-sm font-medium text-purple-700">15次</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-purple-200">
-                        <span className="text-sm text-purple-800">發送信件</span>
-                        <span className="text-sm font-medium text-purple-700">15次</span>
-                      </div>
+                       <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                         <span className="text-sm text-purple-800">新增行程</span>
+                         <span className="text-sm font-medium text-purple-700">30次</span>
+                       </div>
+                       <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                         <span className="text-sm text-purple-800">語音記錄</span>
+                         <span className="text-sm font-medium text-purple-700">20次</span>
+                       </div>
+                       <div className="flex justify-between items-center py-2 border-b border-purple-200">
+                         <span className="text-sm text-purple-800">發送信件</span>
+                         <span className="text-sm font-medium text-purple-700">20次</span>
+                       </div>
                       <div className="flex justify-between items-start py-2">
                         <span className="text-sm text-purple-800">自訂名片樣式</span>
                         <div className="text-right">
@@ -538,7 +538,7 @@ const Points: React.FC<PointsProps> = ({
                         <td className="border border-gray-300 p-3 font-medium">智慧人脈記錄</td>
                         <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />30點/張<br /><span className="text-gray-600">名片夾數量：200張<br />{'>'}200張，30點/張</span></td>
                         <td className="border border-gray-300 p-3 text-center text-xs leading-tight">10張<br /><span className="text-gray-600">名片夾數量：500張<br />{'>'}500張，30點/張</span></td>
-                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">30張<br /><span className="text-gray-600">無上限</span></td>
+                        <td className="border border-gray-300 p-3 text-center text-xs leading-tight">50張<br /><span className="text-gray-600">無上限</span></td>
                       </tr>
                       <tr className="bg-gray-50">
                         <td className="border border-gray-300 p-3 font-medium">完整數據分析</td>
@@ -550,19 +550,19 @@ const Points: React.FC<PointsProps> = ({
                         <td className="border border-gray-300 p-3 font-medium">行程管理：<br />新增行程</td>
                         <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />30點/次</td>
                         <td className="border border-gray-300 p-3 text-center">10次</td>
-                        <td className="border border-gray-300 p-3 text-center">20次</td>
+                        <td className="border border-gray-300 p-3 text-center">30次</td>
                       </tr>
                       <tr className="bg-gray-50">
                         <td className="border border-gray-300 p-3 font-medium">行程管理：<br />語音記錄</td>
                         <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />50點/次</td>
                         <td className="border border-gray-300 p-3 text-center">5次</td>
-                        <td className="border border-gray-300 p-3 text-center">15次</td>
+                         <td className="border border-gray-300 p-3 text-center">20次</td>
                       </tr>
                       <tr>
                         <td className="border border-gray-300 p-3 font-medium">行程管理：<br />發送信件</td>
                         <td className="border border-gray-300 p-3 text-center text-xs leading-tight">１次免費<br />50點/次</td>
                         <td className="border border-gray-300 p-3 text-center">5次</td>
-                        <td className="border border-gray-300 p-3 text-center">15次</td>
+                        <td className="border border-gray-300 p-3 text-center">20次</td>
                       </tr>
                       <tr className="bg-gray-50">
                         <td className="border border-gray-300 p-3 font-medium">建立自訂名片樣式</td>
