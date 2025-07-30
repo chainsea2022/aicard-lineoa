@@ -10,11 +10,20 @@ interface CardInfo {
   company: string;
   type: 'personal' | 'business' | 'professional';
   isDefault?: boolean;
+  phone?: string;
+  email?: string;
+  website?: string;
+  line?: string;
+  facebook?: string;
+  instagram?: string;
+  photo?: string;
+  backgroundColor?: string;
+  textColor?: string;
 }
 
 interface CardSelectionLIFFProps {
   onClose: () => void;
-  onCardSelect: (cardId: string) => void;
+  onCardSelect: (card: CardInfo) => void;
 }
 
 export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
@@ -29,21 +38,39 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
       title: '執行長',
       company: 'ABC科技有限公司',
       type: 'business',
-      isDefault: true
+      isDefault: true,
+      phone: '+886 912-345-678',
+      email: 'ceo@abc-tech.com',
+      website: 'https://abc-tech.com',
+      line: 'zhang_ceo',
+      backgroundColor: '#1e40af',
+      textColor: '#ffffff'
     },
     {
       id: '2',
       name: '張小明',
       title: '產品經理',
       company: 'XYZ創新公司',
-      type: 'professional'
+      type: 'professional',
+      phone: '+886 987-654-321',
+      email: 'pm@xyz-innovation.com',
+      website: 'https://xyz-innovation.com',
+      line: 'zhang_pm',
+      backgroundColor: '#7c3aed',
+      textColor: '#ffffff'
     },
     {
       id: '3',
       name: '張小明',
       title: '個人名片',
       company: '自由工作者',
-      type: 'personal'
+      type: 'personal',
+      phone: '+886 900-123-456',
+      email: 'personal@zhang.com',
+      instagram: 'zhang_personal',
+      facebook: 'zhang.xiaoming',
+      backgroundColor: '#059669',
+      textColor: '#ffffff'
     }
   ];
 
@@ -73,8 +100,8 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
     }
   };
 
-  const handleCardClick = (cardId: string) => {
-    onCardSelect(cardId);
+  const handleCardClick = (card: CardInfo) => {
+    onCardSelect(card);
     onClose();
   };
 
@@ -102,7 +129,7 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
             <Card 
               key={card.id}
               className={`p-4 cursor-pointer transition-all duration-200 ${getCardBorderColor(card.type)} hover:shadow-md active:scale-98`}
-              onClick={() => handleCardClick(card.id)}
+              onClick={() => handleCardClick(card)}
             >
               <div className="flex items-center space-x-3">
                 <div className="flex-shrink-0">

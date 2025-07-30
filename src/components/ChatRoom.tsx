@@ -642,30 +642,41 @@ const ChatRoom = () => {
     }
   };
 
-  const handleCardSelected = (cardId: string) => {
-    // 根據選擇的卡片ID獲取對應的名片數據
-    const savedData = localStorage.getItem('aile-card-data');
-    if (savedData) {
-      const cardData = JSON.parse(savedData);
-      
-      const cardMessage: Message = {
-        id: Date.now(),
-        text: "這是您的電子名片：",
-        isBot: true,
-        timestamp: new Date()
-      };
-      
-      const cardPreviewMessage: Message = {
-        id: Date.now() + 1,
-        text: "",
-        isBot: true,
-        timestamp: new Date(),
-        isCard: true,
-        cardData: cardData
-      };
-      
-      setMessages(prev => [...prev, cardMessage, cardPreviewMessage]);
-    }
+  const handleCardSelected = (selectedCard: any) => {
+    // 根據選擇的名片創建對應的名片數據，使用自定義樣式
+    const cardData = {
+      name: selectedCard.name,
+      title: selectedCard.title,
+      company: selectedCard.company,
+      phone: selectedCard.phone || '+886 912-345-678',
+      email: selectedCard.email || 'contact@example.com',
+      website: selectedCard.website || 'https://example.com',
+      line: selectedCard.line || 'line_id',
+      facebook: selectedCard.facebook || '',
+      instagram: selectedCard.instagram || '',
+      photo: selectedCard.photo || null,
+      backgroundColor: selectedCard.backgroundColor || '#3b82f6',
+      textColor: selectedCard.textColor || '#ffffff',
+      cardType: selectedCard.type
+    };
+    
+    const cardMessage: Message = {
+      id: Date.now(),
+      text: `這是您的${selectedCard.type === 'business' ? '商務' : selectedCard.type === 'professional' ? '專業' : '個人'}電子名片：`,
+      isBot: true,
+      timestamp: new Date()
+    };
+    
+    const cardPreviewMessage: Message = {
+      id: Date.now() + 1,
+      text: "",
+      isBot: true,
+      timestamp: new Date(),
+      isCard: true,
+      cardData: cardData
+    };
+    
+    setMessages(prev => [...prev, cardMessage, cardPreviewMessage]);
     setShowCardSelectionLIFF(false);
   };
 
@@ -890,8 +901,14 @@ const ChatRoom = () => {
                         <div className="flex-1 min-w-0">
                           {message.isCard && message.cardData ? (
                             <div className="bg-white rounded-2xl shadow-lg max-w-[260px] border border-gray-100 overflow-hidden">
-                              {/* Business Card Header - 更緊湊的設計 */}
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-4 text-white">
+                              {/* Business Card Header - 支持自定義背景色 */}
+              <div 
+                className="p-4 text-white"
+                style={{ 
+                  background: message.cardData.backgroundColor || 'linear-gradient(to right, #3b82f6, #8b5cf6)',
+                  color: message.cardData.textColor || '#ffffff'
+                }}
+              >
                 <div className="flex items-center space-x-3">
                   {message.cardData.photo && (
                     <img 
@@ -901,11 +918,17 @@ const ChatRoom = () => {
                     />
                   )}
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-xl font-bold truncate mb-1">{message.cardData.name}</h3>
-                    <p className="text-blue-100 text-base mb-1">{message.cardData.companyName}</p>
-                    {message.cardData.jobTitle && (
-                      <p className="text-blue-200 text-sm truncate">{message.cardData.jobTitle}</p>
-                    )}
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-xl font-bold truncate">{message.cardData.name}</h3>
+                      {message.cardData.cardType && (
+                        <span className="px-2 py-1 text-xs rounded-full border border-white/30 bg-white/20">
+                          {message.cardData.cardType === 'business' ? '商務' : 
+                           message.cardData.cardType === 'professional' ? '專業' : '個人'}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-blue-100 text-base mb-1">{message.cardData.company || message.cardData.companyName}</p>
+                    <p className="text-blue-200 text-sm truncate">{message.cardData.title || message.cardData.jobTitle}</p>
                   </div>
                 </div>
               </div>
