@@ -1033,7 +1033,7 @@ LINE: ${cardInfo.line || ''}
                               <div className="space-y-2 text-sm text-gray-600">
                                 <div className="flex justify-between">
                                   <span>智慧人脈記錄</span>
-                                  <span>1次免費，30點/張</span>
+                                  <span className="text-green-600">1次免費，30點/張</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>名片夾數量</span>
