@@ -1320,7 +1320,7 @@ LINE: ${cardInfo.line || ''}
                             100點兌換1個月試用
                               </Button>
                               <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100 flex-1 justify-center">
-                                🔗【了解更多】
+                                更多
                               </Button>
                             </div>
                           </div>
