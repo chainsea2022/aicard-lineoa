@@ -544,11 +544,11 @@ const CreateCard: React.FC<CreateCardProps> = ({
         localStorage.setItem('aile-card-data', JSON.stringify(cardData));
       } else {
         // 編輯多名片列表中的名片
-        const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+        const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
         const updatedCards = existingCards.map((card: any) => 
           card.id === editingCard.id ? { ...cardData, id: editingCard.id } : card
         );
-        localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+        localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
       }
       
       // 清除編輯狀態
@@ -564,9 +564,9 @@ const CreateCard: React.FC<CreateCardProps> = ({
         id: Date.now().toString()
       };
       
-      const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+      const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
       const updatedCards = [...existingCards, newCard];
-      localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+      localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
       
       // 清除新增狀態
       localStorage.removeItem('card-creation-mode');

@@ -344,15 +344,8 @@ LINE: ${cardInfo.line || ''}
     localStorage.removeItem('editing-card-data');
     localStorage.setItem('card-creation-mode', 'new');
     
-    // 導向電子名片設定頁，使用路由導航
-    if (window.liff) {
-      window.liff.openWindow({
-        url: `${window.location.origin}/card-settings`,
-        external: false
-      });
-    } else {
-      window.location.href = '/card-settings';
-    }
+    // 直接顯示CreateCard組件
+    setShowCreateCard(true);
   };
 
   const deleteAdditionalCard = (cardIndex: number) => {
