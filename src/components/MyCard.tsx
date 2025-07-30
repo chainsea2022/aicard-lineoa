@@ -1312,14 +1312,14 @@ LINE: ${cardInfo.line || ''}
                           </div>
 
                           {/* Aile 商務對話助手 */}
-                          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                          <div className="bg-green-50 border border-green-200 rounded-xl p-6">
                             <h4 className="font-bold text-green-800 mb-2">Aile｜商務對話助手</h4>
-                            <p className="text-green-700 mb-3">無縫轉接、通路整合，打造專屬商務助手</p>
-                            <div className="flex space-x-3">
-                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100">
+                            <p className="text-green-700 mb-4">無縫轉接、通路整合，打造專屬商務助手</p>
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
+                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100 flex-1 justify-center">
                             100點兌換1個月試用
                               </Button>
-                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100">
+                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100 flex-1 justify-center">
                                 🔗【了解更多】
                               </Button>
                             </div>
