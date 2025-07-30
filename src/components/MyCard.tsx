@@ -842,20 +842,89 @@ LINE: ${cardInfo.line || ''}
                       個人資料設定
                     </CardTitle>
                   </CardHeader>
-                  <CardContent>
-                    <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setShowProfileSettings(true)}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-blue-600" />
-                          </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900">管理個人資料</h4>
-                            <p className="text-sm text-gray-600">管理您的個人資訊和驗證狀態</p>
-                          </div>
+                  <CardContent className="space-y-4">
+                    {/* 性別設定 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-blue-600" />
                         </div>
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                        <div>
+                          <span className="font-medium text-gray-900">性別</span>
+                          <p className="text-sm text-gray-600">設定您的性別資訊</p>
+                        </div>
                       </div>
+                      <span className="text-sm text-gray-500">未設定</span>
+                    </div>
+
+                    {/* 手機號碼驗證 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                          <Smartphone className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">手機號碼驗證</span>
+                          <p className="text-sm text-gray-600">確保帳戶安全</p>
+                        </div>
+                      </div>
+                      <Badge className="bg-green-100 text-green-800">已驗證</Badge>
+                    </div>
+
+                    {/* 電子郵件驗證 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                          <Mail className="w-4 h-4 text-orange-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">電子郵件驗證</span>
+                          <p className="text-sm text-gray-600">用於重要通知</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="border-orange-200 text-orange-600">未驗證</Badge>
+                    </div>
+
+                    {/* 生日設定 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">生日</span>
+                          <p className="text-sm text-gray-600">設定您的生日</p>
+                        </div>
+                      </div>
+                      <span className="text-sm text-gray-500">未設定</span>
+                    </div>
+
+                    {/* 公開個人檔案 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                          <Eye className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">公開個人檔案</span>
+                          <p className="text-sm text-gray-600">允許他人查看您的基本資訊</p>
+                        </div>
+                      </div>
+                      <Switch defaultChecked />
+                    </div>
+
+                    {/* 通知設定 */}
+                    <div className="flex items-center justify-between p-3 border rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                          <MessageCircle className="w-4 h-4 text-yellow-600" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-gray-900">推送通知</span>
+                          <p className="text-sm text-gray-600">接收重要訊息通知</p>
+                        </div>
+                      </div>
+                      <Switch defaultChecked />
                     </div>
                   </CardContent>
                 </Card>
