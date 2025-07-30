@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Brain, 
   Users, 
@@ -29,7 +29,7 @@ export const SmartRelationshipAnalysis: React.FC<SmartRelationshipAnalysisProps>
   customer,
   onClose
 }) => {
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(true);
   const [analysisData, setAnalysisData] = useState<any>(null);
 
   const generateAnalysis = () => {
@@ -109,6 +109,11 @@ export const SmartRelationshipAnalysis: React.FC<SmartRelationshipAnalysisProps>
     }, 2000);
   };
 
+  // 組件掛載時自動開始分析
+  useEffect(() => {
+    generateAnalysis();
+  }, []);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-TW', {
@@ -134,31 +139,14 @@ export const SmartRelationshipAnalysis: React.FC<SmartRelationshipAnalysisProps>
         <Brain className="w-6 h-6 text-purple-600" />
       </div>
 
-      {!analysisData && (
+      {isAnalyzing && (
         <Card className="border-2 border-purple-200">
           <CardContent className="p-6 text-center">
-            <Brain className="w-12 h-12 text-purple-600 mx-auto mb-4" />
-            <h4 className="font-semibold text-gray-800 mb-2">智慧人脈分析</h4>
-            <p className="text-sm text-gray-600 mb-4">
-              分析您與 {customer.name} 的關係脈絡，提供見面話題建議
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-purple-600 border-t-transparent mx-auto mb-4"></div>
+            <h4 className="font-semibold text-gray-800 mb-2">智慧分析進行中</h4>
+            <p className="text-sm text-gray-600">
+              正在分析您與 {customer.name} 的關係脈絡...
             </p>
-            <Button 
-              onClick={generateAnalysis}
-              disabled={isAnalyzing}
-              className="bg-purple-600 hover:bg-purple-700 text-white"
-            >
-              {isAnalyzing ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  分析中...
-                </>
-              ) : (
-                <>
-                  <Brain className="w-4 h-4 mr-2" />
-                  開始分析
-                </>
-              )}
-            </Button>
           </CardContent>
         </Card>
       )}
