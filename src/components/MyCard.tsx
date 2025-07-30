@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X, Settings, TrendingUp, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -9,7 +9,6 @@ import { Label } from '@/components/ui/label';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
-import Points from './Points';
 import OTPVerification from './OTPVerification';
 
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
@@ -22,7 +21,6 @@ const MyCard: React.FC<MyCardProps> = ({
   const [cardData, setCardData] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [showCreateCard, setShowCreateCard] = useState(false);
-  const [showPoints, setShowPoints] = useState(false);
   const [showOTPVerification, setShowOTPVerification] = useState(false);
   const [showProfileSettings, setShowProfileSettings] = useState(false);
   const [qrCodeData, setQrCodeData] = useState('');
@@ -32,6 +30,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [currentPoints, setCurrentPoints] = useState(0);
   const [additionalCards, setAdditionalCards] = useState<any[]>([]);
   const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'cards' | 'points' | 'settings'>('cards');
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -275,7 +274,6 @@ LINE: ${cardInfo.line || ''}
     setUserData(null);
     setQrCodeData('');
     setShowCreateCard(false);
-    setShowPoints(false);
     setShowOTPVerification(false);
     setShowProfileSettings(false);
     setIsNewUser(false);
@@ -363,9 +361,6 @@ LINE: ${cardInfo.line || ''}
   if (showCreateCard) {
     return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
   }
-  if (showPoints) {
-    return <Points onClose={() => setShowPoints(false)} />;
-  }
   if (showProfileSettings) {
     return <ProfileSettings onClose={() => setShowProfileSettings(false)} />;
   }
@@ -385,6 +380,47 @@ LINE: ${cardInfo.line || ''}
             </Button>}
         </div>
       </div>
+
+      {/* Tab Navigation */}
+      {userData && cardData && (
+        <div className="bg-white border-b border-gray-200">
+          <div className="flex">
+            <button
+              onClick={() => setActiveTab('cards')}
+              className={`flex-1 py-3 px-4 text-center font-medium ${
+                activeTab === 'cards'
+                  ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
+                  : 'text-gray-600 hover:text-blue-600'
+              }`}
+            >
+              <User className="w-4 h-4 inline-block mr-1" />
+              我的名片
+            </button>
+            <button
+              onClick={() => setActiveTab('points')}
+              className={`flex-1 py-3 px-4 text-center font-medium ${
+                activeTab === 'points'
+                  ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50'
+                  : 'text-gray-600 hover:text-orange-600'
+              }`}
+            >
+              <Coins className="w-4 h-4 inline-block mr-1" />
+              會員點數
+            </button>
+            <button
+              onClick={() => setActiveTab('settings')}
+              className={`flex-1 py-3 px-4 text-center font-medium ${
+                activeTab === 'settings'
+                  ? 'border-b-2 border-green-500 text-green-600 bg-green-50'
+                  : 'text-gray-600 hover:text-green-600'
+              }`}
+            >
+              <Settings className="w-4 h-4 inline-block mr-1" />
+              資料設定
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 如果沒有用戶資料或名片資料，顯示登入/註冊介面 */}
       {(!userData || !cardData) && <div className="p-4">
@@ -498,48 +534,17 @@ LINE: ${cardInfo.line || ''}
 
       {/* 已登入用戶的名片管理介面 */}
       {userData && cardData && <div>
-          {/* 新增功能區塊 */}
-          <div className="p-4 bg-gray-50">
-            <div className="grid grid-cols-3 gap-3">
-              {/* 名片設置 */}
-              <Card className="border border-gray-200 hover:border-blue-300 transition-colors cursor-pointer">
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Edit className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">名片設定</h3>
-                </CardContent>
-              </Card>
-
-              {/* 會員點數 */}
-              <Card className="border border-gray-200 hover:border-yellow-300 transition-colors cursor-pointer" onClick={() => setShowPoints(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <Award className="w-4 h-4 text-yellow-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">會員點數</h3>
-                </CardContent>
-              </Card>
-
-              {/* 資料設定 */}
-              <Card className="border border-gray-200 hover:border-green-300 transition-colors cursor-pointer" onClick={() => setShowProfileSettings(true)}>
-                <CardContent className="p-3 text-center">
-                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <User className="w-4 h-4 text-green-600" />
-                  </div>
-                  <h3 className="text-xs font-medium text-gray-800">資料設定</h3>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
 
           <div className="p-6">
-            {/* 新用戶提示 */}
-            {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-700 font-medium">
-                  🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
-                </p>
-              </div>}
+            {/* 我的名片 Tab */}
+            {activeTab === 'cards' && (
+              <div>
+                {/* 新用戶提示 */}
+                {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-sm text-green-700 font-medium">
+                      🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
+                    </p>
+                  </div>}
 
             {/* 多名片管理區塊 */}
             <div className="mb-6">
@@ -706,6 +711,210 @@ LINE: ${cardInfo.line || ''}
                 })()}
               </div>
             </div>
+              </div>
+            )}
+
+            {/* 會員點數 Tab */}
+            {activeTab === 'points' && (
+              <div>
+                {/* 點數總覽 */}
+                <Card className="mb-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
+                  <CardContent className="p-6 text-center">
+                    <div className="mb-4">
+                      <Coins className="w-16 h-16 mx-auto text-orange-500 mb-2" />
+                      <h2 className="text-2xl font-bold text-gray-800">目前點數</h2>
+                    </div>
+                    <div className="text-4xl font-bold text-orange-600 mb-2">
+                      {currentPoints.toLocaleString()}
+                    </div>
+                    <p className="text-gray-600">點</p>
+                    
+                    <div className="mt-4 p-3 bg-white rounded-lg border">
+                      {currentPoints >= 50 ? <div className="text-green-600">
+                          <Award className="w-5 h-5 inline-block mr-1" />
+                          <span className="font-medium">可兌換商務版試用！</span>
+                        </div> : <div className="text-gray-600">
+                          <span className="text-sm">
+                            還需 {50 - currentPoints} 點即可兌換商務版試用
+                          </span>
+                        </div>}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 兌點升級 */}
+                <Card className="mb-4">
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-lg">
+                      <Award className="w-5 h-5 mr-2 text-purple-600" />
+                      兌點升級
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 relative">
+                      <div className="text-center">
+                        <h3 className="text-lg font-bold text-green-700">商務版試用</h3>
+                        <p className="text-2xl font-bold text-green-600 my-2">50點</p>
+                        <p className="text-sm text-green-600 mb-4">14天全功能解鎖</p>
+                        <Button 
+                          className={`w-full ${currentPoints >= 50 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
+                          disabled={currentPoints < 50}
+                        >
+                          {currentPoints >= 50 ? '立即兌換' : '點數不足'}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* 獲得點數方式 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-lg">
+                      <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
+                      獲得點數方式
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
+                            <User className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-blue-900">完成電子名片註冊</span>
+                        </div>
+                        <Badge className="bg-green-500 text-white">+50點</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
+                            <Edit className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-purple-900">完整個人資料(70%以上)</span>
+                        </div>
+                        <Badge className="bg-green-500 text-white">+50點</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mr-3">
+                            <Share2 className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="text-sm font-medium text-orange-900">邀請好友註冊</span>
+                        </div>
+                        <Badge className="bg-green-500 text-white">+50點</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+
+            {/* 資料設定 Tab */}
+            {activeTab === 'settings' && (
+              <div>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-lg">
+                      <Settings className="w-5 h-5 mr-2 text-green-600" />
+                      帳戶與隱私設定
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {/* 個人資料設定 */}
+                      <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setShowProfileSettings(true)}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <User className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">個人資料設定</h4>
+                              <p className="text-sm text-gray-600">管理您的個人資訊和驗證狀態</p>
+                            </div>
+                          </div>
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
+                        </div>
+                      </div>
+
+                      {/* 隱私設定 */}
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                              <Eye className="w-5 h-5 text-green-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">隱私設定</h4>
+                              <p className="text-sm text-gray-600">控制您的資訊可見性</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="space-y-3 pl-13">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-700">電話號碼可見</span>
+                            <Switch 
+                              checked={cardData?.phoneVisible !== false} 
+                              onCheckedChange={(checked) => {
+                                const updatedCardData = { ...cardData, phoneVisible: checked };
+                                setCardData(updatedCardData);
+                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-700">電子信箱可見</span>
+                            <Switch 
+                              checked={cardData?.emailVisible !== false} 
+                              onCheckedChange={(checked) => {
+                                const updatedCardData = { ...cardData, emailVisible: checked };
+                                setCardData(updatedCardData);
+                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
+                              }}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-gray-700">地址可見</span>
+                            <Switch 
+                              checked={cardData?.addressVisible === true} 
+                              onCheckedChange={(checked) => {
+                                const updatedCardData = { ...cardData, addressVisible: checked };
+                                setCardData(updatedCardData);
+                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 帳戶管理 */}
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                            <LogOut className="w-5 h-5 text-red-600" />
+                          </div>
+                          <div>
+                            <h4 className="font-medium text-gray-900">帳戶管理</h4>
+                            <p className="text-sm text-gray-600">登出或刪除帳戶</p>
+                          </div>
+                        </div>
+                        <div className="pl-13">
+                          <Button 
+                            variant="outline" 
+                            className="border-red-200 text-red-600 hover:bg-red-50"
+                            onClick={handleLogout}
+                          >
+                            <LogOut className="w-4 h-4 mr-2" />
+                            登出帳戶
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
 
           </div>
         </div>}
