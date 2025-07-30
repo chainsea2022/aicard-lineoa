@@ -7,6 +7,7 @@ import Scanner from './Scanner';
 import MyCustomers from './MyCustomers';
 import Analytics from './Analytics';
 import Schedule from './Schedule';
+import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 
@@ -433,6 +434,7 @@ const ChatRoom = () => {
   const [pendingCustomerName, setPendingCustomerName] = useState<string>('');
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
+  const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
 
   useEffect(() => {
     const handleCustomerAdded = (event: CustomEvent) => {
@@ -621,25 +623,9 @@ const ChatRoom = () => {
     } else if (itemId === 'my-card') {
       const savedData = localStorage.getItem('aile-card-data');
       if (savedData) {
-        const cardData = JSON.parse(savedData);
-        
-        const cardMessage: Message = {
-          id: Date.now(),
-          text: "這是您的電子名片：",
-          isBot: true,
-          timestamp: new Date()
-        };
-        
-        const cardPreviewMessage: Message = {
-          id: Date.now() + 1,
-          text: "",
-          isBot: true,
-          timestamp: new Date(),
-          isCard: true,
-          cardData: cardData
-        };
-        
-        setMessages(prev => [...prev, cardMessage, cardPreviewMessage]);
+        // 如果有電子名片，先顯示名片選擇LIFF介面
+        setShowCardSelectionLIFF(true);
+        setIsMenuOpen(false);
       } else {
         const noCardMessage: Message = {
           id: Date.now(),
@@ -648,12 +634,39 @@ const ChatRoom = () => {
           timestamp: new Date()
         };
         setMessages(prev => [...prev, noCardMessage]);
+        setIsMenuOpen(false);
       }
-      setIsMenuOpen(false);
     } else {
       setActiveView(itemId);
       setIsMenuOpen(false);
     }
+  };
+
+  const handleCardSelected = (cardId: string) => {
+    // 根據選擇的卡片ID獲取對應的名片數據
+    const savedData = localStorage.getItem('aile-card-data');
+    if (savedData) {
+      const cardData = JSON.parse(savedData);
+      
+      const cardMessage: Message = {
+        id: Date.now(),
+        text: "這是您的電子名片：",
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      const cardPreviewMessage: Message = {
+        id: Date.now() + 1,
+        text: "",
+        isBot: true,
+        timestamp: new Date(),
+        isCard: true,
+        cardData: cardData
+      };
+      
+      setMessages(prev => [...prev, cardMessage, cardPreviewMessage]);
+    }
+    setShowCardSelectionLIFF(false);
   };
 
   const handleCloseView = () => {
@@ -1156,6 +1169,14 @@ const ChatRoom = () => {
         onSaveCard={handleSaveCard}
         onShareCard={handleShareCard}
       />
+
+      {/* 名片選擇 LIFF 介面 */}
+      {showCardSelectionLIFF && (
+        <CardSelectionLIFF
+          onClose={() => setShowCardSelectionLIFF(false)}
+          onCardSelect={handleCardSelected}
+        />
+      )}
     </div>
   );
 };
