@@ -1188,7 +1188,7 @@ LINE: ${cardInfo.line || ''}
                               </div>
                               <div className="flex justify-between">
                                 <span>分享好友電子名片卡</span>
-                                <span className="font-medium text-blue-600">
+                                <span className="font-medium text-blue-600 text-right">
                                   100張
                                   <br />
                                   {'>'}100張，10點/張
