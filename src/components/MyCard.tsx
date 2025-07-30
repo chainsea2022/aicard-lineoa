@@ -563,7 +563,7 @@ LINE: ${cardInfo.line || ''}
               {/* 名片列表 */}
               <div className="space-y-3">
                 {(() => {
-                  const multiCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+                  const multiCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
                   const currentCard = cardData ? { ...cardData, id: 'current', name: cardData.name || '主要名片' } : null;
                   const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
                   
@@ -599,9 +599,9 @@ LINE: ${cardInfo.line || ''}
                   };
                   
                   const handleDeleteCard = (card: any) => {
-                    const existingCards = JSON.parse(localStorage.getItem('aile-multi-cards') || '[]');
+                    const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
                     const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
-                    localStorage.setItem('aile-multi-cards', JSON.stringify(updatedCards));
+                    localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
                     setSwipedCardId(null); // 重置滑動狀態
                     window.location.reload();
                     toast({
@@ -692,6 +692,21 @@ LINE: ${cardInfo.line || ''}
                                   <Share2 className="w-3 h-3 mr-1" />
                                   分享
                                 </Button>
+                                {/* 刪除按鈕 - 只有非預設名片才顯示 */}
+                                {card.id !== 'current' && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="border-red-300 text-red-600 hover:bg-red-50"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleDeleteCard(card);
+                                    }}
+                                  >
+                                    <X className="w-3 h-3 mr-1" />
+                                    刪除
+                                  </Button>
+                                )}
                               </div>
                             </div>
                           </CardContent>
