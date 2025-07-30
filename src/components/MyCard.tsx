@@ -1021,7 +1021,7 @@ LINE: ${cardInfo.line || ''}
                             <div className="flex items-center justify-between">
                               <div>
                                 <h3 className="text-lg font-bold">超值群募解鎖包</h3>
-                                <p className="text-sm opacity-90">每月只要$600，預繳一年$7200</p>
+                                <p className="text-sm opacity-90">$7200/年，每月只要$600</p>
                                 <p className="text-xs opacity-80 mt-1">一年不限次數全功能解鎖</p>
                               </div>
                               <Button className="bg-white text-purple-600 hover:bg-gray-100">
