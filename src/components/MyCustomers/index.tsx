@@ -421,8 +421,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             </div>
 
             {activeTab === 'digital' && (
-              <div className="mt-3 space-y-3">
-                <div className="grid grid-cols-2 gap-2">
+              <div className="mt-3 space-y-2">
+                {/* Relationship filters in a single row */}
+                <div className="flex gap-1.5">
                   <Button
                     variant={filter.followingMe ? 'default' : 'outline'}
                     size="sm"
@@ -431,7 +432,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       followingMe: !filter.followingMe,
                       iFollowing: filter.followingMe ? filter.iFollowing : false
                     })}
-                    className="relative flex items-center justify-center text-xs h-9"
+                    className="relative flex items-center justify-center text-xs h-8 px-3 flex-1"
                   >
                     <Users className="w-3 h-3 mr-1" />
                     追蹤我
@@ -449,20 +450,56 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       iFollowing: !filter.iFollowing,
                       followingMe: filter.iFollowing ? filter.followingMe : false
                     })}
-                    className="relative flex items-center justify-center text-xs h-9"
+                    className="relative flex items-center justify-center text-xs h-8 px-3 flex-1"
                   >
                     <Users className="w-3 h-3 mr-1" />
                     我關注的
                   </Button>
                 </div>
 
-                {Object.keys(filter).some(key => filter[key]) && (
-                  <div className="flex justify-center">
+                {/* Tag filters */}
+                {(() => {
+                  const allTags = Array.from(new Set(
+                    allDigitalCards.flatMap(customer => customer.tags || [])
+                  ));
+                  
+                  if (allTags.length > 0) {
+                    return (
+                      <div>
+                        <div className="text-xs text-gray-600 mb-1.5">標籤篩選</div>
+                        <div className="flex flex-wrap gap-1">
+                          {allTags.map(tag => (
+                            <Button
+                              key={tag}
+                              variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => {
+                                const currentTags = filter.selectedTags || [];
+                                const newTags = currentTags.includes(tag)
+                                  ? currentTags.filter(t => t !== tag)
+                                  : [...currentTags, tag];
+                                setFilter({ ...filter, selectedTags: newTags.length > 0 ? newTags : undefined });
+                              }}
+                              className="text-xs h-7 px-2 min-w-0"
+                            >
+                              {tag}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
+                {/* Clear filters button */}
+                {(filter.followingMe || filter.iFollowing || (filter.selectedTags && filter.selectedTags.length > 0)) && (
+                  <div className="flex justify-center pt-1">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setFilter({})}
-                      className="text-xs text-gray-500 hover:text-gray-700"
+                      className="text-xs text-gray-500 hover:text-gray-700 h-7"
                     >
                       <X className="w-3 h-3 mr-1" />
                       清除篩選
