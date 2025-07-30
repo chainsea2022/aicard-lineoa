@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X, Settings, TrendingUp, Coins, Calendar, Check, Gift, CheckCircle, FileText, Users, Camera, Lock, Unlock, Star, History, Info } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X, Settings, TrendingUp, Coins, Calendar, Check, Gift, CheckCircle, FileText, Users, Camera, Lock, Unlock, Star, History, Info, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -1608,6 +1608,18 @@ LINE: ${cardInfo.line || ''}
                       </DialogContent>
                     </Dialog>
 
+                  </CardContent>
+                </Card>
+
+                {/* 隱私與通知設定 - 直接展開 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-lg">
+                      <Shield className="w-5 h-5 mr-2 text-purple-600" />
+                      隱私與通知設定
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
                     {/* 公開電子名片 */}
                     <div className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
