@@ -1317,7 +1317,7 @@ LINE: ${cardInfo.line || ''}
                             <p className="text-green-700 mb-3">無縫轉接、通路整合，打造專屬商務助手</p>
                             <div className="flex space-x-3">
                               <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100">
-                                下載APP
+                            100點兌換1個月試用
                               </Button>
                               <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100">
                                 🔗【了解更多】
