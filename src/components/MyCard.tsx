@@ -843,18 +843,78 @@ LINE: ${cardInfo.line || ''}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setShowProfileSettings(true)}>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-blue-600" />
+                    <div className="space-y-4">
+                      <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setShowProfileSettings(true)}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                              <User className="w-5 h-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-medium text-gray-900">管理個人資料</h4>
+                              <p className="text-sm text-gray-600">管理您的個人資訊和驗證狀態</p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-medium text-gray-900">管理個人資料</h4>
-                            <p className="text-sm text-gray-600">管理您的個人資訊和驗證狀態</p>
-                          </div>
+                          <ChevronDown className="w-5 h-5 text-gray-400" />
                         </div>
-                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                      </div>
+                      
+                      {/* 直接展開的個人資料內容 */}
+                      <div className="pl-4 space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm text-gray-700">性別設定</span>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setShowProfileSettings(true)}
+                          >
+                            設定
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm text-gray-700">手機號碼驗證</span>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setShowProfileSettings(true)}
+                          >
+                            驗證
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm text-gray-700">電子郵件驗證</span>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setShowProfileSettings(true)}
+                          >
+                            驗證
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm text-gray-700">生日設定</span>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => setShowProfileSettings(true)}
+                          >
+                            設定
+                          </Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm text-gray-700">公開個人檔案</span>
+                          <Switch 
+                            checked={true} 
+                            onCheckedChange={() => setShowProfileSettings(true)}
+                          />
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="text-sm text-gray-700">接收通知</span>
+                          <Switch 
+                            checked={true} 
+                            onCheckedChange={() => setShowProfileSettings(true)}
+                          />
+                        </div>
                       </div>
                     </div>
                   </CardContent>
