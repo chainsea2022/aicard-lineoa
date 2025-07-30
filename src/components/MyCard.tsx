@@ -523,9 +523,6 @@ LINE: ${cardInfo.line || ''}
               {userData && cardData ? '我的電子名片' : hasRegistrationHistory ? 'LINE 快速登入' : '手機號碼註冊'}
             </h1>
           </div>
-          {userData && cardData && <Button variant="ghost" size="sm" onClick={handleLogout} className="text-white hover:bg-white/20">
-              <LogOut className="w-4 h-4" />
-            </Button>}
         </div>
       </div>
 
