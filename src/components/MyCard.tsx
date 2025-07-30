@@ -1174,7 +1174,6 @@ LINE: ${cardInfo.line || ''}
                             <div className="flex items-center justify-between mb-3">
                               <div className="flex items-center space-x-2">
                                 <h3 className="text-lg font-semibold text-blue-800">商務方案</h3>
-                                <Badge className="bg-blue-100 text-blue-800">50點試用</Badge>
                               </div>
                               <div className="text-right">
                                 <div className="text-2xl font-bold text-blue-600">$399</div>
