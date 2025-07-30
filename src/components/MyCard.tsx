@@ -1165,9 +1165,7 @@ LINE: ${cardInfo.line || ''}
                                 <span className="font-medium text-red-600">X</span>
                               </div>
                             </div>
-                            <Button variant="outline" className="w-full text-green-600 border-green-600">
-                              目前使用中
-                            </Button>
+                            
                           </div>
 
                           {/* 商務方案 */}
