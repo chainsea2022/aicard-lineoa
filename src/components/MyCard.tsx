@@ -1124,8 +1124,8 @@ LINE: ${cardInfo.line || ''}
                         <div className="space-y-4">
                           {/* 新手方案 */}
                           <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 relative">
-                            <div className="absolute top-2 right-2">
-                              <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center">
+                            <div className="absolute top-2 right-2 z-10">
+                              <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-sm">
                                 <span className="mr-1">✓</span>
                                 目前方案
                               </div>
