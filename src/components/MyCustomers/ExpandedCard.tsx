@@ -19,7 +19,9 @@ import {
   Clock,
   User,
   X,
-  Brain
+  Brain,
+  Eye,
+  CalendarPlus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +29,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
 import { SmartRelationshipAnalysis } from './SmartRelationshipAnalysis';
+import { ScheduleForm } from './ScheduleForm';
 import VoiceInput from '../VoiceInput';
 
 interface ExpandedCardProps {
@@ -65,6 +68,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
   const [showSmartAnalysis, setShowSmartAnalysis] = useState(false);
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
 
   const handleSaveNotes = () => {
     onSaveCustomer(customer.id, { notes: editedNotes });
@@ -288,37 +292,77 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         )}
       </div>
 
+      {/* Business Card Recognition History */}
+      {customer.hasCard && (
+        <div className="space-y-2">
+          <h4 className="font-medium text-sm text-gray-800">名片辨識歷程</h4>
+          <div className="bg-blue-50 rounded-lg p-3 space-y-2">
+            <div className="flex items-center space-x-2 text-xs text-blue-700">
+              <Eye className="w-3 h-3" />
+              <span>2024/01/15 10:30 - 首次掃描辨識</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-blue-700">
+              <Eye className="w-3 h-3" />
+              <span>2024/01/20 14:20 - 資料同步更新</span>
+            </div>
+            <div className="flex items-center space-x-2 text-xs text-blue-700">
+              <Eye className="w-3 h-3" />
+              <span>2024/01/25 09:15 - 聯絡資訊驗證</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Action Buttons */}
-      <div className="flex space-x-2 pt-2 border-t border-gray-200">
-        <Button
-          onClick={() => onToggleFavorite(customer.id)}
-          variant="outline"
-          size="sm"
-          className="flex-1 text-xs"
-        >
-          {customer.isFavorite ? (
-            <>
-              <StarOff className="w-3 h-3 mr-1" />
-              取消關注
-            </>
-          ) : (
-            <>
-              <Star className="w-3 h-3 mr-1" />
-              關注
-            </>
-          )}
-        </Button>
+      <div className="space-y-2 pt-2 border-t border-gray-200">
+        <div className="flex space-x-2">
+          <Button
+            onClick={() => onToggleFavorite(customer.id)}
+            variant="outline"
+            size="sm"
+            className="flex-1 text-xs"
+          >
+            {customer.isFavorite ? (
+              <>
+                <StarOff className="w-3 h-3 mr-1" />
+                取消關注
+              </>
+            ) : (
+              <>
+                <Star className="w-3 h-3 mr-1" />
+                關注
+              </>
+            )}
+          </Button>
+          
+          <Button
+            onClick={() => onDeleteCustomer(customer.id)}
+            variant="outline"
+            size="sm"
+            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="w-3 h-3 mr-1" />
+            刪除
+          </Button>
+        </div>
         
         <Button
-          onClick={() => onDeleteCustomer(customer.id)}
+          onClick={() => setShowScheduleForm(true)}
           variant="outline"
           size="sm"
-          className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
+          className="w-full text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
         >
-          <Trash2 className="w-3 h-3 mr-1" />
-          刪除
+          <CalendarPlus className="w-3 h-3 mr-1" />
+          行程管理
         </Button>
       </div>
+
+      {/* Schedule Form Dialog */}
+      <ScheduleForm
+        isOpen={showScheduleForm}
+        onClose={() => setShowScheduleForm(false)}
+        customer={customer}
+      />
     </div>
   );
 };
