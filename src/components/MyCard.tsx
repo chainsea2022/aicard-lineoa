@@ -864,32 +864,35 @@ LINE: ${cardInfo.line || ''}
             {/* 會員點數 Tab */}
              {activeTab === 'points' && (
                <div className="space-y-4">
-                 {/* 固定的目前點數區塊 */}
-                 <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 rounded-2xl p-8 text-white">
-                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                 {/* 固定的目前點數區塊 - 簡潔時尚設計 */}
+                 <div className="relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full -translate-y-12 translate-x-12 opacity-60"></div>
                    
-                   <div className="relative z-10 text-center">
-                     <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm">
-                       <Coins className="w-10 h-10 text-white" />
+                   <div className="relative z-10 flex items-center justify-between">
+                     <div className="flex items-center space-x-4">
+                       <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
+                         <Coins className="w-6 h-6 text-white" />
+                       </div>
+                       <div>
+                         <p className="text-sm text-gray-500 mb-1">目前擁有點數</p>
+                         <div className="flex items-baseline space-x-1">
+                           <span className="text-3xl font-bold text-gray-900">{currentPoints.toLocaleString()}</span>
+                           <span className="text-sm text-gray-500">點</span>
+                         </div>
+                       </div>
                      </div>
-                     <h2 className="text-lg font-medium text-orange-100 mb-2">目前擁有點數</h2>
-                     <div className="text-5xl font-bold mb-1">
-                       {currentPoints.toLocaleString()}
-                     </div>
-                     <p className="text-orange-100 text-lg">點</p>
                      
-                     <div className="mt-6 p-4 bg-white/15 rounded-xl backdrop-blur-sm border border-white/20">
+                     <div className="text-right">
                        {currentPoints >= 50 ? (
-                         <div className="flex items-center justify-center text-white">
-                           <Award className="w-5 h-5 mr-2" />
-                           <span className="font-medium">🎉 可兌換商務版試用！</span>
+                         <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                           <Award className="w-3 h-3 mr-1" />
+                           可兌換試用
                          </div>
                        ) : (
-                         <div className="text-white/90">
-                           <span className="text-sm">
-                             還需 <span className="font-bold text-white">{50 - currentPoints}</span> 點即可兌換商務版試用
-                           </span>
+                         <div className="text-xs text-gray-500">
+                           還需 <span className="font-medium text-orange-600">{50 - currentPoints}</span> 點
+                           <br />
+                           <span className="text-orange-600">即可兌換試用</span>
                          </div>
                        )}
                      </div>
