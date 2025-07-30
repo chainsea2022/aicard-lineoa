@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/hooks/use-toast';
@@ -8,6 +8,7 @@ import CalendarView from './CalendarView';
 import AttendeeManager from './AttendeeManager';
 import MeetingReminder from './MeetingReminder';
 import RecipientSelector from './RecipientSelector';
+import EventTypeSelector from './EventTypeSelector';
 
 interface ScheduleProps {
   onClose: () => void;
@@ -273,7 +274,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const getTypeIcon = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return <Users className="w-4 h-4" />;
-      case 'call': return <Calendar className="w-4 h-4" />;
+      case 'call': return <Phone className="w-4 h-4" />;
       case 'email': return <Mail className="w-4 h-4" />;
     }
   };
@@ -376,6 +377,12 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             您今天有 2 個會議安排，下一個會議在 1 小時後開始。
           </div>
         </div>
+
+        {/* Event Type Selector */}
+        <EventTypeSelector
+          selectedType={newMeeting.type}
+          onTypeChange={(type) => setNewMeeting(prev => ({ ...prev, type }))}
+        />
 
         {/* Quick Actions */}
         <div className="grid grid-cols-3 gap-3">
@@ -616,21 +623,6 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   onChange={(e) => setNewMeeting(prev => ({ ...prev, location: e.target.value }))}
                   placeholder="會議地點或線上會議連結"
                 />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  類型
-                </label>
-                <select
-                  value={newMeeting.type}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, type: e.target.value as Meeting['type'] }))}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                >
-                  <option value="meeting">會議</option>
-                  <option value="call">通話</option>
-                  <option value="email">信件</option>
-                </select>
               </div>
             </div>
             
