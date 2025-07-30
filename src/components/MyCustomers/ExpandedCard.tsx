@@ -43,9 +43,7 @@ interface ExpandedCardProps {
   onSaveCustomer: (id: number, updates: Partial<Customer>) => void;
   onDeleteCustomer: (id: number) => void;
   onCollapse: () => void;
-  onScheduleManagement: (id: number) => void;
   invitationHistory?: Array<{type: 'sms' | 'email', date: string, status: 'sent' | 'joined'}>;
-  cardRecognitionHistory?: Array<{date: string, action: string, details: string}>;
 }
 
 export const ExpandedCard: React.FC<ExpandedCardProps> = ({
@@ -62,9 +60,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   onSaveCustomer,
   onDeleteCustomer,
   onCollapse,
-  onScheduleManagement,
-  invitationHistory = [],
-  cardRecognitionHistory = []
+  invitationHistory = []
 }) => {
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
@@ -292,24 +288,6 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         )}
       </div>
 
-      {/* Card Recognition History */}
-      {cardRecognitionHistory.length > 0 && (
-        <div className="space-y-2">
-          <h4 className="font-medium text-sm text-gray-800">名片辨識歷程</h4>
-          <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-            {cardRecognitionHistory.map((record, index) => (
-              <div key={index} className="text-xs border-b border-gray-200 pb-2 last:border-b-0 last:pb-0">
-                <div className="flex justify-between items-center">
-                  <span className="font-medium text-gray-700">{record.action}</span>
-                  <span className="text-gray-500">{formatDate(record.date)}</span>
-                </div>
-                <p className="text-gray-600 mt-1">{record.details}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Action Buttons */}
       <div className="flex space-x-2 pt-2 border-t border-gray-200">
         <Button
@@ -329,16 +307,6 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               關注
             </>
           )}
-        </Button>
-        
-        <Button
-          onClick={() => onScheduleManagement(customer.id)}
-          variant="outline"
-          size="sm"
-          className="flex-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-        >
-          <Calendar className="w-3 h-3 mr-1" />
-          行程管理
         </Button>
         
         <Button

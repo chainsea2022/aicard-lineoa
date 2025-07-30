@@ -14,7 +14,6 @@ interface CustomerDetailPageProps {
   onSendInvitation: (id: number, type: 'sms' | 'email') => void;
   onSaveCustomer: (customerId: number, updates: Partial<Customer>) => void;
   onDeleteCustomer: (id: number) => void;
-  onScheduleManagement: (id: number) => void;
   activeSection: 'cards' | 'contacts';
 }
 
@@ -28,7 +27,6 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
   onSendInvitation,
   onSaveCustomer,
   onDeleteCustomer,
-  onScheduleManagement,
   activeSection
 }) => {
   return (
@@ -59,7 +57,6 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
           onRemoveTag={() => {}}
           onSaveCustomer={onSaveCustomer}
           onDeleteCustomer={onDeleteCustomer}
-          onScheduleManagement={onScheduleManagement}
           onCollapse={onClose}
         />
       </div>
