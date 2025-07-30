@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Calendar, Plus, Clock, MapPin, Users, Edit, Trash2, Bell, Video, User, FileText, ChevronLeft, ChevronRight } from 'lucide-react';
+import VoiceInput from './VoiceInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,7 +24,7 @@ interface Event {
   duration: number;
   location: string;
   attendees: string[];
-  type: 'meeting' | 'call' | 'event' | 'reminder';
+  type: 'meeting' | 'activity' | 'event';
   priority: 'high' | 'medium' | 'low';
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
 }
@@ -54,7 +55,7 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
       duration: 90,
       location: '線上會議',
       attendees: ['王經理', '陳主任'],
-      type: 'call',
+      type: 'activity',
       priority: 'medium',
       status: 'upcoming'
     },
@@ -99,9 +100,8 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
   const getEventTypeIcon = (type: string) => {
     switch (type) {
       case 'meeting': return <Users className="w-4 h-4" />;
-      case 'call': return <Video className="w-4 h-4" />;
-      case 'event': return <Calendar className="w-4 h-4" />;
-      case 'reminder': return <Bell className="w-4 h-4" />;
+      case 'activity': return <Calendar className="w-4 h-4" />;
+      case 'event': return <Bell className="w-4 h-4" />;
       default: return <Calendar className="w-4 h-4" />;
     }
   };
@@ -260,23 +260,39 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="title">行程標題 *</Label>
-                  <Input
-                    id="title"
-                    value={newEvent.title || ''}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
-                    placeholder="請輸入行程標題"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="title"
+                      value={newEvent.title || ''}
+                      onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="請輸入行程標題"
+                      className="pr-10"
+                    />
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                      <VoiceInput 
+                        onResult={(text) => setNewEvent(prev => ({ ...prev, title: text }))}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
                   <Label htmlFor="description">描述</Label>
-                  <Textarea
-                    id="description"
-                    value={newEvent.description || ''}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="請輸入行程描述"
-                    rows={3}
-                  />
+                  <div className="relative">
+                    <Textarea
+                      id="description"
+                      value={newEvent.description || ''}
+                      onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
+                      placeholder="請輸入行程描述"
+                      rows={3}
+                      className="pr-10"
+                    />
+                    <div className="absolute right-2 top-2">
+                      <VoiceInput 
+                        onResult={(text) => setNewEvent(prev => ({ ...prev, description: text }))}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -314,32 +330,47 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
 
                 <div>
                   <Label htmlFor="location">地點</Label>
-                  <Input
-                    id="location"
-                    value={newEvent.location || ''}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, location: e.target.value }))}
-                    placeholder="請輸入會議地點或線上連結"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="location"
+                      value={newEvent.location || ''}
+                      onChange={(e) => setNewEvent(prev => ({ ...prev, location: e.target.value }))}
+                      placeholder="請輸入會議地點或線上連結"
+                      className="pr-10"
+                    />
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                      <VoiceInput 
+                        onResult={(text) => setNewEvent(prev => ({ ...prev, location: text }))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 類型快捷選擇 */}
+                <div className="space-y-3">
+                  <Label>類型</Label>
+                  <div className="flex space-x-2">
+                    {[
+                      { value: 'meeting', label: '會議', icon: Users },
+                      { value: 'activity', label: '活動', icon: Calendar },
+                      { value: 'event', label: '事件', icon: Bell }
+                    ].map(({ value, label, icon: Icon }) => (
+                      <Button
+                        key={value}
+                        type="button"
+                        variant={newEvent.type === value ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setNewEvent(prev => ({ ...prev, type: value as any }))}
+                        className="flex items-center space-x-1"
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span>{label}</span>
+                      </Button>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="type">類型</Label>
-                    <Select 
-                      value={newEvent.type || 'meeting'} 
-                      onValueChange={(value) => setNewEvent(prev => ({ ...prev, type: value as any }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="meeting">會議</SelectItem>
-                        <SelectItem value="call">通話</SelectItem>
-                        <SelectItem value="event">活動</SelectItem>
-                        <SelectItem value="reminder">提醒</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
                   <div>
                     <Label htmlFor="priority">優先級</Label>
                     <Select 
