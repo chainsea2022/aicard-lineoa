@@ -318,14 +318,27 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
 
                 <div>
                   <Label htmlFor="duration">持續時間 (分鐘)</Label>
-                  <Input
-                    id="duration"
-                    type="number"
-                    value={newEvent.duration || 60}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
-                    min="15"
-                    step="15"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="duration"
+                      type="number"
+                      value={newEvent.duration || 60}
+                      onChange={(e) => setNewEvent(prev => ({ ...prev, duration: parseInt(e.target.value) }))}
+                      min="15"
+                      step="15"
+                      className="pr-10"
+                    />
+                    <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                      <VoiceInput 
+                        onResult={(text) => {
+                          const duration = parseInt(text.replace(/[^0-9]/g, ''));
+                          if (!isNaN(duration)) {
+                            setNewEvent(prev => ({ ...prev, duration }));
+                          }
+                        }}
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div>
