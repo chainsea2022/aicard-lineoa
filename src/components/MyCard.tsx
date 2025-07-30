@@ -1301,12 +1301,12 @@ LINE: ${cardInfo.line || ''}
                           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
                             <h4 className="font-bold text-blue-800 mb-2">Aipower ｜名片夾</h4>
                             <p className="text-blue-700 mb-3">建立個人電子名片，串起你的人脈鏈</p>
-                            <div className="flex space-x-3">
-                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100">
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
+                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100 flex-1 justify-center">
                                 👉 下載APP
                               </Button>
-                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100">
-                                更多
+                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100 flex-1 justify-center">
+                                更多 →
                               </Button>
                             </div>
                           </div>
@@ -1320,7 +1320,7 @@ LINE: ${cardInfo.line || ''}
                             100點兌換1個月試用
                               </Button>
                               <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100 flex-1 justify-center">
-                                更多
+                                更多 →
                               </Button>
                             </div>
                           </div>
@@ -1329,12 +1329,12 @@ LINE: ${cardInfo.line || ''}
                           <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
                             <h4 className="font-bold text-purple-800 mb-2">Aiwow｜集點商城</h4>
                             <p className="text-purple-700 mb-3">點點累積、兌換好禮，打造品牌互動與消費循環</p>
-                            <div className="flex space-x-3">
-                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100">
+                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
+                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100 flex-1 justify-center">
                                 👉 前往商城
                               </Button>
-                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100">
-                                🔗【了解更多】
+                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100 flex-1 justify-center">
+                                更多 →
                               </Button>
                             </div>
                           </div>
