@@ -1270,7 +1270,7 @@ LINE: ${cardInfo.line || ''}
                         </div>
                         <div>
                           <span className="font-medium text-gray-900">允許直接加入</span>
-                          <p className="text-sm text-gray-600">啟用後，其他用戶在加入您的電子名片時，將可直接將您的名片儲存至他們的名片夾</p>
+                          <p className="text-sm text-gray-600">用戶可直接將您的名片儲存至他們的名片夾</p>
                         </div>
                       </div>
                       <Switch 
