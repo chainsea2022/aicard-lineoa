@@ -1216,7 +1216,7 @@ LINE: ${cardInfo.line || ''}
                               </div>
                             </div>
                             <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                              50點兌換試用 1 個月
+                              立即升級
                             </Button>
                           </div>
 
