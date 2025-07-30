@@ -1041,7 +1041,7 @@ LINE: ${cardInfo.line || ''}
                                 </div>
                                 <div className="flex justify-between">
                                   <span>完整數據分析</span>
-                                  <span>50點/次</span>
+                                  <span className="text-green-600">50點/次</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>行程管理：新增行程</span>
