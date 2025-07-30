@@ -1287,7 +1287,7 @@ LINE: ${cardInfo.line || ''}
                         </div>
                         <div>
                           <span className="font-medium text-gray-900">接收通知</span>
-                          <p className="text-sm text-gray-600">您將收到所有與電子名片、人脈互動、活動邀請、點數變動等相關的系統通知與提醒</p>
+                          <p className="text-sm text-gray-600">您將收到各功能相關的系統通知與提醒</p>
                         </div>
                       </div>
                       <Switch 
