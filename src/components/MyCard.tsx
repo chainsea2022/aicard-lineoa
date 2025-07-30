@@ -862,78 +862,80 @@ LINE: ${cardInfo.line || ''}
             )}
 
             {/* 會員點數 Tab */}
-            {activeTab === 'points' && (
-              <div className="space-y-4">
-                {/* 點數頁籤導航 - 優化設計 */}
-                <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
-                  <button 
-                    onClick={() => setPointsActiveTab('overview')} 
-                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      pointsActiveTab === 'overview' 
-                        ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
-                    }`}
-                  >
-                    <TrendingUp className="w-4 h-4 inline-block mr-1.5" />
-                    點數總覽
-                  </button>
-                  <button 
-                    onClick={() => setPointsActiveTab('upgrade')} 
-                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      pointsActiveTab === 'upgrade' 
-                        ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
-                    }`}
-                  >
-                    <Award className="w-4 h-4 inline-block mr-1.5" />
-                    兑點升級
-                  </button>
-                  <button 
-                    onClick={() => setPointsActiveTab('history')} 
-                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                      pointsActiveTab === 'history' 
-                        ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
-                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
-                    }`}
-                  >
-                    <History className="w-4 h-4 inline-block mr-1.5" />
-                    累兌歷程
-                  </button>
-                </div>
+             {activeTab === 'points' && (
+               <div className="space-y-4">
+                 {/* 固定的目前點數區塊 */}
+                 <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 rounded-2xl p-8 text-white">
+                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                   <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                   
+                   <div className="relative z-10 text-center">
+                     <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm">
+                       <Coins className="w-10 h-10 text-white" />
+                     </div>
+                     <h2 className="text-lg font-medium text-orange-100 mb-2">目前擁有點數</h2>
+                     <div className="text-5xl font-bold mb-1">
+                       {currentPoints.toLocaleString()}
+                     </div>
+                     <p className="text-orange-100 text-lg">點</p>
+                     
+                     <div className="mt-6 p-4 bg-white/15 rounded-xl backdrop-blur-sm border border-white/20">
+                       {currentPoints >= 50 ? (
+                         <div className="flex items-center justify-center text-white">
+                           <Award className="w-5 h-5 mr-2" />
+                           <span className="font-medium">🎉 可兌換商務版試用！</span>
+                         </div>
+                       ) : (
+                         <div className="text-white/90">
+                           <span className="text-sm">
+                             還需 <span className="font-bold text-white">{50 - currentPoints}</span> 點即可兌換商務版試用
+                           </span>
+                         </div>
+                       )}
+                     </div>
+                   </div>
+                 </div>
 
-                {/* 點數總覽 - 優化設計 */}
+                 {/* 點數頁籤導航 - 優化設計 */}
+                 <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+                   <button 
+                     onClick={() => setPointsActiveTab('overview')} 
+                     className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
+                       pointsActiveTab === 'overview' 
+                         ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
+                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
+                     }`}
+                   >
+                     <TrendingUp className="w-4 h-4 inline-block mr-1.5" />
+                     點數總覽
+                   </button>
+                   <button 
+                     onClick={() => setPointsActiveTab('upgrade')} 
+                     className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
+                       pointsActiveTab === 'upgrade' 
+                         ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
+                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
+                     }`}
+                   >
+                     <Award className="w-4 h-4 inline-block mr-1.5" />
+                     兑點升級
+                   </button>
+                   <button 
+                     onClick={() => setPointsActiveTab('history')} 
+                     className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
+                       pointsActiveTab === 'history' 
+                         ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
+                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
+                     }`}
+                   >
+                     <History className="w-4 h-4 inline-block mr-1.5" />
+                     累兌歷程
+                   </button>
+                 </div>
+
+                {/* 點數總覽 - 移除重複的點數區塊 */}
                 {pointsActiveTab === 'overview' && (
                   <div className="space-y-6">
-                    <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 rounded-2xl p-8 text-white">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
-                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-                      
-                      <div className="relative z-10 text-center">
-                        <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm">
-                          <Coins className="w-10 h-10 text-white" />
-                        </div>
-                        <h2 className="text-lg font-medium text-orange-100 mb-2">目前擁有點數</h2>
-                        <div className="text-5xl font-bold mb-1">
-                          {currentPoints.toLocaleString()}
-                        </div>
-                        <p className="text-orange-100 text-lg">點</p>
-                        
-                        <div className="mt-6 p-4 bg-white/15 rounded-xl backdrop-blur-sm border border-white/20">
-                          {currentPoints >= 50 ? (
-                            <div className="flex items-center justify-center text-white">
-                              <Award className="w-5 h-5 mr-2" />
-                              <span className="font-medium">🎉 可兌換商務版試用！</span>
-                            </div>
-                          ) : (
-                            <div className="text-white/90">
-                              <span className="text-sm">
-                                還需 <span className="font-bold text-white">{50 - currentPoints}</span> 點即可兌換商務版試用
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
 
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
                       <div className="p-6 border-b border-gray-100">
