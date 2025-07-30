@@ -817,14 +817,10 @@ LINE: ${cardInfo.line || ''}
                      </div>
                      
                      <div className="text-right">
-                       {currentPoints >= 50 ? <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                           <Award className="w-3 h-3 mr-1" />
-                           可兌換試用
-                         </div> : <div className="text-xs text-gray-500">
-                           還需 <span className="font-medium text-orange-600">{50 - currentPoints}</span> 點
-                           <br />
-                           <span className="text-orange-600">即可兌換試用</span>
-                         </div>}
+                        {currentPoints >= 50 && <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                            <Award className="w-3 h-3 mr-1" />
+                            可兌換試用
+                          </div>}
                      </div>
                    </div>
                  </div>
