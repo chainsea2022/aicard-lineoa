@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info, Crown, Star, Shield, X } from 'lucide-react';
+import { ArrowLeft, Gift, History, TrendingUp, Award, Coins, Users, FileText, Camera, Mail, CheckCircle, Info, Crown, Star, Shield, X, Lock, Unlock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -250,21 +250,32 @@ const Points: React.FC<PointsProps> = ({
               </CardHeader>
               <CardContent>
                 <div className="grid gap-4">
-                  {earningMethods.map(method => <div key={method.id} className={`relative flex items-center justify-between p-4 bg-gradient-to-r ${method.bgGradient} rounded-xl border ${method.borderColor} shadow-sm`}>
-                      {method.completed && <div className="absolute top-2 right-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 bg-white rounded-full" />
-                        </div>}
+                  {earningMethods.map(method => <div key={method.id} className={`relative flex items-center justify-between p-4 bg-gradient-to-r ${method.bgGradient} rounded-xl border ${method.borderColor} shadow-sm ${method.completed ? 'opacity-90' : ''}`}>
+                      {/* 完成狀態指示器 */}
+                      <div className="absolute top-2 right-2">
+                        {method.completed ? (
+                          <div className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full shadow-lg">
+                            <CheckCircle className="w-4 h-4 text-white" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center w-6 h-6 bg-gray-300 rounded-full">
+                            <Lock className="w-3 h-3 text-gray-600" />
+                          </div>
+                        )}
+                      </div>
                       
                       <div className="flex items-center flex-1">
                         <div className={`flex items-center justify-center w-10 h-10 ${method.iconBg} rounded-full mr-3`}>
                           {method.icon}
                         </div>
                         <div>
-                          <h4 className={`font-semibold ${method.textColor}`}>{method.title}</h4>
-                          
+                          <h4 className={`font-semibold ${method.textColor} ${method.completed ? 'line-through opacity-75' : ''}`}>{method.title}</h4>
+                          {method.completed && (
+                            <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
+                          )}
                         </div>
                       </div>
-                      <Badge className="bg-green-500 text-white font-bold px-3 py-1">
+                      <Badge className={`font-bold px-3 py-1 ${method.completed ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
                         +{method.points}點
                       </Badge>
                     </div>)}
@@ -282,25 +293,45 @@ const Points: React.FC<PointsProps> = ({
               <CardContent>
                 <div className="grid gap-3">
                   {milestones.map((milestone, index) => <div key={index} className={`relative flex items-center justify-between p-4 rounded-xl border shadow-sm ${milestone.achieved ? 'bg-gradient-to-r from-green-50 to-green-100 border-green-200' : 'bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200'}`}>
-                      {milestone.achieved && <div className="absolute top-2 right-2">
-                          <CheckCircle className="w-5 h-5 text-green-500 bg-white rounded-full" />
-                        </div>}
+                      {/* 里程碑達成指示器 */}
+                      <div className="absolute top-2 right-2">
+                        {milestone.achieved ? (
+                          <div className="flex items-center justify-center w-7 h-7 bg-green-500 rounded-full shadow-lg border-2 border-white">
+                            <Unlock className="w-4 h-4 text-white" />
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center w-7 h-7 bg-gray-300 rounded-full border-2 border-gray-100">
+                            <Lock className="w-4 h-4 text-gray-600" />
+                          </div>
+                        )}
+                      </div>
                       
                       <div className="flex items-center flex-1">
-                        <div className={`flex items-center justify-center w-10 h-10 rounded-full mr-3 ${milestone.achieved ? 'bg-green-500' : 'bg-gray-400'}`}>
-                          <FileText className="w-5 h-5 text-white" />
+                        <div className={`flex items-center justify-center w-12 h-12 rounded-full mr-3 ${milestone.achieved ? 'bg-green-500 shadow-lg' : 'bg-gray-400'} relative`}>
+                          <FileText className="w-6 h-6 text-white" />
+                          {milestone.achieved && (
+                            <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                              <Star className="w-2.5 h-2.5 text-yellow-800" />
+                            </div>
+                          )}
                         </div>
                         <div>
                           <h4 className={`font-semibold ${milestone.achieved ? 'text-green-900' : 'text-gray-700'}`}>
                             分享好友加入名片夾 {milestone.cardCount} 人
                           </h4>
-                          
+                          {milestone.achieved ? (
+                            <p className="text-xs text-green-600 font-medium mt-1 flex items-center">
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              里程碑已達成！
+                            </p>
+                          ) : (
+                            <p className="text-xs text-gray-500 mt-1">尚未達成</p>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-center">
-                        {milestone.achieved && <Award className="w-4 h-4 text-green-600 mr-2" />}
-                        <Badge className={`font-bold px-3 py-1 ${milestone.achieved ? 'bg-green-500 text-white' : 'bg-gray-400 text-white'}`}>
-                          +{milestone.points}點
+                        <Badge className={`font-bold px-3 py-1 ${milestone.achieved ? 'bg-green-500 text-white shadow-md' : 'bg-gray-400 text-white'}`}>
+                          {milestone.achieved ? '已獲得 ' : ''}{milestone.points}點
                         </Badge>
                       </div>
                     </div>)}
