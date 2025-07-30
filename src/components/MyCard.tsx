@@ -744,25 +744,38 @@ LINE: ${cardInfo.line || ''}
                       <div className={`bg-white transition-transform duration-300 ${swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'}`}>
                         <Card className="border-0 shadow-none hover:border-blue-300 transition-colors">
                           <CardContent className="p-4">
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1 cursor-pointer" onClick={e => {
-                            e.stopPropagation();
-                            if (card.id === 'current') {
-                              editCard(cardData);
-                            } else {
-                              localStorage.setItem('editing-card-data', JSON.stringify(card));
-                              setShowCreateCard(true);
-                            }
-                          }}>
-                                <div className="flex items-center space-x-2 mb-1">
-                                  <h4 className="font-medium text-gray-800">{card.name}</h4>
-                                  {card.id === 'current' && <Badge variant="secondary" className="text-xs">預設</Badge>}
-                                </div>
-                                <p className="text-sm text-gray-600">
-                                  {card.companyName && `${card.companyName} • `}
-                                  {card.phone || card.email || '待完善資訊'}
-                                </p>
-                              </div>
+                             <div className="flex items-center justify-between">
+                               <div className="flex items-center space-x-3 flex-1 cursor-pointer" onClick={e => {
+                             e.stopPropagation();
+                             if (card.id === 'current') {
+                               editCard(cardData);
+                             } else {
+                               localStorage.setItem('editing-card-data', JSON.stringify(card));
+                               setShowCreateCard(true);
+                             }
+                           }}>
+                                 {/* 大頭照 */}
+                                 <div className="flex-shrink-0">
+                                   <Avatar className="w-12 h-12">
+                                     <AvatarImage src={card.avatar || card.profileImage} alt={card.name} />
+                                     <AvatarFallback className="bg-blue-100 text-blue-600 font-medium">
+                                       {card.name ? card.name.charAt(0).toUpperCase() : 'U'}
+                                     </AvatarFallback>
+                                   </Avatar>
+                                 </div>
+                                 
+                                 {/* 名片資訊 */}
+                                 <div className="flex-1 min-w-0">
+                                   <div className="flex items-center space-x-2 mb-1">
+                                     <h4 className="font-medium text-gray-800 truncate">{card.name}</h4>
+                                     {card.id === 'current' && <Badge variant="secondary" className="text-xs">預設</Badge>}
+                                   </div>
+                                   <p className="text-sm text-gray-600 truncate">
+                                     {card.companyName && `${card.companyName} • `}
+                                     {card.phone || card.email || '待完善資訊'}
+                                   </p>
+                                 </div>
+                               </div>
                               <div className="flex space-x-2">
                                 <Button size="sm" variant="outline" onClick={e => {
                               e.stopPropagation();
