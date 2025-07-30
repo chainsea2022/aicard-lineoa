@@ -1003,7 +1003,7 @@ LINE: ${cardInfo.line || ''}
                                 <Users className="w-5 h-5 text-white" />
                               </div>
                               <div>
-                                <h4 className="font-semibold text-orange-900 line-through opacity-75">邀請好友完成電子名片註冊 (1人)</h4>
+                                <h4 className="font-semibold text-orange-900">邀請好友完成電子名片註冊 (1人)</h4>
                                 <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
                               </div>
                             </div>
