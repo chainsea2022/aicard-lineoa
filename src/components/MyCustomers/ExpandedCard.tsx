@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
 import { SmartRelationshipAnalysis } from './SmartRelationshipAnalysis';
+import VoiceInput from '../VoiceInput';
 
 interface ExpandedCardProps {
   customer: Customer;
@@ -248,13 +249,21 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         
         {isEditingNotes ? (
           <div className="space-y-2">
-            <Textarea
-              value={editedNotes}
-              onChange={(e) => setEditedNotes(e.target.value)}
-              placeholder="輸入備註..."
-              rows={3}
-              className="text-sm"
-            />
+            <div className="relative">
+              <Textarea
+                value={editedNotes}
+                onChange={(e) => setEditedNotes(e.target.value)}
+                placeholder="輸入備註..."
+                rows={3}
+                className="text-sm pr-10"
+              />
+              <div className="absolute top-2 right-2">
+                <VoiceInput 
+                  onResult={(text) => setEditedNotes(editedNotes + text)}
+                  placeholder="語音輸入備註"
+                />
+              </div>
+            </div>
             <div className="flex space-x-2">
               <Button onClick={handleSaveNotes} size="sm" className="text-xs">
                 儲存
