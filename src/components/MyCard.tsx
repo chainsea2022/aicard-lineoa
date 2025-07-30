@@ -1037,7 +1037,7 @@ LINE: ${cardInfo.line || ''}
                                 </div>
                                 <div className="flex justify-between">
                                   <span>名片夾數量</span>
-                                  <span>200張，{'>'}200張，30點/張</span>
+                                  <span className="text-green-600">200張，{'>'}200張，30點/張</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>完整數據分析</span>
