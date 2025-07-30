@@ -14,7 +14,6 @@ import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import OTPVerification from './OTPVerification';
 import Points from './Points';
-
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MyCardProps {
   onClose: () => void;
@@ -132,7 +131,7 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
         setAdditionalCards(JSON.parse(savedAdditionalCards));
       }
 
-    // 載入點數資訊
+      // 載入點數資訊
       const savedPoints = localStorage.getItem('aile-user-points');
       if (savedPoints) {
         setCurrentPoints(parseInt(savedPoints));
@@ -162,9 +161,7 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
       console.log('MyCard: cardDataUpdated event received');
       loadCardData();
     };
-
     window.addEventListener('cardDataUpdated', handleCardDataUpdate);
-
     return () => {
       window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
     };
@@ -359,14 +356,19 @@ LINE: ${cardInfo.line || ''}
 
   // 儲存個人資料
   const saveProfileData = (updatedData: any) => {
-    const newData = { ...profileData, ...updatedData };
+    const newData = {
+      ...profileData,
+      ...updatedData
+    };
     setProfileData(newData);
     localStorage.setItem('aile-profile-data', JSON.stringify(newData));
   };
 
   // 性別設定處理
   const handleGenderSelect = (gender: string) => {
-    saveProfileData({ gender });
+    saveProfileData({
+      gender
+    });
     setShowGenderDialog(false);
     toast({
       title: "性別已更新",
@@ -386,12 +388,11 @@ LINE: ${cardInfo.line || ''}
       });
     }, 1000);
   };
-
   const handlePhoneOTPVerify = () => {
     if (phoneOTP === '123456') {
-      saveProfileData({ 
-        phone: tempPhone, 
-        isPhoneVerified: true 
+      saveProfileData({
+        phone: tempPhone,
+        isPhoneVerified: true
       });
       setShowPhoneDialog(false);
       setShowPhoneOTP(false);
@@ -422,11 +423,10 @@ LINE: ${cardInfo.line || ''}
       });
     }, 1000);
   };
-
   const handleEmailVerificationSuccess = () => {
-    saveProfileData({ 
-      email: tempEmail, 
-      isEmailVerified: true 
+    saveProfileData({
+      email: tempEmail,
+      isEmailVerified: true
     });
     setShowEmailDialog(false);
     setEmailVerificationSent(false);
@@ -444,7 +444,6 @@ LINE: ${cardInfo.line || ''}
     if (digits.length <= 6) return `${digits.slice(0, 4)}/${digits.slice(4)}`;
     return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6, 8)}`;
   };
-
   const handleBirthdayUpdate = () => {
     if (!tempBirthday) return;
     const datePattern = /^\d{4}\/\d{2}\/\d{2}$/;
@@ -456,8 +455,9 @@ LINE: ${cardInfo.line || ''}
       });
       return;
     }
-    
-    saveProfileData({ birthday: tempBirthday });
+    saveProfileData({
+      birthday: tempBirthday
+    });
     setShowBirthdayDialog(false);
     setTempBirthday('');
     toast({
@@ -480,22 +480,19 @@ LINE: ${cardInfo.line || ''}
       });
     }
   };
-
   const editCard = (card = cardData) => {
     // 設定要編輯的名片資料到 localStorage
     localStorage.setItem('editing-card-data', JSON.stringify(card));
     setShowCreateCard(true);
   };
-
   const addNewCard = () => {
     // 清除編輯狀態，設定為新增模式
     localStorage.removeItem('editing-card-data');
     localStorage.setItem('card-creation-mode', 'new');
-    
+
     // 直接顯示CreateCard組件
     setShowCreateCard(true);
   };
-
   const deleteAdditionalCard = (cardIndex: number) => {
     const updatedCards = additionalCards.filter((_, index) => index !== cardIndex);
     setAdditionalCards(updatedCards);
@@ -529,45 +526,22 @@ LINE: ${cardInfo.line || ''}
       </div>
 
       {/* Tab Navigation */}
-      {userData && cardData && (
-        <div className="bg-white border-b border-gray-200">
+      {userData && cardData && <div className="bg-white border-b border-gray-200">
           <div className="flex">
-            <button
-              onClick={() => setActiveTab('cards')}
-              className={`flex-1 py-3 px-4 text-center font-medium ${
-                activeTab === 'cards'
-                  ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
-                  : 'text-gray-600 hover:text-blue-600'
-              }`}
-            >
+            <button onClick={() => setActiveTab('cards')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'cards' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}>
               <User className="w-4 h-4 inline-block mr-1" />
               我的名片
             </button>
-            <button
-              onClick={() => setActiveTab('points')}
-              className={`flex-1 py-3 px-4 text-center font-medium ${
-                activeTab === 'points'
-                  ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50'
-                  : 'text-gray-600 hover:text-orange-600'
-              }`}
-            >
+            <button onClick={() => setActiveTab('points')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'points' ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50' : 'text-gray-600 hover:text-orange-600'}`}>
               <Coins className="w-4 h-4 inline-block mr-1" />
               會員點數
             </button>
-            <button
-              onClick={() => setActiveTab('settings')}
-              className={`flex-1 py-3 px-4 text-center font-medium ${
-                activeTab === 'settings'
-                  ? 'border-b-2 border-green-500 text-green-600 bg-green-50'
-                  : 'text-gray-600 hover:text-green-600'
-              }`}
-            >
+            <button onClick={() => setActiveTab('settings')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'settings' ? 'border-b-2 border-green-500 text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600'}`}>
               <Settings className="w-4 h-4 inline-block mr-1" />
               資料設定
             </button>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* 如果沒有用戶資料或名片資料，顯示登入/註冊介面 */}
       {(!userData || !cardData) && <div className="p-4">
@@ -684,8 +658,7 @@ LINE: ${cardInfo.line || ''}
 
           <div className="p-6">
             {/* 我的名片 Tab */}
-            {activeTab === 'cards' && (
-              <div>
+            {activeTab === 'cards' && <div>
                 {/* 新用戶提示 */}
                 {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                     <p className="text-sm text-green-700 font-medium">
@@ -697,16 +670,12 @@ LINE: ${cardInfo.line || ''}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-gray-800">我的電子名片</h3>
-                <Button 
-                  size="sm" 
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
-                  onClick={() => {
-                    // 清除編輯狀態，設定為新增模式
-                    localStorage.removeItem('editing-card-data');
-                    localStorage.setItem('card-creation-mode', 'new');
-                    setShowCreateCard(true);
-                  }}
-                >
+                <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => {
+                // 清除編輯狀態，設定為新增模式
+                localStorage.removeItem('editing-card-data');
+                localStorage.setItem('card-creation-mode', 'new');
+                setShowCreateCard(true);
+              }}>
                   <span className="text-lg font-bold mr-1">+</span>
                   新增名片
                 </Button>
@@ -715,101 +684,79 @@ LINE: ${cardInfo.line || ''}
               {/* 名片列表 */}
               <div className="space-y-3">
                 {(() => {
-                  const multiCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
-                  const currentCard = cardData ? { ...cardData, id: 'current', name: cardData.name || '主要名片' } : null;
-                  const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
-                  
-                  const handleSwipeStart = (e: React.TouchEvent, cardId: string) => {
-                    const touch = e.touches[0];
-                    const startX = touch.clientX;
-                    
-                    const handleTouchMove = (moveE: TouchEvent) => {
-                      const currentTouch = moveE.touches[0];
-                      const diffX = startX - currentTouch.clientX;
-                      
-                      if (diffX > 50) { // 左滑超過50px
-                        setSwipedCardId(cardId);
-                      } else if (diffX < -20) { // 右滑回復
-                        setSwipedCardId(null);
-                      }
-                    };
-                    
-                    const handleTouchEnd = () => {
-                      document.removeEventListener('touchmove', handleTouchMove);
-                      document.removeEventListener('touchend', handleTouchEnd);
-                    };
-                    
-                    document.addEventListener('touchmove', handleTouchMove);
-                    document.addEventListener('touchend', handleTouchEnd);
-                  };
-                  
-                  const handleCardClick = (cardId: string) => {
-                    // 電腦版：點擊切換刪除選項顯示
-                    if (cardId !== 'current') {
-                      setSwipedCardId(swipedCardId === cardId ? null : cardId);
+                const multiCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+                const currentCard = cardData ? {
+                  ...cardData,
+                  id: 'current',
+                  name: cardData.name || '主要名片'
+                } : null;
+                const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
+                const handleSwipeStart = (e: React.TouchEvent, cardId: string) => {
+                  const touch = e.touches[0];
+                  const startX = touch.clientX;
+                  const handleTouchMove = (moveE: TouchEvent) => {
+                    const currentTouch = moveE.touches[0];
+                    const diffX = startX - currentTouch.clientX;
+                    if (diffX > 50) {
+                      // 左滑超過50px
+                      setSwipedCardId(cardId);
+                    } else if (diffX < -20) {
+                      // 右滑回復
+                      setSwipedCardId(null);
                     }
                   };
-                  
-                  const handleDeleteCard = (card: any) => {
-                    const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
-                    const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
-                    localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
-                    setSwipedCardId(null); // 重置滑動狀態
-                    window.location.reload();
-                    toast({
-                      title: "名片已刪除",
-                      description: "電子名片已成功刪除。"
-                    });
+                  const handleTouchEnd = () => {
+                    document.removeEventListener('touchmove', handleTouchMove);
+                    document.removeEventListener('touchend', handleTouchEnd);
                   };
-                  
-                  return allCards.length > 0 ? allCards.map((card, index) => (
-                    <div 
-                      key={card.id || index} 
-                      className="relative overflow-hidden bg-white rounded-lg border border-gray-200"
-                      onTouchStart={card.id !== 'current' ? (e) => handleSwipeStart(e, card.id) : undefined}
-                      onClick={() => handleCardClick(card.id)}
-                    >
+                  document.addEventListener('touchmove', handleTouchMove);
+                  document.addEventListener('touchend', handleTouchEnd);
+                };
+                const handleCardClick = (cardId: string) => {
+                  // 電腦版：點擊切換刪除選項顯示
+                  if (cardId !== 'current') {
+                    setSwipedCardId(swipedCardId === cardId ? null : cardId);
+                  }
+                };
+                const handleDeleteCard = (card: any) => {
+                  const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+                  const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
+                  localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
+                  setSwipedCardId(null); // 重置滑動狀態
+                  window.location.reload();
+                  toast({
+                    title: "名片已刪除",
+                    description: "電子名片已成功刪除。"
+                  });
+                };
+                return allCards.length > 0 ? allCards.map((card, index) => <div key={card.id || index} className="relative overflow-hidden bg-white rounded-lg border border-gray-200" onTouchStart={card.id !== 'current' ? e => handleSwipeStart(e, card.id) : undefined} onClick={() => handleCardClick(card.id)}>
                       {/* 刪除背景 */}
-                      {card.id !== 'current' && (
-                        <div className={`absolute right-0 top-0 h-full bg-red-500 flex items-center justify-center text-white font-medium transition-all duration-300 ${
-                          swipedCardId === card.id ? 'w-20' : 'w-0'
-                        }`}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDeleteCard(card);
-                            }}
-                            className="h-full w-full flex items-center justify-center"
-                          >
+                      {card.id !== 'current' && <div className={`absolute right-0 top-0 h-full bg-red-500 flex items-center justify-center text-white font-medium transition-all duration-300 ${swipedCardId === card.id ? 'w-20' : 'w-0'}`}>
+                          <button onClick={e => {
+                      e.stopPropagation();
+                      handleDeleteCard(card);
+                    }} className="h-full w-full flex items-center justify-center">
                             刪除
                           </button>
-                        </div>
-                      )}
+                        </div>}
                       
                       {/* 名片內容 */}
-                      <div className={`bg-white transition-transform duration-300 ${
-                        swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'
-                      }`}>
+                      <div className={`bg-white transition-transform duration-300 ${swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'}`}>
                         <Card className="border-0 shadow-none hover:border-blue-300 transition-colors">
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
-                              <div 
-                                className="flex-1 cursor-pointer"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  if (card.id === 'current') {
-                                    editCard(cardData);
-                                  } else {
-                                    localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                    setShowCreateCard(true);
-                                  }
-                                }}
-                              >
+                              <div className="flex-1 cursor-pointer" onClick={e => {
+                            e.stopPropagation();
+                            if (card.id === 'current') {
+                              editCard(cardData);
+                            } else {
+                              localStorage.setItem('editing-card-data', JSON.stringify(card));
+                              setShowCreateCard(true);
+                            }
+                          }}>
                                 <div className="flex items-center space-x-2 mb-1">
                                   <h4 className="font-medium text-gray-800">{card.name}</h4>
-                                  {card.id === 'current' && (
-                                    <Badge variant="secondary" className="text-xs">預設</Badge>
-                                  )}
+                                  {card.id === 'current' && <Badge variant="secondary" className="text-xs">預設</Badge>}
                                 </div>
                                 <p className="text-sm text-gray-600">
                                   {card.companyName && `${card.companyName} • `}
@@ -817,30 +764,22 @@ LINE: ${cardInfo.line || ''}
                                 </p>
                               </div>
                               <div className="flex space-x-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    if (card.id === 'current') {
-                                      editCard(cardData);
-                                    } else {
-                                      localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                      setShowCreateCard(true);
-                                    }
-                                  }}
-                                >
+                                <Button size="sm" variant="outline" onClick={e => {
+                              e.stopPropagation();
+                              if (card.id === 'current') {
+                                editCard(cardData);
+                              } else {
+                                localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                setShowCreateCard(true);
+                              }
+                            }}>
                                   <Edit className="w-3 h-3 mr-1" />
                                   編輯
                                 </Button>
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    shareCard(card);
-                                  }}
-                                >
+                                <Button size="sm" variant="outline" onClick={e => {
+                              e.stopPropagation();
+                              shareCard(card);
+                            }}>
                                   <Share2 className="w-3 h-3 mr-1" />
                                   分享
                                 </Button>
@@ -849,21 +788,16 @@ LINE: ${cardInfo.line || ''}
                           </CardContent>
                         </Card>
                       </div>
-                    </div>
-                  )) : (
-                    <div className="text-center py-8 text-gray-500">
+                    </div>) : <div className="text-center py-8 text-gray-500">
                       <p>尚未建立任何名片</p>
-                    </div>
-                  );
-                })()}
+                    </div>;
+              })()}
               </div>
             </div>
-              </div>
-            )}
+              </div>}
 
             {/* 會員點數 Tab */}
-             {activeTab === 'points' && (
-               <div className="space-y-4">
+             {activeTab === 'points' && <div className="space-y-4">
                  {/* 固定的目前點數區塊 - 簡潔時尚設計 */}
                  <div className="relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full -translate-y-12 translate-x-12 opacity-60"></div>
@@ -883,59 +817,33 @@ LINE: ${cardInfo.line || ''}
                      </div>
                      
                      <div className="text-right">
-                       {currentPoints >= 50 ? (
-                         <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                       {currentPoints >= 50 ? <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                            <Award className="w-3 h-3 mr-1" />
                            可兌換試用
-                         </div>
-                       ) : (
-                         <div className="text-xs text-gray-500">
+                         </div> : <div className="text-xs text-gray-500">
                            還需 <span className="font-medium text-orange-600">{50 - currentPoints}</span> 點
                            <br />
                            <span className="text-orange-600">即可兌換試用</span>
-                         </div>
-                       )}
+                         </div>}
                      </div>
                    </div>
                  </div>
 
                  {/* 點數頁籤導航 - 優化設計 */}
                  <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
-                   <button 
-                     onClick={() => setPointsActiveTab('overview')} 
-                     className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                       pointsActiveTab === 'overview' 
-                         ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
-                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
-                     }`}
-                    >
+                   <button onClick={() => setPointsActiveTab('overview')} className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${pointsActiveTab === 'overview' ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'}`}>
                       點數總覽
                    </button>
-                   <button 
-                     onClick={() => setPointsActiveTab('upgrade')} 
-                     className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                       pointsActiveTab === 'upgrade' 
-                         ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
-                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
-                     }`}
-                    >
+                   <button onClick={() => setPointsActiveTab('upgrade')} className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${pointsActiveTab === 'upgrade' ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'}`}>
                       兑點升級
                    </button>
-                   <button 
-                     onClick={() => setPointsActiveTab('history')} 
-                     className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
-                       pointsActiveTab === 'history' 
-                         ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
-                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
-                     }`}
-                    >
+                   <button onClick={() => setPointsActiveTab('history')} className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${pointsActiveTab === 'history' ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'}`}>
                       累兌歷程
                    </button>
                  </div>
 
                 {/* 點數總覽 - 移除重複的點數區塊 */}
-                {pointsActiveTab === 'overview' && (
-                  <div className="space-y-6">
+                {pointsActiveTab === 'overview' && <div className="space-y-6">
 
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
                       <div className="p-6 border-b border-gray-100">
@@ -1166,12 +1074,10 @@ LINE: ${cardInfo.line || ''}
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
+                  </div>}
 
                 {/* 兑點升級 */}
-                {pointsActiveTab === 'upgrade' && (
-                  <div className="space-y-4">
+                {pointsActiveTab === 'upgrade' && <div className="space-y-4">
                     {/* 專屬大禮包 */}
                     <div className="mb-6 p-6 bg-gradient-to-br from-orange-100 via-red-50 to-pink-100 border-4 border-orange-300 rounded-2xl shadow-lg relative overflow-hidden">
                       <div className="absolute top-0 right-0 w-20 h-20 bg-orange-200 rounded-full opacity-30 transform translate-x-10 -translate-y-10"></div>
@@ -1196,14 +1102,7 @@ LINE: ${cardInfo.line || ''}
                             <p className="text-orange-600 mt-2">每月只要＄600</p>
                           </div>
                           
-                          <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                            <p className="text-center text-orange-700 font-semibold text-sm">
-                              每月只要＄600，預繳一年＄7200
-                            </p>
-                            <p className="text-center text-orange-700 font-semibold mt-1">
-                              🎉 一年不限次數全功能解鎖 🎉
-                            </p>
-                          </div>
+                          
                           
                           <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
                             立即搶購
@@ -1466,12 +1365,10 @@ LINE: ${cardInfo.line || ''}
                         </div>
                       </CardContent>
                     </Card>
-                  </div>
-                )}
+                  </div>}
 
                 {/* 累兌歷程 - 優化設計 */}
-                {pointsActiveTab === 'history' && (
-                  <div className="space-y-4">
+                {pointsActiveTab === 'history' && <div className="space-y-4">
                     <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
                       <div className="text-center">
                         <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -1481,14 +1378,11 @@ LINE: ${cardInfo.line || ''}
                         <p className="text-gray-500 text-sm">當您開始使用點數時，記錄將會顯示在這裡</p>
                       </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  </div>}
+              </div>}
 
             {/* 資料設定 Tab */}
-            {activeTab === 'settings' && (
-              <div className="space-y-4">
+            {activeTab === 'settings' && <div className="space-y-4">
                 {/* 個人資料設定 - 直接展開 */}
                 <Card>
                   <CardHeader>
@@ -1512,7 +1406,7 @@ LINE: ${cardInfo.line || ''}
                             </div>
                           </div>
                           <span className="text-sm text-gray-500">
-                            {profileData.gender ? (profileData.gender === 'male' ? '男性' : '女性') : '未設定'}
+                            {profileData.gender ? profileData.gender === 'male' ? '男性' : '女性' : '未設定'}
                           </span>
                         </div>
                       </DialogTrigger>
@@ -1524,18 +1418,10 @@ LINE: ${cardInfo.line || ''}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-3">
-                          <Button 
-                            variant="outline" 
-                            className="w-full justify-start"
-                            onClick={() => handleGenderSelect('male')}
-                          >
+                          <Button variant="outline" className="w-full justify-start" onClick={() => handleGenderSelect('male')}>
                             男性
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            className="w-full justify-start"
-                            onClick={() => handleGenderSelect('female')}
-                          >
+                          <Button variant="outline" className="w-full justify-start" onClick={() => handleGenderSelect('female')}>
                             女性
                           </Button>
                         </div>
@@ -1569,17 +1455,10 @@ LINE: ${cardInfo.line || ''}
                             {profileData.phone ? '修改您的手機號碼' : '設定您的手機號碼'}
                           </DialogDescription>
                         </DialogHeader>
-                        {!showPhoneOTP ? (
-                          <div className="space-y-4">
+                        {!showPhoneOTP ? <div className="space-y-4">
                             <div>
                               <Label htmlFor="phone">手機號碼</Label>
-                              <Input
-                                id="phone"
-                                type="tel"
-                                placeholder="請輸入手機號碼"
-                                value={tempPhone}
-                                onChange={(e) => setTempPhone(e.target.value)}
-                              />
+                              <Input id="phone" type="tel" placeholder="請輸入手機號碼" value={tempPhone} onChange={e => setTempPhone(e.target.value)} />
                             </div>
                             <DialogFooter>
                               <Button variant="outline" onClick={() => setShowPhoneDialog(false)}>
@@ -1589,32 +1468,23 @@ LINE: ${cardInfo.line || ''}
                                 發送驗證碼
                               </Button>
                             </DialogFooter>
-                          </div>
-                        ) : (
-                          <div className="space-y-4">
+                          </div> : <div className="space-y-4">
                             <div>
                               <Label htmlFor="phoneOTP">驗證碼</Label>
-                              <Input
-                                id="phoneOTP"
-                                type="text"
-                                placeholder="請輸入驗證碼 (測試用: 123456)"
-                                value={phoneOTP}
-                                onChange={(e) => setPhoneOTP(e.target.value)}
-                              />
+                              <Input id="phoneOTP" type="text" placeholder="請輸入驗證碼 (測試用: 123456)" value={phoneOTP} onChange={e => setPhoneOTP(e.target.value)} />
                             </div>
                             <DialogFooter>
                               <Button variant="outline" onClick={() => {
-                                setShowPhoneOTP(false);
-                                setPhoneOTP('');
-                              }}>
+                        setShowPhoneOTP(false);
+                        setPhoneOTP('');
+                      }}>
                                 返回
                               </Button>
                               <Button onClick={handlePhoneOTPVerify}>
                                 驗證
                               </Button>
                             </DialogFooter>
-                          </div>
-                        )}
+                          </div>}
                       </DialogContent>
                     </Dialog>
 
@@ -1645,17 +1515,10 @@ LINE: ${cardInfo.line || ''}
                             {profileData.email ? '修改您的電子郵件' : '設定您的電子郵件'}
                           </DialogDescription>
                         </DialogHeader>
-                        {!emailVerificationSent ? (
-                          <div className="space-y-4">
+                        {!emailVerificationSent ? <div className="space-y-4">
                             <div>
                               <Label htmlFor="email">電子郵件</Label>
-                              <Input
-                                id="email"
-                                type="email"
-                                placeholder="請輸入電子郵件"
-                                value={tempEmail}
-                                onChange={(e) => setTempEmail(e.target.value)}
-                              />
+                              <Input id="email" type="email" placeholder="請輸入電子郵件" value={tempEmail} onChange={e => setTempEmail(e.target.value)} />
                             </div>
                             <DialogFooter>
                               <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
@@ -1665,9 +1528,7 @@ LINE: ${cardInfo.line || ''}
                                 發送驗證信
                               </Button>
                             </DialogFooter>
-                          </div>
-                        ) : (
-                          <div className="space-y-4 text-center">
+                          </div> : <div className="space-y-4 text-center">
                             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
                               <Mail className="w-8 h-8 text-green-600" />
                             </div>
@@ -1676,26 +1537,18 @@ LINE: ${cardInfo.line || ''}
                               <p className="text-sm text-gray-600 mb-4">
                                 我們已發送驗證連結至 {tempEmail}，請點擊郵件中的連結完成驗證。
                               </p>
-                              <Button 
-                                className="w-full mb-2"
-                                onClick={handleEmailVerificationSuccess}
-                              >
+                              <Button className="w-full mb-2" onClick={handleEmailVerificationSuccess}>
                                 <Check className="w-4 h-4 mr-2" />
                                 模擬驗證成功
                               </Button>
-                              <Button 
-                                variant="outline" 
-                                className="w-full"
-                                onClick={() => {
-                                  setEmailVerificationSent(false);
-                                  setShowEmailDialog(false);
-                                }}
-                              >
+                              <Button variant="outline" className="w-full" onClick={() => {
+                        setEmailVerificationSent(false);
+                        setShowEmailDialog(false);
+                      }}>
                                 關閉
                               </Button>
                             </div>
-                          </div>
-                        )}
+                          </div>}
                       </DialogContent>
                     </Dialog>
 
@@ -1727,21 +1580,14 @@ LINE: ${cardInfo.line || ''}
                         <div className="space-y-4">
                           <div>
                             <Label htmlFor="birthday">生日</Label>
-                            <Input
-                              id="birthday"
-                              type="text"
-                              placeholder="YYYY/MM/DD"
-                              value={tempBirthday}
-                              onChange={(e) => setTempBirthday(formatBirthdayInput(e.target.value))}
-                              maxLength={10}
-                            />
+                            <Input id="birthday" type="text" placeholder="YYYY/MM/DD" value={tempBirthday} onChange={e => setTempBirthday(formatBirthdayInput(e.target.value))} maxLength={10} />
                             <p className="text-xs text-gray-500 mt-1">格式：1990/01/01</p>
                           </div>
                           <DialogFooter>
                             <Button variant="outline" onClick={() => {
-                              setShowBirthdayDialog(false);
-                              setTempBirthday('');
-                            }}>
+                        setShowBirthdayDialog(false);
+                        setTempBirthday('');
+                      }}>
                               取消
                             </Button>
                             <Button onClick={handleBirthdayUpdate}>
@@ -1763,10 +1609,9 @@ LINE: ${cardInfo.line || ''}
                           <p className="text-sm text-gray-600">您的名片可被其他用戶搜尋與發現</p>
                         </div>
                       </div>
-                      <Switch 
-                        checked={profileData.publicCard}
-                        onCheckedChange={(checked) => saveProfileData({ publicCard: checked })}
-                      />
+                      <Switch checked={profileData.publicCard} onCheckedChange={checked => saveProfileData({
+                  publicCard: checked
+                })} />
                     </div>
 
                     {/* 允許直接加入 */}
@@ -1780,10 +1625,9 @@ LINE: ${cardInfo.line || ''}
                           <p className="text-sm text-gray-600">用戶可直接將您的名片儲存至他們的名片夾</p>
                         </div>
                       </div>
-                      <Switch 
-                        checked={profileData.allowDirectAdd}
-                        onCheckedChange={(checked) => saveProfileData({ allowDirectAdd: checked })}
-                      />
+                      <Switch checked={profileData.allowDirectAdd} onCheckedChange={checked => saveProfileData({
+                  allowDirectAdd: checked
+                })} />
                     </div>
 
                     {/* 接收通知 */}
@@ -1797,10 +1641,9 @@ LINE: ${cardInfo.line || ''}
                           <p className="text-sm text-gray-600">您將收到各功能相關的系統通知與提醒</p>
                         </div>
                       </div>
-                      <Switch 
-                        checked={profileData.receiveNotifications}
-                        onCheckedChange={(checked) => saveProfileData({ receiveNotifications: checked })}
-                      />
+                      <Switch checked={profileData.receiveNotifications} onCheckedChange={checked => saveProfileData({
+                  receiveNotifications: checked
+                })} />
                     </div>
                   </CardContent>
                 </Card>
@@ -1823,18 +1666,13 @@ LINE: ${cardInfo.line || ''}
                         <p className="text-sm text-gray-600">退出當前帳戶</p>
                       </div>
                     </div>
-                    <Button 
-                      variant="outline" 
-                      className="w-full border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={handleLogout}
-                    >
+                    <Button variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50" onClick={handleLogout}>
                       <LogOut className="w-4 h-4 mr-2" />
                       登出帳戶
                     </Button>
                   </CardContent>
                 </Card>
-              </div>
-            )}
+              </div>}
 
           </div>
         </div>}
