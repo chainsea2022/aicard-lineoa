@@ -422,51 +422,52 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
 
             {activeTab === 'digital' && (
               <div className="mt-3 space-y-2">
-                {/* Relationship filters in a single row */}
-                <div className="flex gap-1.5">
-                  <Button
-                    variant={filter.followingMe ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ 
-                      ...filter, 
-                      followingMe: !filter.followingMe,
-                      iFollowing: filter.followingMe ? filter.iFollowing : false
-                    })}
-                    className="relative flex items-center justify-center text-xs h-8 px-3 flex-1"
-                  >
-                    <Users className="w-3 h-3 mr-1" />
-                    追蹤我
-                    {followingMeCount > 0 && !filter.followingMe && (
-                      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
-                        {followingMeCount}
-                      </Badge>
-                    )}
-                  </Button>
-                  <Button
-                    variant={filter.iFollowing ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ 
-                      ...filter, 
-                      iFollowing: !filter.iFollowing,
-                      followingMe: filter.iFollowing ? filter.followingMe : false
-                    })}
-                    className="relative flex items-center justify-center text-xs h-8 px-3 flex-1"
-                  >
-                    <Users className="w-3 h-3 mr-1" />
-                    我關注的
-                  </Button>
-                </div>
-
-                {/* Tag filters */}
-                {(() => {
-                  const allTags = Array.from(new Set(
-                    allDigitalCards.flatMap(customer => customer.tags || [])
-                  ));
+                <div>
+                  <div className="text-xs text-gray-600 mb-1.5">篩選</div>
                   
-                  if (allTags.length > 0) {
-                    return (
-                      <div>
-                        <div className="text-xs text-gray-600 mb-1.5">標籤篩選</div>
+                  {/* Relationship filters */}
+                  <div className="flex gap-1.5 mb-2">
+                    <Button
+                      variant={filter.followingMe ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ 
+                        ...filter, 
+                        followingMe: !filter.followingMe,
+                        iFollowing: filter.followingMe ? filter.iFollowing : false
+                      })}
+                      className="relative flex items-center justify-center text-xs h-7 px-2 flex-1"
+                    >
+                      <Users className="w-3 h-3 mr-1" />
+                      追蹤我
+                      {followingMeCount > 0 && !filter.followingMe && (
+                        <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
+                          {followingMeCount}
+                        </Badge>
+                      )}
+                    </Button>
+                    <Button
+                      variant={filter.iFollowing ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ 
+                        ...filter, 
+                        iFollowing: !filter.iFollowing,
+                        followingMe: filter.iFollowing ? filter.followingMe : false
+                      })}
+                      className="relative flex items-center justify-center text-xs h-7 px-2 flex-1"
+                    >
+                      <Users className="w-3 h-3 mr-1" />
+                      我關注的
+                    </Button>
+                  </div>
+
+                  {/* Tag filters */}
+                  {(() => {
+                    const allTags = Array.from(new Set(
+                      allDigitalCards.flatMap(customer => customer.tags || [])
+                    ));
+                    
+                    if (allTags.length > 0) {
+                      return (
                         <div className="flex flex-wrap gap-1">
                           {allTags.map(tag => (
                             <Button
@@ -486,15 +487,15 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                             </Button>
                           ))}
                         </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
+                      );
+                    }
+                    return null;
+                  })()}
+                </div>
 
                 {/* Clear filters button */}
                 {(filter.followingMe || filter.iFollowing || (filter.selectedTags && filter.selectedTags.length > 0)) && (
-                  <div className="flex justify-center pt-1">
+                  <div className="flex justify-center">
                     <Button
                       variant="ghost"
                       size="sm"
