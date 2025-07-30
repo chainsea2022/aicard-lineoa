@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X, Settings, TrendingUp, Coins } from 'lucide-react';
+import { ArrowLeft, Edit, Share2, QrCode, Award, User, Smartphone, LogOut, Eye, EyeOff, ChevronUp, ChevronDown, Download, MessageCircle, Facebook, Instagram, Youtube, Linkedin, Globe, MapPin, Mail, Phone, Twitter, Plus, X, Settings, TrendingUp, Coins, Calendar, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
@@ -31,6 +34,26 @@ const MyCard: React.FC<MyCardProps> = ({
   const [additionalCards, setAdditionalCards] = useState<any[]>([]);
   const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'cards' | 'points' | 'settings'>('cards');
+  const [profileData, setProfileData] = useState({
+    gender: '',
+    phone: '',
+    email: '',
+    birthday: '',
+    isPhoneVerified: false,
+    isEmailVerified: false,
+    publicProfile: true,
+    receiveNotifications: true
+  });
+  const [showGenderDialog, setShowGenderDialog] = useState(false);
+  const [showPhoneDialog, setShowPhoneDialog] = useState(false);
+  const [showEmailDialog, setShowEmailDialog] = useState(false);
+  const [showBirthdayDialog, setShowBirthdayDialog] = useState(false);
+  const [tempPhone, setTempPhone] = useState('');
+  const [tempEmail, setTempEmail] = useState('');
+  const [tempBirthday, setTempBirthday] = useState('');
+  const [phoneOTP, setPhoneOTP] = useState('');
+  const [showPhoneOTP, setShowPhoneOTP] = useState(false);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -106,10 +129,25 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
         setAdditionalCards(JSON.parse(savedAdditionalCards));
       }
 
-      // 載入點數資訊
+    // 載入點數資訊
       const savedPoints = localStorage.getItem('aile-user-points');
       if (savedPoints) {
         setCurrentPoints(parseInt(savedPoints));
+      }
+
+      // 載入個人資料設定
+      const savedProfileData = localStorage.getItem('aile-profile-data');
+      if (savedProfileData) {
+        const parsedData = JSON.parse(savedProfileData);
+        setProfileData(parsedData);
+      } else if (savedUserData) {
+        // 如果有用戶資料但沒有個人資料設定，初始化
+        const userData = JSON.parse(savedUserData);
+        setProfileData(prev => ({
+          ...prev,
+          phone: userData.phone || '',
+          isPhoneVerified: userData.isVerified || false
+        }));
       }
     };
 
@@ -314,6 +352,115 @@ LINE: ${cardInfo.line || ''}
       description: "電子名片已儲存到您的裝置。"
     });
     console.log('下載名片');
+  };
+
+  // 儲存個人資料
+  const saveProfileData = (updatedData: any) => {
+    const newData = { ...profileData, ...updatedData };
+    setProfileData(newData);
+    localStorage.setItem('aile-profile-data', JSON.stringify(newData));
+  };
+
+  // 性別設定處理
+  const handleGenderSelect = (gender: string) => {
+    saveProfileData({ gender });
+    setShowGenderDialog(false);
+    toast({
+      title: "性別已更新",
+      description: "您的性別資訊已成功儲存。"
+    });
+  };
+
+  // 手機號碼驗證處理
+  const handlePhoneUpdate = () => {
+    if (!tempPhone) return;
+    setShowPhoneOTP(true);
+    // 模擬發送OTP
+    setTimeout(() => {
+      toast({
+        title: "驗證碼已發送",
+        description: `驗證碼已發送至 ${tempPhone}`
+      });
+    }, 1000);
+  };
+
+  const handlePhoneOTPVerify = () => {
+    if (phoneOTP === '123456') {
+      saveProfileData({ 
+        phone: tempPhone, 
+        isPhoneVerified: true 
+      });
+      setShowPhoneDialog(false);
+      setShowPhoneOTP(false);
+      setPhoneOTP('');
+      setTempPhone('');
+      toast({
+        title: "手機號碼驗證成功",
+        description: "您的手機號碼已成功驗證。"
+      });
+    } else {
+      toast({
+        title: "驗證失敗",
+        description: "驗證碼錯誤，請重新輸入。",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // 電子郵件驗證處理
+  const handleEmailVerification = () => {
+    if (!tempEmail) return;
+    setEmailVerificationSent(true);
+    // 模擬發送驗證郵件
+    setTimeout(() => {
+      toast({
+        title: "驗證郵件已發送",
+        description: `驗證連結已發送至 ${tempEmail}`
+      });
+    }, 1000);
+  };
+
+  const handleEmailVerificationSuccess = () => {
+    saveProfileData({ 
+      email: tempEmail, 
+      isEmailVerified: true 
+    });
+    setShowEmailDialog(false);
+    setEmailVerificationSent(false);
+    setTempEmail('');
+    toast({
+      title: "✅ 您的 Email 驗證成功！",
+      description: "恭喜！您的電子信箱已完成驗證，現在可以完整使用 Aipower 名片功能。"
+    });
+  };
+
+  // 生日設定處理
+  const formatBirthdayInput = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length <= 4) return digits;
+    if (digits.length <= 6) return `${digits.slice(0, 4)}/${digits.slice(4)}`;
+    return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6, 8)}`;
+  };
+
+  const handleBirthdayUpdate = () => {
+    if (!tempBirthday) return;
+    const datePattern = /^\d{4}\/\d{2}\/\d{2}$/;
+    if (!datePattern.test(tempBirthday)) {
+      toast({
+        title: "日期格式錯誤",
+        description: "請使用 YYYY/MM/DD 格式",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    saveProfileData({ birthday: tempBirthday });
+    setShowBirthdayDialog(false);
+    setTempBirthday('');
+    toast({
+      title: "生日已更新",
+      description: "您的生日資訊已成功儲存。"
+    });
   };
   const shareCard = (card = cardData) => {
     if (navigator.share) {
@@ -844,60 +991,258 @@ LINE: ${cardInfo.line || ''}
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* 性別設定 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-blue-600" />
+                    <Dialog open={showGenderDialog} onOpenChange={setShowGenderDialog}>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                              <User className="w-4 h-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-900">性別</span>
+                              <p className="text-sm text-gray-600">設定您的性別資訊</p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {profileData.gender ? (profileData.gender === 'male' ? '男性' : '女性') : '未設定'}
+                          </span>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">性別</span>
-                          <p className="text-sm text-gray-600">設定您的性別資訊</p>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>選擇性別</DialogTitle>
+                          <DialogDescription>
+                            請選擇您的性別
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-start"
+                            onClick={() => handleGenderSelect('male')}
+                          >
+                            男性
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            className="w-full justify-start"
+                            onClick={() => handleGenderSelect('female')}
+                          >
+                            女性
+                          </Button>
                         </div>
-                      </div>
-                      <span className="text-sm text-gray-500">未設定</span>
-                    </div>
+                      </DialogContent>
+                    </Dialog>
 
                     {/* 手機號碼驗證 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                          <Smartphone className="w-4 h-4 text-green-600" />
+                    <Dialog open={showPhoneDialog} onOpenChange={setShowPhoneDialog}>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                              <Smartphone className="w-4 h-4 text-green-600" />
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-900">手機號碼驗證</span>
+                              <p className="text-sm text-gray-600">
+                                {profileData.phone || '設定您的手機號碼'}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={profileData.isPhoneVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
+                            {profileData.isPhoneVerified ? '已驗證' : '未驗證'}
+                          </Badge>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">手機號碼驗證</span>
-                          <p className="text-sm text-gray-600">確保帳戶安全</p>
-                        </div>
-                      </div>
-                      <Badge className="bg-green-100 text-green-800">已驗證</Badge>
-                    </div>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>手機號碼驗證</DialogTitle>
+                          <DialogDescription>
+                            {profileData.phone ? '修改您的手機號碼' : '設定您的手機號碼'}
+                          </DialogDescription>
+                        </DialogHeader>
+                        {!showPhoneOTP ? (
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="phone">手機號碼</Label>
+                              <Input
+                                id="phone"
+                                type="tel"
+                                placeholder="請輸入手機號碼"
+                                value={tempPhone}
+                                onChange={(e) => setTempPhone(e.target.value)}
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setShowPhoneDialog(false)}>
+                                取消
+                              </Button>
+                              <Button onClick={handlePhoneUpdate}>
+                                發送驗證碼
+                              </Button>
+                            </DialogFooter>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="phoneOTP">驗證碼</Label>
+                              <Input
+                                id="phoneOTP"
+                                type="text"
+                                placeholder="請輸入驗證碼 (測試用: 123456)"
+                                value={phoneOTP}
+                                onChange={(e) => setPhoneOTP(e.target.value)}
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => {
+                                setShowPhoneOTP(false);
+                                setPhoneOTP('');
+                              }}>
+                                返回
+                              </Button>
+                              <Button onClick={handlePhoneOTPVerify}>
+                                驗證
+                              </Button>
+                            </DialogFooter>
+                          </div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
 
                     {/* 電子郵件驗證 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                          <Mail className="w-4 h-4 text-orange-600" />
+                    <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                              <Mail className="w-4 h-4 text-orange-600" />
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-900">電子郵件驗證</span>
+                              <p className="text-sm text-gray-600">
+                                {profileData.email || '設定您的電子郵件'}
+                              </p>
+                            </div>
+                          </div>
+                          <Badge className={profileData.isEmailVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
+                            {profileData.isEmailVerified ? '已驗證' : '未驗證'}
+                          </Badge>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">電子郵件驗證</span>
-                          <p className="text-sm text-gray-600">用於重要通知</p>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="border-orange-200 text-orange-600">未驗證</Badge>
-                    </div>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>電子郵件驗證</DialogTitle>
+                          <DialogDescription>
+                            {profileData.email ? '修改您的電子郵件' : '設定您的電子郵件'}
+                          </DialogDescription>
+                        </DialogHeader>
+                        {!emailVerificationSent ? (
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="email">電子郵件</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                placeholder="請輸入電子郵件"
+                                value={tempEmail}
+                                onChange={(e) => setTempEmail(e.target.value)}
+                              />
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
+                                取消
+                              </Button>
+                              <Button onClick={handleEmailVerification}>
+                                發送驗證信
+                              </Button>
+                            </DialogFooter>
+                          </div>
+                        ) : (
+                          <div className="space-y-4 text-center">
+                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                              <Mail className="w-8 h-8 text-green-600" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-gray-900 mb-2">驗證信已發送</h3>
+                              <p className="text-sm text-gray-600 mb-4">
+                                我們已發送驗證連結至 {tempEmail}，請點擊郵件中的連結完成驗證。
+                              </p>
+                              <Button 
+                                className="w-full mb-2"
+                                onClick={handleEmailVerificationSuccess}
+                              >
+                                <Check className="w-4 h-4 mr-2" />
+                                模擬驗證成功
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                className="w-full"
+                                onClick={() => {
+                                  setEmailVerificationSent(false);
+                                  setShowEmailDialog(false);
+                                }}
+                              >
+                                關閉
+                              </Button>
+                            </div>
+                          </div>
+                        )}
+                      </DialogContent>
+                    </Dialog>
 
                     {/* 生日設定 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                          <User className="w-4 h-4 text-purple-600" />
+                    <Dialog open={showBirthdayDialog} onOpenChange={setShowBirthdayDialog}>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                              <Calendar className="w-4 h-4 text-purple-600" />
+                            </div>
+                            <div>
+                              <span className="font-medium text-gray-900">生日</span>
+                              <p className="text-sm text-gray-600">設定您的生日</p>
+                            </div>
+                          </div>
+                          <span className="text-sm text-gray-500">
+                            {profileData.birthday || '未設定'}
+                          </span>
                         </div>
-                        <div>
-                          <span className="font-medium text-gray-900">生日</span>
-                          <p className="text-sm text-gray-600">設定您的生日</p>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>設定生日</DialogTitle>
+                          <DialogDescription>
+                            請輸入您的出生日期 (西元年月日)
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="birthday">生日</Label>
+                            <Input
+                              id="birthday"
+                              type="text"
+                              placeholder="YYYY/MM/DD"
+                              value={tempBirthday}
+                              onChange={(e) => setTempBirthday(formatBirthdayInput(e.target.value))}
+                              maxLength={10}
+                            />
+                            <p className="text-xs text-gray-500 mt-1">格式：1990/01/01</p>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => {
+                              setShowBirthdayDialog(false);
+                              setTempBirthday('');
+                            }}>
+                              取消
+                            </Button>
+                            <Button onClick={handleBirthdayUpdate}>
+                              確定
+                            </Button>
+                          </DialogFooter>
                         </div>
-                      </div>
-                      <span className="text-sm text-gray-500">未設定</span>
-                    </div>
+                      </DialogContent>
+                    </Dialog>
 
                     {/* 公開個人檔案 */}
                     <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -910,7 +1255,10 @@ LINE: ${cardInfo.line || ''}
                           <p className="text-sm text-gray-600">允許他人查看您的基本資訊</p>
                         </div>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={profileData.publicProfile}
+                        onCheckedChange={(checked) => saveProfileData({ publicProfile: checked })}
+                      />
                     </div>
 
                     {/* 通知設定 */}
@@ -924,7 +1272,10 @@ LINE: ${cardInfo.line || ''}
                           <p className="text-sm text-gray-600">接收重要訊息通知</p>
                         </div>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch 
+                        checked={profileData.receiveNotifications}
+                        onCheckedChange={(checked) => saveProfileData({ receiveNotifications: checked })}
+                      />
                     </div>
                   </CardContent>
                 </Card>
