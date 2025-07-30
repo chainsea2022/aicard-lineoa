@@ -1306,7 +1306,7 @@ LINE: ${cardInfo.line || ''}
                                 👉 下載APP
                               </Button>
                               <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100">
-                                🔗【了解更多】
+                                更多
                               </Button>
                             </div>
                           </div>
