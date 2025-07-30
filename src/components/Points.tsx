@@ -700,35 +700,90 @@ const Points: React.FC<PointsProps> = ({
               </CardContent>
             </Card>
 
-            {/* 兑點規則 */}
-            <Card className="mt-4">
+            {/* AI生態圈方案 */}
+            <Card className="mb-6">
               <CardHeader>
                 <CardTitle className="flex items-center text-lg">
-                  <FileText className="w-5 h-5 mr-2 text-gray-600" />
-                  兑點規則
+                  <Star className="w-5 h-5 mr-2 text-blue-600" />
+                  AI生態圈方案
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2 text-sm text-gray-700">
-                  <div className="flex items-start">
-                    <span className="text-gray-500 mr-2">•</span>
-                    <span>免費獲得點數：2年有效期</span>
+                <div className="space-y-4">
+                  {/* Aipower 名片夾 */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <h4 className="font-bold text-blue-800 mb-2">Aipower ｜名片夾</h4>
+                    <p className="text-blue-700 mb-3">建立個人電子名片，串起你的人脈鏈</p>
+                    <div className="flex space-x-3">
+                      <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100">
+                        👉 下載APP
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100">
+                        🔗【了解更多】
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-gray-500 mr-2">•</span>
-                    <span>會員購買點數：永久有效</span>
+
+                  {/* Aile 商務對話助手 */}
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <h4 className="font-bold text-green-800 mb-2">Aile｜商務對話助手</h4>
+                    <p className="text-green-700 mb-3">無縫轉接、通路整合，打造專屬商務助手</p>
+                    <div className="flex space-x-3">
+                      <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100">
+                        👉 100點兌換試用 1 個月
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100">
+                        🔗【了解更多】
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-gray-500 mr-2">•</span>
-                    <span>點數不可轉讓給其他用戶</span>
+
+                  {/* Aiwow 集點商城 */}
+                  <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                    <h4 className="font-bold text-purple-800 mb-2">Aiwow｜集點商城</h4>
+                    <p className="text-purple-700 mb-3">點點累積、兌換好禮，打造品牌互動與消費循環</p>
+                    <div className="flex space-x-3">
+                      <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100">
+                        👉 前往商城
+                      </Button>
+                      <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100">
+                        🔗【了解更多】
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-gray-500 mr-2">•</span>
-                    <span>已兌換之商品或服務不可退換</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* 兑點規則 */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <Info className="w-5 h-5 mr-2 text-gray-600" />
+                  兌點規則
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-500 mt-1">•</span>
+                    <span className="text-gray-700">免費獲得點數：2年有效期</span>
                   </div>
-                  <div className="flex items-start">
-                    <span className="text-gray-500 mr-2">•</span>
-                    <span>點數使用與兌換規則依官方公告為準，若有變動以最新公告為依據</span>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-500 mt-1">•</span>
+                    <span className="text-gray-700">會員購買點數：永久有效</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-500 mt-1">•</span>
+                    <span className="text-gray-700">點數不可轉讓給其他用戶</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-500 mt-1">•</span>
+                    <span className="text-gray-700">已兌換之商品或服務不可退換</span>
+                  </div>
+                  <div className="flex items-start space-x-2">
+                    <span className="text-gray-500 mt-1">•</span>
+                    <span className="text-gray-700">點數使用與兌換規則依官方公告為準，若有變動以最新公告為依據</span>
                   </div>
                 </div>
               </CardContent>
