@@ -1316,9 +1316,11 @@ LINE: ${cardInfo.line || ''}
                           </div>
                         </div>
                       )}
-                    </div>
                   </CardContent>
                 </Card>
+
+                {/* AI生態圈方案 - 獨立區塊 */}
+                <AIEcosystem />
               </div>
             )}
 
