@@ -384,7 +384,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             className="h-16 bg-blue-500 hover:bg-blue-600 flex flex-col items-center justify-center space-y-1"
           >
             <Users className="w-5 h-5" />
-            <span className="text-xs">新增會議</span>
+            <span className="text-xs">新增行程</span>
           </Button>
           <Button
             onClick={() => setShowRecipientSelector(true)}
