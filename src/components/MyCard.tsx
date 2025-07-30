@@ -717,6 +717,27 @@ LINE: ${cardInfo.line || ''}
             {/* 會員點數 Tab */}
             {activeTab === 'points' && (
               <div>
+                {/* 超值群募解鎖包 - 置頂 */}
+                <Card className="mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
+                  <CardContent className="p-6">
+                    <div className="text-center">
+                      <div className="mb-4">
+                        <Badge className="bg-purple-600 text-white mb-2">限時優惠</Badge>
+                        <h2 className="text-xl font-bold text-gray-800">超值群募解鎖包</h2>
+                      </div>
+                      <div className="text-3xl font-bold text-purple-600 mb-2">
+                        $7200/年
+                      </div>
+                      <p className="text-gray-600 mb-1">每月只要 $600</p>
+                      <p className="text-sm text-gray-500 mb-4">預繳一年 $7200，一年不限次數全功能解鎖</p>
+                      
+                      <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-medium">
+                        立即升級
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+
                 {/* 點數總覽 */}
                 <Card className="mb-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
                   <CardContent className="p-6 text-center">
@@ -812,105 +833,59 @@ LINE: ${cardInfo.line || ''}
 
             {/* 資料設定 Tab */}
             {activeTab === 'settings' && (
-              <div>
+              <div className="space-y-4">
+                {/* 個人資料設定 - 直接展開 */}
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center text-lg">
-                      <Settings className="w-5 h-5 mr-2 text-green-600" />
-                      帳戶與隱私設定
+                      <User className="w-5 h-5 mr-2 text-blue-600" />
+                      個人資料設定
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {/* 個人資料設定 */}
-                      <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setShowProfileSettings(true)}>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                              <User className="w-5 h-5 text-blue-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">個人資料設定</h4>
-                              <p className="text-sm text-gray-600">管理您的個人資訊和驗證狀態</p>
-                            </div>
-                          </div>
-                          <ChevronDown className="w-5 h-5 text-gray-400" />
-                        </div>
-                      </div>
-
-                      {/* 隱私設定 */}
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                              <Eye className="w-5 h-5 text-green-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-medium text-gray-900">隱私設定</h4>
-                              <p className="text-sm text-gray-600">控制您的資訊可見性</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="space-y-3 pl-13">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-700">電話號碼可見</span>
-                            <Switch 
-                              checked={cardData?.phoneVisible !== false} 
-                              onCheckedChange={(checked) => {
-                                const updatedCardData = { ...cardData, phoneVisible: checked };
-                                setCardData(updatedCardData);
-                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
-                              }}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-700">電子信箱可見</span>
-                            <Switch 
-                              checked={cardData?.emailVisible !== false} 
-                              onCheckedChange={(checked) => {
-                                const updatedCardData = { ...cardData, emailVisible: checked };
-                                setCardData(updatedCardData);
-                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
-                              }}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm text-gray-700">地址可見</span>
-                            <Switch 
-                              checked={cardData?.addressVisible === true} 
-                              onCheckedChange={(checked) => {
-                                const updatedCardData = { ...cardData, addressVisible: checked };
-                                setCardData(updatedCardData);
-                                localStorage.setItem('aile-card-data', JSON.stringify(updatedCardData));
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* 帳戶管理 */}
-                      <div className="p-4 border rounded-lg">
-                        <div className="flex items-center space-x-3 mb-3">
-                          <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                            <LogOut className="w-5 h-5 text-red-600" />
+                    <div className="p-4 border rounded-lg hover:bg-gray-50 cursor-pointer" onClick={() => setShowProfileSettings(true)}>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <User className="w-5 h-5 text-blue-600" />
                           </div>
                           <div>
-                            <h4 className="font-medium text-gray-900">帳戶管理</h4>
-                            <p className="text-sm text-gray-600">登出或刪除帳戶</p>
+                            <h4 className="font-medium text-gray-900">管理個人資料</h4>
+                            <p className="text-sm text-gray-600">管理您的個人資訊和驗證狀態</p>
                           </div>
                         </div>
-                        <div className="pl-13">
-                          <Button 
-                            variant="outline" 
-                            className="border-red-200 text-red-600 hover:bg-red-50"
-                            onClick={handleLogout}
-                          >
-                            <LogOut className="w-4 h-4 mr-2" />
-                            登出帳戶
-                          </Button>
-                        </div>
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
                       </div>
                     </div>
+                  </CardContent>
+                </Card>
+
+                {/* 帳戶管理 - 直接展開 */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center text-lg">
+                      <LogOut className="w-5 h-5 mr-2 text-red-600" />
+                      帳戶管理
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                        <LogOut className="w-5 h-5 text-red-600" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-gray-900">登出帳戶</h4>
+                        <p className="text-sm text-gray-600">退出當前帳戶</p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      className="w-full border-red-200 text-red-600 hover:bg-red-50"
+                      onClick={handleLogout}
+                    >
+                      <LogOut className="w-4 h-4 mr-2" />
+                      登出帳戶
+                    </Button>
                   </CardContent>
                 </Card>
               </div>
