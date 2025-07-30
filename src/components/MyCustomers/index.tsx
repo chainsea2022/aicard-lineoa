@@ -421,91 +421,81 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             </div>
 
             {activeTab === 'digital' && (
-              <div className="mt-3 space-y-2">
-                {/* Relationship filters in a single row */}
-                <div className="flex gap-1.5">
-                  <Button
-                    variant={filter.followingMe ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ 
-                      ...filter, 
-                      followingMe: !filter.followingMe,
-                      iFollowing: filter.followingMe ? filter.iFollowing : false
-                    })}
-                    className="relative flex items-center justify-center text-xs h-8 px-3 flex-1"
-                  >
-                    <Users className="w-3 h-3 mr-1" />
-                    追蹤我
-                    {followingMeCount > 0 && !filter.followingMe && (
-                      <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
-                        {followingMeCount}
-                      </Badge>
-                    )}
-                  </Button>
-                  <Button
-                    variant={filter.iFollowing ? 'default' : 'outline'}
-                    size="sm"
-                    onClick={() => setFilter({ 
-                      ...filter, 
-                      iFollowing: !filter.iFollowing,
-                      followingMe: filter.iFollowing ? filter.followingMe : false
-                    })}
-                    className="relative flex items-center justify-center text-xs h-8 px-3 flex-1"
-                  >
-                    <Users className="w-3 h-3 mr-1" />
-                    我關注的
-                  </Button>
-                </div>
-
-                {/* Tag filters */}
-                {(() => {
-                  const allTags = Array.from(new Set(
-                    allDigitalCards.flatMap(customer => customer.tags || [])
-                  ));
-                  
-                  if (allTags.length > 0) {
-                    return (
-                      <div>
-                        <div className="text-xs text-gray-600 mb-1.5">標籤篩選</div>
-                        <div className="flex flex-wrap gap-1">
-                          {allTags.map(tag => (
-                            <Button
-                              key={tag}
-                              variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
-                              size="sm"
-                              onClick={() => {
-                                const currentTags = filter.selectedTags || [];
-                                const newTags = currentTags.includes(tag)
-                                  ? currentTags.filter(t => t !== tag)
-                                  : [...currentTags, tag];
-                                setFilter({ ...filter, selectedTags: newTags.length > 0 ? newTags : undefined });
-                              }}
-                              className="text-xs h-7 px-2 min-w-0"
-                            >
-                              {tag}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
-
-                {/* Clear filters button */}
-                {(filter.followingMe || filter.iFollowing || (filter.selectedTags && filter.selectedTags.length > 0)) && (
-                  <div className="flex justify-center pt-1">
+              <div className="mt-3">
+                {/* All filters in a single scrollable row */}
+                <div className="overflow-x-auto">
+                  <div className="flex gap-2 pb-2" style={{ minWidth: 'max-content' }}>
                     <Button
-                      variant="ghost"
+                      variant={filter.followingMe ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setFilter({})}
-                      className="text-xs text-gray-500 hover:text-gray-700 h-7"
+                      onClick={() => setFilter({ 
+                        ...filter, 
+                        followingMe: !filter.followingMe,
+                        iFollowing: filter.followingMe ? filter.iFollowing : false
+                      })}
+                      className="relative flex items-center justify-center text-xs h-8 px-3 whitespace-nowrap"
                     >
-                      <X className="w-3 h-3 mr-1" />
-                      清除篩選
+                      <Users className="w-3 h-3 mr-1" />
+                      追蹤我
+                      {followingMeCount > 0 && !filter.followingMe && (
+                        <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
+                          {followingMeCount}
+                        </Badge>
+                      )}
                     </Button>
+                    <Button
+                      variant={filter.iFollowing ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFilter({ 
+                        ...filter, 
+                        iFollowing: !filter.iFollowing,
+                        followingMe: filter.iFollowing ? filter.followingMe : false
+                      })}
+                      className="relative flex items-center justify-center text-xs h-8 px-3 whitespace-nowrap"
+                    >
+                      <Users className="w-3 h-3 mr-1" />
+                      我關注的
+                    </Button>
+                    
+                    {/* Tag filters */}
+                    {(() => {
+                      const allTags = Array.from(new Set(
+                        allDigitalCards.flatMap(customer => customer.tags || [])
+                      ));
+                      
+                      return allTags.map(tag => (
+                        <Button
+                          key={tag}
+                          variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            const currentTags = filter.selectedTags || [];
+                            const newTags = currentTags.includes(tag)
+                              ? currentTags.filter(t => t !== tag)
+                              : [...currentTags, tag];
+                            setFilter({ ...filter, selectedTags: newTags.length > 0 ? newTags : undefined });
+                          }}
+                          className="text-xs h-8 px-3 whitespace-nowrap"
+                        >
+                          {tag}
+                        </Button>
+                      ));
+                    })()}
+
+                    {/* Clear filters button */}
+                    {(filter.followingMe || filter.iFollowing || (filter.selectedTags && filter.selectedTags.length > 0)) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFilter({})}
+                        className="text-xs text-gray-500 hover:text-gray-700 h-8 px-3 whitespace-nowrap"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        清除篩選
+                      </Button>
+                    )}
                   </div>
-                )}
+                </div>
               </div>
             )}
 
