@@ -908,9 +908,8 @@ LINE: ${cardInfo.line || ''}
                          ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
                          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
                      }`}
-                   >
-                     <TrendingUp className="w-4 h-4 inline-block mr-1.5" />
-                     點數總覽
+                    >
+                      點數總覽
                    </button>
                    <button 
                      onClick={() => setPointsActiveTab('upgrade')} 
@@ -919,9 +918,8 @@ LINE: ${cardInfo.line || ''}
                          ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
                          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
                      }`}
-                   >
-                     <Award className="w-4 h-4 inline-block mr-1.5" />
-                     兑點升級
+                    >
+                      兑點升級
                    </button>
                    <button 
                      onClick={() => setPointsActiveTab('history')} 
@@ -930,9 +928,8 @@ LINE: ${cardInfo.line || ''}
                          ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
                          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
                      }`}
-                   >
-                     <History className="w-4 h-4 inline-block mr-1.5" />
-                     累兌歷程
+                    >
+                      累兌歷程
                    </button>
                  </div>
 
