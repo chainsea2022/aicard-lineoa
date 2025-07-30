@@ -39,11 +39,11 @@ const Points: React.FC<PointsProps> = ({
   const [milestones, setMilestones] = useState<Milestone[]>([{
     cardCount: 10,
     points: 30,
-    achieved: false
+    achieved: true // Show first milestone as achieved for demo
   }, {
     cardCount: 30,
     points: 60,
-    achieved: false
+    achieved: true // Show second milestone as achieved for demo
   }, {
     cardCount: 60,
     points: 100,
@@ -78,7 +78,7 @@ const Points: React.FC<PointsProps> = ({
     borderColor: 'border-purple-200',
     iconBg: 'bg-purple-500',
     textColor: 'text-purple-900',
-    completed: true // Check if profile is complete
+    completed: true // Show as completed for demo
   }, {
     id: 'invite-others',
     title: '邀請好友完成電子名片註冊 (1人)',
@@ -89,7 +89,7 @@ const Points: React.FC<PointsProps> = ({
     borderColor: 'border-orange-200',
     iconBg: 'bg-orange-500',
     textColor: 'text-orange-900',
-    completed: false // Check based on actual data
+    completed: true // Show as completed for demo
   }, {
     id: 'share-card',
     title: '分享好友電子名片卡加入名片夾 (1人)',
