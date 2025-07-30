@@ -1124,20 +1124,20 @@ LINE: ${cardInfo.line || ''}
                         <div className="space-y-4">
                           {/* 新手方案 */}
                           <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 relative">
-                            <div className="absolute top-2 right-2 z-10">
-                              <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-sm">
-                                <span className="mr-1">✓</span>
-                                目前方案
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center space-x-2">
                                 <h3 className="text-lg font-semibold text-green-800">新手方案</h3>
                                 <Badge className="bg-green-100 text-green-800">免費</Badge>
                               </div>
-                              <div className="text-right">
-                                <div className="text-2xl font-bold text-green-600">Free</div>
-                                <div className="text-xs text-gray-500">永久免費</div>
+                              <div className="flex flex-col items-end space-y-2">
+                                <div className="text-right">
+                                  <div className="text-2xl font-bold text-green-600">Free</div>
+                                  <div className="text-xs text-gray-500">永久免費</div>
+                                </div>
+                                <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-sm">
+                                  <span className="mr-1">✓</span>
+                                  目前方案
+                                </div>
                               </div>
                             </div>
                             <div className="space-y-2 text-sm text-gray-600 mb-4">
