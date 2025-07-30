@@ -864,82 +864,87 @@ LINE: ${cardInfo.line || ''}
             {/* 會員點數 Tab */}
             {activeTab === 'points' && (
               <div className="space-y-4">
-                {/* 點數頁籤導航 */}
-                <div className="flex bg-white border-b border-gray-200 rounded-t-lg">
+                {/* 點數頁籤導航 - 優化設計 */}
+                <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
                   <button 
                     onClick={() => setPointsActiveTab('overview')} 
-                    className={`flex-1 py-3 text-center font-medium ${
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
                       pointsActiveTab === 'overview' 
-                        ? 'text-orange-600 border-b-2 border-orange-600' 
-                        : 'text-gray-600'
+                        ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
                     }`}
                   >
-                    <TrendingUp className="w-4 h-4 inline-block mr-1" />
+                    <TrendingUp className="w-4 h-4 inline-block mr-1.5" />
                     點數總覽
                   </button>
                   <button 
                     onClick={() => setPointsActiveTab('upgrade')} 
-                    className={`flex-1 py-3 text-center font-medium ${
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
                       pointsActiveTab === 'upgrade' 
-                        ? 'text-orange-600 border-b-2 border-orange-600' 
-                        : 'text-gray-600'
+                        ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
                     }`}
                   >
-                    <Award className="w-4 h-4 inline-block mr-1" />
+                    <Award className="w-4 h-4 inline-block mr-1.5" />
                     兑點升級
                   </button>
                   <button 
                     onClick={() => setPointsActiveTab('history')} 
-                    className={`flex-1 py-3 text-center font-medium ${
+                    className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
                       pointsActiveTab === 'history' 
-                        ? 'text-orange-600 border-b-2 border-orange-600' 
-                        : 'text-gray-600'
+                        ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' 
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'
                     }`}
                   >
-                    <History className="w-4 h-4 inline-block mr-1" />
+                    <History className="w-4 h-4 inline-block mr-1.5" />
                     累兌歷程
                   </button>
                 </div>
 
-                {/* 點數總覽 */}
+                {/* 點數總覽 - 優化設計 */}
                 {pointsActiveTab === 'overview' && (
-                  <div className="space-y-4">
-                    <Card className="mb-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
-                      <CardContent className="p-6 text-center">
-                        <div className="mb-4">
-                          <Coins className="w-16 h-16 mx-auto text-orange-500 mb-2" />
-                          <h2 className="text-2xl font-bold text-gray-800">目前點數</h2>
+                  <div className="space-y-6">
+                    <div className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-orange-600 to-amber-600 rounded-2xl p-8 text-white">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+                      <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+                      
+                      <div className="relative z-10 text-center">
+                        <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 rounded-2xl mb-4 backdrop-blur-sm">
+                          <Coins className="w-10 h-10 text-white" />
                         </div>
-                        <div className="text-4xl font-bold text-orange-600 mb-2">
+                        <h2 className="text-lg font-medium text-orange-100 mb-2">目前擁有點數</h2>
+                        <div className="text-5xl font-bold mb-1">
                           {currentPoints.toLocaleString()}
                         </div>
-                        <p className="text-gray-600">點</p>
+                        <p className="text-orange-100 text-lg">點</p>
                         
-                        <div className="mt-4 p-3 bg-white rounded-lg border">
+                        <div className="mt-6 p-4 bg-white/15 rounded-xl backdrop-blur-sm border border-white/20">
                           {currentPoints >= 50 ? (
-                            <div className="text-green-600">
-                              <Award className="w-5 h-5 inline-block mr-1" />
-                              <span className="font-medium">可兌換商務版試用！</span>
+                            <div className="flex items-center justify-center text-white">
+                              <Award className="w-5 h-5 mr-2" />
+                              <span className="font-medium">🎉 可兌換商務版試用！</span>
                             </div>
                           ) : (
-                            <div className="text-gray-600">
+                            <div className="text-white/90">
                               <span className="text-sm">
-                                還需 {50 - currentPoints} 點即可兌換商務版試用
+                                還需 <span className="font-bold text-white">{50 - currentPoints}</span> 點即可兌換商務版試用
                               </span>
                             </div>
                           )}
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
 
-                    <Card className="mb-4">
-                      <CardHeader>
-                        <CardTitle className="flex items-center text-lg">
-                          <Gift className="w-5 h-5 mr-2 text-green-600" />
-                          獲得點數方式
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
+                      <div className="p-6 border-b border-gray-100">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
+                            <Gift className="w-5 h-5 text-green-600" />
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-800">獲得點數方式</h3>
+                        </div>
+                      </div>
+                      <div className="p-6">
                         <div className="grid gap-4">
                           <div className="relative flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm opacity-90">
                             <div className="absolute top-2 right-2">
@@ -1043,17 +1048,19 @@ LINE: ${cardInfo.line || ''}
                             </Badge>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
 
-                    <Card className="mb-4">
-                      <CardHeader>
-                        <CardTitle className="flex items-center text-lg">
-                          <Award className="w-5 h-5 mr-2 text-yellow-600" />
-                          名片分享里程碑
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
+                      <div className="p-6 border-b border-gray-100">
+                        <div className="flex items-center">
+                          <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center mr-3">
+                            <Award className="w-5 h-5 text-yellow-600" />
+                          </div>
+                          <h3 className="text-xl font-bold text-gray-800">名片分享里程碑</h3>
+                        </div>
+                      </div>
+                      <div className="p-6">
                         <div className="grid gap-3">
                           <div className="relative flex items-center justify-between p-4 rounded-xl border shadow-sm bg-gradient-to-r from-green-50 to-green-100 border-green-200">
                             <div className="absolute top-2 right-2">
@@ -1155,8 +1162,8 @@ LINE: ${cardInfo.line || ''}
                             </div>
                           </div>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1460,12 +1467,17 @@ LINE: ${cardInfo.line || ''}
                   </div>
                 )}
 
-                {/* 累兌歷程 */}
+                {/* 累兌歷程 - 優化設計 */}
                 {pointsActiveTab === 'history' && (
-                  <div className="space-y-3">
-                    <div className="text-center py-8">
-                      <History className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-                      <p className="text-gray-600">暫無點數記錄</p>
+                  <div className="space-y-4">
+                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
+                      <div className="text-center">
+                        <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <History className="w-10 h-10 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-medium text-gray-800 mb-2">暫無點數記錄</h3>
+                        <p className="text-gray-500 text-sm">當您開始使用點數時，記錄將會顯示在這裡</p>
+                      </div>
                     </div>
                   </div>
                 )}
