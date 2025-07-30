@@ -983,7 +983,7 @@ LINE: ${cardInfo.line || ''}
                                 </div>
                               </div>
                               <div>
-                                <h4 className="font-semibold text-purple-900 line-through opacity-75">完整電子名片個人資料(70%以上)</h4>
+                                <h4 className="font-semibold text-purple-900">完整電子名片個人資料(70%以上)</h4>
                                 <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
                               </div>
                             </div>
