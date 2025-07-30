@@ -35,6 +35,7 @@ const MyCard: React.FC<MyCardProps> = ({
   const [additionalCards, setAdditionalCards] = useState<any[]>([]);
   const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'cards' | 'points' | 'settings'>('cards');
+  const [pointsActiveTab, setPointsActiveTab] = useState<'overview' | 'upgrade' | 'history'>('overview');
   const [profileData, setProfileData] = useState({
     gender: '',
     phone: '',
@@ -862,7 +863,330 @@ LINE: ${cardInfo.line || ''}
 
             {/* 會員點數 Tab */}
             {activeTab === 'points' && (
-              <Points onClose={() => setActiveTab('cards')} />
+              <div className="space-y-4">
+                {/* 會員點數標題區 */}
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <Coins className="w-5 h-5 text-yellow-600" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">會員點數</h2>
+                      <p className="text-sm text-gray-600">目前點數: {currentPoints} 點</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-yellow-600">{currentPoints}</div>
+                    <div className="text-xs text-gray-500">POINTS</div>
+                  </div>
+                </div>
+
+                {/* 點數功能區塊 - Tabs */}
+                <Card>
+                  <CardContent className="p-0">
+                    <div className="border-b">
+                      <div className="flex">
+                        <button
+                          onClick={() => setPointsActiveTab('overview')}
+                          className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                            pointsActiveTab === 'overview'
+                              ? 'border-blue-500 text-blue-600 bg-blue-50'
+                              : 'border-transparent text-gray-500 hover:text-gray-700'
+                          }`}
+                        >
+                          點數總覽
+                        </button>
+                        <button
+                          onClick={() => setPointsActiveTab('upgrade')}
+                          className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                            pointsActiveTab === 'upgrade'
+                              ? 'border-blue-500 text-blue-600 bg-blue-50'
+                              : 'border-transparent text-gray-500 hover:text-gray-700'
+                          }`}
+                        >
+                          兑點升級
+                        </button>
+                        <button
+                          onClick={() => setPointsActiveTab('history')}
+                          className={`flex-1 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                            pointsActiveTab === 'history'
+                              ? 'border-blue-500 text-blue-600 bg-blue-50'
+                              : 'border-transparent text-gray-500 hover:text-gray-700'
+                          }`}
+                        >
+                          兑點歷程
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="p-4">
+                      {/* 點數總覽 */}
+                      {pointsActiveTab === 'overview' && (
+                        <div className="space-y-6">
+                          {/* 獲得點數方式 */}
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800">獲得點數方式</h3>
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                    <Check className="w-4 h-4 text-green-600" />
+                                  </div>
+                                  <span className="text-sm text-gray-700">完成電子名片註冊</span>
+                                </div>
+                                <span className="text-sm font-medium text-green-600">+50 點</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <User className="w-4 h-4 text-blue-600" />
+                                  </div>
+                                  <span className="text-sm text-gray-700">完整電子名片個人資料(70%以上)</span>
+                                </div>
+                                <span className="text-sm font-medium text-blue-600">+50 點</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <User className="w-4 h-4 text-purple-600" />
+                                  </div>
+                                  <span className="text-sm text-gray-700">邀請好友完成電子名片註冊 (1人)</span>
+                                </div>
+                                <span className="text-sm font-medium text-purple-600">+50 點</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                                    <Share2 className="w-4 h-4 text-orange-600" />
+                                  </div>
+                                  <span className="text-sm text-gray-700">分享好友電子名片卡加入名片夾 (1人)</span>
+                                </div>
+                                <span className="text-sm font-medium text-orange-600">+10 點</span>
+                              </div>
+                              <div className="flex items-center justify-between p-3 bg-teal-50 rounded-lg border border-teal-200">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center">
+                                    <QrCode className="w-4 h-4 text-teal-600" />
+                                  </div>
+                                  <span className="text-sm text-gray-700">分享好友OCR 名片識別加入名片夾 (1人)</span>
+                                </div>
+                                <span className="text-sm font-medium text-teal-600">+10 點</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* 名片分享里程碑 */}
+                          <div>
+                            <h3 className="text-lg font-semibold mb-4 text-gray-800">名片分享里程碑</h3>
+                            <p className="text-sm text-gray-600 mb-4">分享好友加入名片夾</p>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
+                                <div className="text-lg font-bold text-yellow-600">10人</div>
+                                <div className="text-sm text-gray-600 mt-1">+30 點</div>
+                              </div>
+                              <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
+                                <div className="text-lg font-bold text-yellow-600">30人</div>
+                                <div className="text-sm text-gray-600 mt-1">+60 點</div>
+                              </div>
+                              <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
+                                <div className="text-lg font-bold text-yellow-600">60人</div>
+                                <div className="text-sm text-gray-600 mt-1">+100 點</div>
+                              </div>
+                              <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200 text-center">
+                                <div className="text-lg font-bold text-yellow-600">100人</div>
+                                <div className="text-sm text-gray-600 mt-1">+150 點</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 兑點升級 */}
+                      {pointsActiveTab === 'upgrade' && (
+                        <div className="space-y-6">
+                          {/* 超值群募解鎖包 */}
+                          <div className="p-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg text-white">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <h3 className="text-lg font-bold">超值群募解鎖包</h3>
+                                <p className="text-sm opacity-90">限時優惠，搶先體驗</p>
+                              </div>
+                              <Button className="bg-white text-purple-600 hover:bg-gray-100">
+                                立即搶購
+                              </Button>
+                            </div>
+                          </div>
+
+                          {/* 方案比較 */}
+                          <div className="space-y-4">
+                            {/* 新手方案 */}
+                            <div className="p-4 border-2 border-gray-200 rounded-lg">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center space-x-2">
+                                  <h3 className="text-lg font-semibold">新手方案</h3>
+                                  <Badge className="bg-green-100 text-green-800">新手上路</Badge>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-2xl font-bold text-green-600">Free</div>
+                                </div>
+                              </div>
+                              <div className="space-y-2 text-sm text-gray-600">
+                                <div className="flex justify-between">
+                                  <span>智慧人脈記錄</span>
+                                  <span>1次免費，30點/張</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>名片夾數量</span>
+                                  <span>200張，{'>'}200張，30點/張</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>完整數據分析</span>
+                                  <span>50點/次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：新增行程</span>
+                                  <span>1次免費，30點/次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：語音記錄</span>
+                                  <span>1次免費，50點/次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：發送信件</span>
+                                  <span>1次免費，50點/次</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* 菁英方案 */}
+                            <div className="p-4 border-2 border-blue-300 rounded-lg bg-blue-50">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center space-x-2">
+                                  <h3 className="text-lg font-semibold text-blue-800">菁英方案</h3>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-2xl font-bold text-blue-600">$399</div>
+                                  <div className="text-xs text-gray-500">月價格</div>
+                                  <div className="text-sm text-blue-600">年優惠: $4,500</div>
+                                </div>
+                              </div>
+                              <div className="space-y-2 text-sm text-gray-600 mb-4">
+                                <div className="flex justify-between">
+                                  <span>智慧人脈記錄</span>
+                                  <span className="font-medium text-blue-600">10張</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>名片夾數量</span>
+                                  <span className="font-medium text-blue-600">500張，{'>'}500張，30點/張</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>完整數據分析</span>
+                                  <span className="font-medium text-blue-600">解鎖</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：新增行程</span>
+                                  <span className="font-medium text-blue-600">10次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：語音記錄</span>
+                                  <span className="font-medium text-blue-600">5次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：發送信件</span>
+                                  <span className="font-medium text-blue-600">5次</span>
+                                </div>
+                              </div>
+                              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                                立即升級
+                              </Button>
+                            </div>
+
+                            {/* 首席方案 */}
+                            <div className="p-4 border-2 border-purple-300 rounded-lg bg-purple-50">
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center space-x-2">
+                                  <h3 className="text-lg font-semibold text-purple-800">首席方案</h3>
+                                  <Badge className="bg-purple-100 text-purple-800">推薦</Badge>
+                                </div>
+                                <div className="text-right">
+                                  <div className="text-2xl font-bold text-purple-600">$999</div>
+                                  <div className="text-xs text-gray-500">月價格</div>
+                                  <div className="text-sm text-purple-600">年優惠: $11,000</div>
+                                </div>
+                              </div>
+                              <div className="space-y-2 text-sm text-gray-600 mb-4">
+                                <div className="flex justify-between">
+                                  <span>智慧人脈記錄</span>
+                                  <span className="font-medium text-purple-600">50張</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>名片夾數量</span>
+                                  <span className="font-medium text-purple-600">無上限</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>完整數據分析</span>
+                                  <span className="font-medium text-purple-600">解鎖</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：新增行程</span>
+                                  <span className="font-medium text-purple-600">30次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：語音記錄</span>
+                                  <span className="font-medium text-purple-600">20次</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>行程管理：發送信件</span>
+                                  <span className="font-medium text-purple-600">20次</span>
+                                </div>
+                              </div>
+                              <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+                                立即升級
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 兑點歷程 */}
+                      {pointsActiveTab === 'history' && (
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-800">點數歷程記錄</h3>
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                  <Plus className="w-4 h-4 text-green-600" />
+                                </div>
+                                <div>
+                                  <span className="text-sm font-medium text-gray-800">完成電子名片註冊</span>
+                                  <p className="text-xs text-gray-500">2024/07/30 14:30</p>
+                                </div>
+                              </div>
+                              <span className="text-sm font-medium text-green-600">+50</span>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
+                              <div className="flex items-center space-x-3">
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                  <Plus className="w-4 h-4 text-blue-600" />
+                                </div>
+                                <div>
+                                  <span className="text-sm font-medium text-gray-800">完成個人資料設定</span>
+                                  <p className="text-xs text-gray-500">2024/07/30 15:15</p>
+                                </div>
+                              </div>
+                              <span className="text-sm font-medium text-blue-600">+50</span>
+                            </div>
+                            <div className="text-center py-8 text-gray-500">
+                              <p className="text-sm">更多記錄載入中...</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
 
             {/* 資料設定 Tab */}
