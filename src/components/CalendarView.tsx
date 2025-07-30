@@ -21,7 +21,7 @@ interface Meeting {
   time: string;
   location?: string;
   attendees: Attendee[];
-  type: 'meeting' | 'call' | 'email';
+  type: 'meeting' | 'activity' | 'event';
   status: 'scheduled' | 'completed' | 'cancelled';
   description?: string;
 }
@@ -103,8 +103,8 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose, meetings, onDateSe
   const getEventTypeColor = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return 'bg-blue-500';
-      case 'call': return 'bg-green-500';
-      case 'email': return 'bg-purple-500';
+      case 'activity': return 'bg-green-500';
+      case 'event': return 'bg-purple-500';
     }
   };
 
@@ -354,15 +354,15 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose, meetings, onDateSe
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
-                {meetings.filter(e => e.type === 'call').length}
+                {meetings.filter(e => e.type === 'activity').length}
               </div>
-              <div className="text-xs text-gray-600">通話</div>
+              <div className="text-xs text-gray-600">活動</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-purple-600">
-                {meetings.filter(e => e.type === 'email').length}
+                {meetings.filter(e => e.type === 'event').length}
               </div>
-              <div className="text-xs text-gray-600">信件</div>
+              <div className="text-xs text-gray-600">事件</div>
             </div>
           </div>
         </div>

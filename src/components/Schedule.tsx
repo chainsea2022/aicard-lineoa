@@ -8,6 +8,7 @@ import CalendarView from './CalendarView';
 import AttendeeManager from './AttendeeManager';
 import MeetingReminder from './MeetingReminder';
 import RecipientSelector from './RecipientSelector';
+import VoiceInput from './VoiceInput';
 
 interface ScheduleProps {
   onClose: () => void;
@@ -39,7 +40,7 @@ interface Meeting {
   time: string;
   location?: string;
   attendees: Attendee[];
-  type: 'meeting' | 'call' | 'email';
+  type: 'meeting' | 'activity' | 'event';
   status: 'scheduled' | 'completed' | 'cancelled';
   description?: string;
   reminderSent?: boolean;
@@ -69,7 +70,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       attendees: [
         { id: '3', name: '王大成', email: 'wang@example.com', company: 'XYZ企業', relationship: '現有客戶' }
       ],
-      type: 'call',
+      type: 'activity',
       status: 'scheduled',
       description: '了解客戶需求並討論合作方案'
     },
@@ -82,7 +83,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
         { id: '4', name: '陳小美', email: 'chen@example.com', company: '123科技', relationship: '聯絡人' },
         { id: '5', name: '林志明', email: 'lin@example.com', company: '123科技', relationship: '主管' }
       ],
-      type: 'email',
+      type: 'event',
       status: 'completed'
     }
   ]);
@@ -273,16 +274,16 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const getTypeIcon = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return <Users className="w-4 h-4" />;
-      case 'call': return <Calendar className="w-4 h-4" />;
-      case 'email': return <Mail className="w-4 h-4" />;
+      case 'activity': return <Calendar className="w-4 h-4" />;
+      case 'event': return <Bell className="w-4 h-4" />;
     }
   };
 
   const getTypeColor = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return 'bg-blue-100 text-blue-700';
-      case 'call': return 'bg-green-100 text-green-700';
-      case 'email': return 'bg-purple-100 text-purple-700';
+      case 'activity': return 'bg-green-100 text-green-700';
+      case 'event': return 'bg-purple-100 text-purple-700';
     }
   };
 
@@ -436,7 +437,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(meeting.type)}`}>
                     <div className="flex items-center space-x-1">
                       {getTypeIcon(meeting.type)}
-                      <span>{meeting.type === 'meeting' ? '會議' : meeting.type === 'call' ? '通話' : '信件'}</span>
+                      <span>{meeting.type === 'meeting' ? '會議' : meeting.type === 'activity' ? '活動' : '事件'}</span>
                     </div>
                   </span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(meeting.status)}`}>
@@ -534,6 +535,32 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             </h3>
             
             <div className="space-y-4">
+              {/* 類型快捷選擇 - 移到最上方 */}
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
+                  類型
+                </label>
+                <div className="flex space-x-2">
+                  {[
+                    { value: 'meeting', label: '會議', icon: Users },
+                    { value: 'activity', label: '活動', icon: Calendar },
+                    { value: 'event', label: '事件', icon: Bell }
+                  ].map(({ value, label, icon: Icon }) => (
+                    <Button
+                      key={value}
+                      type="button"
+                      variant={newMeeting.type === value ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setNewMeeting(prev => ({ ...prev, type: value as Meeting['type'] }))}
+                      className="flex items-center space-x-1"
+                    >
+                      <Icon className="w-4 h-4" />
+                      <span>{label}</span>
+                    </Button>
+                  ))}
+                </div>
+              </div>
+
               <AttendeeManager
                 attendees={newMeeting.attendees}
                 onAttendeesChange={handleAttendeesChange}
@@ -564,24 +591,39 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   會議標題
                 </label>
-                <Input
-                  value={newMeeting.title}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="輸入會議標題"
-                />
+                <div className="relative">
+                  <Input
+                    value={newMeeting.title}
+                    onChange={(e) => setNewMeeting(prev => ({ ...prev, title: e.target.value }))}
+                    placeholder="輸入會議標題"
+                    className="pr-10"
+                  />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                    <VoiceInput 
+                      onResult={(text) => setNewMeeting(prev => ({ ...prev, title: text }))}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   會議描述
                 </label>
-                <textarea
-                  value={newMeeting.description}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="描述會議目的、議程等"
-                  className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                  rows={3}
-                />
+                <div className="relative">
+                  <textarea
+                    value={newMeeting.description}
+                    onChange={(e) => setNewMeeting(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="描述會議目的、議程等"
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm pr-10"
+                    rows={3}
+                  />
+                  <div className="absolute right-2 top-2">
+                    <VoiceInput 
+                      onResult={(text) => setNewMeeting(prev => ({ ...prev, description: text }))}
+                    />
+                  </div>
+                </div>
               </div>
               
               <div className="grid grid-cols-2 gap-3">
@@ -611,26 +653,19 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   地點 (選填)
                 </label>
-                <Input
-                  value={newMeeting.location}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="會議地點或線上會議連結"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  類型
-                </label>
-                <select
-                  value={newMeeting.type}
-                  onChange={(e) => setNewMeeting(prev => ({ ...prev, type: e.target.value as Meeting['type'] }))}
-                  className="w-full p-2 border border-gray-300 rounded-md"
-                >
-                  <option value="meeting">會議</option>
-                  <option value="call">通話</option>
-                  <option value="email">信件</option>
-                </select>
+                <div className="relative">
+                  <Input
+                    value={newMeeting.location}
+                    onChange={(e) => setNewMeeting(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="會議地點或線上會議連結"
+                    className="pr-10"
+                  />
+                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                    <VoiceInput 
+                      onResult={(text) => setNewMeeting(prev => ({ ...prev, location: text }))}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             
