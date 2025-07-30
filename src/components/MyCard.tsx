@@ -1196,7 +1196,11 @@ LINE: ${cardInfo.line || ''}
                               </div>
                               <div className="flex justify-between">
                                 <span>OCR 名片識別</span>
-                                <span className="font-medium text-blue-600">100張，{'>'}100張，10點/張</span>
+                                <span className="font-medium text-blue-600 text-right">
+                                  100張
+                                  <br />
+                                  {'>'}100張，10點/張
+                                </span>
                               </div>
                               <div className="flex justify-between">
                                 <span>進階數據分析</span>
