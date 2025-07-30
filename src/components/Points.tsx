@@ -334,7 +334,10 @@ const Points: React.FC<PointsProps> = ({
                   </div>
                   
                   <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                    <p className="text-center text-orange-700 font-semibold">
+                    <p className="text-center text-orange-700 font-semibold text-sm">
+                      每月只要＄600，預繳一年＄7200
+                    </p>
+                    <p className="text-center text-orange-700 font-semibold mt-1">
                       🎉 一年不限次數全功能解鎖 🎉
                     </p>
                   </div>
@@ -589,69 +592,78 @@ const Points: React.FC<PointsProps> = ({
               </CardContent>
             </Card>
 
-            {/* 更多AI+生態圈方案 */}
+            {/* AI生態圈方案 */}
             <Card className="border-2 border-gray-200">
               <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 border-b">
                 <CardTitle className="flex items-center text-xl">
                   <Gift className="w-6 h-6 mr-3 text-blue-600" />
-                  更多AI+生態圈方案
+                  AI生態圈方案
                 </CardTitle>
                 <p className="text-sm text-gray-600 mt-2">專業AI工具生態，助力您的商務成功</p>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="space-y-4">
+                  {/* Aipower 名片夾 */}
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
-                        <Gift className="w-4 h-4 text-blue-600" />
+                    <div className="flex items-start mb-3">
+                      <div className="w-8 h-8 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-center mr-3 mt-1">
+                        <FileText className="w-4 h-4 text-blue-600" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 text-sm">Aipower 名片人脈夾</h4>
-                        <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
-                          <Info className="w-3 h-3 mr-1" />
-                          了解更多
+                        <h4 className="font-bold text-gray-800 text-base mb-1">Aipower ｜名片夾</h4>
+                        <p className="text-sm text-gray-600 mb-3">建立個人電子名片，串起你的人脈鏈</p>
+                        <div className="flex items-center space-x-4">
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                            👉 下載APP
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-blue-600 border-blue-600 hover:bg-blue-50">
+                            🔗 了解更多
+                          </Button>
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">建立個人電子名片，串起你的人脈鏈</p>
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 text-sm shadow-sm">
-                      下載APP開啟更多智能應用
-                    </Button>
                   </div>
 
+                  {/* Aile 商務對話助手 */}
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                    <div className="flex items-start mb-3">
+                      <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-lg flex items-center justify-center mr-3 mt-1">
                         <Users className="w-4 h-4 text-green-600" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 text-sm">Aile商務對話助手</h4>
-                        <div className="flex items-center bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs mt-1">
-                          <Info className="w-3 h-3 mr-1" />
-                          了解更多
+                        <h4 className="font-bold text-gray-800 text-base mb-1">Aile｜商務對話助手</h4>
+                        <p className="text-sm text-gray-600 mb-3">無縫轉接、通路整合，打造專屬商務助手</p>
+                        <div className="flex items-center space-x-4">
+                          <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                            👉 100點兌換試用 1 個月
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-green-600 border-green-600 hover:bg-green-50">
+                            🔗 了解更多
+                          </Button>
                         </div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">無縫轉接、通路整合，打造專屬商務助手</p>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 text-sm shadow-sm">
-                      100點免費試用1個月
-                    </Button>
                   </div>
 
-
+                  {/* Aiwow 集點商城 */}
                   <div className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200">
-                    <div className="flex items-center mb-3">
-                      <div className="w-8 h-8 bg-white border border-gray-200 rounded-lg flex items-center justify-center mr-3">
+                    <div className="flex items-start mb-3">
+                      <div className="w-8 h-8 bg-pink-50 border border-pink-200 rounded-lg flex items-center justify-center mr-3 mt-1">
                         <Coins className="w-4 h-4 text-pink-600" />
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-gray-800 text-sm">Aiwow集點商城</h4>
+                        <h4 className="font-bold text-gray-800 text-base mb-1">Aiwow｜集點商城</h4>
+                        <p className="text-sm text-gray-600 mb-3">點點累積、兌換好禮，打造品牌互動與消費循環。</p>
+                        <div className="flex items-center space-x-4">
+                          <Button size="sm" className="bg-pink-600 hover:bg-pink-700 text-white">
+                            👉 前往商城
+                          </Button>
+                          <Button size="sm" variant="outline" className="text-pink-600 border-pink-600 hover:bg-pink-50">
+                            🔗 了解更多
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-3 leading-relaxed">點點累積、兌換好禮，打造品牌互動與消費循環</p>
-                    <Button className="w-full bg-pink-600 hover:bg-pink-700 text-white font-medium py-2 text-sm shadow-sm">
-                      前往商城
-                    </Button>
                   </div>
                 </div>
               </CardContent>
