@@ -155,20 +155,6 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
           ))}
         </div>
 
-        {/* Add New Card Button */}
-        <div className="mt-6">
-          <Button 
-            variant="outline" 
-            className="w-full h-12 border-dashed border-2 border-gray-300 text-gray-600 hover:border-gray-400 hover:text-gray-700"
-            onClick={() => {
-              // 可以在這裡添加新增名片的邏輯
-              console.log('新增名片');
-            }}
-          >
-            <span className="text-xl mr-2">+</span>
-            新增電子名片
-          </Button>
-        </div>
       </div>
     </div>
   );
