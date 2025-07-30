@@ -377,6 +377,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
           updateCustomers(updatedCustomers);
           setSelectedCustomer(null);
         }}
+        onScheduleManagement={(id) => {
+          // 跳轉到行程管理介面
+          window.location.href = '/schedule';
+        }}
         activeSection={activeTab === 'digital' ? 'cards' : 'contacts'}
       />
     );
