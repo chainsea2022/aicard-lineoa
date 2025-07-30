@@ -959,7 +959,7 @@ LINE: ${cardInfo.line || ''}
                                 <FileText className="w-5 h-5 text-white" />
                               </div>
                               <div>
-                                <h4 className="font-semibold text-blue-900 line-through opacity-75">完成電子名片註冊</h4>
+                                <h4 className="font-semibold text-blue-900">完成電子名片註冊</h4>
                                 <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
                               </div>
                             </div>
