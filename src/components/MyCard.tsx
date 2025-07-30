@@ -1184,7 +1184,7 @@ LINE: ${cardInfo.line || ''}
                               <span className="text-3xl font-bold text-orange-600">$7,200</span>
                               <span className="text-lg text-orange-600">/年</span>
                             </div>
-                            <p className="text-orange-600 mt-2">每月只要＄600，預繳一年$7,200</p>
+                            <p className="text-orange-600 mt-2">每月只要＄600</p>
                           </div>
                           
                           <div className="bg-orange-50 p-4 rounded-lg mb-4">
