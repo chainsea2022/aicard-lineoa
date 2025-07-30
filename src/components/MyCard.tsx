@@ -1077,17 +1077,18 @@ LINE: ${cardInfo.line || ''}
                   </div>}
 
                 {/* 兑點升級 */}
-                {pointsActiveTab === 'upgrade' && <div className="space-y-4">
+                {pointsActiveTab === 'upgrade' && <div className="space-y-6">
                     {/* 專屬大禮包 */}
-                    <div className="mb-6 p-6 bg-gradient-to-br from-orange-100 via-red-50 to-pink-100 border-4 border-orange-300 rounded-2xl shadow-lg relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-20 h-20 bg-orange-200 rounded-full opacity-30 transform translate-x-10 -translate-y-10"></div>
-                      <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-200 rounded-full opacity-30 transform -translate-x-8 translate-y-8"></div>
+                    <div className="p-6 bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-200 rounded-xl relative overflow-hidden">
+                      <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-orange-200 to-pink-200 rounded-full opacity-20"></div>
                       
                       <div className="relative">
-                        <div className="flex items-center justify-center mb-4">
-                          <Gift className="w-8 h-8 text-orange-600 mr-2" />
-                          <h3 className="font-bold text-2xl text-orange-800">專屬大禮</h3>
-                          <div className="ml-3 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center">
+                            <Gift className="w-6 h-6 text-orange-600 mr-2" />
+                            <h3 className="font-semibold text-lg text-gray-800">專屬大禮</h3>
+                          </div>
+                          <div className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                             限時優惠
                           </div>
                         </div>
