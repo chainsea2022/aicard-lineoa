@@ -13,6 +13,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import OTPVerification from './OTPVerification';
+import Points from './Points';
 
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MyCardProps {
@@ -861,119 +862,7 @@ LINE: ${cardInfo.line || ''}
 
             {/* 會員點數 Tab */}
             {activeTab === 'points' && (
-              <div>
-                {/* 超值群募解鎖包 - 置頂 */}
-                <Card className="mb-6 bg-gradient-to-br from-purple-50 to-indigo-50 border-purple-200">
-                  <CardContent className="p-6">
-                    <div className="text-center">
-                      <div className="mb-4">
-                        <Badge className="bg-purple-600 text-white mb-2">限時優惠</Badge>
-                        <h2 className="text-xl font-bold text-gray-800">超值群募解鎖包</h2>
-                      </div>
-                      <div className="text-3xl font-bold text-purple-600 mb-2">
-                        $7200/年
-                      </div>
-                      <p className="text-gray-600 mb-1">每月只要 $600</p>
-                      <p className="text-sm text-gray-500 mb-4">預繳一年 $7200，一年不限次數全功能解鎖</p>
-                      
-                      <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-base font-medium">
-                        立即升級
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 點數總覽 */}
-                <Card className="mb-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
-                  <CardContent className="p-6 text-center">
-                    <div className="mb-4">
-                      <Coins className="w-16 h-16 mx-auto text-orange-500 mb-2" />
-                      <h2 className="text-2xl font-bold text-gray-800">目前點數</h2>
-                    </div>
-                    <div className="text-4xl font-bold text-orange-600 mb-2">
-                      {currentPoints.toLocaleString()}
-                    </div>
-                    <p className="text-gray-600">點</p>
-                    
-                    <div className="mt-4 p-3 bg-white rounded-lg border">
-                      {currentPoints >= 50 ? <div className="text-green-600">
-                          <Award className="w-5 h-5 inline-block mr-1" />
-                          <span className="font-medium">可兌換商務版試用！</span>
-                        </div> : <div className="text-gray-600">
-                          <span className="text-sm">
-                            還需 {50 - currentPoints} 點即可兌換商務版試用
-                          </span>
-                        </div>}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 兌點升級 */}
-                <Card className="mb-4">
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-lg">
-                      <Award className="w-5 h-5 mr-2 text-purple-600" />
-                      兌點升級
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 relative">
-                      <div className="text-center">
-                        <h3 className="text-lg font-bold text-green-700">商務版試用</h3>
-                        <p className="text-2xl font-bold text-green-600 my-2">50點</p>
-                        <p className="text-sm text-green-600 mb-4">14天全功能解鎖</p>
-                        <Button 
-                          className={`w-full ${currentPoints >= 50 ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-400 cursor-not-allowed'}`}
-                          disabled={currentPoints < 50}
-                        >
-                          {currentPoints >= 50 ? '立即兌換' : '點數不足'}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 獲得點數方式 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-lg">
-                      <TrendingUp className="w-5 h-5 mr-2 text-green-600" />
-                      獲得點數方式
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg border border-blue-200">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center mr-3">
-                            <User className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-blue-900">完成電子名片註冊</span>
-                        </div>
-                        <Badge className="bg-green-500 text-white">+50點</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg border border-purple-200">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center mr-3">
-                            <Edit className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-purple-900">完整個人資料(70%以上)</span>
-                        </div>
-                        <Badge className="bg-green-500 text-white">+50點</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-orange-50 rounded-lg border border-orange-200">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center mr-3">
-                            <Share2 className="w-4 h-4 text-white" />
-                          </div>
-                          <span className="text-sm font-medium text-orange-900">邀請好友註冊</span>
-                        </div>
-                        <Badge className="bg-green-500 text-white">+50點</Badge>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+              <Points onClose={() => setActiveTab('cards')} />
             )}
 
             {/* 資料設定 Tab */}
