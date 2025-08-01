@@ -29,7 +29,6 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<number | null>(null);
   const [editingRecord, setEditingRecord] = useState<ScheduleRecord | null>(null);
-  const [showAllRecords, setShowAllRecords] = useState(false);
 
   const conversation = useConversation();
 
@@ -172,29 +171,6 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     }
   };
 
-  // 判斷是否為過去日期
-  const isPastDate = (dateString: string) => {
-    const today = new Date();
-    const recordDate = new Date(dateString);
-    today.setHours(0, 0, 0, 0);
-    recordDate.setHours(0, 0, 0, 0);
-    return recordDate < today;
-  };
-
-  // 判斷是否可編輯
-  const isEditable = (record: ScheduleRecord) => {
-    return !isPastDate(record.date);
-  };
-
-  // 獲取顯示的記錄
-  const getDisplayRecords = () => {
-    const customerRecords = scheduleRecords
-      .filter(record => record.customerId === customerId)
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-    
-    return showAllRecords ? customerRecords : customerRecords.slice(0, 3);
-  };
-
   return (
     <div className="space-y-3">
       {/* Header */}
@@ -207,7 +183,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
             size="sm"
             className="text-xs"
           >
-            <Plus className="w-3 h-3" />
+            <Mic className="w-3 h-3" />
           </Button>
         )}
       </div>
@@ -288,16 +264,14 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
               </Button>
               <Button
                 onClick={() => {
-                  // 同步到行程管理
+                  // TODO: 同步到行程管理
                   handleSubmit();
-                  // TODO: 這裡調用行程管理的API同步功能
-                  console.log('同步到行程管理系統');
+                  // 這裡可以調用行程管理的API
                 }}
                 variant="outline"
                 size="sm"
                 className="text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
                 disabled={!description.trim()}
-                title="同步到行程管理"
               >
                 <Plus className="w-3 h-3" />
               </Button>
@@ -309,161 +283,124 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
       {/* Schedule Records List */}
       {scheduleRecords.length > 0 && (
         <div className="space-y-2">
-          {getDisplayRecords().map((record) => {
-            const isPast = isPastDate(record.date);
-            const canEdit = isEditable(record);
-            
-            return (
-              <div 
-                key={record.id} 
-                className={`rounded-lg p-3 space-y-2 border border-transparent transition-colors
-                  ${isPast 
-                    ? 'bg-gray-100 text-gray-600' 
-                    : 'bg-gray-50 hover:bg-gray-100 cursor-pointer hover:border-blue-200'
-                  }`}
-                onClick={() => canEdit && handleEditRecord(record)}
-              >
-                {editingRecordId === record.id && canEdit ? (
-                  // 編輯模式（只有未來日期可編輯）
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-blue-800">編輯行程記錄</span>
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="ghost"
-                        size="sm"
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    
-                    <Input
-                      value={editingRecord?.title || ''}
-                      onChange={(e) => setEditingRecord(prev => prev ? {...prev, title: e.target.value} : null)}
-                      className="text-sm"
-                      placeholder="行程標題"
-                    />
-                    
-                    <Textarea
-                      value={editingRecord?.description || ''}
-                      onChange={(e) => setEditingRecord(prev => prev ? {...prev, description: e.target.value} : null)}
-                      className="text-sm"
-                      placeholder="行程描述"
-                      rows={2}
-                    />
-                    
-                    <div className="flex gap-2">
-                      <Input
-                        type="date"
-                        value={editingRecord?.date || ''}
-                        onChange={(e) => setEditingRecord(prev => prev ? {...prev, date: e.target.value} : null)}
-                        className="text-sm flex-1"
-                      />
-                      <Input
-                        type="time"
-                        value={editingRecord?.time || ''}
-                        onChange={(e) => setEditingRecord(prev => prev ? {...prev, time: e.target.value} : null)}
-                        className="text-sm flex-1"
-                      />
-                    </div>
-                    
-                    <div className="flex gap-1">
-                      {(['meeting', 'call', 'event', 'other'] as const).map((t) => (
-                        <Button
-                          key={t}
-                          onClick={() => setEditingRecord(prev => prev ? {...prev, type: t} : null)}
-                          variant={editingRecord?.type === t ? "default" : "outline"}
-                          size="sm"
-                          className="text-xs"
-                        >
-                          {getTypeName(t)}
-                        </Button>
-                      ))}
-                    </div>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        onClick={() => {
-                          handleSaveEdit();
-                          // TODO: 同步更新到行程管理
-                          console.log('同步更新到行程管理系統');
-                        }}
-                        size="sm"
-                        className="text-xs flex-1"
-                      >
-                        儲存並同步
-                      </Button>
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="outline"
-                        size="sm"
-                        className="text-xs"
-                      >
-                        取消
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  // 查看模式
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={`font-medium text-sm ${isPast ? 'text-gray-500' : 'text-gray-800'}`}>
-                          {record.title}
-                        </span>
-                        <Badge className={`text-xs ${isPast ? 'bg-gray-200 text-gray-600' : getTypeColor(record.type)}`}>
-                          {getTypeName(record.type)}
-                        </Badge>
-                        {isPast && (
-                          <Badge variant="secondary" className="text-xs bg-gray-300 text-gray-600">
-                            已完成
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      {record.description && (
-                        <p className={`text-xs mb-2 ${isPast ? 'text-gray-500' : 'text-gray-600'}`}>
-                          {record.description}
-                        </p>
-                      )}
-                      
-                      <div className={`flex items-center gap-4 text-xs ${isPast ? 'text-gray-400' : 'text-gray-500'}`}>
-                        {record.date && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            <span>{formatDate(record.date)}</span>
-                          </div>
-                        )}
-                        {record.time && (
-                          <div className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            <span>{record.time}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    {canEdit && (
-                      <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                        點擊編輯
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-          
-          {/* 展開更多按鈕 */}
-          {scheduleRecords.filter(record => record.customerId === customerId).length > 3 && (
-            <Button
-              onClick={() => setShowAllRecords(!showAllRecords)}
-              variant="ghost"
-              size="sm"
-              className="w-full text-xs text-gray-500 hover:text-gray-700"
-            >
-              {showAllRecords ? '收起' : `查看更多 (${scheduleRecords.filter(record => record.customerId === customerId).length - 3} 筆)`}
-            </Button>
-          )}
+          {scheduleRecords
+            .filter(record => record.customerId === customerId)
+            .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+            .map((record) => (
+               <div key={record.id} className="bg-gray-50 rounded-lg p-3 space-y-2 hover:bg-gray-100 transition-colors cursor-pointer border border-transparent hover:border-blue-200">
+                 {editingRecordId === record.id ? (
+                   // 編輯模式
+                   <div className="space-y-3">
+                     <div className="flex items-center justify-between">
+                       <span className="text-sm font-medium text-blue-800">編輯行程記錄</span>
+                       <Button
+                         onClick={handleCancelEdit}
+                         variant="ghost"
+                         size="sm"
+                       >
+                         <X className="w-4 h-4" />
+                       </Button>
+                     </div>
+                     
+                     <Input
+                       value={editingRecord?.title || ''}
+                       onChange={(e) => setEditingRecord(prev => prev ? {...prev, title: e.target.value} : null)}
+                       className="text-sm"
+                       placeholder="行程標題"
+                     />
+                     
+                     <Textarea
+                       value={editingRecord?.description || ''}
+                       onChange={(e) => setEditingRecord(prev => prev ? {...prev, description: e.target.value} : null)}
+                       className="text-sm"
+                       placeholder="行程描述"
+                       rows={2}
+                     />
+                     
+                     <div className="flex gap-2">
+                       <Input
+                         type="date"
+                         value={editingRecord?.date || ''}
+                         onChange={(e) => setEditingRecord(prev => prev ? {...prev, date: e.target.value} : null)}
+                         className="text-sm flex-1"
+                       />
+                       <Input
+                         type="time"
+                         value={editingRecord?.time || ''}
+                         onChange={(e) => setEditingRecord(prev => prev ? {...prev, time: e.target.value} : null)}
+                         className="text-sm flex-1"
+                       />
+                     </div>
+                     
+                     <div className="flex gap-1">
+                       {(['meeting', 'call', 'event', 'other'] as const).map((t) => (
+                         <Button
+                           key={t}
+                           onClick={() => setEditingRecord(prev => prev ? {...prev, type: t} : null)}
+                           variant={editingRecord?.type === t ? "default" : "outline"}
+                           size="sm"
+                           className="text-xs"
+                         >
+                           {getTypeName(t)}
+                         </Button>
+                       ))}
+                     </div>
+                     
+                     <div className="flex gap-2">
+                       <Button
+                         onClick={handleSaveEdit}
+                         size="sm"
+                         className="text-xs flex-1"
+                       >
+                         儲存更改
+                       </Button>
+                       <Button
+                         onClick={handleCancelEdit}
+                         variant="outline"
+                         size="sm"
+                         className="text-xs"
+                       >
+                         取消
+                       </Button>
+                     </div>
+                   </div>
+                 ) : (
+                   // 查看模式
+                   <div onClick={() => handleEditRecord(record)} className="flex items-start justify-between">
+                     <div className="flex-1">
+                       <div className="flex items-center gap-2 mb-1">
+                         <span className="font-medium text-sm text-gray-800">{record.title}</span>
+                         <Badge className={`text-xs ${getTypeColor(record.type)}`}>
+                           {getTypeName(record.type)}
+                         </Badge>
+                       </div>
+                       
+                       {record.description && (
+                         <p className="text-xs text-gray-600 mb-2">{record.description}</p>
+                       )}
+                       
+                       <div className="flex items-center gap-4 text-xs text-gray-500">
+                         {record.date && (
+                           <div className="flex items-center gap-1">
+                             <Calendar className="w-3 h-3" />
+                             <span>{formatDate(record.date)}</span>
+                           </div>
+                         )}
+                         {record.time && (
+                           <div className="flex items-center gap-1">
+                             <Clock className="w-3 h-3" />
+                             <span>{record.time}</span>
+                           </div>
+                         )}
+                       </div>
+                     </div>
+                     <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                       點擊編輯
+                     </div>
+                   </div>
+                 )}
+               </div>
+            ))}
         </div>
       )}
 
