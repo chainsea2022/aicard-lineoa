@@ -1027,9 +1027,6 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  會議描述
-                </label>
                 <div className="relative">
                   <textarea
                     value={newMeeting.description}
