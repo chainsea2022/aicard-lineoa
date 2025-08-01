@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -11,13 +11,15 @@ interface ContactCardProps {
   onClick: () => void;
   onSendInvitation: (id: number, type: 'sms' | 'email') => void;
   onEdit?: (customer: Customer) => void;
+  onToggleFavorite?: (id: number) => void;
 }
 
 export const ContactCard: React.FC<ContactCardProps> = ({
   customer,
   onClick,
   onSendInvitation,
-  onEdit
+  onEdit,
+  onToggleFavorite
 }) => {
   const handleEdit = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -37,6 +39,13 @@ export const ContactCard: React.FC<ContactCardProps> = ({
     e.stopPropagation();
     if (customer.email) {
       onSendInvitation(customer.id, 'email');
+    }
+  };
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onToggleFavorite) {
+      onToggleFavorite(customer.id);
     }
   };
 
@@ -65,6 +74,23 @@ export const ContactCard: React.FC<ContactCardProps> = ({
               </div>
               
               <div className="flex items-center space-x-1 flex-shrink-0">
+                {/* Follow button */}
+                {onToggleFavorite && (
+                  <button
+                    onClick={handleToggleFavorite}
+                    className={`p-1 rounded-full transition-colors ${
+                      customer.isFavorite 
+                        ? 'bg-red-100 hover:bg-red-200' 
+                        : 'bg-gray-100 hover:bg-gray-200'
+                    }`}
+                    title={customer.isFavorite ? '取消關注' : '關注聯絡人'}
+                  >
+                    <Heart className={`w-3 h-3 ${
+                      customer.isFavorite ? 'text-red-600 fill-current' : 'text-gray-600'
+                    }`} />
+                  </button>
+                )}
+
                 {/* Edit button */}
                 {onEdit && (
                   <button
