@@ -87,6 +87,19 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     setIsEditingNotes(false);
   };
 
+  const handleVoiceInput = (text: string) => {
+    const now = new Date();
+    const timeStamp = now.toLocaleString('zh-TW', {
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+    const timestampedText = `\n[${timeStamp}語音] ${text}`;
+    setEditedNotes(editedNotes + timestampedText);
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-TW', {
@@ -303,7 +316,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               />
               <div className="absolute top-2 right-2">
                 <VoiceInput 
-                  onResult={(text) => setEditedNotes(editedNotes + text)}
+                  onResult={handleVoiceInput}
                   placeholder="語音輸入備註"
                 />
               </div>
