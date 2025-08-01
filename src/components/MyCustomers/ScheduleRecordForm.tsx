@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Calendar, Clock, Mic, Send, X } from 'lucide-react';
+import { Plus, Calendar, Clock, Mic, Send, X, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,13 +12,15 @@ interface ScheduleRecordFormProps {
   customerName: string;
   scheduleRecords: ScheduleRecord[];
   onAddRecord: (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => void;
+  onDeleteRecord?: (recordId: number) => void;
 }
 
 export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   customerId,
   customerName,
   scheduleRecords,
-  onAddRecord
+  onAddRecord,
+  onDeleteRecord
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState('');
@@ -262,6 +264,12 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     setEditingRecord(null);
   };
 
+  const handleDeleteRecord = (recordId: number) => {
+    if (window.confirm('確定要刪除這筆行程記錄嗎？')) {
+      onDeleteRecord?.(recordId);
+    }
+  };
+
   const handleVoiceInput = async () => {
     try {
       setIsListening(true);
@@ -462,7 +470,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
               const isPast = isPastDate(record.date);
               
               return (
-                <div key={record.id} className={`rounded-lg p-3 space-y-2 transition-colors border border-transparent ${
+                <div key={record.id} className={`rounded-lg p-3 space-y-2 transition-colors border border-transparent group ${
                   isPast 
                     ? 'bg-gray-100 border-gray-200' 
                     : isEditable 
@@ -593,18 +601,33 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                               <span>{record.time}</span>
                             </div>
                           )}
-                        </div>
-                      </div>
-                      {isEditable && (
-                        <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                          點擊編輯
-                        </div>
-                      )}
-                      {isPast && (
-                        <div className="text-xs text-gray-400">
-                          記錄
-                        </div>
-                      )}
+                         </div>
+                       </div>
+                       <div className="flex items-center gap-2">
+                         {isEditable && (
+                           <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                             點擊編輯
+                           </div>
+                         )}
+                         {isPast && (
+                           <div className="text-xs text-gray-400">
+                             記錄
+                           </div>
+                         )}
+                         {onDeleteRecord && (
+                           <Button
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               handleDeleteRecord(record.id);
+                             }}
+                             variant="ghost"
+                             size="sm"
+                             className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6 text-red-500 hover:text-red-700"
+                           >
+                             <Trash2 className="w-3 h-3" />
+                           </Button>
+                         )}
+                       </div>
                     </div>
                   )}
                 </div>
