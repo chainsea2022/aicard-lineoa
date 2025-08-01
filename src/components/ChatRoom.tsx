@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import CreateCard from './CreateCardSimplified';
+import CreateCard from './CreateCard';
 import MyCard from './MyCard';
 import Scanner from './Scanner';
 import MyCustomers from './MyCustomers';
