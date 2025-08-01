@@ -436,7 +436,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       className="relative flex items-center justify-center text-xs h-8 px-3 whitespace-nowrap"
                     >
                       <Users className="w-3 h-3 mr-1" />
-                      追蹤我
+                      被加入
                       {followingMeCount > 0 && !filter.followingMe && (
                         <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 min-w-4 h-4 flex items-center justify-center rounded-full">
                           {followingMeCount}
