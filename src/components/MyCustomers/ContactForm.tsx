@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { X, Save, Upload, FileText } from 'lucide-react';
+import { X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -82,57 +82,6 @@ export const ContactForm: React.FC<ContactFormProps> = ({
     });
   };
 
-  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const csv = event.target?.result as string;
-      const lines = csv.split('\n');
-      const headers = lines[0].split(',').map(h => h.trim());
-      
-      let importedCount = 0;
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
-        if (values.length >= 2 && values[0]) {
-          const customer: Customer = {
-            id: Date.now() + i,
-            name: values[0] || '',
-            phone: values[1] || '',
-            email: values[2] || '',
-            company: values[3] || '',
-            jobTitle: values[4] || '',
-            website: '',
-            line: '',
-            facebook: '',
-            instagram: '',
-            photo: '',
-            hasCard: false,
-            addedDate: new Date().toISOString(),
-            notes: '從 CSV 匯入',
-            tags: ['CSV匯入'],
-            relationshipStatus: 'collected',
-            isDigitalCard: false,
-            invitationSent: false,
-            emailInvitationSent: false
-          };
-          
-          onSave(customer);
-          importedCount++;
-        }
-      }
-      
-      toast({
-        title: "匯入完成",
-        description: `成功匯入 ${importedCount} 個聯絡人`
-      });
-      
-      onClose();
-    };
-    
-    reader.readAsText(file);
-  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -255,29 +204,7 @@ export const ContactForm: React.FC<ContactFormProps> = ({
               <Save className="w-4 h-4 mr-2" />
               {editingCustomer ? '更新' : '儲存'}
             </Button>
-            
-            {!editingCustomer && (
-              <div className="relative">
-                <Button type="button" variant="outline" className="px-3">
-                  <Upload className="w-4 h-4" />
-                </Button>
-                <input
-                  type="file"
-                  accept=".csv"
-                  onChange={handleImportCSV}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                  title="匯入 CSV 檔案"
-                />
-              </div>
-            )}
           </div>
-
-          {!editingCustomer && (
-            <div className="text-xs text-gray-500 border-t pt-2">
-              <p className="mb-1">CSV 匯入格式：姓名,電話,電子郵件,公司,職稱</p>
-              <p>第一行為標題，從第二行開始匯入資料</p>
-            </div>
-          )}
         </form>
       </DialogContent>
     </Dialog>
