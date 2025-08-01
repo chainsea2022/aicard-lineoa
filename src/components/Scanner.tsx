@@ -328,7 +328,7 @@ const Scanner: React.FC<ScannerProps> = ({
           
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5 mb-4 text-left">
             <p className="text-xs text-blue-700 mb-2 font-medium">
-              💡 您現在可以在圖文選單中的「名片人脈夾」查看：
+              💡 您現在可以在圖文選單中的「名片夾」查看：
             </p>
             <div className="space-y-1">
               <div className="flex items-center space-x-2">
