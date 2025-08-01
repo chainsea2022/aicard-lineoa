@@ -582,13 +582,6 @@ const Scanner: React.FC<ScannerProps> = ({
               </Button>
               
               
-              <Button 
-                onClick={() => handleDuplicateAction('ignore')} 
-                variant="outline"
-                className="w-full text-xs py-2 h-9 touch-manipulation"
-              >
-                3️⃣ 忽略此次變更（不處理）
-              </Button>
             </div>
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mt-3">
