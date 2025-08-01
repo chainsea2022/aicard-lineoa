@@ -11,6 +11,7 @@ import { ContactCard } from './ContactCard';
 import { ContactForm } from './ContactForm';
 import { SmartRecommendation } from './SmartRecommendation';
 import { InvitationDialog } from './InvitationDialog';
+import { InvitationHistory } from './InvitationHistory';
 import { Customer, RecommendedContact, CustomerRelationshipStatus } from './types';
 import { getRandomProfessionalAvatar } from './utils';
 import { generateMockCustomers } from './mockData';
@@ -63,6 +64,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [isContactFormOpen, setIsContactFormOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<Customer | null>(null);
   const [invitationCustomer, setInvitationCustomer] = useState<Customer | null>(null);
+  const [isInvitationHistoryOpen, setIsInvitationHistoryOpen] = useState(false);
   const [localCustomers, setLocalCustomers] = useState<Customer[]>(() => {
     // 每次都清除舊的緩存資料，確保使用最新的模擬資料
     localStorage.removeItem('aile-customers');
@@ -590,9 +592,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                         未邀請
                       </Button>
                       <Button
-                        variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
+                        variant="outline"
                         size="sm"
-                        onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
+                        onClick={() => setIsInvitationHistoryOpen(true)}
                         className="text-xs h-6 px-2 py-0"
                       >
                         紀錄
@@ -707,6 +709,14 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
         onClose={() => setInvitationCustomer(null)}
         onSendInvitation={handleSendInvitationFromDialog}
         onShareLine={handleShareLine}
+      />
+
+      {/* Invitation History Dialog */}
+      <InvitationHistory
+        isOpen={isInvitationHistoryOpen}
+        onClose={() => setIsInvitationHistoryOpen(false)}
+        customers={localCustomers}
+        invitationHistory={invitationHistory}
       />
     </div>
   );
