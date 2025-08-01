@@ -1011,9 +1011,6 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
               )}
               
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  會議標題
-                </label>
                 <div className="relative">
                   <Input
                     value={newMeeting.title}
