@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock, Star } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock, Star, Send, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -104,19 +104,33 @@ export const ContactCard: React.FC<ContactCardProps> = ({
                 
                 {/* Invitation status symbols */}
                 <div className="flex items-center space-x-1">
-                  {customer.phone && !customer.invitationSent && (
-                    <div className="p-1" title="可發送簡訊邀請">
-                      <Smartphone className="w-3 h-3 text-blue-600" />
+                  {/* Show invitation status for phone */}
+                  {customer.phone && (
+                    <div className="flex items-center">
+                      {customer.invitationSent ? (
+                        <div className="p-1 bg-green-100 rounded-full" title="簡訊邀請已發送">
+                          <UserCheck className="w-3 h-3 text-green-600" />
+                        </div>
+                      ) : (
+                        <div className="p-1 bg-blue-50 rounded-full" title="可發送簡訊邀請">
+                          <Send className="w-3 h-3 text-blue-600" />
+                        </div>
+                      )}
                     </div>
                   )}
-                  {customer.email && !customer.emailInvitationSent && (
-                    <div className="p-1" title="可發送Email邀請">
-                      <Mail className="w-3 h-3 text-green-600" />
-                    </div>
-                  )}
-                  {isInvited && (
-                    <div className="p-1" title="已邀請">
-                      <CheckCircle className="w-3 h-3 text-green-600" />
+                  
+                  {/* Show invitation status for email */}
+                  {customer.email && (
+                    <div className="flex items-center">
+                      {customer.emailInvitationSent ? (
+                        <div className="p-1 bg-green-100 rounded-full" title="Email邀請已發送">
+                          <CheckCircle className="w-3 h-3 text-green-600" />
+                        </div>
+                      ) : (
+                        <div className="p-1 bg-orange-50 rounded-full" title="可發送Email邀請">
+                          <Mail className="w-3 h-3 text-orange-600" />
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
