@@ -581,12 +581,6 @@ const Scanner: React.FC<ScannerProps> = ({
                 1️⃣ 更新名片夾（直接同步修改）
               </Button>
               
-              <Button 
-                onClick={() => handleDuplicateAction('create-new')} 
-                className="w-full bg-green-500 hover:bg-green-600 text-white text-xs py-2 h-9 touch-manipulation"
-              >
-                2️⃣ 建立新版本（保留兩筆資料）
-              </Button>
               
               <Button 
                 onClick={() => handleDuplicateAction('ignore')} 
