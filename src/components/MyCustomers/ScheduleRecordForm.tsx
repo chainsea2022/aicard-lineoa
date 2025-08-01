@@ -40,13 +40,17 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     // AI智能生成標題和類型
     const autoTitle = title || generateTitleFromDescription(description, customerName);
     const autoType = inferTypeFromDescription(description);
+    
+    // AI智能提取時間和地點
+    const extractedDateTime = extractDateTimeFromDescription(description);
+    const extractedLocation = extractLocationFromDescription(description);
 
     const newRecord: Omit<ScheduleRecord, 'id' | 'createdAt'> = {
       customerId,
       title: autoTitle,
-      description: description.trim(),
-      date: date || new Date().toISOString().split('T')[0], // 預設今天
-      time: time || undefined,
+      description: extractedLocation ? `${description.trim()}\n地點：${extractedLocation}` : description.trim(),
+      date: extractedDateTime.date || date || new Date().toISOString().split('T')[0],
+      time: extractedDateTime.time || time || undefined,
       type: autoType
     };
 
@@ -59,6 +63,79 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     setTime('');
     setType('meeting');
     setIsAdding(false);
+  };
+
+  // AI智能提取日期時間
+  const extractDateTimeFromDescription = (desc: string): { date?: string; time?: string } => {
+    const result: { date?: string; time?: string } = {};
+    
+    // 提取相對日期
+    const today = new Date();
+    let targetDate = new Date(today);
+    
+    if (desc.includes('明天')) {
+      targetDate.setDate(today.getDate() + 1);
+      result.date = targetDate.toISOString().split('T')[0];
+    } else if (desc.includes('後天')) {
+      targetDate.setDate(today.getDate() + 2);
+      result.date = targetDate.toISOString().split('T')[0];
+    } else if (desc.includes('下週')) {
+      targetDate.setDate(today.getDate() + 7);
+      result.date = targetDate.toISOString().split('T')[0];
+    } else if (desc.includes('下個月')) {
+      targetDate.setMonth(today.getMonth() + 1);
+      result.date = targetDate.toISOString().split('T')[0];
+    }
+    
+    // 提取具體日期
+    const dateMatches = desc.match(/(\d{1,2})月(\d{1,2})[日號]/);
+    if (dateMatches) {
+      const month = parseInt(dateMatches[1]) - 1; // JavaScript月份從0開始
+      const day = parseInt(dateMatches[2]);
+      targetDate.setMonth(month);
+      targetDate.setDate(day);
+      result.date = targetDate.toISOString().split('T')[0];
+    }
+    
+    // 提取時間
+    const timePatterns = [
+      /(\d{1,2})[點時]/,  // 4點、14時
+      /(\d{1,2}):(\d{2})/,  // 14:30
+      /(上午|下午)\s*(\d{1,2})[點時]?(\d{2})?分?/,  // 上午9點、下午2點30分
+      /(早上|中午|下午|晚上)\s*(\d{1,2})[點時]?(\d{2})?分?/  // 下午3點
+    ];
+    
+    for (const pattern of timePatterns) {
+      const match = desc.match(pattern);
+      if (match) {
+        let hour = 0;
+        let minute = 0;
+        
+        if (match[1] === '上午' || match[1] === '早上') {
+          hour = parseInt(match[2]);
+          minute = parseInt(match[3] || '0');
+        } else if (match[1] === '下午' || match[1] === '晚上') {
+          hour = parseInt(match[2]) + (parseInt(match[2]) < 12 ? 12 : 0);
+          minute = parseInt(match[3] || '0');
+        } else if (match[1] === '中午') {
+          hour = 12;
+          minute = parseInt(match[3] || '0');
+        } else if (match[2]) {
+          // 格式如 14:30
+          hour = parseInt(match[1]);
+          minute = parseInt(match[2]);
+        } else {
+          // 格式如 4點
+          hour = parseInt(match[1]);
+          minute = 0;
+        }
+        
+        result.time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        break;
+      }
+    }
+    
+    return result;
   };
 
   // AI智能生成標題
@@ -189,19 +266,35 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   // AI提取地點資訊
   const extractLocationFromDescription = (desc: string): string | null => {
     const locationPatterns = [
-      /在([^，,。!\n]+?)(舉行|進行|開會|見面)/g,
-      /地點[:：]([^，,。!\n]+)/g,
-      /地址[:：]([^，,。!\n]+)/g,
-      /([^，,。!\n]*會議室[^，,。!\n]*)/g,
-      /([^，,。!\n]*辦公室[^，,。!\n]*)/g,
-      /([^，,。!\n]*餐廳[^，,。!\n]*)/g,
-      /([^，,。!\n]*咖啡廳[^，,。!\n]*)/g,
+      /在([^，,。!\n\s]+?)(會議|開會|見面|討論|聚會)/g,
+      /([^，,。!\n\s]+?)(會議室|辦公室|餐廳|咖啡廳|公司|店)/g,
+      /地點[:：]\s*([^，,。!\n]+)/g,
+      /地址[:：]\s*([^，,。!\n]+)/g,
+      /(台北|台中|台南|高雄|新北|桃園|新竹|嘉義|彰化|雲林|南投|苗栗|宜蘭|花蓮|台東|澎湖|金門|連江)([^，,。!\n\s]*)/g,
+      /([^，,。!\n\s]+?)(大樓|廣場|中心|大廈|商場|飯店|酒店)/g,
     ];
     
     for (const pattern of locationPatterns) {
-      const match = desc.match(pattern);
-      if (match && match[1]) {
-        return match[1].trim();
+      const matches = desc.match(pattern);
+      if (matches) {
+        // 取第一個匹配的結果
+        const match = matches[0];
+        let location = '';
+        
+        if (match.includes('在') && pattern === locationPatterns[0]) {
+          location = match.replace(/在|會議|開會|見面|討論|聚會/g, '').trim();
+        } else if (match.includes('地點') || match.includes('地址')) {
+          location = match.split(/[:：]/)[1]?.trim() || '';
+        } else if (pattern === locationPatterns[4]) {
+          // 城市匹配
+          location = match;
+        } else {
+          location = match;
+        }
+        
+        if (location && location.length > 0) {
+          return location;
+        }
       }
     }
     return null;
@@ -407,24 +500,50 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
               <div className="bg-white rounded-lg p-3 border border-blue-200">
                 <div className="flex items-center gap-2 text-sm text-blue-700 mb-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                  AI正在分析並生成行程記錄...
+                  AI正在分析時間、地點並生成行程記錄...
                 </div>
                 
                 {/* 預覽生成的記錄 */}
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center gap-2">
                     <span className="font-medium">標題:</span>
-                    <span className="text-gray-700">{title || '與' + customerName + '的會議'}</span>
+                    <span className="text-gray-700">{generateTitleFromDescription(description, customerName)}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-medium">類型:</span>
-                    <Badge className={`text-xs ${getTypeColor(type)}`}>
-                      {getTypeName(type)}
+                    <Badge className={`text-xs ${getTypeColor(inferTypeFromDescription(description))}`}>
+                      {getTypeName(inferTypeFromDescription(description))}
                     </Badge>
                   </div>
+                  {(() => {
+                    const dateTime = extractDateTimeFromDescription(description);
+                    const location = extractLocationFromDescription(description);
+                    return (
+                      <>
+                        {dateTime.date && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">日期:</span>
+                            <span className="text-gray-600">{new Date(dateTime.date).toLocaleDateString('zh-TW')}</span>
+                          </div>
+                        )}
+                        {dateTime.time && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">時間:</span>
+                            <span className="text-gray-600">{dateTime.time}</span>
+                          </div>
+                        )}
+                        {location && (
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">地點:</span>
+                            <span className="text-gray-600">{location}</span>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                   <div className="flex items-center gap-2">
                     <span className="font-medium">AI分析:</span>
-                    <span className="text-gray-600">基於內容自動推斷會議性質和重要程度</span>
+                    <span className="text-gray-600">自動識別時間地點並設定行程資訊</span>
                   </div>
                 </div>
               </div>
