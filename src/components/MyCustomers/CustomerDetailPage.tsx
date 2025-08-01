@@ -36,7 +36,7 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
         <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h2 className="font-semibold text-lg">聯絡人詳情</h2>
+        <h2 className="font-semibold text-lg">名片詳情</h2>
         <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
           <X className="w-5 h-5" />
         </Button>
