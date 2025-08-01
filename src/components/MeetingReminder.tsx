@@ -20,7 +20,7 @@ interface Meeting {
   time: string;
   location?: string;
   attendees: Attendee[];
-  type: 'meeting' | 'activity' | 'event';
+  type: 'meeting' | 'call' | 'activity' | 'other';
   status: 'scheduled' | 'completed' | 'cancelled';
   description?: string;
 }

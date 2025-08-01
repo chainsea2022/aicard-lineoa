@@ -42,7 +42,7 @@ interface Meeting {
   time: string;
   location?: string;
   attendees: Attendee[];
-  type: 'meeting' | 'activity' | 'event';
+  type: 'meeting' | 'call' | 'activity' | 'other';
   status: 'scheduled' | 'completed' | 'cancelled';
   description?: string;
   reminderSent?: boolean;
@@ -85,7 +85,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
         { id: '4', name: '陳小美', email: 'chen@example.com', company: '123科技', relationship: '聯絡人' },
         { id: '5', name: '林志明', email: 'lin@example.com', company: '123科技', relationship: '主管' }
       ],
-      type: 'event',
+      type: 'other',
       status: 'completed'
     }
   ]);
@@ -297,16 +297,18 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const getTypeIcon = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return <Users className="w-4 h-4" />;
+      case 'call': return <Bell className="w-4 h-4" />;
       case 'activity': return <Calendar className="w-4 h-4" />;
-      case 'event': return <Bell className="w-4 h-4" />;
+      case 'other': return <Clock className="w-4 h-4" />;
     }
   };
 
   const getTypeColor = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return 'bg-blue-100 text-blue-700';
-      case 'activity': return 'bg-green-100 text-green-700';
-      case 'event': return 'bg-purple-100 text-purple-700';
+      case 'call': return 'bg-green-100 text-green-700';
+      case 'activity': return 'bg-purple-100 text-purple-700';
+      case 'other': return 'bg-gray-100 text-gray-700';
     }
   };
 
@@ -494,16 +496,16 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   };
 
   // AI推斷行程類型
-  const inferTypeFromDescription = (desc: string): 'meeting' | 'activity' | 'event' => {
+  const inferTypeFromDescription = (desc: string): 'meeting' | 'call' | 'activity' | 'other' => {
     const lowerDesc = desc.toLowerCase();
     if (lowerDesc.includes('電話') || lowerDesc.includes('通話') || lowerDesc.includes('視訊')) {
-      return 'activity';
+      return 'call';
     } else if (lowerDesc.includes('活動') || lowerDesc.includes('聚會') || lowerDesc.includes('餐會')) {
-      return 'event';
+      return 'activity';
     } else if (lowerDesc.includes('會議') || lowerDesc.includes('討論') || lowerDesc.includes('簡報')) {
       return 'meeting';
     }
-    return 'meeting';
+    return 'other';
   };
 
   // 從名片夾中提取參與者（模擬名片夾資料）
@@ -713,7 +715,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(meeting.type)}`}>
                     <div className="flex items-center space-x-1">
                       {getTypeIcon(meeting.type)}
-                      <span>{meeting.type === 'meeting' ? '會議' : meeting.type === 'activity' ? '活動' : '事件'}</span>
+                      <span>{meeting.type === 'meeting' ? '會議' : meeting.type === 'call' ? '通話' : meeting.type === 'activity' ? '活動' : '其他'}</span>
                     </div>
                   </span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(meeting.status)}`}>
@@ -963,8 +965,9 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 <div className="flex space-x-2">
                   {[
                     { value: 'meeting', label: '會議', icon: Users },
+                    { value: 'call', label: '通話', icon: Bell },
                     { value: 'activity', label: '活動', icon: Calendar },
-                    { value: 'event', label: '事件', icon: Bell }
+                    { value: 'other', label: '其他', icon: Clock }
                   ].map(({ value, label, icon: Icon }) => (
                     <Button
                       key={value}

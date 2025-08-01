@@ -21,7 +21,7 @@ interface Meeting {
   time: string;
   location?: string;
   attendees: Attendee[];
-  type: 'meeting' | 'activity' | 'event';
+  type: 'meeting' | 'call' | 'activity' | 'other';
   status: 'scheduled' | 'completed' | 'cancelled';
   description?: string;
 }
@@ -103,8 +103,9 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose, meetings, onDateSe
   const getEventTypeColor = (type: Meeting['type']) => {
     switch (type) {
       case 'meeting': return 'bg-blue-500';
-      case 'activity': return 'bg-green-500';
-      case 'event': return 'bg-purple-500';
+      case 'call': return 'bg-green-500';
+      case 'activity': return 'bg-purple-500';
+      case 'other': return 'bg-gray-500';
     }
   };
 
@@ -345,7 +346,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose, meetings, onDateSe
         {/* Monthly Overview */}
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <h3 className="font-bold text-gray-800 mb-3">本月概覽</h3>
-          <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="grid grid-cols-4 gap-4 text-center">
             <div>
               <div className="text-2xl font-bold text-blue-600">
                 {meetings.filter(e => e.type === 'meeting').length}
@@ -354,15 +355,21 @@ const CalendarView: React.FC<CalendarViewProps> = ({ onClose, meetings, onDateSe
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
+                {meetings.filter(e => e.type === 'call').length}
+              </div>
+              <div className="text-xs text-gray-600">通話</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-600">
                 {meetings.filter(e => e.type === 'activity').length}
               </div>
               <div className="text-xs text-gray-600">活動</div>
             </div>
             <div>
-              <div className="text-2xl font-bold text-purple-600">
-                {meetings.filter(e => e.type === 'event').length}
+              <div className="text-2xl font-bold text-gray-600">
+                {meetings.filter(e => e.type === 'other').length}
               </div>
-              <div className="text-xs text-gray-600">事件</div>
+              <div className="text-xs text-gray-600">其他</div>
             </div>
           </div>
         </div>
