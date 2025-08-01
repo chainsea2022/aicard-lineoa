@@ -73,7 +73,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     const today = new Date();
     let targetDate = new Date(today);
     
-    if (desc.includes('明天')) {
+    if (desc.includes('明天') || desc.includes('明日')) {
       targetDate.setDate(today.getDate() + 1);
       result.date = targetDate.toISOString().split('T')[0];
     } else if (desc.includes('後天')) {
@@ -97,12 +97,13 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
       result.date = targetDate.toISOString().split('T')[0];
     }
     
-    // 提取時間
+    // 提取時間 - 修正邏輯
     const timePatterns = [
-      /(\d{1,2})[點時]/,  // 4點、14時
-      /(\d{1,2}):(\d{2})/,  // 14:30
-      /(上午|下午)\s*(\d{1,2})[點時]?(\d{2})?分?/,  // 上午9點、下午2點30分
-      /(早上|中午|下午|晚上)\s*(\d{1,2})[點時]?(\d{2})?分?/  // 下午3點
+      /(上午|早上)\s*(\d{1,2})[點時](\d{1,2})?分?/,  // 上午9點、早上9點30分
+      /(下午|晚上)\s*(\d{1,2})[點時](\d{1,2})?分?/,  // 下午2點、晚上8點30分
+      /中午\s*(\d{1,2})?[點時]?(\d{1,2})?分?/,       // 中午、中午12點
+      /(\d{1,2})[點時](\d{1,2})?分?/,               // 4點、14點30分
+      /(\d{1,2}):(\d{2})/,                        // 14:30
     ];
     
     for (const pattern of timePatterns) {
@@ -111,26 +112,39 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
         let hour = 0;
         let minute = 0;
         
-        if (match[1] === '上午' || match[1] === '早上') {
+        if (match[0].includes('上午') || match[0].includes('早上')) {
           hour = parseInt(match[2]);
           minute = parseInt(match[3] || '0');
-        } else if (match[1] === '下午' || match[1] === '晚上') {
-          hour = parseInt(match[2]) + (parseInt(match[2]) < 12 ? 12 : 0);
+          // 處理12點上午的情況
+          if (hour === 12) hour = 0;
+        } else if (match[0].includes('下午') || match[0].includes('晚上')) {
+          hour = parseInt(match[2]);
           minute = parseInt(match[3] || '0');
-        } else if (match[1] === '中午') {
+          // 下午時間轉換為24小時制
+          if (hour !== 12) hour += 12;
+        } else if (match[0].includes('中午')) {
           hour = 12;
-          minute = parseInt(match[3] || '0');
-        } else if (match[2]) {
+          minute = parseInt(match[2] || '0');
+        } else if (match[2] && match[1]) {
           // 格式如 14:30
           hour = parseInt(match[1]);
           minute = parseInt(match[2]);
         } else {
-          // 格式如 4點
+          // 格式如 4點，需要判斷是上午還是下午
           hour = parseInt(match[1]);
-          minute = 0;
+          minute = parseInt(match[2] || '0');
+          
+          // 如果是1-6點且沒有明確指定上午，可能是下午
+          if (hour >= 1 && hour <= 6 && !desc.includes('上午') && !desc.includes('早上')) {
+            hour += 12;
+          }
+          // 如果是7-11點且沒有明確指定，保持原樣（可能是上午或晚上）
         }
         
-        result.time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        // 確保時間格式正確
+        if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+          result.time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        }
         break;
       }
     }
