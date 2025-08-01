@@ -167,8 +167,13 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
 
   const handleSaveEdit = () => {
     if (!editingRecord) return;
-    // TODO: 這裡應該調用更新記錄的API
+    
+    // 呼叫更新記錄的API
     console.log('更新記錄:', editingRecord);
+    
+    // 這裡應該調用實際的API來更新記錄
+    // await updateScheduleRecord(editingRecord);
+    
     setEditingRecordId(null);
     setEditingRecord(null);
   };
@@ -215,6 +220,20 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
       console.error('語音輸入錯誤:', error);
       setIsListening(false);
     }
+  };
+
+  // 檢查日期是否為過去
+  const isPastDate = (dateString: string): boolean => {
+    const recordDate = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    recordDate.setHours(0, 0, 0, 0);
+    return recordDate < today;
+  };
+
+  // 檢查記錄是否可編輯
+  const isRecordEditable = (record: ScheduleRecord): boolean => {
+    return !isPastDate(record.date);
   };
 
   const formatDate = (dateString: string) => {
@@ -359,10 +378,20 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
           {scheduleRecords
             .filter(record => record.customerId === customerId)
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-            .map((record) => (
-               <div key={record.id} className="bg-gray-50 rounded-lg p-3 space-y-2 hover:bg-gray-100 transition-colors cursor-pointer border border-transparent hover:border-blue-200">
-                 {editingRecordId === record.id ? (
-                   // 編輯模式
+            .map((record) => {
+              const isEditable = isRecordEditable(record);
+              const isPast = isPastDate(record.date);
+              
+              return (
+                <div key={record.id} className={`rounded-lg p-3 space-y-2 transition-colors border border-transparent ${
+                  isPast 
+                    ? 'bg-gray-100 border-gray-200' 
+                    : isEditable 
+                      ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer hover:border-blue-200' 
+                      : 'bg-gray-50'
+                }`}>
+                  {editingRecordId === record.id && isEditable ? (
+                    // 編輯模式
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium text-blue-800">AI智能編輯行程記錄</span>
@@ -382,106 +411,126 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                           AI已自動分析並提取標題、類型、時間和地點資訊
                         </div>
                       </div>
-                     
-                     <Input
-                       value={editingRecord?.title || ''}
-                       onChange={(e) => setEditingRecord(prev => prev ? {...prev, title: e.target.value} : null)}
-                       className="text-sm"
-                       placeholder="行程標題"
-                     />
-                     
-                     <Textarea
-                       value={editingRecord?.description || ''}
-                       onChange={(e) => setEditingRecord(prev => prev ? {...prev, description: e.target.value} : null)}
-                       className="text-sm"
-                       placeholder="行程描述"
-                       rows={2}
-                     />
-                     
-                     <div className="flex gap-2">
-                       <Input
-                         type="date"
-                         value={editingRecord?.date || ''}
-                         onChange={(e) => setEditingRecord(prev => prev ? {...prev, date: e.target.value} : null)}
-                         className="text-sm flex-1"
-                       />
-                       <Input
-                         type="time"
-                         value={editingRecord?.time || ''}
-                         onChange={(e) => setEditingRecord(prev => prev ? {...prev, time: e.target.value} : null)}
-                         className="text-sm flex-1"
-                       />
-                     </div>
-                     
-                     <div className="flex gap-1">
-                       {(['meeting', 'call', 'event', 'other'] as const).map((t) => (
-                         <Button
-                           key={t}
-                           onClick={() => setEditingRecord(prev => prev ? {...prev, type: t} : null)}
-                           variant={editingRecord?.type === t ? "default" : "outline"}
-                           size="sm"
-                           className="text-xs"
-                         >
-                           {getTypeName(t)}
-                         </Button>
-                       ))}
-                     </div>
-                     
-                     <div className="flex gap-2">
-                       <Button
-                         onClick={handleSaveEdit}
-                         size="sm"
-                         className="text-xs flex-1"
-                       >
-                         儲存更改
-                       </Button>
-                       <Button
-                         onClick={handleCancelEdit}
-                         variant="outline"
-                         size="sm"
-                         className="text-xs"
-                       >
-                         取消
-                       </Button>
-                     </div>
-                   </div>
-                 ) : (
-                   // 查看模式
-                   <div onClick={() => handleEditRecord(record)} className="flex items-start justify-between">
-                     <div className="flex-1">
-                       <div className="flex items-center gap-2 mb-1">
-                         <span className="font-medium text-sm text-gray-800">{record.title}</span>
-                         <Badge className={`text-xs ${getTypeColor(record.type)}`}>
-                           {getTypeName(record.type)}
-                         </Badge>
-                       </div>
-                       
-                       {record.description && (
-                         <p className="text-xs text-gray-600 mb-2">{record.description}</p>
-                       )}
-                       
-                       <div className="flex items-center gap-4 text-xs text-gray-500">
-                         {record.date && (
-                           <div className="flex items-center gap-1">
-                             <Calendar className="w-3 h-3" />
-                             <span>{formatDate(record.date)}</span>
-                           </div>
-                         )}
-                         {record.time && (
-                           <div className="flex items-center gap-1">
-                             <Clock className="w-3 h-3" />
-                             <span>{record.time}</span>
-                           </div>
-                         )}
-                       </div>
-                     </div>
-                     <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                       點擊編輯
-                     </div>
-                   </div>
-                 )}
-               </div>
-            ))}
+                      
+                      <Input
+                        value={editingRecord?.title || ''}
+                        onChange={(e) => setEditingRecord(prev => prev ? {...prev, title: e.target.value} : null)}
+                        className="text-sm"
+                        placeholder="行程標題"
+                      />
+                      
+                      <Textarea
+                        value={editingRecord?.description || ''}
+                        onChange={(e) => setEditingRecord(prev => prev ? {...prev, description: e.target.value} : null)}
+                        className="text-sm"
+                        placeholder="行程描述"
+                        rows={2}
+                      />
+                      
+                      <div className="flex gap-2">
+                        <Input
+                          type="date"
+                          value={editingRecord?.date || ''}
+                          onChange={(e) => setEditingRecord(prev => prev ? {...prev, date: e.target.value} : null)}
+                          className="text-sm flex-1"
+                        />
+                        <Input
+                          type="time"
+                          value={editingRecord?.time || ''}
+                          onChange={(e) => setEditingRecord(prev => prev ? {...prev, time: e.target.value} : null)}
+                          className="text-sm flex-1"
+                        />
+                      </div>
+                      
+                      <div className="flex gap-1">
+                        {(['meeting', 'call', 'event', 'other'] as const).map((t) => (
+                          <Button
+                            key={t}
+                            onClick={() => setEditingRecord(prev => prev ? {...prev, type: t} : null)}
+                            variant={editingRecord?.type === t ? "default" : "outline"}
+                            size="sm"
+                            className="text-xs"
+                          >
+                            {getTypeName(t)}
+                          </Button>
+                        ))}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Button
+                          onClick={handleSaveEdit}
+                          size="sm"
+                          className="text-xs flex-1"
+                        >
+                          儲存更改
+                        </Button>
+                        <Button
+                          onClick={handleCancelEdit}
+                          variant="outline"
+                          size="sm"
+                          className="text-xs"
+                        >
+                          取消
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    // 查看模式
+                    <div 
+                      onClick={isEditable ? () => handleEditRecord(record) : undefined}
+                      className="flex items-start justify-between"
+                    >
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`font-medium text-sm ${isPast ? 'text-gray-600' : 'text-gray-800'}`}>
+                            {record.title}
+                          </span>
+                          <Badge className={`text-xs ${getTypeColor(record.type)} ${isPast ? 'opacity-60' : ''}`}>
+                            {getTypeName(record.type)}
+                          </Badge>
+                          {isPast && (
+                            <Badge className="text-xs bg-gray-200 text-gray-600">
+                              已完成
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        {record.description && (
+                          <p className={`text-xs mb-2 ${isPast ? 'text-gray-500' : 'text-gray-600'}`}>
+                            {record.description}
+                          </p>
+                        )}
+                        
+                        <div className={`flex items-center gap-4 text-xs ${isPast ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {record.date && (
+                            <div className="flex items-center gap-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>{formatDate(record.date)}</span>
+                            </div>
+                          )}
+                          {record.time && (
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              <span>{record.time}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      {isEditable && (
+                        <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                          點擊編輯
+                        </div>
+                      )}
+                      {isPast && (
+                        <div className="text-xs text-gray-400">
+                          記錄
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
         </div>
       )}
 
