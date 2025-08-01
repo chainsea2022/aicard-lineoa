@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { Users, X, Plus, Mail, Phone } from 'lucide-react';
+import { Users, X, Plus, Mail, Phone, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import VoiceInput from '@/components/VoiceInput';
 
 interface Attendee {
   id: string;
@@ -19,6 +22,7 @@ interface AttendeeManagerProps {
 
 const AttendeeManager: React.FC<AttendeeManagerProps> = ({ attendees, onAttendeesChange }) => {
   const [showAddForm, setShowAddForm] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [newAttendee, setNewAttendee] = useState({
     name: '',
     email: '',
@@ -28,9 +32,13 @@ const AttendeeManager: React.FC<AttendeeManagerProps> = ({ attendees, onAttendee
 
   // Mock customer data - in real app this would come from MyCustomers
   const mockCustomers = [
-    { id: '1', name: '張小明', email: 'zhang@example.com', phone: '0912345678', company: 'ABC公司' },
-    { id: '2', name: '李小華', email: 'li@example.com', phone: '0987654321', company: 'XYZ企業' },
-    { id: '3', name: '王大成', email: 'wang@example.com', phone: '0956789123', company: '123科技' }
+    { id: '1', name: '張小明', email: 'zhang@example.com', phone: '0912345678', company: 'ABC公司', isRegistered: true },
+    { id: '2', name: '李小華', email: 'li@example.com', phone: '0987654321', company: 'XYZ企業', isRegistered: true },
+    { id: '3', name: '王大成', email: 'wang@example.com', phone: '0956789123', company: '123科技', isRegistered: false },
+    { id: '4', name: '張志偉', email: '', phone: '0923456789', company: '大同集團', isRegistered: false },
+    { id: '5', name: '李明娟', email: 'li.mingjuan@example.com', phone: '0934567890', company: '台積電', isRegistered: true },
+    { id: '6', name: '王建國', email: '', phone: '0945678901', company: '鴻海科技', isRegistered: false },
+    { id: '7', name: '張美玲', email: 'chang.meiling@example.com', phone: '0956789012', company: '聯發科', isRegistered: true }
   ];
 
   const addAttendee = () => {
@@ -53,14 +61,25 @@ const AttendeeManager: React.FC<AttendeeManagerProps> = ({ attendees, onAttendee
     const attendee: Attendee = {
       id: customer.id,
       name: customer.name,
-      email: customer.email,
+      email: customer.email || '',
       phone: customer.phone,
       company: customer.company,
       cardId: customer.id,
-      relationship: '客戶'
+      relationship: customer.isRegistered ? '已註冊客戶' : '未註冊聯絡人'
     };
     onAttendeesChange([...attendees, attendee]);
   };
+
+  const handleVoiceResult = (text: string) => {
+    setSearchQuery(text);
+  };
+
+  // Filter customers based on search query
+  const filteredCustomers = mockCustomers.filter(customer => {
+    if (!searchQuery) return true;
+    return customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           (customer.company && customer.company.toLowerCase().includes(searchQuery.toLowerCase()));
+  }).filter(customer => !attendees.find(a => a.id === customer.id));
 
   return (
     <div className="space-y-4">
@@ -121,17 +140,63 @@ const AttendeeManager: React.FC<AttendeeManagerProps> = ({ attendees, onAttendee
             <label className="block text-sm font-medium text-gray-700 mb-2">
               從客戶名單選擇
             </label>
-            <div className="space-y-1">
-              {mockCustomers.filter(c => !attendees.find(a => a.id === c.id)).map((customer) => (
-                <button
-                  key={customer.id}
-                  onClick={() => addCustomerAsAttendee(customer)}
-                  className="w-full text-left p-2 bg-blue-50 hover:bg-blue-100 rounded text-sm"
-                >
-                  <div className="font-medium">{customer.name}</div>
-                  <div className="text-gray-600">{customer.company}</div>
-                </button>
-              ))}
+            
+            {/* Search Input with Voice */}
+            <div className="flex items-center space-x-2 mb-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input
+                  type="text"
+                  placeholder="輸入姓名或公司名稱搜尋..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <VoiceInput
+                onResult={handleVoiceResult}
+                placeholder="語音搜尋聯絡人"
+                className="shrink-0"
+              />
+            </div>
+
+            {/* Search Results */}
+            <div className="max-h-48 overflow-y-auto space-y-1">
+              {filteredCustomers.length > 0 ? (
+                filteredCustomers.map((customer) => (
+                  <button
+                    key={customer.id}
+                    onClick={() => addCustomerAsAttendee(customer)}
+                    className="w-full text-left p-3 bg-blue-50 hover:bg-blue-100 rounded-lg text-sm border border-blue-100"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="font-medium text-gray-800">{customer.name}</div>
+                        <div className="text-gray-600">{customer.company}</div>
+                        {customer.phone && (
+                          <div className="text-xs text-gray-500">{customer.phone}</div>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge 
+                          variant={customer.isRegistered ? "default" : "secondary"}
+                          className="text-xs"
+                        >
+                          {customer.isRegistered ? "已註冊" : "未註冊"}
+                        </Badge>
+                      </div>
+                    </div>
+                  </button>
+                ))
+              ) : searchQuery ? (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  找不到符合 "{searchQuery}" 的聯絡人
+                </div>
+              ) : (
+                <div className="text-center py-4 text-gray-500 text-sm">
+                  輸入姓名或公司名稱開始搜尋
+                </div>
+              )}
             </div>
           </div>
 
