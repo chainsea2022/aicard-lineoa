@@ -235,6 +235,70 @@ const Scanner: React.FC<ScannerProps> = ({
     }));
   };
 
+  const handleImportCSV = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const csv = event.target?.result as string;
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+      
+      let importedCount = 0;
+      const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(',').map(v => v.trim());
+        if (values.length >= 2 && values[0]) {
+          const newCustomer = {
+            id: Date.now() + i,
+            name: values[0] || '',
+            phone: values[1] || '',
+            email: values[2] || '',
+            company: values[3] || '',
+            jobTitle: values[4] || '',
+            website: '',
+            line: '',
+            facebook: '',
+            instagram: '',
+            photo: '',
+            hasCard: false,
+            addedDate: new Date().toISOString(),
+            notes: '從 CSV 匯入',
+            tags: ['CSV匯入'],
+            relationshipStatus: 'collected' as const,
+            isDigitalCard: false,
+            invitationSent: false,
+            emailInvitationSent: false
+          };
+          
+          customers.push(newCustomer);
+          importedCount++;
+
+          // Trigger notification event for each imported customer
+          window.dispatchEvent(new CustomEvent('customerAddedNotification', {
+            detail: {
+              customerName: newCustomer.name,
+              action: 'csv_imported',
+              isDigitalCard: false,
+              customer: newCustomer
+            }
+          }));
+        }
+      }
+      
+      localStorage.setItem('aile-customers', JSON.stringify(customers));
+      
+      toast({
+        title: "匯入完成",
+        description: `成功匯入 ${importedCount} 個聯絡人`
+      });
+    };
+    
+    reader.readAsText(file);
+  };
+
   const handleDuplicateAction = (action: 'update' | 'create-new' | 'ignore') => {
     if (!duplicateData) return;
     
@@ -394,12 +458,28 @@ const Scanner: React.FC<ScannerProps> = ({
         </div>
 
         {/* Manual Create Contact Button */}
-        <div className="bg-gray-50 rounded-lg p-3">
+        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
           <Button onClick={handleCreateContact} className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm py-3 h-10 touch-manipulation">
             <Plus className="w-4 h-4 mr-2" />
             手動建立名片
           </Button>
-          <p className="text-xs text-gray-500 mt-2 text-center">手動輸入聯絡人資訊</p>
+          
+          {/* CSV Import Button */}
+          <div className="relative">
+            <Button className="w-full bg-green-500 hover:bg-green-600 text-white text-sm py-3 h-10 touch-manipulation">
+              <FileText className="w-4 h-4 mr-2" />
+              匯入 CSV 檔案
+            </Button>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleImportCSV}
+              className="absolute inset-0 opacity-0 cursor-pointer"
+              title="匯入 CSV 檔案"
+            />
+          </div>
+          
+          <p className="text-xs text-gray-500 text-center">手動輸入聯絡人資訊或批量匯入</p>
         </div>
 
         {/* Instructions - Always visible */}
@@ -410,6 +490,7 @@ const Scanner: React.FC<ScannerProps> = ({
             <li>• 提示說明：</li>
             <li className="ml-3">– 電子名片：可儲存至「名片夾 {">"}我的電子名片夾」</li>
             <li className="ml-3">– 紙本名片：可儲存至「名片夾 {">"} 我的聯絡人」</li>
+            <li>• CSV 匯入格式：姓名,電話,電子郵件,公司,職稱</li>
           </ul>
         </div>
 
