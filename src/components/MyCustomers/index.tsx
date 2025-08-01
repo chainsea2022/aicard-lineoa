@@ -147,8 +147,9 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   };
 
   const allDigitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
+  const allPaperCards = localCustomers.filter(customer => customer.isDigitalCard === false);
   const filteredDigitalCards = getFilteredCustomers(allDigitalCards);
-  const filteredPaperCards = getFilteredCustomers(localCustomers.filter(customer => customer.isDigitalCard === false));
+  const filteredPaperCards = getFilteredCustomers(allPaperCards);
 
   const followingMeCount = allDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length;
 
@@ -503,12 +504,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
               <div className="mt-3 space-y-3">
                 <div>
                   <h4 className="text-xs font-medium text-gray-600 mb-2">邀請狀態</h4>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     <Button
                       variant={filter.invitationStatus === 'all' || !filter.invitationStatus ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
-                      className="text-xs h-8"
+                      className="text-xs h-8 px-3 whitespace-nowrap"
                     >
                       全部
                     </Button>
@@ -516,7 +517,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       variant={filter.invitationStatus === 'invited' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setFilter({ ...filter, invitationStatus: 'invited' })}
-                      className="text-xs h-8"
+                      className="text-xs h-8 px-3 whitespace-nowrap"
                     >
                       已邀請
                     </Button>
@@ -524,7 +525,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       variant={filter.invitationStatus === 'not_invited' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setFilter({ ...filter, invitationStatus: 'not_invited' })}
-                      className="text-xs h-8"
+                      className="text-xs h-8 px-3 whitespace-nowrap"
                     >
                       未邀請
                     </Button>
@@ -532,20 +533,58 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                       variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
                       size="sm"
                       onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
-                      className="text-xs h-8"
+                      className="text-xs h-8 px-3 whitespace-nowrap"
                     >
                       邀請紀錄
                     </Button>
                   </div>
                 </div>
 
-                {Object.keys(filter).some(key => filter[key]) && (
+                <div>
+                  <h4 className="text-xs font-medium text-gray-600 mb-2">標籤篩選</h4>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(() => {
+                      const allTags = Array.from(new Set(
+                        allPaperCards.flatMap(customer => customer.tags || [])
+                      ));
+                      
+                      return allTags.map(tag => (
+                        <Button
+                          key={tag}
+                          variant={filter.selectedTags?.includes(tag) ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => {
+                            const currentTags = filter.selectedTags || [];
+                            const newTags = currentTags.includes(tag)
+                              ? currentTags.filter(t => t !== tag)
+                              : [...currentTags, tag];
+                            setFilter({ ...filter, selectedTags: newTags.length > 0 ? newTags : undefined });
+                          }}
+                          className="text-xs h-8 px-3 whitespace-nowrap"
+                        >
+                          {tag}
+                        </Button>
+                      ));
+                    })()}
+                    
+                    {(() => {
+                      const allTags = Array.from(new Set(
+                        allPaperCards.flatMap(customer => customer.tags || [])
+                      ));
+                      return allTags.length === 0 && (
+                        <p className="text-xs text-gray-400">尚無標籤</p>
+                      );
+                    })()}
+                  </div>
+                </div>
+
+                {(Object.keys(filter).some(key => filter[key]) || (filter.selectedTags && filter.selectedTags.length > 0)) && (
                   <div className="flex justify-center">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => setFilter({})}
-                      className="text-xs text-gray-500 hover:text-gray-700"
+                      className="text-xs text-gray-500 hover:text-gray-700 h-8 px-3 whitespace-nowrap"
                     >
                       <X className="w-3 h-3 mr-1" />
                       清除篩選
