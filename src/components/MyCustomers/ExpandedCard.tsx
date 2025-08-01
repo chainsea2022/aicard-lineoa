@@ -21,7 +21,8 @@ import {
   X,
   Brain,
   Eye,
-  CalendarPlus
+  CalendarPlus,
+  Mic
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -298,8 +299,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               size="sm"
               className="text-xs"
             >
-              <Edit className="w-3 h-3 mr-1" />
-              編輯
+              <Mic className="w-3 h-3" />
             </Button>
           )}
         </div>
