@@ -131,8 +131,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
             size="sm"
             className="text-xs"
           >
-            <Plus className="w-3 h-3 mr-1" />
-            新增
+            <Mic className="w-3 h-3" />
           </Button>
         )}
       </div>
