@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Calendar, Clock, Mic, Send, X, Trash2 } from 'lucide-react';
+import { Plus, Calendar, Clock, Mic, Send, X, Trash2, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -563,10 +563,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                     </div>
                   ) : (
                     // 查看模式
-                    <div 
-                      onClick={isEditable ? () => handleEditRecord(record) : undefined}
-                      className="flex items-start justify-between"
-                    >
+                    <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`font-medium text-sm ${isPast ? 'text-gray-600' : 'text-gray-800'}`}>
@@ -603,16 +600,16 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                           )}
                          </div>
                        </div>
-                       <div className="flex items-center gap-2">
+                       <div className="flex items-center gap-1">
                          {isEditable && (
-                           <div className="text-xs text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                             點擊編輯
-                           </div>
-                         )}
-                         {isPast && (
-                           <div className="text-xs text-gray-400">
-                             記錄
-                           </div>
+                           <Button
+                             onClick={() => handleEditRecord(record)}
+                             variant="ghost"
+                             size="sm"
+                             className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6 text-blue-500 hover:text-blue-700"
+                           >
+                             <Edit className="w-3 h-3" />
+                           </Button>
                          )}
                          {onDeleteRecord && (
                            <Button
@@ -626,6 +623,11 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                            >
                              <Trash2 className="w-3 h-3" />
                            </Button>
+                         )}
+                         {isPast && (
+                           <div className="text-xs text-gray-400">
+                             記錄
+                           </div>
                          )}
                        </div>
                     </div>
