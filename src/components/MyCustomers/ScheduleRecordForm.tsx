@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Calendar, Clock, Mic, Send, X, Trash2, Edit } from 'lucide-react';
+import { Plus, Calendar, Clock, Mic, Send, X, Trash2, Edit, Users, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,6 +31,20 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<number | null>(null);
   const [editingRecord, setEditingRecord] = useState<ScheduleRecord | null>(null);
+  const [showContactSelector, setShowContactSelector] = useState(false);
+  const [selectedContacts, setSelectedContacts] = useState<Array<{id: string, name: string, company?: string}>>([]);
+
+  // 模擬名片夾聯絡人資料
+  const mockContacts = [
+    { id: '1', name: '張小明', company: 'ABC公司', phone: '0912-345-678', email: 'zhang@abc.com' },
+    { id: '2', name: '李小華', company: 'ABC公司', phone: '0923-456-789', email: 'li@abc.com' },
+    { id: '3', name: '王大成', company: 'XYZ企業', phone: '0934-567-890', email: 'wang@xyz.com' },
+    { id: '4', name: '陳小美', company: '123科技', phone: '0945-678-901', email: 'chen@123tech.com' },
+    { id: '5', name: '林志明', company: '123科技', phone: '0956-789-012', email: 'lin@123tech.com' },
+    { id: '6', name: '黃大華', company: 'DEF集團', phone: '0967-890-123', email: 'huang@def.com' },
+    { id: '7', name: '劉小琪', company: 'GHI公司', phone: '0978-901-234', email: 'liu@ghi.com' },
+    { id: '8', name: '吳志偉', company: 'JKL企業', phone: '0989-012-345', email: 'wu@jkl.com' },
+  ];
 
   const conversation = useConversation();
 
@@ -45,10 +59,22 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     const extractedDateTime = extractDateTimeFromDescription(description);
     const extractedLocation = extractLocationFromDescription(description);
 
+    // 建構包含聯絡人資訊的描述
+    let finalDescription = description.trim();
+    if (selectedContacts.length > 0) {
+      const contactsInfo = selectedContacts.map(contact => 
+        `${contact.name}${contact.company ? ` (${contact.company})` : ''}`
+      ).join('、');
+      finalDescription = `${finalDescription}\n參與者：${contactsInfo}`;
+    }
+    if (extractedLocation) {
+      finalDescription = `${finalDescription}\n地點：${extractedLocation}`;
+    }
+
     const newRecord: Omit<ScheduleRecord, 'id' | 'createdAt'> = {
       customerId,
       title: autoTitle,
-      description: extractedLocation ? `${description.trim()}\n地點：${extractedLocation}` : description.trim(),
+      description: finalDescription,
       date: extractedDateTime.date || date || new Date().toISOString().split('T')[0],
       time: extractedDateTime.time || time || undefined,
       type: autoType
@@ -62,6 +88,8 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     setDate('');
     setTime('');
     setType('meeting');
+    setSelectedContacts([]);
+    setShowContactSelector(false);
     setIsAdding(false);
   };
 
@@ -507,6 +535,85 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
               >
                 <Mic className="w-4 h-4" />
               </Button>
+            </div>
+
+            {/* 聯絡人選擇器 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium text-gray-700">相關聯絡人</label>
+                <Button
+                  onClick={() => setShowContactSelector(!showContactSelector)}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                >
+                  <UserPlus className="w-3 h-3 mr-1" />
+                  {showContactSelector ? '關閉' : '選擇聯絡人'}
+                </Button>
+              </div>
+
+              {/* 已選聯絡人 */}
+              {selectedContacts.length > 0 && (
+                <div className="flex flex-wrap gap-1">
+                  {selectedContacts.map((contact) => (
+                    <Badge 
+                      key={contact.id} 
+                      variant="secondary" 
+                      className="text-xs flex items-center gap-1"
+                    >
+                      <Users className="w-3 h-3" />
+                      {contact.name}
+                      {contact.company && (
+                        <span className="text-gray-500">({contact.company})</span>
+                      )}
+                      <button 
+                        onClick={() => setSelectedContacts(prev => 
+                          prev.filter(c => c.id !== contact.id)
+                        )}
+                        className="ml-1 hover:text-red-500"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+
+              {/* 聯絡人選擇選單 */}
+              {showContactSelector && (
+                <div className="bg-white border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+                  <div className="p-2 space-y-1">
+                    {mockContacts
+                      .filter(contact => !selectedContacts.some(sc => sc.id === contact.id))
+                      .map((contact) => (
+                        <div
+                          key={contact.id}
+                          onClick={() => {
+                            setSelectedContacts(prev => [...prev, {
+                              id: contact.id,
+                              name: contact.name,
+                              company: contact.company
+                            }]);
+                            setShowContactSelector(false);
+                          }}
+                          className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                        >
+                          <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                            {contact.name.charAt(0)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {contact.name}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                              {contact.company} • {contact.phone}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* AI處理狀態 */}
