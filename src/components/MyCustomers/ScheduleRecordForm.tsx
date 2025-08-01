@@ -31,6 +31,9 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [editingRecordId, setEditingRecordId] = useState<number | null>(null);
   const [editingRecord, setEditingRecord] = useState<ScheduleRecord | null>(null);
+  const [deleteMode, setDeleteMode] = useState(false);
+  const [selectedForDelete, setSelectedForDelete] = useState<number[]>([]);
+  const [longPressTimer, setLongPressTimer] = useState<NodeJS.Timeout | null>(null);
 
   const conversation = useConversation();
 
@@ -377,6 +380,47 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     }
   };
 
+  // iPhone 風格長按刪除功能
+  const handleLongPress = (recordId: number) => {
+    setDeleteMode(true);
+    setSelectedForDelete([recordId]);
+  };
+
+  const handleMouseDown = (recordId: number) => {
+    const timer = setTimeout(() => {
+      handleLongPress(recordId);
+    }, 800); // 800ms 長按觸發
+    setLongPressTimer(timer);
+  };
+
+  const handleMouseUp = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedForDelete.length > 0 && window.confirm(`確定要刪除 ${selectedForDelete.length} 筆記錄嗎？`)) {
+      selectedForDelete.forEach(id => onDeleteRecord?.(id));
+      setDeleteMode(false);
+      setSelectedForDelete([]);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setDeleteMode(false);
+    setSelectedForDelete([]);
+  };
+
+  const toggleSelectRecord = (recordId: number) => {
+    setSelectedForDelete(prev => 
+      prev.includes(recordId) 
+        ? prev.filter(id => id !== recordId)
+        : [...prev, recordId]
+    );
+  };
+
   const handleVoiceInput = async () => {
     try {
       setIsListening(true);
@@ -462,16 +506,40 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <h4 className="font-medium text-sm text-gray-800">行程管理</h4>
-        {!isAdding && (
-          <Button
-            onClick={() => setIsAdding(true)}
-            variant="outline"
-            size="sm"
-            className="text-xs"
-          >
-            <Mic className="w-3 h-3" />
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {deleteMode ? (
+            <>
+              <Button
+                onClick={handleDeleteSelected}
+                variant="destructive"
+                size="sm"
+                className="text-xs"
+                disabled={selectedForDelete.length === 0}
+              >
+                刪除 ({selectedForDelete.length})
+              </Button>
+              <Button
+                onClick={handleCancelDelete}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+              >
+                取消
+              </Button>
+            </>
+          ) : (
+            !isAdding && (
+              <Button
+                onClick={() => setIsAdding(true)}
+                variant="outline"
+                size="sm"
+                className="text-xs"
+              >
+                <Plus className="w-3 h-3" />
+              </Button>
+            )
+          )}
+        </div>
       </div>
 
       {/* Add New Record Form */}
@@ -602,14 +670,27 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
               const isEditable = isRecordEditable(record);
               const isPast = isPastDate(record.date);
               
-              return (
-                <div key={record.id} className={`rounded-lg p-3 space-y-2 transition-colors border border-transparent group ${
-                  isPast 
-                    ? 'bg-gray-100 border-gray-200' 
-                    : isEditable 
-                      ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer hover:border-blue-200' 
-                      : 'bg-gray-50'
-                }`}>
+               return (
+                 <div 
+                   key={record.id} 
+                   className={`rounded-lg p-3 space-y-2 transition-all border group relative ${
+                     deleteMode 
+                       ? selectedForDelete.includes(record.id)
+                         ? 'bg-red-50 border-red-300 transform scale-95'
+                         : 'bg-gray-50 border-gray-200'
+                       : isPast 
+                         ? 'bg-gray-100 border-gray-200' 
+                         : isEditable 
+                           ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer hover:border-blue-200' 
+                           : 'bg-gray-50'
+                   }`}
+                   onMouseDown={() => !deleteMode && handleMouseDown(record.id)}
+                   onMouseUp={handleMouseUp}
+                   onMouseLeave={handleMouseUp}
+                   onTouchStart={() => !deleteMode && handleMouseDown(record.id)}
+                   onTouchEnd={handleMouseUp}
+                   onClick={deleteMode ? () => toggleSelectRecord(record.id) : (isEditable && !deleteMode ? () => handleEditRecord(record) : undefined)}
+                 >
                   {editingRecordId === record.id && isEditable ? (
                     // 編輯模式
                     <div className="space-y-3">
@@ -709,12 +790,22 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                        </div>
                     </div>
                   ) : (
-                    // 查看模式
-                    <div 
-                      onClick={isEditable ? () => handleEditRecord(record) : undefined}
-                      className="flex items-start justify-between"
-                    >
-                      <div className="flex-1">
+                     // 查看模式
+                     <div className="flex items-start justify-between">
+                       {deleteMode && (
+                         <div className="absolute top-2 left-2">
+                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                             selectedForDelete.includes(record.id) 
+                               ? 'bg-red-500 border-red-500' 
+                               : 'border-gray-300 bg-white'
+                           }`}>
+                             {selectedForDelete.includes(record.id) && (
+                               <X className="w-3 h-3 text-white" />
+                             )}
+                           </div>
+                         </div>
+                       )}
+                       <div className={`flex-1 ${deleteMode ? 'ml-8' : ''}`}>
                         <div className="flex items-center gap-2 mb-1">
                           <span className={`font-medium text-sm ${isPast ? 'text-gray-600' : 'text-gray-800'}`}>
                             {record.title}
