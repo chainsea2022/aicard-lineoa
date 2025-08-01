@@ -273,8 +273,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                 className="text-xs bg-green-50 hover:bg-green-100 text-green-700 border-green-200"
                 disabled={!description.trim()}
               >
-                <Calendar className="w-3 h-3 mr-1" />
-                同步行程管理
+                <Plus className="w-3 h-3" />
               </Button>
             </div>
           </div>
