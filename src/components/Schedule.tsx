@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin, Mic } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin, Mic, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -237,6 +237,14 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       description: meeting.description || ''
     });
     setShowNewMeeting(true);
+  };
+
+  const handleDeleteMeeting = (meetingId: number) => {
+    setMeetings(prev => prev.filter(meeting => meeting.id !== meetingId));
+    toast({
+      title: "行程已刪除",
+      description: "行程已從您的排程中移除。",
+    });
   };
 
   const handleCloseModal = () => {
@@ -761,14 +769,25 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     邀請
                   </Button>
                 </div>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={() => handleEditMeeting(meeting)}
-                >
-                  <Edit className="w-4 h-4 mr-1" />
-                  編輯
-                </Button>
+                <div className="flex space-x-2">
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleEditMeeting(meeting)}
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    編輯
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handleDeleteMeeting(meeting.id)}
+                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    刪除
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
