@@ -543,23 +543,37 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                         ))}
                       </div>
                       
-                      <div className="flex gap-2">
-                        <Button
-                          onClick={handleSaveEdit}
-                          size="sm"
-                          className="text-xs flex-1"
-                        >
-                          儲存更改
-                        </Button>
-                        <Button
-                          onClick={handleCancelEdit}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs"
-                        >
-                          取消
-                        </Button>
-                      </div>
+                       <div className="flex gap-2">
+                         <Button
+                           onClick={handleSaveEdit}
+                           size="sm"
+                           className="text-xs flex-1"
+                         >
+                           儲存更改
+                         </Button>
+                         <Button
+                           onClick={handleCancelEdit}
+                           variant="outline"
+                           size="sm"
+                           className="text-xs"
+                         >
+                           取消
+                         </Button>
+                         {onDeleteRecord && (
+                           <Button
+                             onClick={(e) => {
+                               e.stopPropagation();
+                               handleDeleteRecord(record.id);
+                               handleCancelEdit();
+                             }}
+                             variant="outline"
+                             size="sm"
+                             className="text-xs text-red-500 hover:text-red-700 hover:border-red-300"
+                           >
+                             <Trash2 className="w-3 h-3" />
+                           </Button>
+                         )}
+                       </div>
                     </div>
                   ) : (
                     // 查看模式
