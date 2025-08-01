@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import EmailComposer from './EmailComposer';
 import CalendarView from './CalendarView';
@@ -99,6 +100,8 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     type: 'meeting' as Meeting['type'],
     description: ''
   });
+  const [isListening, setIsListening] = useState(false);
+  const [showAIInput, setShowAIInput] = useState(false);
   const [showEmailComposer, setShowEmailComposer] = useState(false);
   const [showRecipientSelector, setShowRecipientSelector] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -293,6 +296,226 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       case 'completed': return 'bg-green-100 text-green-700';
       case 'cancelled': return 'bg-red-100 text-red-700';
     }
+  };
+
+  // AI智能分析描述並自動填入表單
+  const handleAIAnalysis = (description: string) => {
+    if (!description.trim()) return;
+
+    // 提取日期時間
+    const dateTime = extractDateTimeFromDescription(description);
+    
+    // 提取地點
+    const location = extractLocationFromDescription(description);
+    
+    // 推斷會議類型
+    const type = inferTypeFromDescription(description);
+    
+    // 從名片夾中尋找匹配的聯絡人
+    const attendees = extractAttendeesFromDescription(description);
+    
+    // 生成會議標題
+    const title = generateTitleFromDescription(description, attendees);
+
+    // 更新表單
+    setNewMeeting(prev => ({
+      ...prev,
+      title: title || prev.title,
+      description: description,
+      date: dateTime.date || prev.date,
+      time: dateTime.time || prev.time,
+      location: location || prev.location,
+      type: type,
+      attendees: attendees.length > 0 ? attendees : prev.attendees
+    }));
+
+    // 顯示AI分析結果提示
+    toast({
+      title: "AI 智能分析完成！",
+      description: `已自動識別${attendees.length > 0 ? `參與者、` : ''}${dateTime.date ? '日期、' : ''}${dateTime.time ? '時間、' : ''}${location ? '地點、' : ''}會議類型`,
+    });
+  };
+
+  // AI智能提取日期時間
+  const extractDateTimeFromDescription = (desc: string): { date?: string; time?: string } => {
+    const result: { date?: string; time?: string } = {};
+    
+    // 提取相對日期
+    const today = new Date();
+    let targetDate = new Date(today);
+    
+    if (desc.includes('明天') || desc.includes('明日')) {
+      targetDate.setDate(today.getDate() + 1);
+      result.date = targetDate.toISOString().split('T')[0];
+    } else if (desc.includes('後天')) {
+      targetDate.setDate(today.getDate() + 2);
+      result.date = targetDate.toISOString().split('T')[0];
+    } else if (desc.includes('下週')) {
+      targetDate.setDate(today.getDate() + 7);
+      result.date = targetDate.toISOString().split('T')[0];
+    }
+    
+    // 提取具體日期
+    const dateMatches = desc.match(/(\d{1,2})月(\d{1,2})[日號]/);
+    if (dateMatches) {
+      const month = parseInt(dateMatches[1]) - 1;
+      const day = parseInt(dateMatches[2]);
+      targetDate.setMonth(month);
+      targetDate.setDate(day);
+      result.date = targetDate.toISOString().split('T')[0];
+    }
+    
+    // 提取時間
+    const timePatterns = [
+      /(上午|早上)\s*(\d{1,2})[點時](\d{1,2})?分?/,
+      /(下午|晚上)\s*(\d{1,2})[點時](\d{1,2})?分?/,
+      /中午\s*(\d{1,2})?[點時]?(\d{1,2})?分?/,
+      /(\d{1,2})[點時](\d{1,2})?分?/,
+      /(\d{1,2}):(\d{2})/,
+    ];
+    
+    for (const pattern of timePatterns) {
+      const match = desc.match(pattern);
+      if (match) {
+        let hour = 0;
+        let minute = 0;
+        
+        if (match[0].includes('上午') || match[0].includes('早上')) {
+          hour = parseInt(match[2]);
+          minute = parseInt(match[3] || '0');
+          if (hour === 12) hour = 0;
+        } else if (match[0].includes('下午') || match[0].includes('晚上')) {
+          hour = parseInt(match[2]);
+          minute = parseInt(match[3] || '0');
+          if (hour !== 12) hour += 12;
+        } else if (match[0].includes('中午')) {
+          hour = 12;
+          minute = parseInt(match[2] || '0');
+        } else if (match[2] && match[1]) {
+          hour = parseInt(match[1]);
+          minute = parseInt(match[2]);
+        } else {
+          hour = parseInt(match[1]);
+          minute = parseInt(match[2] || '0');
+        }
+        
+        if (hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59) {
+          result.time = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+        }
+        break;
+      }
+    }
+    
+    return result;
+  };
+
+  // AI提取地點資訊
+  const extractLocationFromDescription = (desc: string): string | null => {
+    const locationPatterns = [
+      /在([^，,。!\n\s]+?)(會議|開會|見面|討論|聚會)/g,
+      /([^，,。!\n\s]+?)(會議室|辦公室|餐廳|咖啡廳|公司|店)/g,
+      /地點[:：]\s*([^，,。!\n]+)/g,
+      /(台北|台中|台南|高雄|新北|桃園|新竹)([^，,。!\n\s]*)/g,
+    ];
+    
+    for (const pattern of locationPatterns) {
+      const matches = desc.match(pattern);
+      if (matches) {
+        const match = matches[0];
+        let location = '';
+        
+        if (match.includes('在') && pattern === locationPatterns[0]) {
+          location = match.replace(/在|會議|開會|見面|討論|聚會/g, '').trim();
+        } else if (match.includes('地點')) {
+          location = match.split(/[:：]/)[1]?.trim() || '';
+        } else {
+          location = match;
+        }
+        
+        if (location && location.length > 0) {
+          return location;
+        }
+      }
+    }
+    return null;
+  };
+
+  // AI推斷行程類型
+  const inferTypeFromDescription = (desc: string): 'meeting' | 'activity' | 'event' => {
+    const lowerDesc = desc.toLowerCase();
+    if (lowerDesc.includes('電話') || lowerDesc.includes('通話') || lowerDesc.includes('視訊')) {
+      return 'activity';
+    } else if (lowerDesc.includes('活動') || lowerDesc.includes('聚會') || lowerDesc.includes('餐會')) {
+      return 'event';
+    } else if (lowerDesc.includes('會議') || lowerDesc.includes('討論') || lowerDesc.includes('簡報')) {
+      return 'meeting';
+    }
+    return 'meeting';
+  };
+
+  // 從名片夾中提取參與者（模擬名片夾資料）
+  const extractAttendeesFromDescription = (desc: string): Attendee[] => {
+    // 模擬名片夾中的聯絡人資料
+    const mockContacts = [
+      { id: '1', name: '張小明', email: 'zhang@example.com', company: 'ABC公司', relationship: '潛在客戶' },
+      { id: '2', name: '李小華', email: 'li@example.com', company: 'ABC公司', relationship: '決策者' },
+      { id: '3', name: '王大成', email: 'wang@example.com', company: 'XYZ企業', relationship: '現有客戶' },
+      { id: '4', name: '陳小美', email: 'chen@example.com', company: '123科技', relationship: '聯絡人' },
+      { id: '5', name: '林志明', email: 'lin@example.com', company: '123科技', relationship: '主管' },
+      { id: '6', name: '黃大華', email: 'huang@example.com', company: 'DEF集團', relationship: '合作夥伴' },
+    ];
+
+    const foundAttendees: Attendee[] = [];
+    
+    // 尋找姓名匹配
+    mockContacts.forEach(contact => {
+      if (desc.includes(contact.name)) {
+        foundAttendees.push(contact);
+      }
+    });
+    
+    // 尋找公司匹配
+    if (foundAttendees.length === 0) {
+      mockContacts.forEach(contact => {
+        if (contact.company && desc.includes(contact.company)) {
+          foundAttendees.push(contact);
+        }
+      });
+    }
+    
+    return foundAttendees;
+  };
+
+  // 生成會議標題
+  const generateTitleFromDescription = (desc: string, attendees: Attendee[]): string => {
+    const lowerDesc = desc.toLowerCase();
+    
+    if (attendees.length > 0) {
+      if (attendees.length === 1) {
+        const attendee = attendees[0];
+        if (lowerDesc.includes('產品') || lowerDesc.includes('報價')) {
+          return `與${attendee.name}討論產品報價`;
+        } else if (lowerDesc.includes('合作') || lowerDesc.includes('合約')) {
+          return `與${attendee.name}的合作洽談`;
+        } else if (lowerDesc.includes('技術') || lowerDesc.includes('系統')) {
+          return `${attendee.name}技術會議`;
+        } else {
+          return `與${attendee.name}的會議`;
+        }
+      } else {
+        return `多方會議 (${attendees.length} 位參與者)`;
+      }
+    }
+    
+    if (lowerDesc.includes('產品') || lowerDesc.includes('報價')) {
+      return '產品報價討論會議';
+    } else if (lowerDesc.includes('技術') || lowerDesc.includes('系統')) {
+      return '技術討論會議';
+    } else if (lowerDesc.includes('合作') || lowerDesc.includes('合約')) {
+      return '合作洽談會議';
+    }
+    
+    return '商務會議';
   };
 
   if (showEmailComposer) {
@@ -535,7 +758,57 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
             </h3>
             
             <div className="space-y-4">
-              {/* 類型快捷選擇 - 移到最上方 */}
+              {/* AI 智能輸入 */}
+              <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <Mic className="w-4 h-4 text-purple-600" />
+                    <h4 className="font-medium text-purple-800">AI 智能輸入</h4>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => setShowAIInput(!showAIInput)}
+                    className="text-xs"
+                  >
+                    {showAIInput ? '關閉' : '開始'}
+                  </Button>
+                </div>
+                
+                {showAIInput && (
+                  <div className="space-y-3">
+                    <p className="text-sm text-purple-700">
+                      💡 您可以說：「明天下午2點和張小明討論產品報價，在台北辦公室」
+                    </p>
+                    <div className="relative">
+                      <Textarea
+                        placeholder="請描述您的行程安排，AI會自動解析時間、地點、參與者等資訊..."
+                        className="pr-10"
+                        rows={3}
+                        onChange={(e) => {
+                          const desc = e.target.value;
+                          if (desc) {
+                            handleAIAnalysis(desc);
+                          }
+                        }}
+                      />
+                      <div className="absolute right-2 top-2">
+                        <VoiceInput 
+                          onResult={(text) => {
+                            const textarea = document.querySelector('textarea[placeholder*="請描述您的行程安排"]') as HTMLTextAreaElement;
+                            if (textarea) {
+                              textarea.value = text;
+                              handleAIAnalysis(text);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* 類型快捷選擇 */}
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-gray-700">
                   類型
