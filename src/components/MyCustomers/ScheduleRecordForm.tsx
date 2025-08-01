@@ -354,7 +354,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     <div className="space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-sm text-gray-800">行程記錄</h4>
+        <h4 className="font-medium text-sm text-gray-800">行程管理</h4>
         {!isAdding && (
           <Button
             onClick={() => setIsAdding(true)}
