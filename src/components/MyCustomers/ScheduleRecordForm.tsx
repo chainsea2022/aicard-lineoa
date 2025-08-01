@@ -87,9 +87,82 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
     return 'other';
   };
 
+  // AI提取時間資訊
+  const extractTimeFromDescription = (desc: string): string | null => {
+    const timePatterns = [
+      /(\d{1,2}):(\d{2})/g, // 14:30
+      /(\d{1,2})點(\d{1,2})?分?/g, // 2點30分
+      /(上午|下午)\s?(\d{1,2}):?(\d{2})?/g, // 上午9:30
+      /(早上|中午|下午|晚上)\s?(\d{1,2}):?(\d{2})?/g, // 下午2:00
+    ];
+    
+    for (const pattern of timePatterns) {
+      const match = desc.match(pattern);
+      if (match) {
+        return match[0];
+      }
+    }
+    return null;
+  };
+
+  // AI提取地點資訊
+  const extractLocationFromDescription = (desc: string): string | null => {
+    const locationPatterns = [
+      /在([^，,。!\n]+?)(舉行|進行|開會|見面)/g,
+      /地點[:：]([^，,。!\n]+)/g,
+      /地址[:：]([^，,。!\n]+)/g,
+      /([^，,。!\n]*會議室[^，,。!\n]*)/g,
+      /([^，,。!\n]*辦公室[^，,。!\n]*)/g,
+      /([^，,。!\n]*餐廳[^，,。!\n]*)/g,
+      /([^，,。!\n]*咖啡廳[^，,。!\n]*)/g,
+    ];
+    
+    for (const pattern of locationPatterns) {
+      const match = desc.match(pattern);
+      if (match && match[1]) {
+        return match[1].trim();
+      }
+    }
+    return null;
+  };
+
+  // 更新描述中的地點資訊
+  const updateDescriptionWithLocation = (desc: string, location: string): string => {
+    if (desc.includes(location)) {
+      return desc;
+    }
+    return `${desc}\n地點：${location}`;
+  };
+
   const handleEditRecord = (record: ScheduleRecord) => {
     setEditingRecordId(record.id);
-    setEditingRecord({ ...record });
+    
+    // AI智能分析現有記錄，自動提取資訊
+    const autoAnalyzedRecord = { ...record };
+    
+    // 如果標題為空或是預設標題，自動生成新標題
+    if (!record.title || record.title.includes('與' + customerName)) {
+      autoAnalyzedRecord.title = generateTitleFromDescription(record.description || '', customerName);
+    }
+    
+    // 自動重新推斷類型
+    if (record.description) {
+      autoAnalyzedRecord.type = inferTypeFromDescription(record.description);
+    }
+    
+    // 從描述中提取時間資訊
+    const extractedTime = extractTimeFromDescription(record.description || '');
+    if (extractedTime && !record.time) {
+      autoAnalyzedRecord.time = extractedTime;
+    }
+    
+    // 從描述中提取地點資訊
+    const extractedLocation = extractLocationFromDescription(record.description || '');
+    if (extractedLocation) {
+      autoAnalyzedRecord.description = updateDescriptionWithLocation(record.description || '', extractedLocation);
+    }
+    
+    setEditingRecord(autoAnalyzedRecord);
   };
 
   const handleSaveEdit = () => {
@@ -290,17 +363,25 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                <div key={record.id} className="bg-gray-50 rounded-lg p-3 space-y-2 hover:bg-gray-100 transition-colors cursor-pointer border border-transparent hover:border-blue-200">
                  {editingRecordId === record.id ? (
                    // 編輯模式
-                   <div className="space-y-3">
-                     <div className="flex items-center justify-between">
-                       <span className="text-sm font-medium text-blue-800">編輯行程記錄</span>
-                       <Button
-                         onClick={handleCancelEdit}
-                         variant="ghost"
-                         size="sm"
-                       >
-                         <X className="w-4 h-4" />
-                       </Button>
-                     </div>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-blue-800">AI智能編輯行程記錄</span>
+                        <Button
+                          onClick={handleCancelEdit}
+                          variant="ghost"
+                          size="sm"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      {/* AI分析提示 */}
+                      <div className="bg-blue-50 rounded-lg p-2 border border-blue-200">
+                        <div className="flex items-center gap-2 text-xs text-blue-700">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                          AI已自動分析並提取標題、類型、時間和地點資訊
+                        </div>
+                      </div>
                      
                      <Input
                        value={editingRecord?.title || ''}
