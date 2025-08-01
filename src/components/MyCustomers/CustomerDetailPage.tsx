@@ -53,8 +53,14 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
           onPhoneClick={onPhoneClick}
           onLineClick={onLineClick}
           onSendInvitation={onSendInvitation}
-          onAddTag={() => {}}
-          onRemoveTag={() => {}}
+          onAddTag={(id, tag) => {
+            const updatedTags = [...(customer.tags || []), tag];
+            onSaveCustomer(id, { tags: updatedTags });
+          }}
+          onRemoveTag={(id, tag) => {
+            const updatedTags = (customer.tags || []).filter(t => t !== tag);
+            onSaveCustomer(id, { tags: updatedTags });
+          }}
           onSaveCustomer={onSaveCustomer}
           onDeleteCustomer={onDeleteCustomer}
           onCollapse={onClose}
