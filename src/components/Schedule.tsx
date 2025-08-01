@@ -756,17 +756,19 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     size="sm" 
                     variant="outline"
                     onClick={() => handleShowReminder(meeting)}
+                    className="h-8 w-8 p-0"
+                    title="提醒"
                   >
-                    <Bell className="w-4 h-4 mr-1" />
-                    提醒
+                    <Bell className="w-4 h-4" />
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline"
                     onClick={() => sendMeetingInvite(meeting)}
+                    className="h-8 w-8 p-0"
+                    title="邀請"
                   >
-                    <Mail className="w-4 h-4 mr-1" />
-                    邀請
+                    <Mail className="w-4 h-4" />
                   </Button>
                 </div>
                 <div className="flex space-x-2">
@@ -774,18 +776,19 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     size="sm" 
                     variant="outline"
                     onClick={() => handleEditMeeting(meeting)}
+                    className="h-8 w-8 p-0"
+                    title="編輯"
                   >
-                    <Edit className="w-4 h-4 mr-1" />
-                    編輯
+                    <Edit className="w-4 h-4" />
                   </Button>
                   <Button 
                     size="sm" 
                     variant="outline"
                     onClick={() => handleDeleteMeeting(meeting.id)}
-                    className="text-red-600 hover:text-red-700 hover:border-red-300"
+                    className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:border-red-300"
+                    title="刪除"
                   >
-                    <Trash2 className="w-4 h-4 mr-1" />
-                    刪除
+                    <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
