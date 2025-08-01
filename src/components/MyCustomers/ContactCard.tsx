@@ -108,11 +108,17 @@ export const ContactCard: React.FC<ContactCardProps> = ({
                   {customer.phone && (
                     <div className="flex items-center">
                       {customer.invitationSent ? (
-                        <div className="p-1 bg-green-100 rounded-full" title="簡訊邀請已發送">
+                        <div 
+                          className="p-1 bg-green-100 rounded-full cursor-help" 
+                          title={`簡訊邀請已發送 - ${customer.phone}${customer.invitationDate ? '\n發送時間: ' + new Date(customer.invitationDate).toLocaleString('zh-TW') : ''}`}
+                        >
                           <UserCheck className="w-3 h-3 text-green-600" />
                         </div>
                       ) : (
-                        <div className="p-1 bg-blue-50 rounded-full" title="可發送簡訊邀請">
+                        <div 
+                          className="p-1 bg-blue-50 rounded-full cursor-help" 
+                          title={`可發送簡訊邀請至 ${customer.phone}\n點擊名片進入詳細頁面進行邀請`}
+                        >
                           <Send className="w-3 h-3 text-blue-600" />
                         </div>
                       )}
@@ -123,11 +129,17 @@ export const ContactCard: React.FC<ContactCardProps> = ({
                   {customer.email && (
                     <div className="flex items-center">
                       {customer.emailInvitationSent ? (
-                        <div className="p-1 bg-green-100 rounded-full" title="Email邀請已發送">
+                        <div 
+                          className="p-1 bg-green-100 rounded-full cursor-help" 
+                          title={`Email邀請已發送 - ${customer.email}${customer.emailInvitationDate ? '\n發送時間: ' + new Date(customer.emailInvitationDate).toLocaleString('zh-TW') : ''}`}
+                        >
                           <CheckCircle className="w-3 h-3 text-green-600" />
                         </div>
                       ) : (
-                        <div className="p-1 bg-orange-50 rounded-full" title="可發送Email邀請">
+                        <div 
+                          className="p-1 bg-orange-50 rounded-full cursor-help" 
+                          title={`可發送Email邀請至 ${customer.email}\n點擊名片進入詳細頁面進行邀請`}
+                        >
                           <Mail className="w-3 h-3 text-orange-600" />
                         </div>
                       )}
