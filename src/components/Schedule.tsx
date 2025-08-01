@@ -3,6 +3,7 @@ import { ArrowLeft, Calendar, Clock, Plus, Mail, Users, Edit, Bell, MapPin, Mic 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 import EmailComposer from './EmailComposer';
 import CalendarView from './CalendarView';
@@ -102,6 +103,17 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   });
   const [isListening, setIsListening] = useState(false);
   const [showAIInput, setShowAIInput] = useState(false);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<{
+    title?: string;
+    description?: string;
+    date?: string;
+    time?: string;
+    location?: string;
+    type?: Meeting['type'];
+    attendees?: Attendee[];
+    confidence?: number;
+  } | null>(null);
+  const [aiInputText, setAiInputText] = useState('');
   const [showEmailComposer, setShowEmailComposer] = useState(false);
   const [showRecipientSelector, setShowRecipientSelector] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -298,9 +310,12 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     }
   };
 
-  // AI智能分析描述並自動填入表單
+  // AI智能分析描述並生成分析結果
   const handleAIAnalysis = (description: string) => {
-    if (!description.trim()) return;
+    if (!description.trim()) {
+      setAiAnalysisResult(null);
+      return;
+    }
 
     // 提取日期時間
     const dateTime = extractDateTimeFromDescription(description);
@@ -317,23 +332,53 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     // 生成會議標題
     const title = generateTitleFromDescription(description, attendees);
 
-    // 更新表單
+    // 計算分析信心度
+    let confidence = 0.5; // 基礎信心度
+    if (dateTime.date) confidence += 0.2;
+    if (dateTime.time) confidence += 0.2;
+    if (location) confidence += 0.1;
+    if (attendees.length > 0) confidence += 0.2;
+    if (title && !title.includes('商務會議')) confidence += 0.1;
+
+    const analysisResult = {
+      title,
+      description,
+      date: dateTime.date,
+      time: dateTime.time,
+      location,
+      type,
+      attendees,
+      confidence: Math.min(confidence, 1.0)
+    };
+
+    setAiAnalysisResult(analysisResult);
+  };
+
+  // 確認並套用AI分析結果
+  const handleApplyAIAnalysis = () => {
+    if (!aiAnalysisResult) return;
+
     setNewMeeting(prev => ({
       ...prev,
-      title: title || prev.title,
-      description: description,
-      date: dateTime.date || prev.date,
-      time: dateTime.time || prev.time,
-      location: location || prev.location,
-      type: type,
-      attendees: attendees.length > 0 ? attendees : prev.attendees
+      title: aiAnalysisResult.title || prev.title,
+      description: aiAnalysisResult.description || prev.description,
+      date: aiAnalysisResult.date || prev.date,
+      time: aiAnalysisResult.time || prev.time,
+      location: aiAnalysisResult.location || prev.location,
+      type: aiAnalysisResult.type || prev.type,
+      attendees: aiAnalysisResult.attendees || prev.attendees
     }));
 
-    // 顯示AI分析結果提示
+    // 顯示成功提示
     toast({
-      title: "AI 智能分析完成！",
-      description: `已自動識別${attendees.length > 0 ? `參與者、` : ''}${dateTime.date ? '日期、' : ''}${dateTime.time ? '時間、' : ''}${location ? '地點、' : ''}會議類型`,
+      title: "AI 分析完成！",
+      description: `信心度 ${Math.round((aiAnalysisResult.confidence || 0) * 100)}% - 已自動填入表單`,
     });
+
+    // 清除分析結果並關閉AI輸入
+    setAiAnalysisResult(null);
+    setAiInputText('');
+    setShowAIInput(false);
   };
 
   // AI智能提取日期時間
@@ -785,25 +830,105 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                         placeholder="請描述您的行程安排，AI會自動解析時間、地點、參與者等資訊..."
                         className="pr-10"
                         rows={3}
+                        value={aiInputText}
                         onChange={(e) => {
-                          const desc = e.target.value;
-                          if (desc) {
-                            handleAIAnalysis(desc);
-                          }
+                          setAiInputText(e.target.value);
+                          handleAIAnalysis(e.target.value);
                         }}
                       />
                       <div className="absolute right-2 top-2">
                         <VoiceInput 
                           onResult={(text) => {
-                            const textarea = document.querySelector('textarea[placeholder*="請描述您的行程安排"]') as HTMLTextAreaElement;
-                            if (textarea) {
-                              textarea.value = text;
-                              handleAIAnalysis(text);
-                            }
+                            setAiInputText(text);
+                            handleAIAnalysis(text);
                           }}
                         />
                       </div>
                     </div>
+
+                    {/* AI 分析結果預覽 */}
+                    {aiAnalysisResult && (
+                      <div className="bg-white border border-purple-200 rounded-lg p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse"></div>
+                            <span className="text-sm font-medium text-purple-800">AI 分析結果</span>
+                            <Badge variant="secondary" className="text-xs">
+                              信心度 {Math.round((aiAnalysisResult.confidence || 0) * 100)}%
+                            </Badge>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setAiAnalysisResult(null);
+                                setAiInputText('');
+                              }}
+                              className="text-xs"
+                            >
+                              重新分析
+                            </Button>
+                            <Button
+                              size="sm"
+                              onClick={handleApplyAIAnalysis}
+                              className="text-xs bg-purple-600 hover:bg-purple-700"
+                            >
+                              套用結果
+                            </Button>
+                          </div>
+                        </div>
+
+                        {/* 分析結果詳情 */}
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          {aiAnalysisResult.title && (
+                            <div className="col-span-2">
+                              <span className="font-medium text-gray-700">標題：</span>
+                              <span className="text-gray-600">{aiAnalysisResult.title}</span>
+                            </div>
+                          )}
+                          {aiAnalysisResult.type && (
+                            <div>
+                              <span className="font-medium text-gray-700">類型：</span>
+                              <Badge className="ml-1 text-xs">
+                                {aiAnalysisResult.type === 'meeting' ? '會議' : 
+                                 aiAnalysisResult.type === 'activity' ? '活動' : '事件'}
+                              </Badge>
+                            </div>
+                          )}
+                          {aiAnalysisResult.date && (
+                            <div>
+                              <span className="font-medium text-gray-700">日期：</span>
+                              <span className="text-gray-600">{new Date(aiAnalysisResult.date).toLocaleDateString('zh-TW')}</span>
+                            </div>
+                          )}
+                          {aiAnalysisResult.time && (
+                            <div>
+                              <span className="font-medium text-gray-700">時間：</span>
+                              <span className="text-gray-600">{aiAnalysisResult.time}</span>
+                            </div>
+                          )}
+                          {aiAnalysisResult.location && (
+                            <div>
+                              <span className="font-medium text-gray-700">地點：</span>
+                              <span className="text-gray-600">{aiAnalysisResult.location}</span>
+                            </div>
+                          )}
+                          {aiAnalysisResult.attendees && aiAnalysisResult.attendees.length > 0 && (
+                            <div className="col-span-2">
+                              <span className="font-medium text-gray-700">參與者：</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {aiAnalysisResult.attendees.map((attendee, index) => (
+                                  <Badge key={index} variant="outline" className="text-xs">
+                                    {attendee.name}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
