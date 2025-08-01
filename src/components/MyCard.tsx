@@ -519,7 +519,7 @@ LINE: ${cardInfo.line || ''}
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <h1 className="font-bold text-lg">
-              {userData && cardData ? '我的電子名片' : hasRegistrationHistory ? 'LINE 快速登入' : '手機號碼註冊'}
+              {userData && cardData ? '設置' : hasRegistrationHistory ? 'LINE 快速登入' : '手機號碼註冊'}
             </h1>
           </div>
         </div>
