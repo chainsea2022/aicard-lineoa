@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Users, Mail, X, Plus, UserPlus, Check } from 'lucide-react';
+import { ArrowLeft, Users, Mail, X, Plus, UserPlus, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -56,6 +56,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
   const [filter, setFilter] = useState<CustomerFilter>({});
   const [activeTab, setActiveTab] = useState<'digital' | 'paper'>('digital');
   const [isRecommendationCollapsed, setIsRecommendationCollapsed] = useState(false);
+  const [isInvitationSectionCollapsed, setIsInvitationSectionCollapsed] = useState(true);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [recommendedContacts, setRecommendedContacts] = useState<RecommendedContact[]>(mockRecommendedContacts);
   const [favoriteRecommendationIds, setFavoriteRecommendationIds] = useState<number[]>([]);
@@ -501,48 +502,10 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
             )}
 
             {activeTab === 'paper' && (
-              <div className="mt-3 space-y-3">
-                <div>
-                  <h4 className="text-xs font-medium text-gray-600 mb-2">邀請狀態</h4>
-                  <div className="flex flex-wrap gap-1.5">
-                    <Button
-                      variant={filter.invitationStatus === 'all' || !filter.invitationStatus ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
-                      className="text-xs h-8 px-3 whitespace-nowrap"
-                    >
-                      全部
-                    </Button>
-                    <Button
-                      variant={filter.invitationStatus === 'invited' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilter({ ...filter, invitationStatus: 'invited' })}
-                      className="text-xs h-8 px-3 whitespace-nowrap"
-                    >
-                      已邀請
-                    </Button>
-                    <Button
-                      variant={filter.invitationStatus === 'not_invited' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilter({ ...filter, invitationStatus: 'not_invited' })}
-                      className="text-xs h-8 px-3 whitespace-nowrap"
-                    >
-                      未邀請
-                    </Button>
-                    <Button
-                      variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
-                      className="text-xs h-8 px-3 whitespace-nowrap"
-                    >
-                      邀請紀錄
-                    </Button>
-                  </div>
-                </div>
-
-                <div>
-                  <h4 className="text-xs font-medium text-gray-600 mb-2">標籤篩選</h4>
-                  <div className="flex flex-wrap gap-1.5">
+              <div className="mt-3">
+                {/* Tag filters in a single scrollable row like digital cards */}
+                <div className="overflow-x-auto">
+                  <div className="flex gap-2 pb-2" style={{ minWidth: 'max-content' }}>
                     {(() => {
                       const allTags = Array.from(new Set(
                         allPaperCards.flatMap(customer => customer.tags || [])
@@ -566,31 +529,88 @@ const MyCustomers: React.FC<MyCustomersProps> = ({ onClose, customers = [], onCu
                         </Button>
                       ));
                     })()}
-                    
-                    {(() => {
-                      const allTags = Array.from(new Set(
-                        allPaperCards.flatMap(customer => customer.tags || [])
-                      ));
-                      return allTags.length === 0 && (
-                        <p className="text-xs text-gray-400">尚無標籤</p>
-                      );
-                    })()}
+
+                    {/* Clear filters button */}
+                    {(filter.selectedTags && filter.selectedTags.length > 0) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setFilter({ ...filter, selectedTags: undefined })}
+                        className="text-xs text-gray-500 hover:text-gray-700 h-8 px-3 whitespace-nowrap"
+                      >
+                        <X className="w-3 h-3 mr-1" />
+                        清除標籤
+                      </Button>
+                    )}
                   </div>
                 </div>
 
-                {(Object.keys(filter).some(key => filter[key]) || (filter.selectedTags && filter.selectedTags.length > 0)) && (
-                  <div className="flex justify-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setFilter({})}
-                      className="text-xs text-gray-500 hover:text-gray-700 h-8 px-3 whitespace-nowrap"
-                    >
-                      <X className="w-3 h-3 mr-1" />
-                      清除篩選
-                    </Button>
-                  </div>
-                )}
+                {/* Collapsible invitation status section */}
+                <div className="mt-3 border border-gray-200 rounded-lg">
+                  <button
+                    onClick={() => setIsInvitationSectionCollapsed(!isInvitationSectionCollapsed)}
+                    className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <h4 className="text-xs font-medium text-gray-600">邀請狀態篩選</h4>
+                    {isInvitationSectionCollapsed ? (
+                      <ChevronRight className="w-4 h-4 text-gray-500" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4 text-gray-500" />
+                    )}
+                  </button>
+                  
+                  {!isInvitationSectionCollapsed && (
+                    <div className="px-3 pb-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        <Button
+                          variant={filter.invitationStatus === 'all' || !filter.invitationStatus ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
+                          className="text-xs h-8 px-3 whitespace-nowrap"
+                        >
+                          全部
+                        </Button>
+                        <Button
+                          variant={filter.invitationStatus === 'invited' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, invitationStatus: 'invited' })}
+                          className="text-xs h-8 px-3 whitespace-nowrap"
+                        >
+                          已邀請
+                        </Button>
+                        <Button
+                          variant={filter.invitationStatus === 'not_invited' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, invitationStatus: 'not_invited' })}
+                          className="text-xs h-8 px-3 whitespace-nowrap"
+                        >
+                          未邀請
+                        </Button>
+                        <Button
+                          variant={filter.invitationStatus === 'invitation_history' ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => setFilter({ ...filter, invitationStatus: 'invitation_history' })}
+                          className="text-xs h-8 px-3 whitespace-nowrap"
+                        >
+                          邀請紀錄
+                        </Button>
+                        
+                        {/* Clear invitation filters */}
+                        {filter.invitationStatus && filter.invitationStatus !== 'all' && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setFilter({ ...filter, invitationStatus: 'all' })}
+                            className="text-xs text-gray-500 hover:text-gray-700 h-8 px-3 whitespace-nowrap"
+                          >
+                            <X className="w-3 h-3 mr-1" />
+                            清除邀請篩選
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
