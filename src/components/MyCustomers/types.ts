@@ -53,6 +53,17 @@ export interface InvitationRecord {
   status: 'sent' | 'joined';
 }
 
+export interface ScheduleRecord {
+  id: number;
+  customerId: number;
+  title: string;
+  description?: string;
+  date: string;
+  time?: string;
+  type: 'meeting' | 'call' | 'event' | 'other';
+  createdAt: string;
+}
+
 export interface MyCustomersProps {
   onClose: () => void;
   customers: any[];

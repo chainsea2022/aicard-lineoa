@@ -30,6 +30,8 @@ import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
 import { SmartRelationshipAnalysis } from './SmartRelationshipAnalysis';
 import { ScheduleForm } from './ScheduleForm';
+import { ScheduleRecordForm } from './ScheduleRecordForm';
+import { ScheduleRecord } from './types';
 import VoiceInput from '../VoiceInput';
 
 interface ExpandedCardProps {
@@ -69,6 +71,16 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
   const [showSmartAnalysis, setShowSmartAnalysis] = useState(false);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [scheduleRecords, setScheduleRecords] = useState<ScheduleRecord[]>([]);
+
+  const handleAddScheduleRecord = (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => {
+    const newRecord: ScheduleRecord = {
+      ...record,
+      id: Date.now(), // Simple ID generation
+      createdAt: new Date().toISOString()
+    };
+    setScheduleRecords(prev => [...prev, newRecord]);
+  };
 
   const handleSaveNotes = () => {
     onSaveCustomer(customer.id, { notes: editedNotes });
@@ -253,6 +265,14 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           }}
         />
       </div>
+
+      {/* Schedule Records */}
+      <ScheduleRecordForm
+        customerId={customer.id}
+        customerName={customer.name}
+        scheduleRecords={scheduleRecords}
+        onAddRecord={handleAddScheduleRecord}
+      />
 
       {/* Notes */}
       <div className="space-y-2">
