@@ -669,7 +669,7 @@ LINE: ${cardInfo.line || ''}
             {/* 多名片管理區塊 */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">名片列表</h3>
+                <h3 className="text-lg font-semibold text-gray-800">電子名片列表</h3>
                 <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => {
                 // 清除編輯狀態，設定為新增模式
                 localStorage.removeItem('editing-card-data');
@@ -746,14 +746,14 @@ LINE: ${cardInfo.line || ''}
                            <CardContent className="p-3">
                              {/* 電子名片展示 */}
                              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 mb-3 cursor-pointer transition-all hover:shadow-md" onClick={e => {
-                               e.stopPropagation();
-                               if (card.id === 'current') {
-                                 editCard(cardData);
-                               } else {
-                                 localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                 setShowCreateCard(true);
-                               }
-                             }}>
+                          e.stopPropagation();
+                          if (card.id === 'current') {
+                            editCard(cardData);
+                          } else {
+                            localStorage.setItem('editing-card-data', JSON.stringify(card));
+                            setShowCreateCard(true);
+                          }
+                        }}>
                                <div className="flex items-center space-x-3">
                                  {/* 大頭照 */}
                                  <div className="flex-shrink-0">
@@ -769,41 +769,31 @@ LINE: ${cardInfo.line || ''}
                                  <div className="flex-1 min-w-0">
                                    <div className="flex items-center space-x-2 mb-1">
                                      <h4 className="font-semibold text-gray-900 text-base truncate">{card.name}</h4>
-                                     {card.id === 'current' && (
-                                       <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
+                                     {card.id === 'current' && <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
                                          預設
-                                       </Badge>
-                                     )}
+                                       </Badge>}
                                    </div>
                                    
                                    {/* 職位與公司 */}
-                                   {card.position && (
-                                     <p className="text-sm font-medium text-gray-700 truncate mb-1">
+                                   {card.position && <p className="text-sm font-medium text-gray-700 truncate mb-1">
                                        {card.position}
-                                     </p>
-                                   )}
+                                     </p>}
                                    
                                    {/* 公司名稱 */}
-                                   {card.companyName && (
-                                     <p className="text-sm text-gray-600 truncate mb-1">
+                                   {card.companyName && <p className="text-sm text-gray-600 truncate mb-1">
                                        {card.companyName}
-                                     </p>
-                                   )}
+                                     </p>}
                                    
                                    {/* 聯絡資訊 */}
                                    <div className="flex items-center space-x-3 text-xs text-gray-500">
-                                     {card.phone && (
-                                       <span className="flex items-center">
+                                     {card.phone && <span className="flex items-center">
                                          <Phone className="w-3 h-3 mr-1" />
                                          {card.phone.length > 10 ? `${card.phone.slice(0, 10)}...` : card.phone}
-                                       </span>
-                                     )}
-                                     {card.email && (
-                                       <span className="flex items-center">
+                                       </span>}
+                                     {card.email && <span className="flex items-center">
                                          <Mail className="w-3 h-3 mr-1" />
                                          {card.email.length > 15 ? `${card.email.slice(0, 15)}...` : card.email}
-                                       </span>
-                                     )}
+                                       </span>}
                                    </div>
                                  </div>
                                </div>
@@ -811,32 +801,22 @@ LINE: ${cardInfo.line || ''}
                              
                              {/* 操作按鈕 */}
                              <div className="flex space-x-2">
-                               <Button 
-                                 size="sm" 
-                                 variant="outline" 
-                                 className="flex-1 h-8 text-xs"
-                                 onClick={e => {
-                                   e.stopPropagation();
-                                   if (card.id === 'current') {
-                                     editCard(cardData);
-                                   } else {
-                                     localStorage.setItem('editing-card-data', JSON.stringify(card));
-                                     setShowCreateCard(true);
-                                   }
-                                 }}
-                               >
+                               <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={e => {
+                            e.stopPropagation();
+                            if (card.id === 'current') {
+                              editCard(cardData);
+                            } else {
+                              localStorage.setItem('editing-card-data', JSON.stringify(card));
+                              setShowCreateCard(true);
+                            }
+                          }}>
                                  <Edit className="w-3 h-3 mr-1" />
                                  編輯
                                </Button>
-                               <Button 
-                                 size="sm" 
-                                 variant="outline" 
-                                 className="flex-1 h-8 text-xs"
-                                 onClick={e => {
-                                   e.stopPropagation();
-                                   shareCard(card);
-                                 }}
-                               >
+                               <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={e => {
+                            e.stopPropagation();
+                            shareCard(card);
+                          }}>
                                  <Share2 className="w-3 h-3 mr-1" />
                                  分享
                                </Button>
