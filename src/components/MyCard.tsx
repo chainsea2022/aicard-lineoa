@@ -669,7 +669,7 @@ LINE: ${cardInfo.line || ''}
             {/* 多名片管理區塊 */}
             <div className="mb-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">我的電子名片</h3>
+                <h3 className="text-lg font-semibold text-gray-800">名片列表</h3>
                 <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => {
                 // 清除編輯狀態，設定為新增模式
                 localStorage.removeItem('editing-card-data');
