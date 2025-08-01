@@ -62,16 +62,95 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   // AI智能生成標題
   const generateTitleFromDescription = (desc: string, name: string): string => {
     const lowerDesc = desc.toLowerCase();
-    if (lowerDesc.includes('會議') || lowerDesc.includes('討論')) {
-      return `與${name}的會議討論`;
-    } else if (lowerDesc.includes('電話') || lowerDesc.includes('通話')) {
-      return `與${name}的電話會議`;
-    } else if (lowerDesc.includes('拜訪') || lowerDesc.includes('見面')) {
-      return `拜訪${name}`;
-    } else if (lowerDesc.includes('活動') || lowerDesc.includes('聚會')) {
-      return `與${name}的活動聚會`;
+    
+    // 提取關鍵詞和重點
+    const keywords = extractKeywords(desc);
+    const timeKeywords = extractTimeKeywords(desc);
+    const topicKeywords = extractTopicKeywords(desc);
+    
+    // 根據內容類型和關鍵詞生成具體標題
+    if (lowerDesc.includes('產品') || lowerDesc.includes('方案') || lowerDesc.includes('提案')) {
+      const product = keywords.find(k => k.includes('產品') || k.includes('方案'));
+      return product ? `${name}：${product}討論` : `與${name}討論產品方案`;
+    } else if (lowerDesc.includes('合作') || lowerDesc.includes('合約') || lowerDesc.includes('簽約')) {
+      return `與${name}的合作洽談`;
+    } else if (lowerDesc.includes('報價') || lowerDesc.includes('價格') || lowerDesc.includes('費用')) {
+      return `${name}報價討論會議`;
+    } else if (lowerDesc.includes('技術') || lowerDesc.includes('開發') || lowerDesc.includes('系統')) {
+      const tech = topicKeywords.find(k => k.includes('技術') || k.includes('系統'));
+      return tech ? `${name}：${tech}技術會議` : `與${name}技術討論`;
+    } else if (lowerDesc.includes('培訓') || lowerDesc.includes('教學') || lowerDesc.includes('訓練')) {
+      return `${name}培訓會議`;
+    } else if (lowerDesc.includes('回顧') || lowerDesc.includes('檢討') || lowerDesc.includes('總結')) {
+      return `與${name}的項目回顧`;
+    } else if (lowerDesc.includes('啟動') || lowerDesc.includes('開始') || lowerDesc.includes('開工')) {
+      return `${name}項目啟動會議`;
+    } else if (lowerDesc.includes('電話') || lowerDesc.includes('通話') || lowerDesc.includes('視訊')) {
+      const topic = topicKeywords[0];
+      return topic ? `${name}：${topic}電話會議` : `與${name}的電話會議`;
+    } else if (lowerDesc.includes('拜訪') || lowerDesc.includes('見面') || lowerDesc.includes('會面')) {
+      const purpose = topicKeywords[0];
+      return purpose ? `拜訪${name}：${purpose}` : `拜訪${name}`;
+    } else if (lowerDesc.includes('活動') || lowerDesc.includes('聚會') || lowerDesc.includes('餐會')) {
+      const event = keywords.find(k => k.includes('活動') || k.includes('聚會'));
+      return event ? `${name}：${event}` : `與${name}的活動聚會`;
+    } else if (topicKeywords.length > 0) {
+      // 如果有明確的主題關鍵詞，使用第一個作為標題重點
+      return `與${name}討論${topicKeywords[0]}`;
     }
-    return `與${name}的會面`;
+    
+    // 預設標題，加上時間資訊讓它更具體
+    const timeInfo = timeKeywords[0];
+    return timeInfo ? `與${name}的${timeInfo}會議` : `與${name}的會面`;
+  };
+
+  // 提取關鍵詞
+  const extractKeywords = (desc: string): string[] => {
+    const keywords = [];
+    const patterns = [
+      /([^，,。!\n]{2,8}產品[^，,。!\n]{0,5})/g,
+      /([^，,。!\n]{2,8}方案[^，,。!\n]{0,5})/g,
+      /([^，,。!\n]{2,8}系統[^，,。!\n]{0,5})/g,
+      /([^，,。!\n]{2,8}項目[^，,。!\n]{0,5})/g,
+      /([^，,。!\n]{2,8}服務[^，,。!\n]{0,5})/g,
+    ];
+    
+    patterns.forEach(pattern => {
+      const matches = desc.match(pattern);
+      if (matches) keywords.push(...matches.map(m => m.trim()));
+    });
+    
+    return keywords;
+  };
+
+  // 提取時間相關關鍵詞
+  const extractTimeKeywords = (desc: string): string[] => {
+    const timeWords = ['早上', '上午', '中午', '下午', '晚上', '週一', '週二', '週三', '週四', '週五', '月底', '季度'];
+    return timeWords.filter(word => desc.includes(word));
+  };
+
+  // 提取主題關鍵詞
+  const extractTopicKeywords = (desc: string): string[] => {
+    const topicPatterns = [
+      /討論([^，,。!\n]{2,10})/g,
+      /關於([^，,。!\n]{2,10})/g,
+      /([^，,。!\n]{2,10})相關/g,
+      /([^，,。!\n]{2,10})需求/g,
+      /([^，,。!\n]{2,10})問題/g,
+    ];
+    
+    const topics = [];
+    topicPatterns.forEach(pattern => {
+      const matches = desc.match(pattern);
+      if (matches) {
+        matches.forEach(match => {
+          const topic = match.replace(/討論|關於|相關|需求|問題/g, '').trim();
+          if (topic.length > 1) topics.push(topic);
+        });
+      }
+    });
+    
+    return topics;
   };
 
   // AI推斷行程類型
