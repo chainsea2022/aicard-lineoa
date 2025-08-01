@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScheduleRecord } from './types';
 import { useConversation } from '@11labs/react';
+import VoiceInput from '../VoiceInput';
 
 interface ScheduleRecordFormProps {
   customerId: number;
@@ -33,18 +34,47 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   const [editingRecord, setEditingRecord] = useState<ScheduleRecord | null>(null);
   const [showContactSelector, setShowContactSelector] = useState(false);
   const [selectedContacts, setSelectedContacts] = useState<Array<{id: string, name: string, company?: string}>>([]);
+  const [contactSearchTerm, setContactSearchTerm] = useState('');
+  const [showManualInput, setShowManualInput] = useState(false);
+  const [manualContactName, setManualContactName] = useState('');
 
-  // 模擬名片夾聯絡人資料
+  // 模擬名片夾聯絡人資料 (區分已註冊和未註冊)
   const mockContacts = [
-    { id: '1', name: '張小明', company: 'ABC公司', phone: '0912-345-678', email: 'zhang@abc.com' },
-    { id: '2', name: '李小華', company: 'ABC公司', phone: '0923-456-789', email: 'li@abc.com' },
-    { id: '3', name: '王大成', company: 'XYZ企業', phone: '0934-567-890', email: 'wang@xyz.com' },
-    { id: '4', name: '陳小美', company: '123科技', phone: '0945-678-901', email: 'chen@123tech.com' },
-    { id: '5', name: '林志明', company: '123科技', phone: '0956-789-012', email: 'lin@123tech.com' },
-    { id: '6', name: '黃大華', company: 'DEF集團', phone: '0967-890-123', email: 'huang@def.com' },
-    { id: '7', name: '劉小琪', company: 'GHI公司', phone: '0978-901-234', email: 'liu@ghi.com' },
-    { id: '8', name: '吳志偉', company: 'JKL企業', phone: '0989-012-345', email: 'wu@jkl.com' },
+    { id: '1', name: '張小明', company: 'ABC公司', phone: '0912-345-678', email: 'zhang@abc.com', hasCard: true },
+    { id: '2', name: '李小華', company: 'ABC公司', phone: '0923-456-789', email: 'li@abc.com', hasCard: true },
+    { id: '3', name: '王大成', company: 'XYZ企業', phone: '0934-567-890', email: 'wang@xyz.com', hasCard: false },
+    { id: '4', name: '陳小美', company: '123科技', phone: '0945-678-901', email: 'chen@123tech.com', hasCard: true },
+    { id: '5', name: '林志明', company: '123科技', phone: '0956-789-012', email: 'lin@123tech.com', hasCard: false },
+    { id: '6', name: '黃大華', company: 'DEF集團', phone: '0967-890-123', email: 'huang@def.com', hasCard: true },
+    { id: '7', name: '劉小琪', company: 'GHI公司', phone: '0978-901-234', email: 'liu@ghi.com', hasCard: false },
+    { id: '8', name: '吳志偉', company: 'JKL企業', phone: '0989-012-345', email: 'wu@jkl.com', hasCard: true },
   ];
+
+  // 過濾聯絡人
+  const filteredContacts = mockContacts.filter(contact => 
+    contact.name.toLowerCase().includes(contactSearchTerm.toLowerCase()) ||
+    (contact.company && contact.company.toLowerCase().includes(contactSearchTerm.toLowerCase()))
+  );
+
+  // 處理手動新增聯絡人
+  const handleAddManualContact = () => {
+    if (!manualContactName.trim()) return;
+    
+    const newContact = {
+      id: `manual-${Date.now()}`,
+      name: manualContactName.trim(),
+      company: undefined
+    };
+    
+    setSelectedContacts(prev => [...prev, newContact]);
+    setManualContactName('');
+    setShowManualInput(false);
+  };
+
+  // 語音輸入聯絡人姓名
+  const handleContactVoiceInput = (text: string) => {
+    setContactSearchTerm(text);
+  };
 
   const conversation = useConversation();
 
@@ -581,36 +611,167 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
 
               {/* 聯絡人選擇選單 */}
               {showContactSelector && (
-                <div className="bg-white border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
-                  <div className="p-2 space-y-1">
-                    {mockContacts
-                      .filter(contact => !selectedContacts.some(sc => sc.id === contact.id))
-                      .map((contact) => (
-                        <div
-                          key={contact.id}
-                          onClick={() => {
-                            setSelectedContacts(prev => [...prev, {
-                              id: contact.id,
-                              name: contact.name,
-                              company: contact.company
-                            }]);
-                            setShowContactSelector(false);
-                          }}
-                          className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
-                        >
-                          <div className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                            {contact.name.charAt(0)}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {contact.name}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">
-                              {contact.company} • {contact.phone}
-                            </p>
+                <div className="bg-white border border-gray-200 rounded-lg">
+                  {/* 搜尋和語音輸入 */}
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="relative mb-2">
+                      <Input
+                        placeholder="輸入姓名或公司名稱快速搜尋..."
+                        value={contactSearchTerm}
+                        onChange={(e) => setContactSearchTerm(e.target.value)}
+                        className="text-sm pr-10"
+                      />
+                      <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                        <VoiceInput 
+                          onResult={handleContactVoiceInput}
+                          className="p-1"
+                        />
+                      </div>
+                    </div>
+                    
+                    {/* 手動新增聯絡人 */}
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => setShowManualInput(!showManualInput)}
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                      >
+                        <UserPlus className="w-3 h-3 mr-1" />
+                        手動新增
+                      </Button>
+                      {showManualInput && (
+                        <div className="flex-1 flex gap-1">
+                          <Input
+                            placeholder="輸入聯絡人姓名"
+                            value={manualContactName}
+                            onChange={(e) => setManualContactName(e.target.value)}
+                            className="text-xs"
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') {
+                                handleAddManualContact();
+                              }
+                            }}
+                          />
+                          <Button
+                            onClick={handleAddManualContact}
+                            size="sm"
+                            className="text-xs"
+                          >
+                            新增
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* 聯絡人列表 */}
+                  <div className="max-h-48 overflow-y-auto">
+                    {/* 已註冊電子名片 */}
+                    {filteredContacts.filter(contact => contact.hasCard && !selectedContacts.some(sc => sc.id === contact.id)).length > 0 && (
+                      <div>
+                        <div className="px-3 py-2 bg-green-50 border-b border-green-100">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                            <span className="text-xs font-medium text-green-700">已註冊電子名片</span>
                           </div>
                         </div>
-                      ))}
+                        <div className="p-1">
+                          {filteredContacts
+                            .filter(contact => contact.hasCard && !selectedContacts.some(sc => sc.id === contact.id))
+                            .map((contact) => (
+                              <div
+                                key={contact.id}
+                                onClick={() => {
+                                  setSelectedContacts(prev => [...prev, {
+                                    id: contact.id,
+                                    name: contact.name,
+                                    company: contact.company
+                                  }]);
+                                }}
+                                className="flex items-center space-x-2 p-2 hover:bg-green-50 rounded cursor-pointer border border-transparent hover:border-green-200"
+                              >
+                                <div className="w-8 h-8 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                  {contact.name.charAt(0)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {contact.name}
+                                    <span className="ml-2 text-xs bg-green-100 text-green-700 px-1 rounded">電子名片</span>
+                                  </p>
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {contact.company} • {contact.phone}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 未註冊聯絡人 */}
+                    {filteredContacts.filter(contact => !contact.hasCard && !selectedContacts.some(sc => sc.id === contact.id)).length > 0 && (
+                      <div>
+                        <div className="px-3 py-2 bg-orange-50 border-b border-orange-100">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                            <span className="text-xs font-medium text-orange-700">未註冊聯絡人</span>
+                          </div>
+                        </div>
+                        <div className="p-1">
+                          {filteredContacts
+                            .filter(contact => !contact.hasCard && !selectedContacts.some(sc => sc.id === contact.id))
+                            .map((contact) => (
+                              <div
+                                key={contact.id}
+                                onClick={() => {
+                                  setSelectedContacts(prev => [...prev, {
+                                    id: contact.id,
+                                    name: contact.name,
+                                    company: contact.company
+                                  }]);
+                                }}
+                                className="flex items-center space-x-2 p-2 hover:bg-orange-50 rounded cursor-pointer border border-transparent hover:border-orange-200"
+                              >
+                                <div className="w-8 h-8 bg-gradient-to-r from-orange-400 to-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                  {contact.name.charAt(0)}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-gray-900 truncate">
+                                    {contact.name}
+                                    <span className="ml-2 text-xs bg-orange-100 text-orange-700 px-1 rounded">一般聯絡人</span>
+                                  </p>
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {contact.company} • {contact.phone}
+                                  </p>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 無搜尋結果 */}
+                    {filteredContacts.length === 0 && (
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        找不到相關聯絡人
+                        {contactSearchTerm && (
+                          <div className="mt-2">
+                            <Button
+                              onClick={() => {
+                                setManualContactName(contactSearchTerm);
+                                setShowManualInput(true);
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="text-xs"
+                            >
+                              新增「{contactSearchTerm}」為聯絡人
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
