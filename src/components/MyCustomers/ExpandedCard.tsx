@@ -221,18 +221,79 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       )}
 
       {/* Tags */}
-      {customer.tags && customer.tags.length > 0 && (
-        <div className="space-y-2">
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
           <h4 className="font-medium text-sm text-gray-800">標籤</h4>
+          <Button
+            onClick={() => {
+              // 自動建立標籤 - 基於公司、職位等資訊
+              const autoTags = [];
+              if (customer.company) autoTags.push(`公司:${customer.company}`);
+              if (customer.jobTitle) autoTags.push(`職位:${customer.jobTitle}`);
+              if (customer.hasCard) autoTags.push('數位名片');
+              else autoTags.push('紙本名片');
+              
+              // 添加自動標籤
+              autoTags.forEach(tag => {
+                if (!customer.tags?.includes(tag)) {
+                  onAddTag(customer.id, tag);
+                }
+              });
+            }}
+            variant="outline"
+            size="sm"
+            className="text-xs"
+          >
+            自動標籤
+          </Button>
+        </div>
+        
+        {/* 現有標籤顯示 */}
+        {customer.tags && customer.tags.length > 0 && (
           <div className="flex flex-wrap gap-1">
             {customer.tags.map((tag, index) => (
-              <Badge key={index} variant="secondary" className="text-xs">
+              <Badge 
+                key={index} 
+                variant="secondary" 
+                className="text-xs flex items-center gap-1 cursor-pointer hover:bg-red-100"
+                onClick={() => onRemoveTag(customer.id, tag)}
+              >
                 {tag}
+                <X className="w-3 h-3" />
               </Badge>
             ))}
           </div>
+        )}
+        
+        {/* 手動新增標籤 */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="新增標籤..."
+            className="flex-1 text-xs px-2 py-1 border border-gray-300 rounded"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                onAddTag(customer.id, e.currentTarget.value.trim());
+                e.currentTarget.value = '';
+              }
+            }}
+          />
+          <Button
+            onClick={(e) => {
+              const input = e.currentTarget.previousElementSibling as HTMLInputElement;
+              if (input.value.trim()) {
+                onAddTag(customer.id, input.value.trim());
+                input.value = '';
+              }
+            }}
+            variant="outline"
+            size="sm"
+            className="text-xs"
+          >
+            新增
+          </Button>
         </div>
-      )}
+      </div>
 
       {/* Notes */}
       <div className="space-y-2">
