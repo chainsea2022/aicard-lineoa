@@ -348,7 +348,7 @@ const Scanner: React.FC<ScannerProps> = ({
           
           <div className="space-y-2 mt-auto pb-4">
             <Button onClick={onClose} className="w-full bg-green-500 hover:bg-green-600 text-xs py-2 h-8">
-              前往名片人脈夾
+              前往我的名片夾
             </Button>
             <Button onClick={() => {
             setShowSuccessMessage(false);
