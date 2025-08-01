@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock, Heart } from 'lucide-react';
+import { ChevronRight, MessageSquare, Phone, Mail, Smartphone, Edit, Globe, CheckCircle, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -80,13 +80,13 @@ export const ContactCard: React.FC<ContactCardProps> = ({
                     onClick={handleToggleFavorite}
                     className={`p-1 rounded-full transition-colors ${
                       customer.isFavorite 
-                        ? 'bg-red-100 hover:bg-red-200' 
+                        ? 'bg-yellow-100 hover:bg-yellow-200' 
                         : 'bg-gray-100 hover:bg-gray-200'
                     }`}
                     title={customer.isFavorite ? '取消關注' : '關注聯絡人'}
                   >
-                    <Heart className={`w-3 h-3 ${
-                      customer.isFavorite ? 'text-red-600 fill-current' : 'text-gray-600'
+                    <Star className={`w-3 h-3 ${
+                      customer.isFavorite ? 'text-yellow-600 fill-current' : 'text-gray-600'
                     }`} />
                   </button>
                 )}
