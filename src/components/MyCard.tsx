@@ -433,7 +433,7 @@ LINE: ${cardInfo.line || ''}
     setTempEmail('');
     toast({
       title: "✅ 您的 Email 驗證成功！",
-      description: "恭喜！您的電子信箱已完成驗證，現在可以完整使用 Aipower 名片功能。"
+      description: "恭喜！您的電子信箱已完成驗證，現在可以完整使用 AiCard 名片功能。"
     });
   };
 
@@ -1333,9 +1333,9 @@ LINE: ${cardInfo.line || ''}
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-4">
-                          {/* Aipower 名片夾 */}
+                          {/* AiCard 名片夾 */}
                           <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                            <h4 className="font-bold text-blue-800 mb-2">Aipower ｜名片夾</h4>
+                            <h4 className="font-bold text-blue-800 mb-2">AiCard ｜名片夾</h4>
                             <p className="text-blue-700 mb-3">建立個人電子名片，串起你的人脈鏈</p>
                             <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
                               <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100 flex-1 justify-center">

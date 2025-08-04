@@ -32,7 +32,7 @@ const Scanner: React.FC<ScannerProps> = ({
   onClose
 }) => {
   const [isLiffReady, setIsLiffReady] = useState(false);
-  const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aipower-card' | 'duplicate-detected'>('none');
+  const [scanResult, setScanResult] = useState<'none' | 'paper-card' | 'aicard-card' | 'duplicate-detected'>('none');
   const [scanCount, setScanCount] = useState(() => {
     // Get scan count from localStorage to persist across visits
     return parseInt(localStorage.getItem('scanner-scan-count') || '0');
@@ -93,7 +93,7 @@ const Scanner: React.FC<ScannerProps> = ({
         photo: '/placeholder.svg'
       };
       
-      setScanResult('aipower-card');
+      setScanResult('aicard-card');
       setCustomerData(scannedData);
     } else if (newScanCount % 3 === 2) {
       // 第2種情境：辨識到紙本名片
@@ -140,7 +140,7 @@ const Scanner: React.FC<ScannerProps> = ({
   };
   const generateInvitationUrl = () => {
     const inviteId = Math.random().toString(36).substring(2, 15);
-    return `https://aipower.app/register?invite=${inviteId}`;
+    return `https://aicard.app/register?invite=${inviteId}`;
   };
   const handleAddCustomer = () => {
     const customers = JSON.parse(localStorage.getItem('aile-customers') || '[]');
@@ -156,12 +156,12 @@ const Scanner: React.FC<ScannerProps> = ({
       facebook: customerData.facebook,
       instagram: customerData.instagram,
       photo: customerData.photo,
-      hasCard: scanResult === 'aipower-card',
+      hasCard: scanResult === 'aicard-card',
       addedDate: new Date().toISOString(),
       notes: scanResult === 'paper-card' ? '紙本名片掃描' : 'QR Code掃描加入',
       isInvited: scanResult === 'paper-card',
       invitationSent: scanResult === 'paper-card',
-      isDigitalCard: scanResult === 'aipower-card'
+      isDigitalCard: scanResult === 'aicard-card'
     };
     customers.push(newCustomer);
     localStorage.setItem('aile-customers', JSON.stringify(customers));
@@ -177,7 +177,7 @@ const Scanner: React.FC<ScannerProps> = ({
           customer: newCustomer
         }
       }));
-    } else if (scanResult === 'aipower-card') {
+    } else if (scanResult === 'aicard-card') {
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: {
           customerName: customerData.name,
@@ -401,7 +401,7 @@ const Scanner: React.FC<ScannerProps> = ({
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-1 bg-green-500 rounded-full flex-shrink-0"></div>
-                <span className="text-xs text-green-600">📱 Aipower 電子名片用戶</span>
+                <span className="text-xs text-green-600">📱 AiCard 電子名片用戶</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-1 h-1 bg-orange-500 rounded-full flex-shrink-0"></div>
@@ -558,11 +558,11 @@ const Scanner: React.FC<ScannerProps> = ({
             </div>
           </div>}
 
-        {/* Aipower Electronic Business Card Results */}
-        {scanResult === 'aipower-card' && <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+        {/* AiCard Electronic Business Card Results */}
+        {scanResult === 'aicard-card' && <div className="bg-green-50 border border-green-200 rounded-lg p-3">
             <div className="flex items-center space-x-2 mb-2">
               <QrCode className="w-4 h-4 text-green-600" />
-              <h3 className="font-bold text-green-800 text-xs">發現 Aipower 電子名片！</h3>
+              <h3 className="font-bold text-green-800 text-xs">發現 AiCard 電子名片！</h3>
             </div>
             
             {/* Electronic Business Card Preview */}
@@ -622,7 +622,7 @@ const Scanner: React.FC<ScannerProps> = ({
             
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-2">
               <p className="text-xs text-blue-700">
-                🎉 太好了！{customerData.name} 也是 Aipower 用戶，您可以直接將他們加入我的電子名片夾。
+                🎉 太好了！{customerData.name} 也是 AiCard 用戶，您可以直接將他們加入我的電子名片夾。
               </p>
             </div>
             

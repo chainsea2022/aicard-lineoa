@@ -76,7 +76,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
   // 使用統一的客戶名稱
   const [actualCustomerName] = useState(() => customerName || CONSISTENT_CUSTOMER_NAME);
   
-  const handleJoinAipowerNetwork = () => {
+  const handleJoinAiCardNetwork = () => {
     setStep(2); // 顯示加LINE成功
     
     // 模擬加LINE成功
@@ -87,7 +87,7 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
       // 在聊天室中顯示加LINE成功訊息
       const joinMessage = {
         id: Date.now(),
-        text: `🎉 ${actualCustomerName} 已加入您的 Aipower 名片圈！`,
+        text: `🎉 ${actualCustomerName} 已加入您的 AiCard 名片圈！`,
         isBot: true,
         timestamp: new Date()
       };
@@ -142,12 +142,12 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
         }, 500);
       }
       
-      // 立即新增客戶到名片人脈夾（當客戶加入 Aipower 名片人脈圈時）
+      // 立即新增客戶到名片人脈夾（當客戶加入 AiCard 名片人脈圈時）
       const lineUserId = `U${Math.random().toString(36).substr(2, 32)}`;
       window.dispatchEvent(new CustomEvent('customerAddedNotification', {
         detail: { 
           customerName: actualCustomerName,
-          action: flowType === 'qr_scan' ? 'join_aipower_network' : 'direct_contact_add',
+          action: flowType === 'qr_scan' ? 'join_aicard_network' : 'direct_contact_add',
           isDigitalCard: true,
           profileImage: `https://via.placeholder.com/40/4ade80/ffffff?text=${actualCustomerName.charAt(0)}`,
           lineAccount: `@${actualCustomerName.toLowerCase()}`,
@@ -178,10 +178,10 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
               </p>
               
               <Button 
-                onClick={handleJoinAipowerNetwork}
+                onClick={handleJoinAiCardNetwork}
                 className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-sm font-medium"
               >
-              加入 Aipower 名片圈
+              加入 AiCard 名片圈
               </Button>
             </div>
           )}
@@ -196,8 +196,8 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
               <h3 className="text-lg font-bold text-green-800 mb-3">加LINE成功！</h3>
               <p className="text-sm text-gray-600">
                 {flowType === 'qr_scan' 
-                  ? '已成功加入 Aipower 名片圈，完整電子名片已發送至您的LINE聊天室'
-                  : '已成功加入 Aipower 名片圈'}
+                  ? '已成功加入 AiCard 名片圈，完整電子名片已發送至您的LINE聊天室'
+                  : '已成功加入 AiCard 名片圈'}
               </p>
             </div>
           )}
@@ -220,11 +220,11 @@ const LIFFPopup = ({ isOpen, onClose, cardOwnerName, onUserJoined, flowType, cus
 };
 
 // 完整電子名片 LIFF 介面
-const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveCard, onShareCard }: { 
+const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAiCardOA, onSaveCard, onShareCard }: { 
   isOpen: boolean; 
   onClose: () => void; 
   cardData: any;
-  onJoinAipowerOA: () => void;
+  onJoinAiCardOA: () => void;
   onSaveCard: (cardData: any) => void;
   onShareCard: (cardData: any) => void;
 }) => {
@@ -375,7 +375,7 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAipowerOA, onSaveC
               {/* 操作按鈕組 */}
               <div className="space-y-2">
                 <Button 
-                  onClick={onJoinAipowerOA}
+                  onClick={onJoinAiCardOA}
                   className="w-full bg-green-500 hover:bg-green-600 text-white text-sm py-2.5 h-auto rounded-xl font-medium shadow-sm"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
@@ -423,7 +423,7 @@ const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true); // 預設展開圖文選單
   const [activeView, setActiveView] = useState<string | null>(null); // 不預設載入任何介面
   const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: '歡迎使用 Aipower！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
+    { id: 1, text: '歡迎使用 AiCard！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
   ]);
   const [customers, setCustomers] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
@@ -782,10 +782,10 @@ const ChatRoom = () => {
     setShowFullCardPopup(true);
   };
 
-  const handleJoinAipowerOA = () => {
+  const handleJoinAiCardOA = () => {
     toast({
       title: "成功加入！",
-      description: "已成功加入 Aipower LINE OA 好友",
+      description: "已成功加入 AiCard LINE OA 好友",
     });
   };
 
@@ -870,7 +870,7 @@ const ChatRoom = () => {
             <Zap className="w-4 h-4 text-green-500" />
           </div>
           <div>
-            <h1 className="font-bold text-base">Aipower</h1>
+            <h1 className="font-bold text-base">AiCard</h1>
             <p className="text-green-100 text-xs">名片人脈圈</p>
           </div>
         </div>
@@ -1037,9 +1037,9 @@ const ChatRoom = () => {
                                   </div>
                                 ) : (
                                   <div className="space-y-1.5">
-                                    {/* 加入 Aipower LINE OA好友 */}
+                                    {/* 加入 AiCard LINE OA好友 */}
                                     <Button 
-                                      onClick={() => handleJoinAipowerOA()}
+                                      onClick={() => handleJoinAiCardOA()}
                                       size="sm" 
                                       className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-7 font-medium rounded-lg"
                                     >
@@ -1188,7 +1188,7 @@ const ChatRoom = () => {
         isOpen={showFullCardPopup} 
         onClose={() => setShowFullCardPopup(false)} 
         cardData={fullCardData}
-        onJoinAipowerOA={handleJoinAipowerOA}
+        onJoinAiCardOA={handleJoinAiCardOA}
         onSaveCard={handleSaveCard}
         onShareCard={handleShareCard}
       />

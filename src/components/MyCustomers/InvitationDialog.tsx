@@ -49,7 +49,7 @@ export const InvitationDialog: React.FC<InvitationDialogProps> = ({
                   您收到甲的電子名片註冊邀請！
                 </h3>
                 <p className="text-gray-600 leading-relaxed">
-                  立即加入 Aipower 名片人脈圈，<br />
+                  立即加入 AiCard 名片人脈圈，<br />
                   開始建立人脈關係！
                 </p>
               </div>
