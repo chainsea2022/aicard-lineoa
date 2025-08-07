@@ -530,7 +530,7 @@ LINE: ${cardInfo.line || ''}
           <div className="flex">
             <button onClick={() => setActiveTab('cards')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'cards' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}>
               <User className="w-4 h-4 inline-block mr-1" />
-              我的名片
+              名片管理
             </button>
             <button onClick={() => setActiveTab('points')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'points' ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50' : 'text-gray-600 hover:text-orange-600'}`}>
               <Coins className="w-4 h-4 inline-block mr-1" />
