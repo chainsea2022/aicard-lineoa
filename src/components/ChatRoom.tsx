@@ -1192,12 +1192,24 @@ const ChatRoom = () => {
             /* Regular Chat Message */
             <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
               <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
-              {/* 如果訊息包含建立名片的提示，顯示按鈕 */}
+              
+              {/* 建立電子名片按鈕 - 在所有聊天訊息下方顯示 */}
+              <div className="mt-3">
+                <Button 
+                  onClick={() => setActiveView('mycard')}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg py-2"
+                >
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  建立電子名片
+                </Button>
+              </div>
+              
+              {/* 如果訊息包含建立名片的提示，顯示額外的按鈕 */}
               {(message.text.includes('尚未建立電子名片') || message.text.includes('立即註冊，打造您的第一張專屬名片')) && (
-                <div className="mt-3">
+                <div className="mt-2">
                   <Button 
                     onClick={() => setActiveView('mycard')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg py-2"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg py-2"
                   >
                     <CheckCircle className="w-4 h-4 mr-2" />
                     ✅ 建立我的電子名片
