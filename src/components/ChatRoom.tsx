@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -1189,10 +1189,22 @@ const ChatRoom = () => {
                               </div>
                             </div>
                           ) : (
-                            /* Regular Chat Message */
-                            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
-                              <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
-                            </div>
+            /* Regular Chat Message */
+            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
+              <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
+              {/* 如果訊息包含建立名片的提示，顯示按鈕 */}
+              {(message.text.includes('尚未建立電子名片') || message.text.includes('立即註冊，打造您的第一張專屬名片')) && (
+                <div className="mt-3">
+                  <Button 
+                    onClick={() => setActiveView('mycard')}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg py-2"
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    ✅ 建立我的電子名片
+                  </Button>
+                </div>
+              )}
+            </div>
                           )}
                           <p className="text-xs text-gray-500 mt-1 ml-2">
                             {message.timestamp.toLocaleTimeString('zh-TW', {
