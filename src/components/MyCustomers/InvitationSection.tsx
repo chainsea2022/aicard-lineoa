@@ -159,7 +159,7 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm text-gray-800 text-center">選擇分享平台</h4>
                   
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="flex gap-2 justify-center">
                     {/* LINE */}
                     <Button
                       onClick={handleLineShare}
