@@ -99,71 +99,59 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
           邀請加入我的名片並建立電子名片
         </h4>
         
-        <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            {/* SMS Invitation */}
-            {customer.phone && (
-              <div className="space-y-2">
-                {!customer.invitationSent ? (
-                  <Button
-                    onClick={handleSendSMS}
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
-                    size="sm"
-                  >
-                    <Smartphone className="w-4 h-4 mr-2" />
-                    發送簡訊邀請
-                  </Button>
-                ) : (
-                  <div className="w-full p-2 bg-green-100 rounded-md text-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
-                    <p className="text-xs text-green-700">簡訊已發送</p>
-                    {customer.invitationDate && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {formatDate(customer.invitationDate)}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+        <div className="flex flex-wrap gap-2 justify-center">
+          {/* SMS Invitation */}
+          {customer.phone && (
+            <div className="flex-1 min-w-0">
+              {!customer.invitationSent ? (
+                <Button
+                  onClick={handleSendSMS}
+                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                  size="sm"
+                >
+                  <Smartphone className="w-4 h-4 mr-1" />
+                  簡訊邀請
+                </Button>
+              ) : (
+                <div className="w-full p-2 bg-green-100 rounded-md text-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
+                  <p className="text-xs text-green-700">簡訊已發送</p>
+                </div>
+              )}
+            </div>
+          )}
 
-            {/* Email Invitation */}
-            {customer.email && (
-              <div className="space-y-2">
-                {!customer.emailInvitationSent ? (
-                  <Button
-                    onClick={handleSendEmail}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white text-sm"
-                    size="sm"
-                  >
-                    <Mail className="w-4 h-4 mr-2" />
-                    發送Email邀請
-                  </Button>
-                ) : (
-                  <div className="w-full p-2 bg-green-100 rounded-md text-center">
-                    <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
-                    <p className="text-xs text-green-700">Email已發送</p>
-                    {customer.emailInvitationDate && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {formatDate(customer.emailInvitationDate)}
-                      </p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
+          {/* Email Invitation */}
+          {customer.email && (
+            <div className="flex-1 min-w-0">
+              {!customer.emailInvitationSent ? (
+                <Button
+                  onClick={handleSendEmail}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white text-xs"
+                  size="sm"
+                >
+                  <Mail className="w-4 h-4 mr-1" />
+                  Email邀請
+                </Button>
+              ) : (
+                <div className="w-full p-2 bg-green-100 rounded-md text-center">
+                  <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
+                  <p className="text-xs text-green-700">Email已發送</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Share Button */}
-          <div className="flex justify-center pt-2 border-t border-blue-100">
+          <div className="flex-1 min-w-0">
             <Popover open={shareOpen} onOpenChange={setShareOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
+                  className="w-full bg-white text-blue-600 border-blue-200 hover:bg-blue-50 text-xs"
                 >
-                  <Share2 className="w-4 h-4 mr-2" />
+                  <Share2 className="w-4 h-4 mr-1" />
                   分享邀請
                 </Button>
               </PopoverTrigger>
