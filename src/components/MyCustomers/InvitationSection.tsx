@@ -159,16 +159,16 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
                 <div className="space-y-3">
                   <h4 className="font-medium text-sm text-gray-800 text-center">選擇分享平台</h4>
                   
-                  <div className="flex gap-2 justify-center">
+                  <div className="flex gap-1 justify-center flex-wrap">
                     {/* LINE */}
                     <Button
                       onClick={handleLineShare}
                       variant="outline"
                       size="sm"
-                      className="flex flex-col h-auto py-3 px-2 text-center"
+                      className="flex flex-col h-auto py-2 px-1 text-center"
                     >
-                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mb-2">
-                        <MessageCircle className="w-4 h-4 text-white" />
+                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center mb-1">
+                        <MessageCircle className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-xs">LINE</span>
                     </Button>
@@ -178,10 +178,10 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
                       onClick={handleMessengerShare}
                       variant="outline"
                       size="sm"
-                      className="flex flex-col h-auto py-3 px-2 text-center"
+                      className="flex flex-col h-auto py-2 px-1 text-center"
                     >
-                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mb-2">
-                        <MessageCircle className="w-4 h-4 text-white" />
+                      <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center mb-1">
+                        <MessageCircle className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-xs">Messenger</span>
                     </Button>
@@ -191,10 +191,10 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
                       onClick={handleFacebookShare}
                       variant="outline"
                       size="sm"
-                      className="flex flex-col h-auto py-3 px-2 text-center"
+                      className="flex flex-col h-auto py-2 px-1 text-center"
                     >
-                      <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center mb-2">
-                        <span className="text-white font-bold text-sm">f</span>
+                      <div className="w-6 h-6 bg-blue-700 rounded-full flex items-center justify-center mb-1">
+                        <span className="text-white font-bold text-xs">f</span>
                       </div>
                       <span className="text-xs">Facebook</span>
                     </Button>
@@ -204,25 +204,27 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
                       onClick={handleInstagramShare}
                       variant="outline"
                       size="sm"
-                      className="flex flex-col h-auto py-3 px-2 text-center"
+                      className="flex flex-col h-auto py-2 px-1 text-center"
                     >
-                      <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-500 rounded-full flex items-center justify-center mb-2">
-                        <Camera className="w-4 h-4 text-white" />
+                      <div className="w-6 h-6 bg-gradient-to-br from-purple-600 to-pink-500 rounded-full flex items-center justify-center mb-1">
+                        <Camera className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-xs">Instagram</span>
                     </Button>
-                  </div>
 
-                  {/* Copy Link */}
-                  <Button
-                    onClick={handleCopyLink}
-                    variant="outline"
-                    size="sm"
-                    className="w-full flex items-center justify-center"
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    複製連結
-                  </Button>
+                    {/* Copy Link */}
+                    <Button
+                      onClick={handleCopyLink}
+                      variant="outline"
+                      size="sm"
+                      className="flex flex-col h-auto py-2 px-1 text-center"
+                    >
+                      <div className="w-6 h-6 bg-gray-600 rounded-full flex items-center justify-center mb-1">
+                        <Copy className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-xs">複製</span>
+                    </Button>
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>
