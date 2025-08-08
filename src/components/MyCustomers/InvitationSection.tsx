@@ -1,8 +1,9 @@
 
-import React from 'react';
-import { Smartphone, Mail, CheckCircle, Clock, Calendar, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { Smartphone, Mail, CheckCircle, Clock, Calendar, User, Share2, Copy, MessageCircle, Camera } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Customer } from './types';
 
 interface InvitationSectionProps {
@@ -16,6 +17,8 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
   onSendInvitation,
   invitationHistory = []
 }) => {
+  const [shareOpen, setShareOpen] = useState(false);
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('zh-TW', {
@@ -39,6 +42,54 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
     }
   };
 
+  const generateInviteLink = () => {
+    // 生成含追蹤參數的邀請連結
+    const baseUrl = window.location.origin;
+    const trackingParams = `?ref=${customer.id}&type=invite`;
+    return `${baseUrl}/register${trackingParams}`;
+  };
+
+  const handleLineShare = () => {
+    const inviteLink = generateInviteLink();
+    const text = `邀請您建立電子名片！${customer.name}想與您交換名片，點選連結立即建立：${inviteLink}`;
+    const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+    window.open(lineUrl, '_blank');
+    setShareOpen(false);
+  };
+
+  const handleMessengerShare = () => {
+    const inviteLink = generateInviteLink();
+    const text = `邀請您建立電子名片！${customer.name}想與您交換名片，點選連結立即建立：${inviteLink}`;
+    const messengerUrl = `fb-messenger://share/?link=${encodeURIComponent(inviteLink)}&app_id=YOUR_APP_ID`;
+    window.open(messengerUrl, '_blank');
+    setShareOpen(false);
+  };
+
+  const handleFacebookShare = () => {
+    const inviteLink = generateInviteLink();
+    const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(inviteLink)}`;
+    window.open(facebookUrl, '_blank');
+    setShareOpen(false);
+  };
+
+  const handleInstagramShare = () => {
+    const inviteLink = generateInviteLink();
+    const text = `邀請您建立電子名片！${customer.name}想與您交換名片，點選連結立即建立：${inviteLink}`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      alert('已複製，請貼上至 Instagram 限時動態、貼文或私訊中分享');
+    });
+    setShareOpen(false);
+  };
+
+  const handleCopyLink = () => {
+    const inviteLink = generateInviteLink();
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      alert('連結已複製，快貼給朋友建立人脈吧！');
+    });
+    setShareOpen(false);
+  };
+
   return (
     <div className="space-y-4">
       {/* Invitation Actions */}
@@ -48,58 +99,146 @@ export const InvitationSection: React.FC<InvitationSectionProps> = ({
           邀請加入我的名片並建立電子名片
         </h4>
         
-        <div className="grid grid-cols-2 gap-3">
-          {/* SMS Invitation */}
-          {customer.phone && (
-            <div className="space-y-2">
-              {!customer.invitationSent ? (
-                <Button
-                  onClick={handleSendSMS}
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
-                  size="sm"
-                >
-                  <Smartphone className="w-4 h-4 mr-2" />
-                  發送簡訊邀請
-                </Button>
-              ) : (
-                <div className="w-full p-2 bg-green-100 rounded-md text-center">
-                  <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
-                  <p className="text-xs text-green-700">簡訊已發送</p>
-                  {customer.invitationDate && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatDate(customer.invitationDate)}
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            {/* SMS Invitation */}
+            {customer.phone && (
+              <div className="space-y-2">
+                {!customer.invitationSent ? (
+                  <Button
+                    onClick={handleSendSMS}
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white text-sm"
+                    size="sm"
+                  >
+                    <Smartphone className="w-4 h-4 mr-2" />
+                    發送簡訊邀請
+                  </Button>
+                ) : (
+                  <div className="w-full p-2 bg-green-100 rounded-md text-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
+                    <p className="text-xs text-green-700">簡訊已發送</p>
+                    {customer.invitationDate && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(customer.invitationDate)}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
-          {/* Email Invitation */}
-          {customer.email && (
-            <div className="space-y-2">
-              {!customer.emailInvitationSent ? (
+            {/* Email Invitation */}
+            {customer.email && (
+              <div className="space-y-2">
+                {!customer.emailInvitationSent ? (
+                  <Button
+                    onClick={handleSendEmail}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white text-sm"
+                    size="sm"
+                  >
+                    <Mail className="w-4 h-4 mr-2" />
+                    發送Email邀請
+                  </Button>
+                ) : (
+                  <div className="w-full p-2 bg-green-100 rounded-md text-center">
+                    <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
+                    <p className="text-xs text-green-700">Email已發送</p>
+                    {customer.emailInvitationDate && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        {formatDate(customer.emailInvitationDate)}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Share Button */}
+          <div className="flex justify-center pt-2 border-t border-blue-100">
+            <Popover open={shareOpen} onOpenChange={setShareOpen}>
+              <PopoverTrigger asChild>
                 <Button
-                  onClick={handleSendEmail}
-                  className="w-full bg-green-500 hover:bg-green-600 text-white text-sm"
+                  variant="outline"
                   size="sm"
+                  className="bg-white text-blue-600 border-blue-200 hover:bg-blue-50"
                 >
-                  <Mail className="w-4 h-4 mr-2" />
-                  發送Email邀請
+                  <Share2 className="w-4 h-4 mr-2" />
+                  分享邀請
                 </Button>
-              ) : (
-                <div className="w-full p-2 bg-green-100 rounded-md text-center">
-                  <CheckCircle className="w-4 h-4 text-green-600 mx-auto mb-1" />
-                  <p className="text-xs text-green-700">Email已發送</p>
-                  {customer.emailInvitationDate && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      {formatDate(customer.emailInvitationDate)}
-                    </p>
-                  )}
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="center">
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm text-gray-800 text-center">選擇分享平台</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* LINE */}
+                    <Button
+                      onClick={handleLineShare}
+                      variant="outline"
+                      size="sm"
+                      className="flex flex-col h-auto py-3 px-2 text-center"
+                    >
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center mb-2">
+                        <MessageCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-xs">LINE</span>
+                    </Button>
+
+                    {/* Messenger */}
+                    <Button
+                      onClick={handleMessengerShare}
+                      variant="outline"
+                      size="sm"
+                      className="flex flex-col h-auto py-3 px-2 text-center"
+                    >
+                      <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center mb-2">
+                        <MessageCircle className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-xs">Messenger</span>
+                    </Button>
+
+                    {/* Facebook */}
+                    <Button
+                      onClick={handleFacebookShare}
+                      variant="outline"
+                      size="sm"
+                      className="flex flex-col h-auto py-3 px-2 text-center"
+                    >
+                      <div className="w-8 h-8 bg-blue-700 rounded-full flex items-center justify-center mb-2">
+                        <span className="text-white font-bold text-sm">f</span>
+                      </div>
+                      <span className="text-xs">Facebook</span>
+                    </Button>
+
+                    {/* Instagram */}
+                    <Button
+                      onClick={handleInstagramShare}
+                      variant="outline"
+                      size="sm"
+                      className="flex flex-col h-auto py-3 px-2 text-center"
+                    >
+                      <div className="w-8 h-8 bg-gradient-to-br from-purple-600 to-pink-500 rounded-full flex items-center justify-center mb-2">
+                        <Camera className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-xs">Instagram</span>
+                    </Button>
+                  </div>
+
+                  {/* Copy Link */}
+                  <Button
+                    onClick={handleCopyLink}
+                    variant="outline"
+                    size="sm"
+                    className="w-full flex items-center justify-center"
+                  >
+                    <Copy className="w-4 h-4 mr-2" />
+                    複製連結
+                  </Button>
                 </div>
-              )}
-            </div>
-          )}
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
 
         {(!customer.phone && !customer.email) && (
