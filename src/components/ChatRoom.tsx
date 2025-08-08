@@ -422,9 +422,8 @@ const FullCardLIFFPopup = ({ isOpen, onClose, cardData, onJoinAiCardOA, onSaveCa
 const ChatRoom = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(true); // 預設展開圖文選單
   const [activeView, setActiveView] = useState<string | null>(null); // 不預設載入任何介面
-  const [messages, setMessages] = useState<Message[]>([
-    { id: 1, text: '歡迎使用 AiCard！請點選下方圖文選單開始使用各項功能。', isBot: true, timestamp: new Date() }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [hasInitialized, setHasInitialized] = useState(false);
   const [customers, setCustomers] = useState<any[]>([]);
   const [inputText, setInputText] = useState('');
   const [showLIFFPopup, setShowLIFFPopup] = useState(false);
@@ -435,6 +434,73 @@ const ChatRoom = () => {
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
+
+  // 初始化歡迎訊息
+  useEffect(() => {
+    if (!hasInitialized) {
+      // 檢查用戶註冊狀態
+      const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
+      const cardDataExists = localStorage.getItem('aile-card-data');
+      const hasStartedRegistration = localStorage.getItem('aicard-user-started-registration') === 'true';
+      
+      if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
+        // 全新用戶 - 顯示歡迎文案和電子名片預覽
+        // 初次加入用戶 - 顯示歡迎文案和電子名片預覽
+        const welcomeMessage = {
+          id: 1,
+          text: '👋 歡迎加入 AiCard 智能電子名片平台！\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！\n🔒 只需手機註冊，即可打造專屬個人名片，輕鬆分享、智能管理。',
+          isBot: true,
+          timestamp: new Date()
+        };
+        
+        // 電子名片預覽卡片
+        const cardPreviewMessage = {
+          id: 2,
+          text: '開始使用 AiCard 電子名片！',
+          isBot: true,
+          timestamp: new Date(),
+          isCard: true,
+          isClientFlexMessage: true,
+          cardData: {
+            name: '立即開始',
+            companyName: 'AiCard 電子名片平台',
+            jobTitle: '・建立名片，立即擁有專屬 QR Code\n・可新增多張名片，打造個人與工作身份\n・完成設定可獲得 50 點 AiPoint 獎勵！',
+            phone: '',
+            email: '',
+            website: '',
+            line: '',
+            facebook: '',
+            instagram: '',
+            photo: null,
+            introduction: '👉 點擊下方按鈕立即開始',
+            welcomeCard: true // 特殊標記為歡迎卡片
+          }
+        };
+        
+        setMessages([welcomeMessage, cardPreviewMessage]);
+      } else if (userRegistered && cardDataExists) {
+        // 已註冊用戶返回
+        const welcomeBackMessage = {
+          id: 1,
+          text: '👋 歡迎回來 AiCard！\n🎯 點選下方功能即可編輯名片、管理人脈、查詢點數！',
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages([welcomeBackMessage]);
+      } else {
+        // 已加入但尚未註冊完成的用戶
+        const registerPromptMessage = {
+          id: 1,
+          text: '👋 歡迎加入 AiCard！\n🎯 您尚未建立專屬電子名片，點擊下方按鈕立即開始註冊！',
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages([registerPromptMessage]);
+      }
+      
+      setHasInitialized(true);
+    }
+  }, [hasInitialized]);
 
   useEffect(() => {
     const handleCustomerAdded = (event: CustomEvent) => {
@@ -560,16 +626,22 @@ const ChatRoom = () => {
       }
     };
 
+    const handleRegistrationCompleted = () => {
+      handleRegistrationComplete();
+    };
+
     window.addEventListener('customerScannedCard', handleCustomerAdded as EventListener);
     window.addEventListener('qrCodeScanned', handleQRScanned as EventListener);
     window.addEventListener('paperCardScanned', handlePaperScanned as EventListener);
     window.addEventListener('liffCardShared', handleLiffCardShared as EventListener);
+    window.addEventListener('registrationCompleted', handleRegistrationCompleted as EventListener);
     
     return () => {
       window.removeEventListener('customerScannedCard', handleCustomerAdded as EventListener);
       window.removeEventListener('qrCodeScanned', handleQRScanned as EventListener);
       window.removeEventListener('paperCardScanned', handlePaperScanned as EventListener);
       window.removeEventListener('liffCardShared', handleLiffCardShared as EventListener);
+      window.removeEventListener('registrationCompleted', handleRegistrationCompleted as EventListener);
     };
   }, []);
 
@@ -714,6 +786,15 @@ const ChatRoom = () => {
     setShowLIFFPopup(true);
   };
 
+  const handleWelcomeCardAction = () => {
+    // 歡迎卡片按鈕 - 開啟註冊流程
+    setActiveView('create-card');
+    setIsMenuOpen(false);
+    
+    // 標記用戶已開始註冊流程
+    localStorage.setItem('aicard-user-started-registration', 'true');
+  };
+
   const handleCardAction = (action: string, cardData: any, customerName?: string) => {
     // 統一使用陳淑芬作為客戶名稱
     const targetCustomerName = CONSISTENT_CUSTOMER_NAME;
@@ -819,6 +900,30 @@ const ChatRoom = () => {
         description: "電子名片資訊已複製，您可以貼上分享",
       });
     }
+  };
+
+  const handleRegistrationComplete = () => {
+    // 註冊完成後的處理邏輯
+    localStorage.setItem('aicard-user-registered', 'true');
+    
+    // 關閉註冊界面
+    setActiveView(null);
+    setIsMenuOpen(false);
+    
+    // 顯示註冊成功訊息
+    const successMessage = {
+      id: Date.now(),
+      text: '🎉 恭喜您！電子名片建立成功！\n✅ 您已獲得 50 點 AiPoint 獎勵！\n📱 現在可以開始使用所有功能了！',
+      isBot: true,
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, successMessage]);
+    
+    toast({
+      title: "註冊成功！",
+      description: "歡迎加入 AiCard 電子名片平台！",
+    });
   };
 
   const renderActiveView = () => {
@@ -976,39 +1081,53 @@ const ChatRoom = () => {
                               <div className="p-3 pt-0 bg-white">
                                 {/* 如果是客戶端 Flex Message，顯示客戶端按鈕組 */}
                                 {(message as any).isClientFlexMessage ? (
-                                  <div className="space-y-1.5">
-                                    <Button 
-                                      onClick={() => handleCardAction('addContact', message.cardData, CONSISTENT_CUSTOMER_NAME)}
-                                      size="sm" 
-                                      className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8 font-medium"
-                                    >
-                                      <UserPlus className="w-3 h-3 mr-1" />
-                                      立即加入聯絡人
-                                    </Button>
-                                    <Button 
-                                      onClick={() => handleCardAction('saveToContacts', message.cardData)}
-                                      size="sm" 
-                                      className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium"
-                                    >
-                                      <BookmarkPlus className="w-3 h-3 mr-1" />
-                                      儲存聯絡人
-                                    </Button>
-                                    <Button 
-                                      size="sm" 
-                                      className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium"
-                                    >
-                                      <Edit className="w-3 h-3 mr-1" />
-                                      建立電子名片
-                                    </Button>
-                                    <Button 
-                                      onClick={() => handleCardAction('share', message.cardData)} 
-                                      size="sm" 
-                                      className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium"
-                                    >
-                                      <Share2 className="w-3 h-3 mr-1" />
-                                      分享
-                                    </Button>
-                                  </div>
+                                  // 檢查是否為歡迎卡片
+                                  message.cardData?.welcomeCard ? (
+                                    <div className="space-y-1.5">
+                                      <Button 
+                                        onClick={() => handleWelcomeCardAction()}
+                                        size="sm" 
+                                        className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium"
+                                      >
+                                        <Edit className="w-3 h-3 mr-1" />
+                                        ✅ 建立我的電子名片
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-1.5">
+                                      <Button 
+                                        onClick={() => handleCardAction('addContact', message.cardData, CONSISTENT_CUSTOMER_NAME)}
+                                        size="sm" 
+                                        className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8 font-medium"
+                                      >
+                                        <UserPlus className="w-3 h-3 mr-1" />
+                                        立即加入聯絡人
+                                      </Button>
+                                      <Button 
+                                        onClick={() => handleCardAction('saveToContacts', message.cardData)}
+                                        size="sm" 
+                                        className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium"
+                                      >
+                                        <BookmarkPlus className="w-3 h-3 mr-1" />
+                                        儲存聯絡人
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium"
+                                      >
+                                        <Edit className="w-3 h-3 mr-1" />
+                                        建立電子名片
+                                      </Button>
+                                      <Button 
+                                        onClick={() => handleCardAction('share', message.cardData)} 
+                                        size="sm" 
+                                        className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium"
+                                      >
+                                        <Share2 className="w-3 h-3 mr-1" />
+                                        分享
+                                      </Button>
+                                    </div>
+                                  )
                                 ) : (message as any).isFullFlexMessage ? (
                                   <div className="space-y-1.5">
                                     <Button 

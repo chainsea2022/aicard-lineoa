@@ -298,6 +298,9 @@ LINE: ${cardInfo.line || ''}
 網站: ${cardInfo.website || ''}`;
       setQrCodeData(qrInfo);
       console.log('生成QR Code:', qrInfo);
+      
+      // 發送註冊完成事件給 ChatRoom
+      window.dispatchEvent(new CustomEvent('registrationCompleted'));
     }
   };
   const handleLogout = () => {
