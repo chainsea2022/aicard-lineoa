@@ -83,6 +83,13 @@ const MyCard: React.FC<MyCardProps> = ({
       if (registrationHistory) {
         setHasRegistrationHistory(true);
       }
+
+      // 檢查用戶是否已註冊但未建立名片
+      if (!savedCardData && !savedUserData && !registrationHistory) {
+        // 未註冊用戶 - 顯示註冊提示
+        return;
+      }
+
       if (savedCardData) {
         const cardInfo = JSON.parse(savedCardData);
         setCardData(cardInfo);
@@ -546,18 +553,57 @@ LINE: ${cardInfo.line || ''}
           </div>
         </div>}
 
-      {/* 如果沒有用戶資料或名片資料，顯示登入/註冊介面 */}
-      {(!userData || !cardData) && <div className="p-4">
+      {/* 檢查用戶狀態：未註冊顯示提示，已註冊顯示登入選項 */}
+      {!cardData && !userData && !hasRegistrationHistory && (
+        <div className="p-4">
+          {/* 未註冊用戶提示 */}
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
+              <User className="w-8 h-8 text-yellow-600" />
+            </div>
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+              <div className="flex items-start space-x-3">
+                <div className="flex-shrink-0">
+                  <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-sm font-medium text-yellow-800 mb-1">
+                    ⚠️ 您尚未建立電子名片，無法使用此功能。
+                  </h3>
+                  <p className="text-sm text-yellow-700 mb-3">
+                    🎯 立即註冊，打造您的第一張專屬名片！
+                  </p>
+                  <p className="text-xs text-yellow-600 mb-4">
+                    👇 點擊下方連結開始註冊：
+                  </p>
+                  <Button 
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    onClick={() => setShowOTPVerification(true)}
+                  >
+                    <CheckCircle className="w-4 h-4 mr-2" />
+                    ✅ 建立我的電子名片
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 如果有註冊歷史但沒有用戶資料或名片資料，顯示登入選項 */}
+      {(!userData || !cardData) && hasRegistrationHistory && <div className="p-4">
           {/* 歡迎區塊 */}
           <div className="text-center mb-6">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
               <User className="w-10 h-10 text-white" />
             </div>
             <h2 className="text-xl font-bold text-gray-800 mb-2">
-              {hasRegistrationHistory ? '歡迎回來' : '歡迎使用電子名片'}
+              歡迎回來
             </h2>
             <p className="text-gray-600 text-sm px-2">
-              {hasRegistrationHistory ? '請使用 LINE 快速登入' : '請先完成手機號碼註冊，建立您的專屬電子名片'}
+              請使用 LINE 快速登入
             </p>
           </div>
 
