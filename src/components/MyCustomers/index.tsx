@@ -388,7 +388,7 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
                     {followingMeCount}
                   </Badge>}
               </TabsTrigger>
-              <TabsTrigger value="paper">我的聯絡人<span className="text-gray-400 text-xs ml-1 flex items-center"><X className="w-3 h-3 mr-0.5" />未註冊</span></TabsTrigger>
+              <TabsTrigger value="paper">我的聯絡人</TabsTrigger>
             </TabsList>
 
             <div className="mt-2">
