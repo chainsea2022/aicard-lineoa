@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, Coins, Crown, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -7,6 +7,8 @@ import Scanner from './Scanner';
 import MyCustomers from './MyCustomers';
 import Analytics from './Analytics';
 import Schedule from './Schedule';
+import Points from './Points';
+import UpgradeExperience from './UpgradeExperience';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
@@ -49,6 +51,16 @@ const menuItems: MenuItem[] = [
   { id: 'scanner', title: '名片識別', icon: Scan, color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
   { id: 'schedule', title: '行程管理', icon: Calendar, color: 'bg-gradient-to-br from-indigo-500 to-indigo-600' },
   { id: 'analytics', title: '數據分析', icon: BarChart3, color: 'bg-gradient-to-br from-red-500 to-red-600' },
+];
+
+// 新的 Richmenu 模式選項
+const newMenuItems: MenuItem[] = [
+  { id: 'my-card', title: '我的電子名片', icon: Zap, color: 'bg-gradient-to-br from-green-500 to-green-600' },
+  { id: 'customers', title: '名片夾', icon: Users, color: 'bg-gradient-to-br from-orange-500 to-orange-600' },
+  { id: 'create-card', title: '設置電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
+  { id: 'customers-manage', title: '名片管理', icon: Users, color: 'bg-gradient-to-br from-purple-500 to-purple-600' },
+  { id: 'points', title: '點數優惠', icon: Coins, color: 'bg-gradient-to-br from-yellow-500 to-orange-500' },
+  { id: 'upgrade', title: '升級體驗', icon: Crown, color: 'bg-gradient-to-br from-purple-600 to-pink-600' },
 ];
 
 // 統一使用的客戶名稱
@@ -434,6 +446,7 @@ const ChatRoom = () => {
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
+  const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
 
   // 初始化歡迎訊息
   useEffect(() => {
@@ -681,6 +694,10 @@ const ChatRoom = () => {
   };
 
   const getDynamicMenuItems = () => {
+    if (useNewMenu) {
+      return newMenuItems;
+    }
+    
     const baseItems = [...menuItems];
     if (isRegistered()) {
       baseItems[2] = { id: 'create-card', title: '設置電子名片', icon: User, color: 'bg-gradient-to-br from-blue-500 to-blue-600' };
@@ -708,6 +725,18 @@ const ChatRoom = () => {
         setMessages(prev => [...prev, noCardMessage]);
         setIsMenuOpen(false);
       }
+    } else if (itemId === 'customers-manage') {
+      // 名片管理：同步名片夾的內容和樣式
+      setActiveView('customers');
+      setIsMenuOpen(false);
+    } else if (itemId === 'points') {
+      // 點數優惠：同步會員點數的內容和樣式
+      setActiveView('points');
+      setIsMenuOpen(false);
+    } else if (itemId === 'upgrade') {
+      // 升級體驗
+      setActiveView('upgrade');
+      setIsMenuOpen(false);
     } else {
       setActiveView(itemId);
       setIsMenuOpen(false);
@@ -1264,13 +1293,29 @@ const ChatRoom = () => {
         {isMenuOpen && !activeView && (
           <div className="bg-white border-t border-gray-200 flex-shrink-0">
             <div className="px-3 py-3">
-              <Button
-                onClick={() => setIsMenuOpen(false)}
-                className="w-6 h-6 rounded-full bg-gray-400 hover:bg-gray-500 rotate-45 mb-3 ml-1"
-                size="sm"
-              >
-                <X className="w-3 h-3" />
-              </Button>
+              <div className="flex items-center justify-between mb-3">
+                <Button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-6 h-6 rounded-full bg-gray-400 hover:bg-gray-500 rotate-45"
+                  size="sm"
+                >
+                  <X className="w-3 h-3" />
+                </Button>
+                
+                <div className="flex-1"></div>
+              </div>
+              
+              {/* Central Toggle Button */}
+              <div className="flex justify-center mb-3">
+                <Button
+                  onClick={() => setUseNewMenu(!useNewMenu)}
+                  className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-full shadow-md"
+                  size="sm"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                  <span>{useNewMenu ? '切換至原版選單' : '切換至新版選單'}</span>
+                </Button>
+              </div>
               
               {/* Menu Grid - 3x2 layout for mobile */}
               <div className="grid grid-cols-3 gap-2">
