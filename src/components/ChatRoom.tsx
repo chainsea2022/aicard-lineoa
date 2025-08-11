@@ -880,7 +880,7 @@ const ChatRoom = () => {
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
-        return <MyCard onClose={handleCloseView} />;
+        return <CreateCard onClose={handleCloseView} onRegistrationComplete={handleRegistrationComplete} userData={{}} isFirstTimeUser={isFirstTimeUser} />;
       case 'scanner':
         return;
       case 'customers':

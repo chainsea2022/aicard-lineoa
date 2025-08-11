@@ -18,17 +18,19 @@ interface CreateCardProps {
   onClose: () => void;
   onRegistrationComplete: () => void;
   userData: any;
+  isFirstTimeUser?: boolean;
 }
 const CreateCard: React.FC<CreateCardProps> = ({
   onClose,
   onRegistrationComplete,
-  userData
+  userData,
+  isFirstTimeUser = false
 }) => {
   // Personal Info States
   const [gender, setGender] = useState('');
   const [birthday, setBirthday] = useState('');
   const [registeredPhone, setRegisteredPhone] = useState(userData?.phone || '');
-  const [showOTPInput, setShowOTPInput] = useState(false);
+  const [showOTPInput, setShowOTPInput] = useState(isFirstTimeUser); // 首次用戶直接顯示手機驗證
   const [otpCode, setOtpCode] = useState('');
 
   // Business Card Settings States with visibility
@@ -461,7 +463,9 @@ const CreateCard: React.FC<CreateCardProps> = ({
     });
   };
   const handlePhoneChange = () => {
-    setShowOTPInput(true);
+    if (!isFirstTimeUser) {
+      setShowOTPInput(true);
+    }
     toast({
       title: "手機號碼驗證",
       description: "請輸入發送到您手機的驗證碼"
@@ -934,13 +938,87 @@ LINE: ${line || ''}
             <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">編輯電子名片</h1>
+            <h1 className="font-bold text-lg">{isFirstTimeUser && showOTPInput ? '手機號碼驗證' : '編輯電子名片'}</h1>
           </div>
           <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
             <X className="w-5 h-5" />
           </Button>
         </div>
       </div>
+
+      {/* 首次用戶手機驗證畫面 */}
+      {isFirstTimeUser && showOTPInput ? (
+        <div className="p-6">
+          <Card className="mb-6 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-xl text-gray-800">📱 手機號碼驗證</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 p-6">
+              <div className="text-center">
+                <p className="text-gray-600 mb-4">請輸入您的手機號碼以完成註冊</p>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="phone-input" className="text-sm font-medium text-gray-700 mb-2 block">
+                      手機號碼
+                    </Label>
+                    <Input
+                      id="phone-input"
+                      type="tel"
+                      value={registeredPhone}
+                      onChange={(e) => setRegisteredPhone(e.target.value)}
+                      placeholder="請輸入手機號碼"
+                      className="text-center"
+                    />
+                  </div>
+                  <Button 
+                    onClick={handlePhoneChange}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white"
+                    disabled={!registeredPhone.trim()}
+                  >
+                    發送驗證碼
+                  </Button>
+                </div>
+              </div>
+
+              {/* OTP 輸入區域 */}
+              <div className="mt-6">
+                <Label htmlFor="otp-input" className="text-sm font-medium text-gray-700 mb-2 block">
+                  驗證碼
+                </Label>
+                <Input
+                  id="otp-input"
+                  type="text"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="請輸入6位數驗證碼"
+                  maxLength={6}
+                  className="text-center text-lg tracking-widest"
+                />
+                <Button 
+                  onClick={() => {
+                    if (otpCode.length === 6) {
+                      setShowOTPInput(false);
+                      toast({
+                        title: "驗證成功",
+                        description: "手機號碼驗證完成，現在可以設定您的電子名片"
+                      });
+                    } else {
+                      toast({
+                        title: "驗證失敗",
+                        description: "請輸入正確的6位數驗證碼"
+                      });
+                    }
+                  }}
+                  className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+                  disabled={otpCode.length !== 6}
+                >
+                  確認驗證
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
 
       <div className="p-6">
 
@@ -1523,6 +1601,7 @@ LINE: ${line || ''}
             </div>
           </div>}
       </div>
+      )}
     </div>;
 };
 export default CreateCard;
