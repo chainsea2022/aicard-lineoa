@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
@@ -51,7 +52,19 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
   const [showSmartAnalysis, setShowSmartAnalysis] = useState(false);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
-  const [showCardEditForm, setShowCardEditForm] = useState(false);
+  const [isEditingContact, setIsEditingContact] = useState(false);
+  const [editingField, setEditingField] = useState<string | null>(null);
+  const [editedValues, setEditedValues] = useState({
+    name: customer.name || '',
+    company: customer.company || '',
+    jobTitle: customer.jobTitle || '',
+    phone: customer.phone || '',
+    email: customer.email || '',
+    website: customer.website || '',
+    line: customer.line || '',
+    facebook: customer.facebook || '',
+    instagram: customer.instagram || ''
+  });
   const [scheduleRecords, setScheduleRecords] = useState<ScheduleRecord[]>([]);
   const handleAddScheduleRecord = (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => {
     const newRecord: ScheduleRecord = {
@@ -89,9 +102,41 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     });
   };
 
-  const handleCardEdit = (updates: Partial<Customer>) => {
+  const handleFieldEdit = (field: string) => {
+    setEditingField(field);
+    setIsEditingContact(true);
+  };
+
+  const handleFieldSave = (field: string) => {
+    const updates = { [field]: editedValues[field as keyof typeof editedValues] };
     onSaveCustomer(customer.id, updates);
-    setShowCardEditForm(false);
+    setEditingField(null);
+    setIsEditingContact(false);
+  };
+
+  const handleFieldCancel = () => {
+    setEditedValues({
+      name: customer.name || '',
+      company: customer.company || '',
+      jobTitle: customer.jobTitle || '',
+      phone: customer.phone || '',
+      email: customer.email || '',
+      website: customer.website || '',
+      line: customer.line || '',
+      facebook: customer.facebook || '',
+      instagram: customer.instagram || ''
+    });
+    setEditingField(null);
+    setIsEditingContact(false);
+  };
+
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
   };
 
   // 如果顯示智慧分析，返回智慧分析組件
@@ -125,9 +170,9 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         <div className="flex items-center justify-between">
           <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
           {/* 只有電子名片才顯示編輯按鈕 */}
-          {customer.hasCard && customer.isDigitalCard && (
+          {customer.hasCard && customer.isDigitalCard && !isEditingContact && (
             <Button 
-              onClick={() => setShowCardEditForm(true)} 
+              onClick={() => setIsEditingContact(true)} 
               variant="ghost" 
               size="sm" 
               className="text-xs text-blue-600 hover:text-blue-700"
@@ -136,46 +181,202 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               編輯
             </Button>
           )}
+          {isEditingContact && (
+            <div className="flex space-x-1">
+              <Button 
+                onClick={() => setIsEditingContact(false)} 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs text-green-600 hover:text-green-700"
+              >
+                完成
+              </Button>
+            </div>
+          )}
         </div>
         
         {customer.phone && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-1">
               <Phone className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.phone}</span>
+              {editingField === 'phone' ? (
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={editedValues.phone}
+                    onChange={(e) => setEditedValues(prev => ({ ...prev, phone: e.target.value }))}
+                    className="text-sm"
+                    placeholder="手機號碼"
+                  />
+                  <Button onClick={() => handleFieldSave('phone')} size="sm" className="text-xs">儲存</Button>
+                  <Button onClick={handleFieldCancel} variant="outline" size="sm" className="text-xs">取消</Button>
+                </div>
+              ) : (
+                <span className="text-sm cursor-pointer" onClick={() => isEditingContact && handleFieldEdit('phone')}>
+                  {customer.phone}
+                </span>
+              )}
             </div>
-            <Button onClick={() => onPhoneClick(customer.phone)} variant="outline" size="sm" className="text-xs">
-              撥打
-            </Button>
+            {!isEditingContact && (
+              <Button onClick={() => onPhoneClick(customer.phone)} variant="outline" size="sm" className="text-xs">
+                撥打
+              </Button>
+            )}
           </div>}
 
         {customer.email && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-1">
               <Mail className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.email}</span>
+              {editingField === 'email' ? (
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={editedValues.email}
+                    onChange={(e) => setEditedValues(prev => ({ ...prev, email: e.target.value }))}
+                    className="text-sm"
+                    placeholder="電子信箱"
+                  />
+                  <Button onClick={() => handleFieldSave('email')} size="sm" className="text-xs">儲存</Button>
+                  <Button onClick={handleFieldCancel} variant="outline" size="sm" className="text-xs">取消</Button>
+                </div>
+              ) : (
+                <span className="text-sm cursor-pointer" onClick={() => isEditingContact && handleFieldEdit('email')}>
+                  {customer.email}
+                </span>
+              )}
             </div>
-            <Button onClick={() => window.open(`mailto:${customer.email}`)} variant="outline" size="sm" className="text-xs">
-              寄信
-            </Button>
+            {!isEditingContact && (
+              <Button onClick={() => window.open(`mailto:${customer.email}`)} variant="outline" size="sm" className="text-xs">
+                寄信
+              </Button>
+            )}
           </div>}
 
         {customer.line && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-1">
               <MessageSquare className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">LINE: {customer.line}</span>
+              {editingField === 'line' ? (
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={editedValues.line}
+                    onChange={(e) => setEditedValues(prev => ({ ...prev, line: e.target.value }))}
+                    className="text-sm"
+                    placeholder="LINE ID 或完整連結"
+                  />
+                  <Button onClick={() => handleFieldSave('line')} size="sm" className="text-xs">儲存</Button>
+                  <Button onClick={handleFieldCancel} variant="outline" size="sm" className="text-xs">取消</Button>
+                </div>
+              ) : (
+                <span className="text-sm cursor-pointer" onClick={() => isEditingContact && handleFieldEdit('line')}>
+                  LINE: {customer.line}
+                </span>
+              )}
             </div>
-            <Button onClick={() => onLineClick(customer.line)} variant="outline" size="sm" className="text-xs">
-              開啟
-            </Button>
+            {!isEditingContact && (
+              <Button onClick={() => onLineClick(customer.line)} variant="outline" size="sm" className="text-xs">
+                開啟
+              </Button>
+            )}
           </div>}
 
         {customer.website && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 flex-1">
               <Globe className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.website}</span>
+              {editingField === 'website' ? (
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={editedValues.website}
+                    onChange={(e) => setEditedValues(prev => ({ ...prev, website: e.target.value }))}
+                    className="text-sm"
+                    placeholder="網站"
+                  />
+                  <Button onClick={() => handleFieldSave('website')} size="sm" className="text-xs">儲存</Button>
+                  <Button onClick={handleFieldCancel} variant="outline" size="sm" className="text-xs">取消</Button>
+                </div>
+              ) : (
+                <span className="text-sm cursor-pointer" onClick={() => isEditingContact && handleFieldEdit('website')}>
+                  {customer.website}
+                </span>
+              )}
             </div>
-            <Button onClick={() => window.open(customer.website, '_blank')} variant="outline" size="sm" className="text-xs">
-              開啟
-            </Button>
+            {!isEditingContact && (
+              <Button onClick={() => window.open(customer.website, '_blank')} variant="outline" size="sm" className="text-xs">
+                開啟
+              </Button>
+            )}
+          </div>}
+
+        {customer.facebook && <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 flex-1">
+              <Facebook className="w-4 h-4 text-gray-500" />
+              {editingField === 'facebook' ? (
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={editedValues.facebook}
+                    onChange={(e) => setEditedValues(prev => ({ ...prev, facebook: e.target.value }))}
+                    className="text-sm"
+                    placeholder="Facebook 連結或用戶名"
+                  />
+                  <Button onClick={() => handleFieldSave('facebook')} size="sm" className="text-xs">儲存</Button>
+                  <Button onClick={handleFieldCancel} variant="outline" size="sm" className="text-xs">取消</Button>
+                </div>
+              ) : (
+                <span className="text-sm cursor-pointer" onClick={() => isEditingContact && handleFieldEdit('facebook')}>
+                  {customer.facebook}
+                </span>
+              )}
+            </div>
+            {!isEditingContact && (
+              <Button 
+                onClick={() => {
+                  if (isValidUrl(customer.facebook)) {
+                    window.open(customer.facebook, '_blank');
+                  } else {
+                    window.open(`https://facebook.com/${customer.facebook}`, '_blank');
+                  }
+                }} 
+                variant="outline" 
+                size="sm" 
+                className="text-xs"
+              >
+                開啟
+              </Button>
+            )}
+          </div>}
+
+        {customer.instagram && <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2 flex-1">
+              <Instagram className="w-4 h-4 text-gray-500" />
+              {editingField === 'instagram' ? (
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={editedValues.instagram}
+                    onChange={(e) => setEditedValues(prev => ({ ...prev, instagram: e.target.value }))}
+                    className="text-sm"
+                    placeholder="Instagram 連結或用戶名"
+                  />
+                  <Button onClick={() => handleFieldSave('instagram')} size="sm" className="text-xs">儲存</Button>
+                  <Button onClick={handleFieldCancel} variant="outline" size="sm" className="text-xs">取消</Button>
+                </div>
+              ) : (
+                <span className="text-sm cursor-pointer" onClick={() => isEditingContact && handleFieldEdit('instagram')}>
+                  {customer.instagram}
+                </span>
+              )}
+            </div>
+            {!isEditingContact && (
+              <Button 
+                onClick={() => {
+                  if (isValidUrl(customer.instagram)) {
+                    window.open(customer.instagram, '_blank');
+                  } else {
+                    window.open(`https://instagram.com/${customer.instagram}`, '_blank');
+                  }
+                }} 
+                variant="outline" 
+                size="sm" 
+                className="text-xs"
+              >
+                開啟
+              </Button>
+            )}
           </div>}
 
         {/* Notes Section */}
@@ -292,13 +493,5 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 
       {/* Schedule Form Dialog */}
       <ScheduleForm isOpen={showScheduleForm} onClose={() => setShowScheduleForm(false)} customer={customer} />
-      
-      {/* Card Edit Form Dialog */}
-      <CardEditForm 
-        isOpen={showCardEditForm} 
-        onClose={() => setShowCardEditForm(false)} 
-        customer={customer}
-        onSave={handleCardEdit}
-      />
     </div>;
 };
