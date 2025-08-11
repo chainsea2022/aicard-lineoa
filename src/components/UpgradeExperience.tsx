@@ -72,7 +72,7 @@ const UpgradeExperience: React.FC<UpgradeExperienceProps> = ({ onClose }) => {
               </div>
             </div>
             <h2 className="text-3xl font-bold text-gray-800 mb-4">
-              智慧名片 APP
+              AiCard APP
             </h2>
             <p className="text-lg text-gray-600 mb-6">
               隨時隨地管理您的人脈網路<br />
