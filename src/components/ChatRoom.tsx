@@ -898,7 +898,7 @@ const ChatRoom = () => {
       case 'create-card':
         return <MyCard onClose={handleCloseView} />;
       case 'scanner':
-        return <Scanner onClose={handleCloseView} />;
+        return;
       case 'customers':
         return <MyCustomers onClose={handleCloseView} customers={customers} onCustomersUpdate={setCustomers} />;
       case 'analytics':
