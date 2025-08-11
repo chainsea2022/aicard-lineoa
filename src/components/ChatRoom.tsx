@@ -957,7 +957,7 @@ const ChatRoom = () => {
           backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
         }}>
               <div className="space-y-4 pb-2">
-                {messages.map(message => <div key={message.id} className="flex justify-start">
+                {messages.filter((_, index) => index !== 1).map(message => <div key={message.id} className="flex justify-start">
                     <div className="max-w-[90%] w-full">
                       <div className="flex items-start space-x-3">
                         <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
