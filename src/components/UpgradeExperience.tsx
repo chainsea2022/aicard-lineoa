@@ -37,7 +37,7 @@ const UpgradeExperience: React.FC<UpgradeExperienceProps> = ({ onClose }) => {
     },
     {
       icon: <Zap className="w-6 h-6 text-yellow-500" />,
-      title: '智能推薦功能',
+      title: 'AI行程管理',
       description: 'AI 智能分析人脈關係網'
     }
   ];
