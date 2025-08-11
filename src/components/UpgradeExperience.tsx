@@ -75,8 +75,8 @@ const UpgradeExperience: React.FC<UpgradeExperienceProps> = ({ onClose }) => {
               AiCard APP
             </h2>
             <p className="text-lg text-gray-600 mb-6">
-              隨時隨地管理您的人脈網路<br />
-              更快速、更便利的名片交換體驗
+              開啟人脈的通行證<br />
+              Unlock Your Smart Network
             </p>
             <div className="flex items-center justify-center space-x-2 text-yellow-500 mb-4">
               <Star className="w-5 h-5 fill-current" />
