@@ -434,6 +434,89 @@ const ChatRoom = () => {
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
+  const [welcomeVersion, setWelcomeVersion] = useState<'new' | 'classic'>('new'); // 歡迎語版本切換
+  const [showWelcomeToggle, setShowWelcomeToggle] = useState(false); // 控制切換按鈕顯示
+
+  // 獲取歡迎訊息的函數
+  const getWelcomeMessages = (version: 'new' | 'classic') => {
+    if (version === 'new') {
+      // 新版歡迎語
+      const welcomeMessage = {
+        id: 1,
+        text: '👋 開啟人脈的通行證Unlock Your Smart Network\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！',
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      const cardPreviewMessage = {
+        id: 2,
+        text: '開始使用 AiCard 電子名片！',
+        isBot: true,
+        timestamp: new Date(),
+        isCard: true,
+        isClientFlexMessage: true,
+        cardData: {
+          name: '開始使用 AiCard 電子名片！',
+          companyName: 'AiCard 電子名片',
+          jobTitle: '・建立名片，立即擁有專屬 QR Code\n・可新增多張名片，打造個人與工作身份\n・完成設定可獲得 50 點 AiPoint 獎勵！',
+          phone: '',
+          email: '',
+          website: '',
+          line: '',
+          facebook: '',
+          instagram: '',
+          photo: null,
+          introduction: '👉 點擊下方按鈕立即開始',
+          welcomeCard: true
+        }
+      };
+      
+      return [welcomeMessage, cardPreviewMessage];
+    } else {
+      // 經典版歡迎語
+      const welcomeMessage = {
+        id: 1,
+        text: '👋 歡迎加入 AiCard 智能電子名片平台！\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！\n🔒 只需手機註冊，即可打造專屬個人名片，輕鬆分享、智能管理。',
+        isBot: true,
+        timestamp: new Date()
+      };
+      
+      const cardPreviewMessage = {
+        id: 2,
+        text: '立即開始使用 AiCard',
+        isBot: true,
+        timestamp: new Date(),
+        isCard: true,
+        isClientFlexMessage: true,
+        cardData: {
+          name: '立即開始',
+          companyName: 'AiCard 電子名片平台',
+          jobTitle: '智能電子名片解決方案\n快速建立、輕鬆分享、智能管理',
+          phone: '',
+          email: '',
+          website: '',
+          line: '',
+          facebook: '',
+          instagram: '',
+          photo: null,
+          introduction: '點擊下方按鈕開始註冊',
+          welcomeCard: true
+        }
+      };
+      
+      return [welcomeMessage, cardPreviewMessage];
+    }
+  };
+
+  // 切換歡迎語版本
+  const toggleWelcomeVersion = () => {
+    const newVersion = welcomeVersion === 'new' ? 'classic' : 'new';
+    setWelcomeVersion(newVersion);
+    
+    // 重新設置歡迎訊息
+    const newMessages = getWelcomeMessages(newVersion);
+    setMessages(newMessages);
+  };
 
   // 初始化歡迎訊息
   useEffect(() => {
@@ -445,39 +528,9 @@ const ChatRoom = () => {
       
       if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
         // 全新用戶 - 顯示歡迎文案和電子名片預覽
-        // 初次加入用戶 - 顯示新版歡迎文案和電子名片預覽
-        const welcomeMessage = {
-          id: 1,
-          text: '👋 開啟人脈的通行證Unlock Your Smart Network\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！',
-          isBot: true,
-          timestamp: new Date()
-        };
-        
-        // 電子名片預覽卡片 (Flex Message)
-        const cardPreviewMessage = {
-          id: 2,
-          text: '開始使用 AiCard 電子名片！',
-          isBot: true,
-          timestamp: new Date(),
-          isCard: true,
-          isClientFlexMessage: true,
-          cardData: {
-            name: '開始使用 AiCard 電子名片！',
-            companyName: 'AiCard 電子名片',
-            jobTitle: '・建立名片，立即擁有專屬 QR Code\n・可新增多張名片，打造個人與工作身份\n・完成設定可獲得 50 點 AiPoint 獎勵！',
-            phone: '',
-            email: '',
-            website: '',
-            line: '',
-            facebook: '',
-            instagram: '',
-            photo: null,
-            introduction: '👉 點擊下方按鈕立即開始',
-            welcomeCard: true // 特殊標記為歡迎卡片
-          }
-        };
-        
-        setMessages([welcomeMessage, cardPreviewMessage]);
+        const welcomeMessages = getWelcomeMessages(welcomeVersion);
+        setMessages(welcomeMessages);
+        setShowWelcomeToggle(true); // 顯示歡迎語切換按鈕
       } else if (userRegistered && cardDataExists) {
         // 已註冊用戶返回
         const welcomeBackMessage = {
@@ -790,6 +843,7 @@ const ChatRoom = () => {
     // 歡迎卡片按鈕 - 開啟註冊流程
     setActiveView('create-card');
     setIsMenuOpen(false);
+    setShowWelcomeToggle(false); // 隱藏歡迎語切換按鈕
     
     // 標記用戶已開始註冊流程
     localStorage.setItem('aicard-user-started-registration', 'true');
@@ -970,14 +1024,28 @@ const ChatRoom = () => {
     <div className="flex flex-col h-screen w-full bg-white relative overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header - LINE style */}
       <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 shadow-sm flex-shrink-0">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <Zap className="w-4 h-4 text-green-500" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+              <Zap className="w-4 h-4 text-green-500" />
+            </div>
+            <div>
+              <h1 className="font-bold text-base">AiCard</h1>
+              <p className="text-green-100 text-xs">名片人脈圈</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-bold text-base">AiCard</h1>
-            <p className="text-green-100 text-xs">名片人脈圈</p>
-          </div>
+          
+          {/* 歡迎語切換按鈕 - 只在初次註冊時顯示 */}
+          {showWelcomeToggle && (
+            <Button
+              onClick={toggleWelcomeVersion}
+              variant="ghost"
+              size="sm"
+              className="h-8 px-3 bg-white/20 hover:bg-white/30 text-white text-xs rounded-full border border-white/30"
+            >
+              {welcomeVersion === 'new' ? '經典版' : '新版'}
+            </Button>
+          )}
         </div>
       </div>
 
