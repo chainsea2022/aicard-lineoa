@@ -9,6 +9,7 @@ import Analytics from './Analytics';
 import Schedule from './Schedule';
 import Points from './Points';
 import UpgradeExperience from './UpgradeExperience';
+import CardManagement from './CardManagement';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
@@ -726,8 +727,8 @@ const ChatRoom = () => {
         setIsMenuOpen(false);
       }
     } else if (itemId === 'customers-manage') {
-      // 名片管理：同步名片夾的內容和樣式
-      setActiveView('customers');
+      // 名片管理：同步設置電子名片中的名片管理功能
+      setActiveView('card-management');
       setIsMenuOpen(false);
     } else if (itemId === 'points') {
       // 點數優惠：同步會員點數的內容和樣式
@@ -967,6 +968,12 @@ const ChatRoom = () => {
         return <Analytics onClose={handleCloseView} />;
       case 'schedule':
         return <Schedule onClose={handleCloseView} />;
+      case 'points':
+        return <Points onClose={handleCloseView} />;
+      case 'upgrade':
+        return <UpgradeExperience onClose={handleCloseView} />;
+      case 'card-management':
+        return <CardManagement onClose={handleCloseView} />;
       default:
         return null;
     }

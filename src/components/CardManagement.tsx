@@ -1,0 +1,339 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Edit, Share2, Plus, X, Phone, Mail } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
+import CreateCard from './CreateCard';
+
+interface CardManagementProps {
+  onClose: () => void;
+}
+
+const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
+  const [cardData, setCardData] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [showCreateCard, setShowCreateCard] = useState(false);
+  const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // 載入用戶資料
+    const savedUserData = localStorage.getItem('aile-user-data');
+    if (savedUserData) {
+      const parsedUserData = JSON.parse(savedUserData);
+      setUserData(parsedUserData);
+    }
+
+    // 載入主要名片資料
+    const savedCardData = localStorage.getItem('aile-card-data');
+    if (savedCardData) {
+      const parsedCardData = JSON.parse(savedCardData);
+      setCardData(parsedCardData);
+    }
+  }, []);
+
+  const editCard = (card: any) => {
+    localStorage.setItem('editing-card-data', JSON.stringify({
+      ...card,
+      id: 'current'
+    }));
+    setShowCreateCard(true);
+  };
+
+  const shareCard = (card: any) => {
+    const shareData = {
+      title: `${card.name} 的電子名片`,
+      text: `查看 ${card.name} 的電子名片資訊`,
+      url: window.location.origin
+    };
+
+    if (navigator.share) {
+      navigator.share(shareData);
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(shareData.url);
+      toast({
+        title: "分享連結已複製",
+        description: "電子名片分享連結已複製到剪貼簿"
+      });
+    }
+  };
+
+  const handleRegistrationComplete = () => {
+    setShowCreateCard(false);
+    // 重新載入名片資料
+    const savedCardData = localStorage.getItem('aile-card-data');
+    if (savedCardData) {
+      const parsedCardData = JSON.parse(savedCardData);
+      setCardData(parsedCardData);
+    }
+    
+    // 重新載入多名片資料
+    window.location.reload();
+  };
+
+  if (showCreateCard) {
+    return (
+      <CreateCard
+        onClose={() => setShowCreateCard(false)}
+        onRegistrationComplete={handleRegistrationComplete}
+        userData={userData}
+      />
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white p-4 shadow-lg flex-shrink-0">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+            <h1 className="font-bold text-lg">名片管理</h1>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto p-6">
+        {/* 多名片管理區塊 */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">電子名片列表</h3>
+            <Button 
+              size="sm" 
+              className="bg-blue-500 hover:bg-blue-600 text-white" 
+              onClick={() => {
+                // 清除編輯狀態，設定為新增模式
+                localStorage.removeItem('editing-card-data');
+                localStorage.setItem('card-creation-mode', 'new');
+                setShowCreateCard(true);
+              }}
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              新增名片
+            </Button>
+          </div>
+
+          {/* 名片列表 */}
+          <div className="space-y-3">
+            {(() => {
+              const multiCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+              const currentCard = cardData ? {
+                ...cardData,
+                id: 'current',
+                name: cardData.name || '主要名片'
+              } : null;
+              const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
+
+              const handleSwipeStart = (e: React.TouchEvent, cardId: string) => {
+                const touch = e.touches[0];
+                const startX = touch.clientX;
+                
+                const handleTouchMove = (moveE: TouchEvent) => {
+                  const currentTouch = moveE.touches[0];
+                  const diffX = startX - currentTouch.clientX;
+                  if (diffX > 50) {
+                    // 左滑超過50px
+                    setSwipedCardId(cardId);
+                  } else if (diffX < -20) {
+                    // 右滑回復
+                    setSwipedCardId(null);
+                  }
+                };
+                
+                const handleTouchEnd = () => {
+                  document.removeEventListener('touchmove', handleTouchMove);
+                  document.removeEventListener('touchend', handleTouchEnd);
+                };
+                
+                document.addEventListener('touchmove', handleTouchMove);
+                document.addEventListener('touchend', handleTouchEnd);
+              };
+
+              const handleCardClick = (cardId: string) => {
+                // 電腦版：點擊切換刪除選項顯示
+                if (cardId !== 'current') {
+                  setSwipedCardId(swipedCardId === cardId ? null : cardId);
+                }
+              };
+
+              const handleDeleteCard = (card: any) => {
+                const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+                const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
+                localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
+                setSwipedCardId(null); // 重置滑動狀態
+                window.location.reload();
+                toast({
+                  title: "名片已刪除",
+                  description: "電子名片已成功刪除。"
+                });
+              };
+
+              return allCards.length > 0 ? allCards.map((card, index) => (
+                <div 
+                  key={card.id || index} 
+                  className="relative overflow-hidden bg-white rounded-lg border border-gray-200"
+                  onTouchStart={card.id !== 'current' ? e => handleSwipeStart(e, card.id) : undefined}
+                  onClick={() => handleCardClick(card.id)}
+                >
+                  {/* 刪除背景 */}
+                  {card.id !== 'current' && (
+                    <div className={`absolute right-0 top-0 h-full bg-red-500 flex items-center justify-center text-white font-medium transition-all duration-300 ${
+                      swipedCardId === card.id ? 'w-20' : 'w-0'
+                    }`}>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteCard(card);
+                        }}
+                        className="h-full w-full flex items-center justify-center"
+                      >
+                        刪除
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* 名片內容 */}
+                  <div className={`bg-white transition-transform duration-300 ${
+                    swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'
+                  }`}>
+                    <Card className="border-0 shadow-none hover:border-blue-300 transition-colors">
+                      <CardContent className="p-3">
+                        {/* 電子名片展示 */}
+                        <div 
+                          className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 mb-3 cursor-pointer transition-all hover:shadow-md" 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (card.id === 'current') {
+                              editCard(cardData);
+                            } else {
+                              localStorage.setItem('editing-card-data', JSON.stringify(card));
+                              setShowCreateCard(true);
+                            }
+                          }}
+                        >
+                          <div className="flex items-center space-x-3">
+                            {/* 大頭照 */}
+                            <div className="flex-shrink-0">
+                              <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
+                                <AvatarImage src={card.photo || card.avatar || card.profileImage} alt={card.name} />
+                                <AvatarFallback className="bg-blue-500 text-white font-semibold text-lg">
+                                  {card.name ? card.name.charAt(0).toUpperCase() : 'U'}
+                                </AvatarFallback>
+                              </Avatar>
+                            </div>
+                            
+                            {/* 名片主要資訊 */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2 mb-1">
+                                <h4 className="font-semibold text-gray-900 text-base truncate">{card.name}</h4>
+                                {card.id === 'current' && (
+                                  <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
+                                    預設
+                                  </Badge>
+                                )}
+                              </div>
+                              
+                              {/* 職位與公司 */}
+                              {card.jobTitle && (
+                                <p className="text-sm font-medium text-gray-700 truncate mb-1">
+                                  {card.jobTitle}
+                                </p>
+                              )}
+                              
+                              {/* 公司名稱 */}
+                              {card.companyName && (
+                                <p className="text-sm text-gray-600 truncate mb-1">
+                                  {card.companyName}
+                                </p>
+                              )}
+                              
+                              {/* 聯絡資訊 */}
+                              <div className="flex items-center space-x-3 text-xs text-gray-500">
+                                {(card.phone || card.mobilePhone) && (
+                                  <span className="flex items-center">
+                                    <Phone className="w-3 h-3 mr-1" />
+                                    {((card.phone || card.mobilePhone) || '').length > 10 
+                                      ? `${(card.phone || card.mobilePhone).slice(0, 10)}...` 
+                                      : (card.phone || card.mobilePhone)}
+                                  </span>
+                                )}
+                                {card.email && (
+                                  <span className="flex items-center">
+                                    <Mail className="w-3 h-3 mr-1" />
+                                    {card.email.length > 15 ? `${card.email.slice(0, 15)}...` : card.email}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* 操作按鈕 */}
+                        <div className="flex space-x-2">
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex-1 h-8 text-xs" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (card.id === 'current') {
+                                editCard(cardData);
+                              } else {
+                                localStorage.setItem('editing-card-data', JSON.stringify(card));
+                                setShowCreateCard(true);
+                              }
+                            }}
+                          >
+                            <Edit className="w-3 h-3 mr-1" />
+                            編輯
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="flex-1 h-8 text-xs" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              shareCard(card);
+                            }}
+                          >
+                            <Share2 className="w-3 h-3 mr-1" />
+                            分享
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>尚未建立任何名片</p>
+                  <Button 
+                    className="mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={() => {
+                      localStorage.removeItem('editing-card-data');
+                      localStorage.setItem('card-creation-mode', 'new');
+                      setShowCreateCard(true);
+                    }}
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    建立第一張名片
+                  </Button>
+                </div>
+              );
+            })()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CardManagement;
