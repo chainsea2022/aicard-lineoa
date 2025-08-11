@@ -400,15 +400,16 @@ const MemberPoints: React.FC<MemberPointsProps> = ({
         {pointsActiveTab === 'upgrade' && (
           <div className="space-y-6">
             {/* 專屬大禮包 */}
-            <div className="p-6 bg-gradient-to-br from-orange-100 via-red-50 to-pink-100 border-4 border-orange-300 rounded-2xl shadow-lg relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-orange-200 rounded-full opacity-30 transform translate-x-10 -translate-y-10"></div>
-              <div className="absolute bottom-0 left-0 w-16 h-16 bg-pink-200 rounded-full opacity-30 transform -translate-x-8 translate-y-8"></div>
+            <div className="p-6 bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-200 rounded-xl relative overflow-hidden">
+              <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-orange-200 to-pink-200 rounded-full opacity-20"></div>
               
               <div className="relative">
-                <div className="flex items-center justify-center mb-4">
-                  <Gift className="w-8 h-8 text-orange-600 mr-2" />
-                  <h3 className="font-bold text-2xl text-orange-800">專屬大禮</h3>
-                  <div className="ml-3 bg-orange-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-pulse">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <Gift className="w-6 h-6 text-orange-600 mr-2" />
+                    <h3 className="font-semibold text-lg text-gray-800">專屬大禮</h3>
+                  </div>
+                  <div className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
                     限時優惠
                   </div>
                 </div>
@@ -420,16 +421,7 @@ const MemberPoints: React.FC<MemberPointsProps> = ({
                       <span className="text-3xl font-bold text-orange-600">$7,200</span>
                       <span className="text-lg text-orange-600">/年</span>
                     </div>
-                    <p className="text-orange-600 mt-2">每月只要＄600，預繳一年$7,200</p>
-                  </div>
-                  
-                  <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                    <p className="text-center text-orange-700 font-semibold text-sm">
-                      每月只要＄600，預繳一年＄7200
-                    </p>
-                    <p className="text-center text-orange-700 font-semibold mt-1">
-                      🎉 一年不限次數全功能解鎖 🎉
-                    </p>
+                    <p className="text-orange-600 mt-2">每月只要＄600</p>
                   </div>
                   
                   <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
@@ -439,26 +431,175 @@ const MemberPoints: React.FC<MemberPointsProps> = ({
               </div>
             </div>
 
-            {/* 其他升級選項 */}
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">其他方案</h3>
-              <div className="space-y-4">
-                <div className="p-4 border border-gray-200 rounded-xl">
-                  <div className="flex justify-between items-center mb-2">
-                    <h4 className="font-semibold text-gray-800">新手方案</h4>
-                    <Badge className="bg-green-100 text-green-800">50點兌換</Badge>
+            {/* 兑點方案說明 */}
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <Award className="w-5 h-5 mr-2 text-purple-600" />
+                  兑點方案說明
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* 新手方案 */}
+                  <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 relative">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <h3 className="text-lg font-semibold text-green-800">新手方案</h3>
+                        <Badge className="bg-green-100 text-green-800">免費</Badge>
+                      </div>
+                      <div className="flex flex-col items-end space-y-2">
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-green-600">Free</div>
+                          <div className="text-xs text-gray-500">永久免費</div>
+                        </div>
+                        <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-sm">
+                          <span className="mr-1">✓</span>
+                          目前方案
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex justify-between">
+                        <span>智慧人脈記錄</span>
+                        <span className="font-medium text-green-600">10張</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>分享好友電子名片卡</span>
+                        <span className="font-medium text-green-600">每張1點</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>OCR 名片識別</span>
+                        <span className="font-medium text-green-600">每張1點</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>基礎數據分析</span>
+                        <span className="font-medium text-green-600">解鎖</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：新增行程</span>
+                        <span className="font-medium text-green-600">1次</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>建立自訂名片樣式</span>
+                        <span className="font-medium text-red-600">X</span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 mb-3">商務版試用 7 天</p>
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    disabled={currentPoints < 50}
-                  >
-                    {currentPoints >= 50 ? '立即兌換' : '點數不足'}
-                  </Button>
+
+                  {/* 商務方案 */}
+                  <div className="p-4 border-2 border-blue-300 rounded-xl bg-blue-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <h3 className="text-lg font-semibold text-blue-800">商務方案</h3>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-blue-600">$399</div>
+                        <div className="text-xs text-gray-500">月價格</div>
+                        <div className="text-sm text-blue-600">年優惠: $4,500</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex justify-between">
+                        <span>智慧人脈記錄</span>
+                        <span className="font-medium text-blue-600">100張</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>分享好友電子名片卡</span>
+                        <span className="font-medium text-blue-600 text-right">
+                          100張
+                          <br />
+                          {'>'}100張，10點/張
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>OCR 名片識別</span>
+                        <span className="font-medium text-blue-600 text-right">
+                          100張
+                          <br />
+                          {'>'}100張，10點/張
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>進階數據分析</span>
+                        <span className="font-medium text-blue-600">解鎖</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：新增行程</span>
+                        <span className="font-medium text-blue-600">5次</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：語音記錄</span>
+                        <span className="font-medium text-blue-600">2次</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：發送信件</span>
+                        <span className="font-medium text-blue-600">2次</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>建立自訂名片樣式</span>
+                        <span className="font-medium text-blue-600">50點</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      立即升級
+                    </Button>
+                  </div>
+
+                  {/* 首席方案 */}
+                  <div className="p-4 border-2 border-purple-300 rounded-xl bg-purple-50">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center space-x-2">
+                        <h3 className="text-lg font-semibold text-purple-800">首席方案</h3>
+                        <Badge className="bg-purple-100 text-purple-800">推薦</Badge>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-2xl font-bold text-purple-600">$999</div>
+                        <div className="text-xs text-gray-500">月價格</div>
+                        <div className="text-sm text-purple-600">年優惠: $11,000</div>
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                      <div className="flex justify-between">
+                        <span>智慧人脈記錄</span>
+                        <span className="font-medium text-purple-600">500張</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>分享好友電子名片卡</span>
+                        <span className="font-medium text-purple-600">無限制</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>OCR 名片識別</span>
+                        <span className="font-medium text-purple-600">無限制</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>進階數據分析</span>
+                        <span className="font-medium text-purple-600">解鎖</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：新增行程</span>
+                        <span className="font-medium text-purple-600">無限制</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：語音記錄</span>
+                        <span className="font-medium text-purple-600">無限制</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>行程管理：發送信件</span>
+                        <span className="font-medium text-purple-600">無限制</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>建立自訂名片樣式</span>
+                        <span className="font-medium text-purple-600">解鎖</span>
+                      </div>
+                    </div>
+                    <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white">
+                      立即升級
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
         )}
 
