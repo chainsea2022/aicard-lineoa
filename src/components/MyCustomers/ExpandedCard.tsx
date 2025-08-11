@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic, Plus, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -66,6 +66,65 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     instagram: customer.instagram || ''
   });
   const [scheduleRecords, setScheduleRecords] = useState<ScheduleRecord[]>([]);
+  const [showAddTag, setShowAddTag] = useState(false);
+  const [newTagInput, setNewTagInput] = useState('');
+
+  // 智能自動生成標籤
+  const generateAutoTags = (): string[] => {
+    const autoTags: string[] = [];
+    
+    // 公司名稱標籤
+    if (customer.company) {
+      autoTags.push(customer.company);
+    }
+    
+    // 職稱標籤 - 拆分職稱，例如「業務經理」→「業務」、「經理」
+    if (customer.jobTitle) {
+      const jobParts = customer.jobTitle.split(/[·・\s]+/);
+      jobParts.forEach(part => {
+        if (part.includes('經理')) autoTags.push('經理');
+        if (part.includes('業務')) autoTags.push('業務');
+        if (part.includes('主管')) autoTags.push('主管');
+        if (part.includes('專員')) autoTags.push('專員');
+        if (part.includes('總監')) autoTags.push('總監');
+        if (part.includes('副總')) autoTags.push('副總');
+        if (part.includes('執行長') || part.includes('CEO')) autoTags.push('高階主管');
+        if (part.includes('工程師')) autoTags.push('工程師');
+        if (part.includes('設計師')) autoTags.push('設計師');
+      });
+    }
+    
+    // 事件標籤 (模擬，實際應從事件系統獲取)
+    // 例如：從活動、會議、展覽等來源
+    const eventTags = ['2024數位轉型論壇', 'AI科技展']; // 這應該從實際事件系統獲取
+    autoTags.push(...eventTags);
+    
+    // 行程管理標籤 (模擬，實際應從行程系統獲取)
+    if (scheduleRecords.length > 0) {
+      scheduleRecords.forEach(record => {
+        if (record.title) {
+          autoTags.push(record.title);
+        }
+      });
+    }
+    
+    return [...new Set(autoTags)]; // 去重
+  };
+
+  const allTags = [...new Set([...(customer.tags || []), ...generateAutoTags()])];
+
+  const handleAddNewTag = () => {
+    if (newTagInput.trim()) {
+      onAddTag(customer.id, newTagInput.trim());
+      setNewTagInput('');
+      setShowAddTag(false);
+    }
+  };
+
+  const handleTagClick = (tag: string) => {
+    // TODO: 實現標籤篩選功能，這裡應該觸發父組件的篩選邏輯
+    console.log('Filter by tag:', tag);
+  };
   const handleAddScheduleRecord = (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => {
     const newRecord: ScheduleRecord = {
       ...record,
@@ -426,24 +485,95 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       {/* For paper contacts (activeSection === 'contacts'), show invitation section */}
       {activeSection === 'contacts' && <InvitationSection customer={customer} onSendInvitation={onSendInvitation} invitationHistory={invitationHistory} />}
 
-      {/* Tags */}
-      <div className="space-y-2">
-        <h4 className="font-medium text-sm text-gray-800">標籤</h4>
+      {/* Smart Tags */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium text-sm text-gray-800 flex items-center">
+            <Tag className="w-4 h-4 mr-1" />
+            標籤
+          </h4>
+          <Button 
+            onClick={() => setShowAddTag(true)} 
+            variant="ghost" 
+            size="sm" 
+            className="text-xs text-blue-600 hover:text-blue-700"
+          >
+            <Plus className="w-3 h-3 mr-1" />
+            新增
+          </Button>
+        </div>
         
-        {/* 現有標籤 */}
-        {customer.tags && customer.tags.length > 0 && <div className="flex flex-wrap gap-1">
-            {customer.tags.map((tag, index) => <Badge key={index} variant="secondary" className="text-xs cursor-pointer hover:bg-destructive/10" onClick={() => onRemoveTag(customer.id, tag)}>
-                {tag} ×
-              </Badge>)}
-          </div>}
+        {/* 標籤列表 - 支援水平滾動 */}
+        {allTags.length > 0 && (
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {allTags.map((tag, index) => {
+              const isManualTag = customer.tags?.includes(tag);
+              return (
+                <div key={index} className="relative flex-shrink-0 group">
+                  <Badge 
+                    variant="secondary" 
+                    className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer px-3 py-1 rounded-full"
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    {tag}
+                  </Badge>
+                  {/* 只有手動新增的標籤才顯示刪除按鈕 */}
+                  {isManualTag && (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onRemoveTag(customer.id, tag);
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X className="w-2 h-2" />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
         
-        {/* 新增標籤 */}
-        <input type="text" placeholder="輸入標籤後按 Enter" className="w-full text-sm px-3 py-2 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary" onKeyPress={e => {
-        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-          onAddTag(customer.id, e.currentTarget.value.trim());
-          e.currentTarget.value = '';
-        }
-      }} />
+        {/* 新增標籤輸入框 */}
+        {showAddTag && (
+          <div className="flex gap-2 items-center">
+            <Input
+              value={newTagInput}
+              onChange={(e) => setNewTagInput(e.target.value)}
+              placeholder="輸入自訂標籤"
+              className="text-sm flex-1"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  handleAddNewTag();
+                }
+              }}
+              autoFocus
+            />
+            <Button onClick={handleAddNewTag} size="sm" className="text-xs">
+              確定
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowAddTag(false);
+                setNewTagInput('');
+              }} 
+              variant="outline" 
+              size="sm" 
+              className="text-xs"
+            >
+              取消
+            </Button>
+          </div>
+        )}
+        
+        {allTags.length === 0 && !showAddTag && (
+          <p className="text-xs text-gray-500 text-center py-4">
+            尚無標籤，點擊上方「新增」按鈕來添加標籤
+          </p>
+        )}
       </div>
 
       {/* Schedule Records */}
