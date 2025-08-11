@@ -503,69 +503,45 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           </Button>
         </div>
         
-        {/* 標籤列表 - 支援水平滾動 */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {/* AI 自動生成標籤 */}
-          {generateAutoTags().map((tag, index) => {
-            const isSelected = customer.tags?.includes(tag);
-            return (
-              <div key={`auto-${index}`} className="relative flex-shrink-0 group">
+        {/* 已選擇的標籤 - 第一行 */}
+        {(customer.tags && customer.tags.length > 0) && (
+          <div className="flex gap-2 overflow-x-auto pb-2">
+            {customer.tags.map((tag, index) => (
+              <div key={`selected-${index}`} className="relative flex-shrink-0 group">
                 <Badge 
-                  variant="outline" 
-                  className={`text-xs cursor-pointer px-3 py-1 rounded-full transition-colors ${
-                    isSelected 
-                      ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
-                      : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
-                  }`}
-                  onClick={() => {
-                    if (isSelected) {
-                      onRemoveTag(customer.id, tag);
-                    } else {
-                      onAddTag(customer.id, tag);
-                    }
-                  }}
+                  variant="secondary" 
+                  className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer px-3 py-1 rounded-full"
+                  onClick={() => handleTagClick(tag)}
                 >
                   {tag}
                 </Badge>
-                {/* 已選中的標籤顯示刪除按鈕 */}
-                {isSelected && (
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onRemoveTag(customer.id, tag);
-                    }}
-                    variant="ghost"
-                    size="sm"
-                    className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-2 h-2" />
-                  </Button>
-                )}
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveTag(customer.id, tag);
+                  }}
+                  variant="ghost"
+                  size="sm"
+                  className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  <X className="w-2 h-2" />
+                </Button>
               </div>
-            );
-          })}
-          
-          {/* 手動新增的標籤 (僅顯示不在自動生成清單中的) */}
-          {customer.tags?.filter(tag => !generateAutoTags().includes(tag)).map((tag, index) => (
-            <div key={`manual-${index}`} className="relative flex-shrink-0 group">
+            ))}
+          </div>
+        )}
+
+        {/* AI 自動生成標籤 - 第二行 */}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {generateAutoTags().filter(tag => !customer.tags?.includes(tag)).map((tag, index) => (
+            <div key={`ai-${index}`} className="relative flex-shrink-0 group">
               <Badge 
-                variant="secondary" 
-                className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer px-3 py-1 rounded-full"
-                onClick={() => handleTagClick(tag)}
+                variant="outline" 
+                className="text-xs bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 cursor-pointer px-3 py-1 rounded-full transition-colors"
+                onClick={() => onAddTag(customer.id, tag)}
               >
                 {tag}
               </Badge>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRemoveTag(customer.id, tag);
-                }}
-                variant="ghost"
-                size="sm"
-                className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <X className="w-2 h-2" />
-              </Button>
             </div>
           ))}
         </div>
