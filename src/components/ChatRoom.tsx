@@ -413,47 +413,70 @@ const ChatRoom = () => {
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
   const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
-  const [isFirstTimeUser, setIsFirstTimeUser] = useState(true); // 新增：追蹤是否為首次用戶
 
   // 初始化歡迎訊息
   useEffect(() => {
     if (!hasInitialized) {
-      initializeMessages();
+      // 檢查用戶註冊狀態
+      const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
+      const cardDataExists = localStorage.getItem('aile-card-data');
+      const hasStartedRegistration = localStorage.getItem('aicard-user-started-registration') === 'true';
+      if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
+        // 全新用戶 - 顯示歡迎文案和電子名片預覽
+        // 初次加入用戶 - 顯示歡迎文案和電子名片預覽
+        const welcomeMessage = {
+          id: 1,
+          text: '👋 歡迎加入 AiCard 智能電子名片平台！\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！\n🔒 只需手機註冊，即可打造專屬個人名片，輕鬆分享、智能管理。',
+          isBot: true,
+          timestamp: new Date()
+        };
+
+        // 電子名片預覽卡片
+        const cardPreviewMessage = {
+          id: 2,
+          text: '開始使用 AiCard 電子名片！',
+          isBot: true,
+          timestamp: new Date(),
+          isCard: true,
+          isClientFlexMessage: true,
+          cardData: {
+            name: '立即開始',
+            companyName: 'AiCard 電子名片平台',
+            jobTitle: '・建立名片，立即擁有專屬 QR Code\n・可新增多張名片，打造個人與工作身份\n・完成設定可獲得 50 點 AiPoint 獎勵！',
+            phone: '',
+            email: '',
+            website: '',
+            line: '',
+            facebook: '',
+            instagram: '',
+            photo: null,
+            introduction: '👉 點擊下方按鈕立即開始',
+            welcomeCard: true // 特殊標記為歡迎卡片
+          }
+        };
+        setMessages([welcomeMessage, cardPreviewMessage]);
+      } else if (userRegistered && cardDataExists) {
+        // 已註冊用戶返回
+        const welcomeBackMessage = {
+          id: 1,
+          text: '👋 歡迎回來 AiCard！\n🎯 點選下方功能即可編輯名片、管理人脈、查詢點數！',
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages([welcomeBackMessage]);
+      } else {
+        // 已加入但尚未註冊完成的用戶
+        const registerPromptMessage = {
+          id: 1,
+          text: '👋 歡迎加入 AiCard！\n🎯 您尚未建立專屬電子名片，點擊下方按鈕立即開始註冊！',
+          isBot: true,
+          timestamp: new Date()
+        };
+        setMessages([registerPromptMessage]);
+      }
       setHasInitialized(true);
     }
   }, [hasInitialized]);
-
-  // 當用戶狀態改變時重新初始化訊息
-  useEffect(() => {
-    if (hasInitialized) {
-      initializeMessages();
-    }
-  }, [isFirstTimeUser]);
-
-  // 初始化訊息的函數
-  const initializeMessages = () => {
-    if (isFirstTimeUser) {
-      // 首次註冊用戶狀態
-      const welcomeMessage = {
-        id: 1,
-        text: '👋 歡迎加入 AiCard 智能電子名片平台！\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！\n🔒 只需手機註冊，即可打造專屬個人名片，輕鬆分享、智能管理。',
-        isBot: true,
-        timestamp: new Date()
-      };
-      setMessages([welcomeMessage]);
-      setUseNewMenu(false); // 使用原版選單，包含"註冊電子名片"
-    } else {
-      // 已註冊完成用戶狀態
-      const welcomeBackMessage = {
-        id: 1,
-        text: '👋 歡迎回來 AiCard！\n🎯 點選下方功能即可編輯名片、管理人脈、查詢點數！',
-        isBot: true,
-        timestamp: new Date()
-      };
-      setMessages([welcomeBackMessage]);
-      setUseNewMenu(true); // 使用新版選單，包含"設置電子名片"
-    }
-  };
   useEffect(() => {
     const handleCustomerAdded = (event: CustomEvent) => {
       const newCustomer = event.detail;
@@ -647,15 +670,8 @@ const ChatRoom = () => {
   };
   const handleMenuItemClick = (itemId: string) => {
     if (itemId === 'create-card') {
-      if (isFirstTimeUser) {
-        // 首次註冊用戶：直接進入手機驗證流程
-        setActiveView('create-card');
-        setIsMenuOpen(false);
-      } else {
-        // 已註冊用戶：進入設置電子名片流程
-        setActiveView('create-card');
-        setIsMenuOpen(false);
-      }
+      setActiveView(itemId);
+      setIsMenuOpen(false);
     } else if (itemId === 'my-card') {
       const savedData = localStorage.getItem('aile-card-data');
       if (savedData) {
@@ -880,7 +896,7 @@ const ChatRoom = () => {
   const renderActiveView = () => {
     switch (activeView) {
       case 'create-card':
-        return <CreateCard onClose={handleCloseView} onRegistrationComplete={handleRegistrationComplete} userData={{}} isFirstTimeUser={isFirstTimeUser} />;
+        return <MyCard onClose={handleCloseView} />;
       case 'scanner':
         return;
       case 'customers':
@@ -1005,15 +1021,8 @@ const ChatRoom = () => {
                 <div className="flex-1"></div>
               </div>
               
-              {/* Central Toggle Buttons */}
-              <div className="flex flex-col items-center space-y-2 mb-3">
-                {/* User Status Toggle Button */}
-                <Button onClick={() => setIsFirstTimeUser(!isFirstTimeUser)} className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-600 text-white text-sm px-4 py-2 rounded-full shadow-md" size="sm">
-                  <User className="w-4 h-4" />
-                  <span>{isFirstTimeUser ? '切換至已註冊狀態' : '切換至首次註冊狀態'}</span>
-                </Button>
-                
-                {/* Menu Toggle Button */}
+              {/* Central Toggle Button */}
+              <div className="flex justify-center mb-3">
                 <Button onClick={() => setUseNewMenu(!useNewMenu)} className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-full shadow-md" size="sm">
                   <RotateCcw className="w-4 h-4" />
                   <span>{useNewMenu ? '切換至原版選單' : '切換至新版選單'}</span>
