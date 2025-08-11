@@ -10,6 +10,7 @@ import { ScheduleForm } from './ScheduleForm';
 import { ScheduleRecordForm } from './ScheduleRecordForm';
 import { ScheduleRecord } from './types';
 import VoiceInput from '../VoiceInput';
+import { CardEditForm } from './CardEditForm';
 interface ExpandedCardProps {
   customer: Customer;
   activeSection: 'cards' | 'contacts';
@@ -50,6 +51,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
   const [showSmartAnalysis, setShowSmartAnalysis] = useState(false);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [showCardEditForm, setShowCardEditForm] = useState(false);
   const [scheduleRecords, setScheduleRecords] = useState<ScheduleRecord[]>([]);
   const handleAddScheduleRecord = (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => {
     const newRecord: ScheduleRecord = {
@@ -87,6 +89,11 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     });
   };
 
+  const handleCardEdit = (updates: Partial<Customer>) => {
+    onSaveCustomer(customer.id, updates);
+    setShowCardEditForm(false);
+  };
+
   // 如果顯示智慧分析，返回智慧分析組件
   if (showSmartAnalysis) {
     return <SmartRelationshipAnalysis customer={customer} onClose={() => setShowSmartAnalysis(false)} />;
@@ -115,7 +122,21 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 
       {/* Contact Information */}
       <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-        <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
+          {/* 只有電子名片才顯示編輯按鈕 */}
+          {customer.hasCard && customer.isDigitalCard && (
+            <Button 
+              onClick={() => setShowCardEditForm(true)} 
+              variant="ghost" 
+              size="sm" 
+              className="text-xs text-blue-600 hover:text-blue-700"
+            >
+              <Edit className="w-3 h-3 mr-1" />
+              編輯
+            </Button>
+          )}
+        </div>
         
         {customer.phone && <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -270,5 +291,13 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 
       {/* Schedule Form Dialog */}
       <ScheduleForm isOpen={showScheduleForm} onClose={() => setShowScheduleForm(false)} customer={customer} />
+      
+      {/* Card Edit Form Dialog */}
+      <CardEditForm 
+        isOpen={showCardEditForm} 
+        onClose={() => setShowCardEditForm(false)} 
+        customer={customer}
+        onSave={handleCardEdit}
+      />
     </div>;
 };
