@@ -964,111 +964,26 @@ const ChatRoom = () => {
                           <Bot className="w-5 h-5 text-white" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          {message.isCard && message.cardData ? <div className="bg-white rounded-2xl shadow-lg max-w-[260px] border border-gray-100 overflow-hidden">
-                              {/* Business Card Header - 支持自定義背景色 */}
-              
-                              
-                              {/* 聯絡資訊 - 更緊湊的間距 */}
-                              <div className="px-3 py-2 space-y-1.5">
-                                {message.cardData.phone && <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
-                                    <span className="truncate">{message.cardData.phone}</span>
-                                  </div>}
-                                {message.cardData.email && <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
-                                    <span className="truncate">{message.cardData.email}</span>
-                                  </div>}
-                                {message.cardData.website && <div className="flex items-center space-x-2 text-xs text-gray-600">
-                                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full flex-shrink-0"></div>
-                                    <span className="truncate">{message.cardData.website}</span>
-                                  </div>}
-                                
-                                {/* 查看更多按鈕 */}
-                                {(message.cardData.line || message.cardData.facebook || message.cardData.instagram || message.cardData.address) && <div className="pt-2 mt-2 border-t border-gray-100">
-                                    <Button onClick={() => handleViewFullCard(message.cardData)} size="sm" className="w-full bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-200 text-xs h-6 font-medium rounded-md" variant="outline">
-                                      <User className="w-3 h-3 mr-1" />
-                                      查看更多
-                                    </Button>
-                                  </div>}
-                              </div>
-
-                              {/* QR Code 區塊已隱藏 - 彈跳介面中不顯示 */}
-
-                              {/* 操作按鈕區域 - 優化版本 */}
-                              <div className="p-3 pt-0 bg-white">
-                                {/* 如果是客戶端 Flex Message，顯示客戶端按鈕組 */}
-                                {(message as any).isClientFlexMessage ?
-                        // 檢查是否為歡迎卡片
-                        message.cardData?.welcomeCard ? <div className="space-y-1.5">
-                                      
-                                    </div> : <div className="space-y-1.5">
-                                      <Button onClick={() => handleCardAction('addContact', message.cardData, CONSISTENT_CUSTOMER_NAME)} size="sm" className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-8 font-medium">
-                                        <UserPlus className="w-3 h-3 mr-1" />
-                                        立即加入聯絡人
-                                      </Button>
-                                      <Button onClick={() => handleCardAction('saveToContacts', message.cardData)} size="sm" className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium">
-                                        <BookmarkPlus className="w-3 h-3 mr-1" />
-                                        儲存聯絡人
-                                      </Button>
-                                      <Button size="sm" className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium">
-                                        <Edit className="w-3 h-3 mr-1" />
-                                        建立電子名片
-                                      </Button>
-                                      <Button onClick={() => handleCardAction('share', message.cardData)} size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium">
-                                        <Share2 className="w-3 h-3 mr-1" />
-                                        分享
-                                      </Button>
-                                    </div> : (message as any).isFullFlexMessage ? <div className="space-y-1.5">
-                                    <Button onClick={() => handleCardAction('saveToContacts', message.cardData)} size="sm" className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-8 font-medium">
-                                      <BookmarkPlus className="w-3 h-3 mr-1" />
-                                      儲存聯絡人
-                                    </Button>
-                                    <Button size="sm" className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-xs h-8 font-medium">
-                                      <Edit className="w-3 h-3 mr-1" />
-                                      建立電子名片
-                                    </Button>
-                                    <Button onClick={() => handleCardAction('share', message.cardData)} size="sm" className="w-full bg-orange-500 hover:bg-orange-600 text-white text-xs h-8 font-medium">
-                                      <Share2 className="w-3 h-3 mr-1" />
-                                      分享
-                                    </Button>
-                                  </div> : <div className="space-y-1.5">
-                                    {/* 加入 AiCard LINE OA好友 */}
-                                    <Button onClick={() => handleJoinAiCardOA()} size="sm" className="w-full bg-green-500 hover:bg-green-600 text-white text-xs h-7 font-medium rounded-lg">
-                                      <UserPlus className="w-3 h-3 mr-1.5" />
-                                      加入名片好友
-                                    </Button>
-                                    {/* 儲存名片 */}
-                                    <Button onClick={() => handleSaveCard(message.cardData)} size="sm" className="w-full bg-blue-500 hover:bg-blue-600 text-white text-xs h-7 font-medium rounded-lg">
-                                      <BookmarkPlus className="w-3 h-3 mr-1.5" />
-                                      儲存名片
-                                    </Button>
-                                    {/* 分享 */}
-                                    <Button onClick={() => handleCardAction('share', message.cardData)} size="sm" className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300 text-xs h-7 font-medium rounded-lg" variant="outline">
-                                      <Share2 className="w-3 h-3 mr-1.5" />
-                                      分享
-                                    </Button>
-                                  </div>}
-                              </div>
-                            </div> : (/* Regular Chat Message */
-                    <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
-              <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
-              
-              {/* 建立電子名片按鈕 - 在所有聊天訊息下方顯示 */}
-              <div className="mt-3">
-                <Button onClick={() => setActiveView('mycard')} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg py-2">
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  建立電子名片
-                </Button>
-              </div>
-              
-              {/* 如果訊息包含建立名片的提示，顯示額外的按鈕 */}
-              {(message.text.includes('尚未建立電子名片') || message.text.includes('立即註冊，打造您的第一張專屬名片')) && <div className="mt-2">
-                  <Button onClick={() => setActiveView('mycard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg py-2">
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    ✅ 建立我的電子名片
-                  </Button>
-                </div>}
-            </div>)}
+                          {/* Regular Chat Message */}
+                          <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm max-w-xs">
+                            <p className="text-sm text-gray-800 whitespace-pre-line">{message.text}</p>
+                            
+                            {/* 建立電子名片按鈕 - 在所有聊天訊息下方顯示 */}
+                            <div className="mt-3">
+                              <Button onClick={() => setActiveView('mycard')} className="w-full bg-green-600 hover:bg-green-700 text-white text-sm font-medium rounded-lg py-2">
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                建立電子名片
+                              </Button>
+                            </div>
+                            
+                            {/* 如果訊息包含建立名片的提示，顯示額外的按鈕 */}
+                            {(message.text.includes('尚未建立電子名片') || message.text.includes('立即註冊，打造您的第一張專屬名片')) && <div className="mt-2">
+                                <Button onClick={() => setActiveView('mycard')} className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg py-2">
+                                  <CheckCircle className="w-4 h-4 mr-2" />
+                                  ✅ 建立我的電子名片
+                                </Button>
+                              </div>}
+                          </div>
                           <p className="text-xs text-gray-500 mt-1 ml-2">
                             {message.timestamp.toLocaleTimeString('zh-TW', {
                         hour: '2-digit',
