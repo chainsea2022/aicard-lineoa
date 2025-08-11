@@ -906,7 +906,7 @@ const ChatRoom = () => {
       case 'schedule':
         return <Schedule onClose={handleCloseView} />;
       case 'points':
-        return <Points onClose={handleCloseView} />;
+        return;
       case 'upgrade':
         return <UpgradeExperience onClose={handleCloseView} />;
       case 'card-management':
