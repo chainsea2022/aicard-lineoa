@@ -434,12 +434,12 @@ const ChatRoom = () => {
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
-  const [welcomeVersion, setWelcomeVersion] = useState<'new' | 'classic'>('new'); // 歡迎語版本切換
-  const [showWelcomeToggle, setShowWelcomeToggle] = useState(false); // 控制切換按鈕顯示
+  const [welcomeVersion, setWelcomeVersion] = useState<'registration' | 'post_registration'>('registration'); // 歡迎語版本切換
+  const [showWelcomeToggle, setShowWelcomeToggle] = useState(true); // 控制切換按鈕顯示 - 固定顯示
 
   // 獲取歡迎訊息的函數
-  const getWelcomeMessages = (version: 'new' | 'classic') => {
-    if (version === 'new') {
+  const getWelcomeMessages = (version: 'registration' | 'post_registration') => {
+    if (version === 'registration') {
       // 新版歡迎語
       const welcomeMessage = {
         id: 1,
@@ -473,25 +473,25 @@ const ChatRoom = () => {
       
       return [welcomeMessage, cardPreviewMessage];
     } else {
-      // 經典版歡迎語
+      // 註冊完成後的歡迎語與設置選單
       const welcomeMessage = {
         id: 1,
-        text: '👋 歡迎加入 AiCard 智能電子名片平台！\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！\n🔒 只需手機註冊，即可打造專屬個人名片，輕鬆分享、智能管理。',
+        text: '👋 歡迎回來！\n🎯 您的電子名片已建立完成，請選擇您需要的功能',
         isBot: true,
         timestamp: new Date()
       };
       
       const cardPreviewMessage = {
         id: 2,
-        text: '立即開始使用 AiCard',
+        text: '設置您的電子名片',
         isBot: true,
         timestamp: new Date(),
         isCard: true,
         isClientFlexMessage: true,
         cardData: {
-          name: '立即開始',
-          companyName: 'AiCard 電子名片平台',
-          jobTitle: '智能電子名片解決方案\n快速建立、輕鬆分享、智能管理',
+          name: '設置電子名片',
+          companyName: 'AiCard 名片管理',
+          jobTitle: '・編輯名片資訊，更新聯絡方式\n・管理名片顯示，調整隱私設定\n・查看數據分析，了解名片效果',
           phone: '',
           email: '',
           website: '',
@@ -499,7 +499,7 @@ const ChatRoom = () => {
           facebook: '',
           instagram: '',
           photo: null,
-          introduction: '點擊下方按鈕開始註冊',
+          introduction: '👉 點擊下方按鈕進入設置',
           welcomeCard: true
         }
       };
@@ -510,7 +510,7 @@ const ChatRoom = () => {
 
   // 切換歡迎語版本
   const toggleWelcomeVersion = () => {
-    const newVersion = welcomeVersion === 'new' ? 'classic' : 'new';
+    const newVersion = welcomeVersion === 'registration' ? 'post_registration' : 'registration';
     setWelcomeVersion(newVersion);
     
     // 重新設置歡迎訊息
@@ -1035,17 +1035,17 @@ const ChatRoom = () => {
             </div>
           </div>
           
-          {/* 歡迎語切換按鈕 - 只在初次註冊時顯示 */}
-          {showWelcomeToggle && (
-            <Button
-              onClick={toggleWelcomeVersion}
-              variant="ghost"
-              size="sm"
-              className="h-8 px-3 bg-white/20 hover:bg-white/30 text-white text-xs rounded-full border border-white/30"
-            >
-              {welcomeVersion === 'new' ? '經典版' : '新版'}
-            </Button>
-          )}
+          <div className="flex-1" />
+          
+          {/* 歡迎語切換按鈕 - 固定在右上角 */}
+          <Button
+            onClick={toggleWelcomeVersion}
+            variant="ghost"
+            size="sm"
+            className="h-8 px-3 bg-white/20 hover:bg-white/30 text-white text-xs rounded-full border border-white/30"
+          >
+            {welcomeVersion === 'registration' ? '註冊完成' : '首次註冊'}
+          </Button>
         </div>
       </div>
 
