@@ -8,6 +8,7 @@ import MyCustomers from './MyCustomers';
 import Analytics from './Analytics';
 import Schedule from './Schedule';
 import Points from './Points';
+import MemberPoints from './MemberPoints';
 import UpgradeExperience from './UpgradeExperience';
 import CardManagement from './CardManagement';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
@@ -906,7 +907,7 @@ const ChatRoom = () => {
       case 'schedule':
         return <Schedule onClose={handleCloseView} />;
       case 'points':
-        return <Points onClose={handleCloseView} />;
+        return <MemberPoints onClose={handleCloseView} />;
       case 'upgrade':
         return <UpgradeExperience onClose={handleCloseView} />;
       case 'card-management':
