@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { ArrowLeft, Crown, Star, Shield, CheckCircle, Gift, Zap, Users, X, Lock, Unlock } from 'lucide-react';
+import React from 'react';
+import { X, Download, Smartphone, Apple, PlayCircle, Star, Shield, Zap, Users, BarChart3, Bell, Camera, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,90 +9,48 @@ interface UpgradeExperienceProps {
 }
 
 const UpgradeExperience: React.FC<UpgradeExperienceProps> = ({ onClose }) => {
-  const [activeTab, setActiveTab] = useState<'compare' | 'trial' | 'premium'>('compare');
-
-  const plans = [
+  const appFeatures = [
     {
-      id: 'free',
-      name: '免費版',
-      price: '免費',
-      icon: <Shield className="w-6 h-6 text-gray-500" />,
-      bgColor: 'bg-gray-50',
-      borderColor: 'border-gray-200',
-      features: [
-        { name: '建立電子名片', included: true },
-        { name: '基礎名片夾管理', included: true },
-        { name: '數量限制 (最多 50 張)', included: true },
-        { name: '基礎分析功能', included: true },
-        { name: '廣告顯示', included: true },
-        { name: '進階分析報告', included: false },
-        { name: '無限制名片夾', included: false },
-        { name: '客製化名片樣式', included: false },
-        { name: '優先客服支援', included: false },
-      ]
+      icon: <Bell className="w-6 h-6 text-blue-500" />,
+      title: '即時推播通知',
+      description: '重要聯絡人動態即時提醒'
     },
     {
-      id: 'trial',
-      name: '體驗版',
-      price: '50 點數',
-      originalPrice: '$300',
-      icon: <Star className="w-6 h-6 text-orange-500" />,
-      bgColor: 'bg-orange-50',
-      borderColor: 'border-orange-200',
-      popular: true,
-      duration: '7 天試用',
-      features: [
-        { name: '完整免費版功能', included: true },
-        { name: '進階分析報告', included: true },
-        { name: '無限制名片夾', included: true },
-        { name: '移除廣告', included: true },
-        { name: '客製化名片樣式', included: true },
-        { name: '優先客服支援', included: true },
-        { name: '專屬徽章顯示', included: true },
-        { name: '批量匯出功能', included: true },
-        { name: '高級權限管理', included: true },
-      ]
+      icon: <Camera className="w-6 h-6 text-green-500" />,
+      title: '快速名片掃描',
+      description: '一鍵拍照自動識別名片資訊'
     },
     {
-      id: 'premium',
-      name: '商務版',
-      price: '$7,200',
-      originalPrice: '$14,400',
-      icon: <Crown className="w-6 h-6 text-purple-600" />,
-      bgColor: 'bg-purple-50',
-      borderColor: 'border-purple-200',
-      duration: '年繳方案',
-      discount: '50% OFF',
-      features: [
-        { name: '完整體驗版功能', included: true },
-        { name: '團隊協作功能', included: true },
-        { name: 'API 整合服務', included: true },
-        { name: '專屬客戶經理', included: true },
-        { name: '白標客製化', included: true },
-        { name: '數據備份保護', included: true },
-        { name: '進階安全設定', included: true },
-        { name: '無限制用戶數', included: true },
-        { name: '24/7 技術支援', included: true },
-      ]
+      icon: <Users className="w-6 h-6 text-purple-500" />,
+      title: '離線名片分享',
+      description: '無網路環境也能交換聯絡資訊'
+    },
+    {
+      icon: <Globe className="w-6 h-6 text-orange-500" />,
+      title: '跨平台同步',
+      description: '手機、平板、電腦資料完美同步'
+    },
+    {
+      icon: <Shield className="w-6 h-6 text-red-500" />,
+      title: '安全加密保護',
+      description: '企業級加密技術保護個人隱私'
+    },
+    {
+      icon: <Zap className="w-6 h-6 text-yellow-500" />,
+      title: '智能推薦功能',
+      description: 'AI 智能分析人脈關係網'
     }
   ];
 
   return (
     <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={onClose} 
-              className="text-white hover:bg-white/20"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="font-bold text-lg">升級體驗</h1>
-          </div>
+          <h1 className="font-bold text-xl flex items-center">
+            <Download className="w-6 h-6 mr-2" />
+            下載 APP
+          </h1>
           <Button
             variant="ghost"
             size="sm"
@@ -104,236 +62,148 @@ const UpgradeExperience: React.FC<UpgradeExperienceProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div className="flex bg-white border-b border-gray-200">
-        <button 
-          onClick={() => setActiveTab('compare')} 
-          className={`flex-1 py-3 text-center font-medium ${
-            activeTab === 'compare' 
-              ? 'text-purple-600 border-b-2 border-purple-600' 
-              : 'text-gray-600'
-          }`}
-        >
-          <Shield className="w-4 h-4 inline-block mr-1" />
-          方案比較
-        </button>
-        <button 
-          onClick={() => setActiveTab('trial')} 
-          className={`flex-1 py-3 text-center font-medium ${
-            activeTab === 'trial' 
-              ? 'text-purple-600 border-b-2 border-purple-600' 
-              : 'text-gray-600'
-          }`}
-        >
-          <Star className="w-4 h-4 inline-block mr-1" />
-          體驗版
-        </button>
-        <button 
-          onClick={() => setActiveTab('premium')} 
-          className={`flex-1 py-3 text-center font-medium ${
-            activeTab === 'premium' 
-              ? 'text-purple-600 border-b-2 border-purple-600' 
-              : 'text-gray-600'
-          }`}
-        >
-          <Crown className="w-4 h-4 inline-block mr-1" />
-          商務版
-        </button>
-      </div>
-
       <div className="p-4">
-        {activeTab === 'compare' && (
-          <div className="space-y-4">
-            {plans.map((plan) => (
-              <Card 
-                key={plan.id} 
-                className={`${plan.bgColor} ${plan.borderColor} border-2 relative overflow-hidden`}
-              >
-                {plan.popular && (
-                  <div className="absolute top-0 right-0 bg-orange-500 text-white px-3 py-1 text-xs font-bold rounded-bl-lg">
-                    推薦
-                  </div>
-                )}
-                {plan.discount && (
-                  <div className="absolute top-0 left-0 bg-red-500 text-white px-3 py-1 text-xs font-bold rounded-br-lg">
-                    {plan.discount}
-                  </div>
-                )}
-                
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      {plan.icon}
-                      <div>
-                        <CardTitle className="text-lg">{plan.name}</CardTitle>
-                        {plan.duration && (
-                          <p className="text-sm text-gray-600">{plan.duration}</p>
-                        )}
-                      </div>
+        {/* Hero Section */}
+        <div className="text-center mb-8">
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-8 rounded-2xl border-2 border-blue-200 shadow-lg mb-6">
+            <div className="flex justify-center mb-6">
+              <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-6 rounded-full shadow-lg">
+                <Smartphone className="w-12 h-12 text-white" />
+              </div>
+            </div>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              智慧名片 APP
+            </h2>
+            <p className="text-lg text-gray-600 mb-6">
+              隨時隨地管理您的人脈網路<br />
+              更快速、更便利的名片交換體驗
+            </p>
+            <div className="flex items-center justify-center space-x-2 text-yellow-500 mb-4">
+              <Star className="w-5 h-5 fill-current" />
+              <Star className="w-5 h-5 fill-current" />
+              <Star className="w-5 h-5 fill-current" />
+              <Star className="w-5 h-5 fill-current" />
+              <Star className="w-5 h-5 fill-current" />
+              <span className="text-gray-600 ml-2">4.9 顆星評價</span>
+            </div>
+            <p className="text-sm text-gray-500">超過 100,000+ 用戶推薦使用</p>
+          </div>
+        </div>
+
+        {/* Download Buttons */}
+        <div className="space-y-4 mb-8">
+          <Card className="bg-gradient-to-r from-gray-900 to-black text-white border-none shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="bg-white p-3 rounded-xl">
+                  <Apple className="w-8 h-8 text-black" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm opacity-90">Download on the</div>
+                  <div className="text-xl font-bold">App Store</div>
+                </div>
+                <Button 
+                  variant="secondary" 
+                  className="bg-white text-black hover:bg-gray-100 font-semibold"
+                  onClick={() => window.open('#', '_blank')}
+                >
+                  下載
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-r from-green-600 to-green-500 text-white border-none shadow-lg">
+            <CardContent className="p-6">
+              <div className="flex items-center space-x-4">
+                <div className="bg-white p-3 rounded-xl">
+                  <PlayCircle className="w-8 h-8 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm opacity-90">GET IT ON</div>
+                  <div className="text-xl font-bold">Google Play</div>
+                </div>
+                <Button 
+                  variant="secondary" 
+                  className="bg-white text-green-600 hover:bg-gray-100 font-semibold"
+                  onClick={() => window.open('#', '_blank')}
+                >
+                  下載
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* App Features */}
+        <div className="mb-8">
+          <h3 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            APP 專屬功能
+          </h3>
+          <div className="grid gap-4">
+            {appFeatures.map((feature, index) => (
+              <Card key={index} className="bg-gradient-to-r from-gray-50 to-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-3 rounded-xl border border-blue-200">
+                      {feature.icon}
                     </div>
-                    <div className="text-right">
-                      <div className="font-bold text-xl">{plan.price}</div>
-                      {plan.originalPrice && (
-                        <div className="text-sm text-gray-500 line-through">
-                          {plan.originalPrice}
-                        </div>
-                      )}
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-gray-800 mb-1">{feature.title}</h4>
+                      <p className="text-sm text-gray-600">{feature.description}</p>
                     </div>
                   </div>
-                </CardHeader>
-                
-                <CardContent>
-                  <div className="space-y-2">
-                    {plan.features.map((feature, index) => (
-                      <div key={index} className="flex items-center space-x-2">
-                        {feature.included ? (
-                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
-                        ) : (
-                          <X className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        )}
-                        <span className={`text-sm ${feature.included ? 'text-gray-800' : 'text-gray-400'}`}>
-                          {feature.name}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  {plan.id !== 'free' && (
-                    <Button 
-                      className={`w-full mt-4 ${
-                        plan.id === 'trial' 
-                          ? 'bg-orange-500 hover:bg-orange-600' 
-                          : 'bg-purple-600 hover:bg-purple-700'
-                      } text-white font-semibold`}
-                    >
-                      {plan.id === 'trial' ? '立即體驗' : '立即購買'}
-                    </Button>
-                  )}
                 </CardContent>
               </Card>
             ))}
           </div>
-        )}
+        </div>
 
-        {activeTab === 'trial' && (
-          <div className="space-y-6">
-            {/* Trial Offer Card */}
-            <Card className="bg-gradient-to-br from-orange-50 to-yellow-50 border-2 border-orange-200">
-              <CardContent className="p-6 text-center">
-                <Star className="w-16 h-16 mx-auto text-orange-500 mb-4" />
-                <h2 className="text-2xl font-bold text-orange-800 mb-2">體驗版 7 天免費試用</h2>
-                <p className="text-orange-700 mb-4">使用 50 點數即可解鎖所有進階功能</p>
-                
-                <div className="bg-white p-4 rounded-lg mb-4">
-                  <div className="text-3xl font-bold text-orange-600">50 點數</div>
-                  <div className="text-sm text-gray-600">原價 $300</div>
+        {/* QR Code Section */}
+        <Card className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 shadow-lg">
+          <CardContent className="p-6 text-center">
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              掃描 QR Code 快速下載
+            </h3>
+            <div className="bg-white p-6 rounded-xl border-2 border-blue-200 shadow-md inline-block mb-4">
+              {/* QR Code placeholder */}
+              <div className="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
+                <div className="text-center">
+                  <Download className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <div className="text-xs text-blue-600 font-medium">QR Code</div>
                 </div>
-                
-                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 text-lg">
-                  <Gift className="w-5 h-5 mr-2" />
-                  立即兌換體驗
-                </Button>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+              使用手機相機掃描即可下載
+            </p>
+            <div className="flex justify-center space-x-4">
+              <Badge className="bg-blue-500 text-white px-3 py-1">iOS</Badge>
+              <Badge className="bg-green-500 text-white px-3 py-1">Android</Badge>
+            </div>
+          </CardContent>
+        </Card>
 
-            {/* Features List */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Zap className="w-5 h-5 mr-2 text-orange-500" />
-                  體驗版專屬功能
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    '進階數據分析報告',
-                    '無限制名片夾容量',
-                    '移除所有廣告',
-                    '客製化名片樣式',
-                    '優先客服支援',
-                    '專屬會員徽章',
-                    '批量匯出功能'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <Unlock className="w-4 h-4 text-green-500" />
-                      <span className="text-gray-800">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+        {/* Benefits Section */}
+        <div className="mt-8 p-6 bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl border-2 border-yellow-200">
+          <h3 className="text-xl font-bold text-center text-gray-800 mb-4">
+            🎉 下載 APP 專屬優惠
+          </h3>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <span className="text-gray-700">新用戶註冊即送 <strong className="text-orange-600">100 點數</strong></span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <span className="text-gray-700">APP 限定功能 <strong className="text-orange-600">免費體驗 7 天</strong></span>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <span className="text-gray-700">推薦好友再送 <strong className="text-orange-600">50 點數</strong></span>
+            </div>
           </div>
-        )}
-
-        {activeTab === 'premium' && (
-          <div className="space-y-6">
-            {/* Premium Offer Card */}
-            <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200">
-              <CardContent className="p-6 text-center">
-                <Crown className="w-16 h-16 mx-auto text-purple-600 mb-4" />
-                <h2 className="text-2xl font-bold text-purple-800 mb-2">商務版年繳方案</h2>
-                <p className="text-purple-700 mb-4">專業團隊的最佳選擇</p>
-                
-                <div className="bg-white p-4 rounded-lg mb-4">
-                  <div className="flex items-center justify-center space-x-2">
-                    <span className="text-3xl font-bold text-purple-600">$7,200</span>
-                    <span className="text-lg text-purple-600">/年</span>
-                  </div>
-                  <div className="text-sm text-gray-600 line-through">原價 $14,400</div>
-                  <Badge className="bg-red-500 text-white mt-2">限時 50% OFF</Badge>
-                </div>
-                
-                <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 text-lg">
-                  <Crown className="w-5 h-5 mr-2" />
-                  立即購買
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Premium Features */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="w-5 h-5 mr-2 text-purple-600" />
-                  商務版專屬功能
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[
-                    '團隊協作與管理',
-                    'API 整合服務',
-                    '專屬客戶經理',
-                    '白標客製化方案',
-                    '數據備份與保護',
-                    '進階安全設定',
-                    '無限制用戶數量',
-                    '24/7 技術支援'
-                  ].map((feature, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <Crown className="w-4 h-4 text-purple-600" />
-                      <span className="text-gray-800">{feature}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Contact Info */}
-            <Card className="bg-gray-50">
-              <CardContent className="p-4 text-center">
-                <h3 className="font-semibold mb-2">需要客製化方案？</h3>
-                <p className="text-sm text-gray-600 mb-3">
-                  聯繫我們的業務團隊，為您量身打造專屬解決方案
-                </p>
-                <Button variant="outline" className="w-full">
-                  聯繫業務團隊
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
