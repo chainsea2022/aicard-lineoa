@@ -177,6 +177,38 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               開啟
             </Button>
           </div>}
+
+        {/* Notes Section */}
+        <div className="pt-2 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-2">
+            <h5 className="font-medium text-sm text-gray-800">備註</h5>
+            {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="text-xs">
+                <Mic className="w-3 h-3" />
+              </Button>}
+          </div>
+          
+          {isEditingNotes ? <div className="space-y-2">
+              <div className="relative">
+                <Textarea value={editedNotes} onChange={e => setEditedNotes(e.target.value)} placeholder="輸入備註..." rows={3} className="text-sm pr-10" />
+                <div className="absolute top-2 right-2">
+                  <VoiceInput onResult={handleVoiceInput} placeholder="語音輸入備註" />
+                </div>
+              </div>
+              <div className="flex space-x-2">
+                <Button onClick={handleSaveNotes} size="sm" className="text-xs">
+                  儲存
+                </Button>
+                <Button onClick={() => {
+              setIsEditingNotes(false);
+              setEditedNotes(customer.notes || '');
+            }} variant="outline" size="sm" className="text-xs">
+                  取消
+                </Button>
+              </div>
+            </div> : <p className="text-sm text-gray-600 bg-white rounded p-2 min-h-[2.5rem] cursor-pointer" onClick={() => setIsEditingNotes(true)}>
+              {customer.notes || '點擊新增備註...'}
+            </p>}
+        </div>
       </div>
 
       {/* Smart Analysis Button - 只對有電子名片的聯絡人顯示 */}
@@ -216,37 +248,6 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       {/* Schedule Records */}
       <ScheduleRecordForm customerId={customer.id} customerName={customer.name} scheduleRecords={scheduleRecords} onAddRecord={handleAddScheduleRecord} />
 
-      {/* Notes */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h4 className="font-medium text-sm text-gray-800">備註</h4>
-          {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="text-xs">
-              <Mic className="w-3 h-3" />
-            </Button>}
-        </div>
-        
-        {isEditingNotes ? <div className="space-y-2">
-            <div className="relative">
-              <Textarea value={editedNotes} onChange={e => setEditedNotes(e.target.value)} placeholder="輸入備註..." rows={3} className="text-sm pr-10" />
-              <div className="absolute top-2 right-2">
-                <VoiceInput onResult={handleVoiceInput} placeholder="語音輸入備註" />
-              </div>
-            </div>
-            <div className="flex space-x-2">
-              <Button onClick={handleSaveNotes} size="sm" className="text-xs">
-                儲存
-              </Button>
-              <Button onClick={() => {
-            setIsEditingNotes(false);
-            setEditedNotes(customer.notes || '');
-          }} variant="outline" size="sm" className="text-xs">
-                取消
-              </Button>
-            </div>
-          </div> : <p className="text-sm text-gray-600 bg-gray-50 rounded p-2 min-h-[2.5rem]">
-            {customer.notes || '無備註'}
-          </p>}
-      </div>
 
       {/* Business Card Recognition History */}
       {customer.hasCard && <div className="space-y-2">
