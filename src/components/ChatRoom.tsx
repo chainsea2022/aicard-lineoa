@@ -1012,7 +1012,7 @@ const ChatRoom = () => {
           </div>
           <div>
             <h1 className="font-bold text-base">AiCard</h1>
-            <p className="text-green-100 text-xs">名片人脈圈</p>
+            <p className="text-green-100 text-xs">智能名片</p>
           </div>
         </div>
       </div>
