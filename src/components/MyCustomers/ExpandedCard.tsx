@@ -504,38 +504,71 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         </div>
         
         {/* 標籤列表 - 支援水平滾動 */}
-        {allTags.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {allTags.map((tag, index) => {
-              const isManualTag = customer.tags?.includes(tag);
-              return (
-                <div key={index} className="relative flex-shrink-0 group">
-                  <Badge 
-                    variant="secondary" 
-                    className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer px-3 py-1 rounded-full"
-                    onClick={() => handleTagClick(tag)}
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {/* AI 自動生成標籤 */}
+          {generateAutoTags().map((tag, index) => {
+            const isSelected = customer.tags?.includes(tag);
+            return (
+              <div key={`auto-${index}`} className="relative flex-shrink-0 group">
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs cursor-pointer px-3 py-1 rounded-full transition-colors ${
+                    isSelected 
+                      ? 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100'
+                      : 'bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100'
+                  }`}
+                  onClick={() => {
+                    if (isSelected) {
+                      onRemoveTag(customer.id, tag);
+                    } else {
+                      onAddTag(customer.id, tag);
+                    }
+                  }}
+                >
+                  {tag}
+                </Badge>
+                {/* 已選中的標籤顯示刪除按鈕 */}
+                {isSelected && (
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onRemoveTag(customer.id, tag);
+                    }}
+                    variant="ghost"
+                    size="sm"
+                    className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    {tag}
-                  </Badge>
-                  {/* 只有手動新增的標籤才顯示刪除按鈕 */}
-                  {isManualTag && (
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRemoveTag(customer.id, tag);
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      <X className="w-2 h-2" />
-                    </Button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+                    <X className="w-2 h-2" />
+                  </Button>
+                )}
+              </div>
+            );
+          })}
+          
+          {/* 手動新增的標籤 (僅顯示不在自動生成清單中的) */}
+          {customer.tags?.filter(tag => !generateAutoTags().includes(tag)).map((tag, index) => (
+            <div key={`manual-${index}`} className="relative flex-shrink-0 group">
+              <Badge 
+                variant="secondary" 
+                className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer px-3 py-1 rounded-full"
+                onClick={() => handleTagClick(tag)}
+              >
+                {tag}
+              </Badge>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRemoveTag(customer.id, tag);
+                }}
+                variant="ghost"
+                size="sm"
+                className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <X className="w-2 h-2" />
+              </Button>
+            </div>
+          ))}
+        </div>
         
         {/* 新增標籤輸入框 */}
         {showAddTag && (
