@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, Coins, Crown, RotateCcw, RefreshCw } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, Coins, Crown, RotateCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -448,56 +448,6 @@ const ChatRoom = () => {
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
   const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
-
-  // 重置為首次註冊狀態
-  const resetToFirstTimeUser = () => {
-    // 清除本地存儲的用戶數據
-    localStorage.removeItem('aicard-user-registered');
-    localStorage.removeItem('aile-card-data');
-    localStorage.removeItem('aicard-user-started-registration');
-    localStorage.removeItem('aicard-additional-cards');
-    localStorage.removeItem('aicard-user-customers');
-    
-    // 重置狀態
-    setUseNewMenu(false);
-    setActiveView(null);
-    setHasInitialized(false);
-    setCustomers([]);
-    setInputText('');
-    
-    // 重新初始化歡迎訊息
-    const welcomeMessage = {
-      id: 1,
-      text: '👋 歡迎加入 AiCard 智能電子名片平台！\n🎯 快速建立您的第一張電子名片，開啟人脈新連結！\n🔒 只需手機註冊，即可打造專屬個人名片，輕鬆分享、智能管理。',
-      isBot: true,
-      timestamp: new Date()
-    };
-    
-    const cardPreviewMessage = {
-      id: 2,
-      text: '開始使用 AiCard 電子名片！',
-      isBot: true,
-      timestamp: new Date(),
-      isCard: true,
-      isClientFlexMessage: true,
-      cardData: {
-        name: '立即開始',
-        companyName: 'AiCard 電子名片平台',
-        jobTitle: '・建立名片，立即擁有專屬 QR Code\n・可新增多張名片，打造個人與工作身份\n・完成設定可獲得 50 點 AiPoint 獎勵！',
-        phone: '',
-        email: '',
-        website: '',
-        line: '',
-        facebook: '',
-        instagram: '',
-        photo: null,
-        introduction: '👉 點擊下方按鈕立即開始',
-        welcomeCard: true
-      }
-    };
-    
-    setMessages([welcomeMessage, cardPreviewMessage]);
-  };
 
   // 初始化歡迎訊息
   useEffect(() => {
@@ -1363,23 +1313,14 @@ const ChatRoom = () => {
               </div>
               
               {/* Central Toggle Button */}
-              <div className="flex justify-center space-x-2 mb-3">
+              <div className="flex justify-center mb-3">
                 <Button
                   onClick={() => setUseNewMenu(!useNewMenu)}
-                  className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-2 rounded-full shadow-md"
+                  className="flex items-center space-x-2 bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded-full shadow-md"
                   size="sm"
                 >
-                  <RotateCcw className="w-3 h-3" />
-                  <span>{useNewMenu ? '原版選單' : '新版選單'}</span>
-                </Button>
-                
-                <Button
-                  onClick={resetToFirstTimeUser}
-                  className="flex items-center space-x-2 bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded-full shadow-md"
-                  size="sm"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                  <span>首次註冊</span>
+                  <RotateCcw className="w-4 h-4" />
+                  <span>{useNewMenu ? '切換至原版選單' : '切換至新版選單'}</span>
                 </Button>
               </div>
               
