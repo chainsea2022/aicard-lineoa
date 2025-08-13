@@ -13,14 +13,13 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import OTPVerification from './OTPVerification';
-import Points from './Points';
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
+
 interface MyCardProps {
   onClose: () => void;
 }
-const MyCard: React.FC<MyCardProps> = ({
-  onClose
-}) => {
+
+const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [cardData, setCardData] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [showCreateCard, setShowCreateCard] = useState(false);
@@ -33,8 +32,6 @@ const MyCard: React.FC<MyCardProps> = ({
   const [currentPoints, setCurrentPoints] = useState(0);
   const [additionalCards, setAdditionalCards] = useState<any[]>([]);
   const [swipedCardId, setSwipedCardId] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'cards' | 'points' | 'settings'>('cards');
-  const [pointsActiveTab, setPointsActiveTab] = useState<'overview' | 'upgrade' | 'history'>('overview');
   const [profileData, setProfileData] = useState({
     gender: '',
     phone: '',
@@ -56,11 +53,13 @@ const MyCard: React.FC<MyCardProps> = ({
   const [phoneOTP, setPhoneOTP] = useState('');
   const [showPhoneOTP, setShowPhoneOTP] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   };
+
   const getGenderDisplay = (gender: string) => {
     switch (gender) {
       case 'male':
@@ -73,6 +72,7 @@ const MyCard: React.FC<MyCardProps> = ({
         return gender;
     }
   };
+
   useEffect(() => {
     const loadCardData = () => {
       const savedCardData = localStorage.getItem('aile-card-data');
@@ -128,6 +128,7 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
         setQrCodeData(qrInfo);
         console.log('生成QR Code:', qrInfo);
       }
+      
       if (savedUserData) {
         setUserData(JSON.parse(savedUserData));
       }
@@ -173,6 +174,7 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
       window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
     };
   }, []);
+
   const handleVerificationComplete = (phone: string) => {
     // 手機驗證完成後創建用戶資料
     const phoneUser = {
@@ -216,15 +218,14 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
 姓名: ${defaultCardData.name || ''}
 公司: ${defaultCardData.companyName || ''}
 電話: ${defaultCardData.phone || ''}
-Email: ${defaultCardData.email || ''}
-LINE: ${defaultCardData.line || ''}
-網站: ${defaultCardData.website || ''}`;
+Email: ${defaultCardData.email || ''}`;
     setQrCodeData(qrInfo);
 
     // 標記為新用戶並關閉驗證界面
     setIsNewUser(true);
     setShowOTPVerification(false);
   };
+
   const handleLineLogin = () => {
     // 模擬 LINE 登入 - 生成模擬的 LINE 用戶資料
     const mockLineUser = {
@@ -271,17 +272,8 @@ LINE: ${defaultCardData.line || ''}
     // 儲存名片資料
     localStorage.setItem('aile-card-data', JSON.stringify(cardInfo));
     setCardData(cardInfo);
-
-    // 生成QR Code資料
-    const qrInfo = `名片資訊
-姓名: ${cardInfo.name || ''}
-公司: ${cardInfo.companyName || ''}
-電話: ${cardInfo.phone || ''}
-Email: ${cardInfo.email || ''}
-LINE: ${cardInfo.line || ''}
-網站: ${cardInfo.website || ''}`;
-    setQrCodeData(qrInfo);
   };
+
   const handleCardCreated = () => {
     setShowCreateCard(false);
     setIsNewUser(false);
@@ -290,26 +282,12 @@ LINE: ${cardInfo.line || ''}
     if (savedCardData) {
       const cardInfo = JSON.parse(savedCardData);
       setCardData(cardInfo);
-
-      // 重新生成QR Code資料
-      const qrInfo = `名片資訊
-姓名: ${cardInfo.name || ''}
-${cardInfo.jobTitle && cardInfo.jobTitleVisible !== false ? `職稱: ${cardInfo.jobTitle}` : ''}
-公司: ${cardInfo.companyName || ''}
-電話: ${cardInfo.phone || ''}
-Email: ${cardInfo.email || ''}
-${cardInfo.address && cardInfo.addressVisible ? `地址: ${cardInfo.address}` : ''}
-${cardInfo.birthday && cardInfo.birthdayVisible ? `生日: ${formatBirthdayDisplay(cardInfo.birthday)}` : ''}
-${cardInfo.gender && cardInfo.genderVisible ? `性別: ${getGenderDisplay(cardInfo.gender)}` : ''}
-LINE: ${cardInfo.line || ''}
-網站: ${cardInfo.website || ''}`;
-      setQrCodeData(qrInfo);
-      console.log('生成QR Code:', qrInfo);
       
       // 發送註冊完成事件給 ChatRoom
       window.dispatchEvent(new CustomEvent('registrationCompleted'));
     }
   };
+
   const handleLogout = () => {
     // 清除當前用戶資料，但保留註冊歷史
     localStorage.removeItem('aile-card-data');
@@ -331,286 +309,61 @@ LINE: ${cardInfo.line || ''}
       description: "您已成功登出，可重新登入使用服務。"
     });
   };
-  const generateQRCode = (data: string) => {
-    const size = 8;
-    const squares = [];
-    for (let i = 0; i < size; i++) {
-      for (let j = 0; j < size; j++) {
-        const isBlack = (i + j + data.length) % 3 === 0;
-        squares.push(<div key={`${i}-${j}`} className={`w-3 h-3 ${isBlack ? 'bg-black' : 'bg-white'}`} />);
-      }
-    }
-    return <div className="grid grid-cols-8 gap-0 p-4 bg-white border-2 border-gray-300 rounded-lg">
-        {squares}
-      </div>;
-  };
-  const handleLineClick = (lineUrl: string) => {
-    if (lineUrl) {
-      window.open(lineUrl, '_blank');
-    }
-  };
-  const downloadQRCode = () => {
-    toast({
-      title: "QR Code 已下載",
-      description: "QR Code 圖片已儲存到您的裝置。"
-    });
-    console.log('下載 QR Code');
-  };
-  const downloadCard = () => {
-    toast({
-      title: "名片已下載",
-      description: "電子名片已儲存到您的裝置。"
-    });
-    console.log('下載名片');
-  };
 
-  // 儲存個人資料
-  const saveProfileData = (updatedData: any) => {
-    const newData = {
-      ...profileData,
-      ...updatedData
-    };
-    setProfileData(newData);
-    localStorage.setItem('aile-profile-data', JSON.stringify(newData));
-  };
+  if (showCreateCard) {
+    return <CreateCard onClose={() => setShowCreateCard(false)} />;
+  }
 
-  // 性別設定處理
-  const handleGenderSelect = (gender: string) => {
-    saveProfileData({
-      gender
-    });
-    setShowGenderDialog(false);
-    toast({
-      title: "性別已更新",
-      description: "您的性別資訊已成功儲存。"
-    });
-  };
-
-  // 手機號碼驗證處理
-  const handlePhoneUpdate = () => {
-    if (!tempPhone) return;
-    setShowPhoneOTP(true);
-    // 模擬發送OTP
-    setTimeout(() => {
-      toast({
-        title: "驗證碼已發送",
-        description: `驗證碼已發送至 ${tempPhone}`
-      });
-    }, 1000);
-  };
-  const handlePhoneOTPVerify = () => {
-    if (phoneOTP === '123456') {
-      saveProfileData({
-        phone: tempPhone,
-        isPhoneVerified: true
-      });
-      setShowPhoneDialog(false);
-      setShowPhoneOTP(false);
-      setPhoneOTP('');
-      setTempPhone('');
-      toast({
-        title: "手機號碼驗證成功",
-        description: "您的手機號碼已成功驗證。"
-      });
-    } else {
-      toast({
-        title: "驗證失敗",
-        description: "驗證碼錯誤，請重新輸入。",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // 電子郵件驗證處理
-  const handleEmailVerification = () => {
-    if (!tempEmail) return;
-    setEmailVerificationSent(true);
-    // 模擬發送驗證郵件
-    setTimeout(() => {
-      toast({
-        title: "驗證郵件已發送",
-        description: `驗證連結已發送至 ${tempEmail}`
-      });
-    }, 1000);
-  };
-  const handleEmailVerificationSuccess = () => {
-    saveProfileData({
-      email: tempEmail,
-      isEmailVerified: true
-    });
-    setShowEmailDialog(false);
-    setEmailVerificationSent(false);
-    setTempEmail('');
-    toast({
-      title: "✅ 您的 Email 驗證成功！",
-      description: "恭喜！您的電子信箱已完成驗證，現在可以完整使用 AiCard 名片功能。"
-    });
-  };
-
-  // 生日設定處理
-  const formatBirthdayInput = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length <= 4) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 4)}/${digits.slice(4)}`;
-    return `${digits.slice(0, 4)}/${digits.slice(4, 6)}/${digits.slice(6, 8)}`;
-  };
-  const handleBirthdayUpdate = () => {
-    if (!tempBirthday) return;
-    const datePattern = /^\d{4}\/\d{2}\/\d{2}$/;
-    if (!datePattern.test(tempBirthday)) {
-      toast({
-        title: "日期格式錯誤",
-        description: "請使用 YYYY/MM/DD 格式",
-        variant: "destructive"
-      });
-      return;
-    }
-    saveProfileData({
-      birthday: tempBirthday
-    });
-    setShowBirthdayDialog(false);
-    setTempBirthday('');
-    toast({
-      title: "生日已更新",
-      description: "您的生日資訊已成功儲存。"
-    });
-  };
-  const shareCard = (card = cardData) => {
-    if (navigator.share) {
-      navigator.share({
-        title: `${card.name}的電子名片`,
-        text: `${card.companyName} - ${card.name}`,
-        url: window.location.href
-      });
-    } else {
-      navigator.clipboard.writeText(`${card.name}的電子名片 - ${card.companyName}`);
-      toast({
-        title: "已複製到剪貼板",
-        description: "名片資訊已複製，可以分享給朋友。"
-      });
-    }
-  };
-  const editCard = (card = cardData) => {
-    // 設定要編輯的名片資料到 localStorage
-    localStorage.setItem('editing-card-data', JSON.stringify(card));
-    setShowCreateCard(true);
-  };
-  const addNewCard = () => {
-    // 清除編輯狀態，設定為新增模式
-    localStorage.removeItem('editing-card-data');
-    localStorage.setItem('card-creation-mode', 'new');
-
-    // 直接顯示CreateCard組件
-    setShowCreateCard(true);
-  };
-  const deleteAdditionalCard = (cardIndex: number) => {
-    const updatedCards = additionalCards.filter((_, index) => index !== cardIndex);
-    setAdditionalCards(updatedCards);
-    localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
-    toast({
-      title: "名片已刪除",
-      description: "電子名片已成功刪除。"
-    });
-  };
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
   }
-  if (showCreateCard) {
-    return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
-  }
+
   if (showProfileSettings) {
     return <ProfileSettings onClose={() => setShowProfileSettings(false)} />;
   }
-  return <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
-      <div className="bg-gradient-to-r from-blue-500 to-green-500 text-white p-4 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="font-bold text-lg">
-              {userData && cardData ? '設置' : hasRegistrationHistory ? 'LINE 快速登入' : '手機號碼註冊'}
-            </h1>
-          </div>
-        </div>
-      </div>
 
-      {/* Tab Navigation */}
-      {userData && cardData && <div className="bg-white border-b border-gray-200">
-          <div className="flex">
-            <button onClick={() => setActiveTab('cards')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'cards' ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50' : 'text-gray-600 hover:text-blue-600'}`}>
-              <User className="w-4 h-4 inline-block mr-1" />
-              名片管理
-            </button>
-            <button onClick={() => setActiveTab('points')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'points' ? 'border-b-2 border-orange-500 text-orange-600 bg-orange-50' : 'text-gray-600 hover:text-orange-600'}`}>
-              <Coins className="w-4 h-4 inline-block mr-1" />
-              會員點數
-            </button>
-            <button onClick={() => setActiveTab('settings')} className={`flex-1 py-3 px-4 text-center font-medium ${activeTab === 'settings' ? 'border-b-2 border-green-500 text-green-600 bg-green-50' : 'text-gray-600 hover:text-green-600'}`}>
-              <Settings className="w-4 h-4 inline-block mr-1" />
-              資料設定
-            </button>
-          </div>
-        </div>}
+  return (
+    <div className="fixed inset-0 bg-gray-50 flex flex-col">
+      {/* 頂部導航欄 */}
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
+        <Button variant="ghost" size="sm" onClick={onClose} className="mr-3">
+          <ArrowLeft className="w-4 h-4" />
+        </Button>
+        <h1 className="text-lg font-semibold text-gray-800 flex-1">
+          {userData && cardData ? '會員資料' : (hasRegistrationHistory ? '設置電子名片' : '會員註冊')}
+        </h1>
+        {userData && (
+          <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <LogOut className="w-4 h-4" />
+          </Button>
+        )}
+      </header>
 
-      {/* 檢查用戶狀態：未註冊顯示提示，已註冊顯示登入選項 */}
-      {!cardData && !userData && !hasRegistrationHistory && (
-        <div className="p-4">
-          {/* 未註冊用戶提示 */}
-          <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-yellow-100 rounded-full mx-auto mb-4 flex items-center justify-center">
-              <User className="w-8 h-8 text-yellow-600" />
-            </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-              <div className="flex items-start space-x-3">
-                <div className="flex-shrink-0">
-                  <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-sm font-medium text-yellow-800 mb-1">
-                    ⚠️ 您尚未建立電子名片，無法使用此功能。
-                  </h3>
-                  <p className="text-sm text-yellow-700 mb-3">
-                    🎯 立即註冊，打造您的第一張專屬名片！
-                  </p>
-                  <p className="text-xs text-yellow-600 mb-4">
-                    👇 點擊下方連結開始註冊：
-                  </p>
-                  <Button 
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                    onClick={() => setShowOTPVerification(true)}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    ✅ 建立我的電子名片
-                  </Button>
-                </div>
+      {/* 內容區域 */}
+      <div className="flex-1 overflow-y-auto">
+        {/* 未登入/註冊介面 */}
+        {!userData && (
+          <div className="p-6">
+            {/* 歡迎資訊 */}
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <User className="w-10 h-10 text-white" />
               </div>
+              <h2 className="text-xl font-bold text-gray-800 mb-2">
+                歡迎加入 AiCard
+              </h2>
+              <p className="text-gray-600 text-sm px-2">
+                {hasRegistrationHistory ? '請重新登入以繼續使用服務' : '建立您的專屬電子名片'}
+              </p>
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* 如果有註冊歷史但沒有用戶資料或名片資料，顯示登入選項 */}
-      {(!userData || !cardData) && hasRegistrationHistory && <div className="p-4">
-          {/* 歡迎區塊 */}
-          <div className="text-center mb-6">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-green-500 rounded-full mx-auto mb-4 flex items-center justify-center shadow-lg">
-              <User className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              歡迎回來
-            </h2>
-            <p className="text-gray-600 text-sm px-2">
-              請使用 LINE 快速登入
-            </p>
-          </div>
-
-          {/* 登入/註冊選項 */}
-          <div className="space-y-3 mb-6">
-            {/* 沒有註冊歷史時顯示手機註冊 */}
-            {!hasRegistrationHistory && <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowOTPVerification(true)}>
+            {/* 登入/註冊選項 */}
+            <div className="space-y-3 mb-6">
+              {/* 手機註冊 */}
+              <Card 
+                className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer" 
+                onClick={() => setShowOTPVerification(true)}
+              >
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -622,1167 +375,138 @@ LINE: ${cardInfo.line || ''}
                     </div>
                   </div>
                 </CardContent>
-              </Card>}
+              </Card>
 
-            {/* 有註冊歷史時顯示 LINE 登入 */}
-            {hasRegistrationHistory && <Card className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer" onClick={handleLineLogin}>
-                <CardContent className="p-3">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-green-600" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z" />
-                      </svg>
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-gray-800 text-sm">LINE 快速登入</h3>
-                      <p className="text-xs text-gray-600">使用LINE帳號快速登入</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>}
-          </div>
-
-          {/* 註冊/登入按鈕 */}
-          <div className="space-y-3">
-            {!hasRegistrationHistory ? <Button onClick={() => setShowOTPVerification(true)} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg">
-                <Smartphone className="w-4 h-4 mr-2" />
-                開始手機註冊
-              </Button> : <Button onClick={handleLineLogin} className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg">
-                <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.063-.022.136-.032.2-.032.211 0 .391.089.513.25l2.441 3.315V8.108c0-.345.282-.63.63-.63.346 0 .627.285.627.63v4.771z" />
-                </svg>
-                LINE 快速登入
-              </Button>}
-          </div>
-
-          {/* 有註冊歷史時，新增立即註冊連結區塊 */}
-          {hasRegistrationHistory && <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <div className="text-center">
-                <Button onClick={() => {
-            // 清除註冊歷史，讓用戶回到首次註冊流程
-            setHasRegistrationHistory(false);
-          }} variant="outline" className="w-full border-blue-500 text-blue-600 hover:bg-blue-50">
-                  <Smartphone className="w-4 h-4 mr-2" />
-                  立即註冊
-                </Button>
-              </div>
-            </div>}
-
-          {/* 功能說明 */}
-          <Card className="mt-6 bg-blue-50 border border-blue-200">
-            <CardContent className="p-3">
-              <h4 className="font-medium text-blue-800 mb-2 text-sm">
-                {hasRegistrationHistory ? '登入後您可以：' : '註冊後您可以：'}
-              </h4>
-              <ul className="text-xs text-blue-700 space-y-1">
-                <li className="flex items-center">
-                  <QrCode className="w-3 h-3 mr-2 flex-shrink-0" />
-                  {hasRegistrationHistory ? '管理您的電子名片' : '建立專屬電子名片'}
-                </li>
-                <li className="flex items-center">
-                  <Share2 className="w-3 h-3 mr-2 flex-shrink-0" />
-                  快速分享聯絡資訊
-                </li>
-                <li className="flex items-center">
-                  <Award className="w-3 h-3 mr-2 flex-shrink-0" />
-                  {hasRegistrationHistory ? '查看會員點數' : '獲得會員點數獎勵'}
-                </li>
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* 服務條款 */}
-          <div className="mt-4 text-center px-4">
-            <p className="text-xs text-gray-500 leading-relaxed">
-              {hasRegistrationHistory ? '登入' : '註冊'}即表示您同意我們的
-              <span className="text-blue-500 underline cursor-pointer mx-1">服務條款</span>
-              和
-              <span className="text-blue-500 underline cursor-pointer mx-1">隱私政策</span>
-            </p>
-          </div>
-        </div>}
-
-      {/* 已登入用戶的名片管理介面 */}
-      {userData && cardData && <div>
-
-          <div className="p-6">
-            {/* 我的名片 Tab */}
-            {activeTab === 'cards' && <div>
-                {/* 新用戶提示 */}
-                {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-green-700 font-medium">
-                      🎉 註冊成功！您的電子名片已建立，點擊「編輯名片」完善您的資訊
-                    </p>
-                  </div>}
-
-            {/* 多名片管理區塊 */}
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">電子名片列表</h3>
-                <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => {
-                // 清除編輯狀態，設定為新增模式
-                localStorage.removeItem('editing-card-data');
-                localStorage.setItem('card-creation-mode', 'new');
-                setShowCreateCard(true);
-              }}>
-                  <span className="text-lg font-bold mr-1">+</span>
-                  新增名片
-                </Button>
-              </div>
-
-              {/* 名片列表 */}
-              <div className="space-y-3">
-                {(() => {
-                const multiCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
-                const currentCard = cardData ? {
-                  ...cardData,
-                  id: 'current',
-                  name: cardData.name || '主要名片'
-                } : null;
-                const allCards = currentCard ? [currentCard, ...multiCards] : multiCards;
-                const handleSwipeStart = (e: React.TouchEvent, cardId: string) => {
-                  const touch = e.touches[0];
-                  const startX = touch.clientX;
-                  const handleTouchMove = (moveE: TouchEvent) => {
-                    const currentTouch = moveE.touches[0];
-                    const diffX = startX - currentTouch.clientX;
-                    if (diffX > 50) {
-                      // 左滑超過50px
-                      setSwipedCardId(cardId);
-                    } else if (diffX < -20) {
-                      // 右滑回復
-                      setSwipedCardId(null);
-                    }
-                  };
-                  const handleTouchEnd = () => {
-                    document.removeEventListener('touchmove', handleTouchMove);
-                    document.removeEventListener('touchend', handleTouchEnd);
-                  };
-                  document.addEventListener('touchmove', handleTouchMove);
-                  document.addEventListener('touchend', handleTouchEnd);
-                };
-                const handleCardClick = (cardId: string) => {
-                  // 電腦版：點擊切換刪除選項顯示
-                  if (cardId !== 'current') {
-                    setSwipedCardId(swipedCardId === cardId ? null : cardId);
-                  }
-                };
-                const handleDeleteCard = (card: any) => {
-                  const existingCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
-                  const updatedCards = existingCards.filter((c: any) => c.id !== card.id);
-                  localStorage.setItem('aile-additional-cards', JSON.stringify(updatedCards));
-                  setSwipedCardId(null); // 重置滑動狀態
-                  window.location.reload();
-                  toast({
-                    title: "名片已刪除",
-                    description: "電子名片已成功刪除。"
-                  });
-                };
-                return allCards.length > 0 ? allCards.map((card, index) => <div key={card.id || index} className="relative overflow-hidden bg-white rounded-lg border border-gray-200" onTouchStart={card.id !== 'current' ? e => handleSwipeStart(e, card.id) : undefined} onClick={() => handleCardClick(card.id)}>
-                      {/* 刪除背景 */}
-                      {card.id !== 'current' && <div className={`absolute right-0 top-0 h-full bg-red-500 flex items-center justify-center text-white font-medium transition-all duration-300 ${swipedCardId === card.id ? 'w-20' : 'w-0'}`}>
-                          <button onClick={e => {
-                      e.stopPropagation();
-                      handleDeleteCard(card);
-                    }} className="h-full w-full flex items-center justify-center">
-                            刪除
-                          </button>
-                        </div>}
-                      
-                      {/* 名片內容 */}
-                      <div className={`bg-white transition-transform duration-300 ${swipedCardId === card.id ? '-translate-x-20' : 'translate-x-0'}`}>
-                        <Card className="border-0 shadow-none hover:border-blue-300 transition-colors">
-                           <CardContent className="p-3">
-                             {/* 電子名片展示 */}
-                             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 mb-3 cursor-pointer transition-all hover:shadow-md" onClick={e => {
-                          e.stopPropagation();
-                          if (card.id === 'current') {
-                            editCard(cardData);
-                          } else {
-                            localStorage.setItem('editing-card-data', JSON.stringify(card));
-                            setShowCreateCard(true);
-                          }
-                        }}>
-                               <div className="flex items-center space-x-3">
-                                 {/* 大頭照 */}
-                                 <div className="flex-shrink-0">
-                                   <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
-                                     <AvatarImage src={card.avatar || card.profileImage} alt={card.name} />
-                                     <AvatarFallback className="bg-blue-500 text-white font-semibold text-lg">
-                                       {card.name ? card.name.charAt(0).toUpperCase() : 'U'}
-                                     </AvatarFallback>
-                                   </Avatar>
-                                 </div>
-                                 
-                                 {/* 名片主要資訊 */}
-                                 <div className="flex-1 min-w-0">
-                                   <div className="flex items-center space-x-2 mb-1">
-                                     <h4 className="font-semibold text-gray-900 text-base truncate">{card.name}</h4>
-                                     {card.id === 'current' && <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
-                                         預設
-                                       </Badge>}
-                                   </div>
-                                   
-                                   {/* 職位與公司 */}
-                                   {card.position && <p className="text-sm font-medium text-gray-700 truncate mb-1">
-                                       {card.position}
-                                     </p>}
-                                   
-                                   {/* 公司名稱 */}
-                                   {card.companyName && <p className="text-sm text-gray-600 truncate mb-1">
-                                       {card.companyName}
-                                     </p>}
-                                   
-                                   {/* 聯絡資訊 */}
-                                   <div className="flex items-center space-x-3 text-xs text-gray-500">
-                                     {card.phone && <span className="flex items-center">
-                                         <Phone className="w-3 h-3 mr-1" />
-                                         {card.phone.length > 10 ? `${card.phone.slice(0, 10)}...` : card.phone}
-                                       </span>}
-                                     {card.email && <span className="flex items-center">
-                                         <Mail className="w-3 h-3 mr-1" />
-                                         {card.email.length > 15 ? `${card.email.slice(0, 15)}...` : card.email}
-                                       </span>}
-                                   </div>
-                                 </div>
-                               </div>
-                             </div>
-                             
-                             {/* 操作按鈕 */}
-                             <div className="flex space-x-2">
-                               <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={e => {
-                            e.stopPropagation();
-                            if (card.id === 'current') {
-                              editCard(cardData);
-                            } else {
-                              localStorage.setItem('editing-card-data', JSON.stringify(card));
-                              setShowCreateCard(true);
-                            }
-                          }}>
-                                 <Edit className="w-3 h-3 mr-1" />
-                                 編輯
-                               </Button>
-                               <Button size="sm" variant="outline" className="flex-1 h-8 text-xs" onClick={e => {
-                            e.stopPropagation();
-                            shareCard(card);
-                          }}>
-                                 <Share2 className="w-3 h-3 mr-1" />
-                                 分享
-                               </Button>
-                             </div>
-                           </CardContent>
-                        </Card>
+              {/* LINE 登入 (有註冊歷史時顯示) */}
+              {hasRegistrationHistory && (
+                <Card 
+                  className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer" 
+                  onClick={handleLineLogin}
+                >
+                  <CardContent className="p-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                        <MessageCircle className="w-5 h-5 text-green-600" />
                       </div>
-                    </div>) : <div className="text-center py-8 text-gray-500">
-                      <p>尚未建立任何名片</p>
-                    </div>;
-              })()}
-              </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-800 text-sm">LINE 快速登入</h3>
+                        <p className="text-xs text-gray-600">使用LINE帳號快速登入</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
-              </div>}
 
-            {/* 會員點數 Tab */}
-             {activeTab === 'points' && <div className="space-y-4">
-                 {/* 固定的目前點數區塊 - 簡潔時尚設計 */}
-                 <div className="relative overflow-hidden bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-orange-50 to-orange-100 rounded-full -translate-y-12 translate-x-12 opacity-60"></div>
-                   
-                   <div className="relative z-10 flex items-center justify-between">
-                     <div className="flex items-center space-x-4">
-                       <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center">
-                         <Coins className="w-6 h-6 text-white" />
-                       </div>
-                       <div>
-                         <p className="text-sm text-gray-500 mb-1">目前擁有點數</p>
-                         <div className="flex items-baseline space-x-1">
-                           <span className="text-3xl font-bold text-gray-900">{currentPoints.toLocaleString()}</span>
-                           <span className="text-sm text-gray-500">點</span>
-                         </div>
-                       </div>
-                     </div>
-                     
-                     <div className="text-right">
-                        {currentPoints >= 50 && <div className="inline-flex items-center px-3 py-1.5 bg-green-100 text-green-700 rounded-full text-xs font-medium">
-                            <Award className="w-3 h-3 mr-1" />
-                            可兌換試用
-                          </div>}
-                     </div>
-                   </div>
-                 </div>
+            {/* 註冊/登入按鈕 */}
+            <div className="space-y-3">
+              <Button 
+                onClick={() => setShowOTPVerification(true)} 
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg"
+              >
+                <Smartphone className="w-4 h-4 mr-2" />
+                {hasRegistrationHistory ? '手機號碼登入' : '開始手機註冊'}
+              </Button>
+              
+              {hasRegistrationHistory && (
+                <Button 
+                  onClick={handleLineLogin} 
+                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  LINE 登入
+                </Button>
+              )}
+            </div>
 
-                 {/* 點數頁籤導航 - 優化設計 */}
-                 <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
-                   <button onClick={() => setPointsActiveTab('overview')} className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${pointsActiveTab === 'overview' ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'}`}>
-                      點數總覽
-                   </button>
-                   <button onClick={() => setPointsActiveTab('upgrade')} className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${pointsActiveTab === 'upgrade' ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'}`}>
-                      兑點升級
-                   </button>
-                   <button onClick={() => setPointsActiveTab('history')} className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${pointsActiveTab === 'history' ? 'bg-white text-orange-600 shadow-md transform scale-[1.02]' : 'text-gray-600 hover:text-gray-800 hover:bg-gray-200/50'}`}>
-                      累兌歷程
-                   </button>
-                 </div>
-
-                {/* 點數總覽 - 移除重複的點數區塊 */}
-                {pointsActiveTab === 'overview' && <div className="space-y-6">
-
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
-                      <div className="p-6 border-b border-gray-100">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center mr-3">
-                            <Gift className="w-5 h-5 text-green-600" />
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-800">獲得點數方式</h3>
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <div className="grid gap-4">
-                          <div className="relative flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl border border-blue-200 shadow-sm opacity-90">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full shadow-lg">
-                                <CheckCircle className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-10 h-10 bg-blue-500 rounded-full mr-3">
-                                <FileText className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-blue-900">完成電子名片註冊</h4>
-                                <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
-                              </div>
-                            </div>
-                            <Badge className="font-bold px-3 py-1 bg-green-500 text-white">
-                              +50點
-                            </Badge>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl border border-purple-200 shadow-sm opacity-90">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full shadow-lg">
-                                <CheckCircle className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-10 h-10 bg-purple-500 rounded-full mr-3">
-                                <div className="flex space-x-0.5">
-                                  <Users className="w-3 h-3 text-white" />
-                                  <Camera className="w-3 h-3 text-white" />
-                                  <Mail className="w-3 h-3 text-white" />
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-purple-900">完整電子名片個人資料(70%以上)</h4>
-                                <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
-                              </div>
-                            </div>
-                            <Badge className="font-bold px-3 py-1 bg-green-500 text-white">
-                              +50點
-                            </Badge>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl border border-orange-200 shadow-sm opacity-90">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-6 h-6 bg-green-500 rounded-full shadow-lg">
-                                <CheckCircle className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-10 h-10 bg-orange-500 rounded-full mr-3">
-                                <Users className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-orange-900">邀請好友完成電子名片註冊 (1人)</h4>
-                                <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
-                              </div>
-                            </div>
-                            <Badge className="font-bold px-3 py-1 bg-green-500 text-white">
-                              +50點
-                            </Badge>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl border border-green-200 shadow-sm">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-6 h-6 bg-gray-300 rounded-full">
-                                <Lock className="w-3 h-3 text-gray-600" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full mr-3">
-                                <FileText className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-green-900">分享好友電子名片卡加入名片夾 (1人)</h4>
-                              </div>
-                            </div>
-                            <Badge className="font-bold px-3 py-1 bg-gray-400 text-white">
-                              +10點
-                            </Badge>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 bg-gradient-to-r from-teal-50 to-teal-100 rounded-xl border border-teal-200 shadow-sm">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-6 h-6 bg-gray-300 rounded-full">
-                                <Lock className="w-3 h-3 text-gray-600" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-10 h-10 bg-teal-500 rounded-full mr-3">
-                                <Camera className="w-5 h-5 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-teal-900">分享好友OCR 名片識別加入名片夾 (1人)</h4>
-                              </div>
-                            </div>
-                            <Badge className="font-bold px-3 py-1 bg-gray-400 text-white">
-                              +10點
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100">
-                      <div className="p-6 border-b border-gray-100">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center mr-3">
-                            <Award className="w-5 h-5 text-yellow-600" />
-                          </div>
-                          <h3 className="text-xl font-bold text-gray-800">名片分享里程碑</h3>
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <div className="grid gap-3">
-                          <div className="relative flex items-center justify-between p-4 rounded-xl border shadow-sm bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-7 h-7 bg-green-500 rounded-full shadow-lg border-2 border-white">
-                                <Unlock className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-12 h-12 rounded-full mr-3 bg-green-500 shadow-lg relative">
-                                <FileText className="w-6 h-6 text-white" />
-                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                                  <Star className="w-2.5 h-2.5 text-yellow-800" />
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-green-900">分享好友加入名片夾 10 人</h4>
-                                <p className="text-xs text-green-600 font-medium mt-1 flex items-center">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  里程碑已達成！
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Badge className="font-bold px-3 py-1 bg-green-500 text-white shadow-md">
-                                已獲得 30點
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 rounded-xl border shadow-sm bg-gradient-to-r from-green-50 to-green-100 border-green-200">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-7 h-7 bg-green-500 rounded-full shadow-lg border-2 border-white">
-                                <Unlock className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-12 h-12 rounded-full mr-3 bg-green-500 shadow-lg relative">
-                                <FileText className="w-6 h-6 text-white" />
-                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                                  <Star className="w-2.5 h-2.5 text-yellow-800" />
-                                </div>
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-green-900">分享好友加入名片夾 30 人</h4>
-                                <p className="text-xs text-green-600 font-medium mt-1 flex items-center">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  里程碑已達成！
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Badge className="font-bold px-3 py-1 bg-green-500 text-white shadow-md">
-                                已獲得 60點
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 rounded-xl border shadow-sm bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-7 h-7 bg-gray-300 rounded-full border-2 border-gray-100">
-                                <Lock className="w-4 h-4 text-gray-600" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-12 h-12 rounded-full mr-3 bg-gray-400">
-                                <FileText className="w-6 h-6 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-700">分享好友加入名片夾 60 人</h4>
-                                <p className="text-xs text-gray-500 mt-1">尚未達成</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Badge className="font-bold px-3 py-1 bg-gray-400 text-white">
-                                100點
-                              </Badge>
-                            </div>
-                          </div>
-
-                          <div className="relative flex items-center justify-between p-4 rounded-xl border shadow-sm bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200">
-                            <div className="absolute top-2 right-2">
-                              <div className="flex items-center justify-center w-7 h-7 bg-gray-300 rounded-full border-2 border-gray-100">
-                                <Lock className="w-4 h-4 text-gray-600" />
-                              </div>
-                            </div>
-                            <div className="flex items-center flex-1">
-                              <div className="flex items-center justify-center w-12 h-12 rounded-full mr-3 bg-gray-400">
-                                <FileText className="w-6 h-6 text-white" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold text-gray-700">分享好友加入名片夾 100 人</h4>
-                                <p className="text-xs text-gray-500 mt-1">尚未達成</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center">
-                              <Badge className="font-bold px-3 py-1 bg-gray-400 text-white">
-                                150點
-                              </Badge>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>}
-
-                {/* 兑點升級 */}
-                {pointsActiveTab === 'upgrade' && <div className="space-y-6">
-                    {/* 專屬大禮包 */}
-                    <div className="p-6 bg-gradient-to-br from-orange-50 to-pink-50 border border-orange-200 rounded-xl relative overflow-hidden">
-                      <div className="absolute -top-2 -right-2 w-12 h-12 bg-gradient-to-br from-orange-200 to-pink-200 rounded-full opacity-20"></div>
-                      
-                      <div className="relative">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center">
-                            <Gift className="w-6 h-6 text-orange-600 mr-2" />
-                            <h3 className="font-semibold text-lg text-gray-800">專屬大禮</h3>
-                          </div>
-                          <div className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                            限時優惠
-                          </div>
-                        </div>
-                        
-                        <div className="bg-white p-6 rounded-xl border-2 border-orange-200 shadow-md">
-                          <div className="text-center mb-4">
-                            <h4 className="font-bold text-xl text-orange-700 mb-2">「超值群募解鎖包」</h4>
-                            <div className="flex items-center justify-center space-x-2">
-                              <span className="text-3xl font-bold text-orange-600">$7,200</span>
-                              <span className="text-lg text-orange-600">/年</span>
-                            </div>
-                            <p className="text-orange-600 mt-2">每月只要＄600</p>
-                          </div>
-                          
-                          
-                          
-                          <Button className="w-full bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white font-bold py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
-                            立即搶購
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 兑點方案說明 */}
-                    <Card className="mb-6">
-                      <CardHeader>
-                        <CardTitle className="flex items-center text-lg">
-                          <Award className="w-5 h-5 mr-2 text-purple-600" />
-                          兑點方案說明
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {/* 新手方案 */}
-                          <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 relative">
-                            <div className="flex items-start justify-between mb-3">
-                              <div className="flex items-center space-x-2">
-                                <h3 className="text-lg font-semibold text-green-800">新手方案</h3>
-                                <Badge className="bg-green-100 text-green-800">免費</Badge>
-                              </div>
-                              <div className="flex flex-col items-end space-y-2">
-                                <div className="text-right">
-                                  <div className="text-2xl font-bold text-green-600">Free</div>
-                                  <div className="text-xs text-gray-500">永久免費</div>
-                                </div>
-                                <div className="bg-green-600 text-white text-xs px-2 py-1 rounded-full flex items-center shadow-sm">
-                                  <span className="mr-1">✓</span>
-                                  目前方案
-                                </div>
-                              </div>
-                            </div>
-                            <div className="space-y-2 text-sm text-gray-600 mb-4">
-                              <div className="flex justify-between">
-                                <span>智慧人脈記錄</span>
-                                <span className="font-medium text-green-600">10張</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>分享好友電子名片卡</span>
-                                <span className="font-medium text-green-600">每張1點</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>OCR 名片識別</span>
-                                <span className="font-medium text-green-600">每張1點</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>基礎數據分析</span>
-                                <span className="font-medium text-green-600">解鎖</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：新增行程</span>
-                                <span className="font-medium text-green-600">1次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>建立自訂名片樣式</span>
-                                <span className="font-medium text-red-600">X</span>
-                              </div>
-                            </div>
-                            
-                          </div>
-
-                          {/* 商務方案 */}
-                          <div className="p-4 border-2 border-blue-300 rounded-xl bg-blue-50">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center space-x-2">
-                                <h3 className="text-lg font-semibold text-blue-800">商務方案</h3>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-2xl font-bold text-blue-600">$399</div>
-                                <div className="text-xs text-gray-500">月價格</div>
-                                <div className="text-sm text-blue-600">年優惠: $4,500</div>
-                              </div>
-                            </div>
-                            <div className="space-y-2 text-sm text-gray-600 mb-4">
-                              <div className="flex justify-between">
-                                <span>智慧人脈記錄</span>
-                                <span className="font-medium text-blue-600">100張</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>分享好友電子名片卡</span>
-                                <span className="font-medium text-blue-600 text-right">
-                                  100張
-                                  <br />
-                                  {'>'}100張，10點/張
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>OCR 名片識別</span>
-                                <span className="font-medium text-blue-600 text-right">
-                                  100張
-                                  <br />
-                                  {'>'}100張，10點/張
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>進階數據分析</span>
-                                <span className="font-medium text-blue-600">解鎖</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：新增行程</span>
-                                <span className="font-medium text-blue-600">5次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：語音記錄</span>
-                                <span className="font-medium text-blue-600">2次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：發送信件</span>
-                                <span className="font-medium text-blue-600">2次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>建立自訂名片樣式</span>
-                                <span className="font-medium text-blue-600">50點</span>
-                              </div>
-                            </div>
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                              立即升級
-                            </Button>
-                          </div>
-
-                          {/* 首席方案 */}
-                          <div className="p-4 border-2 border-purple-300 rounded-xl bg-purple-50">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center space-x-2">
-                                <h3 className="text-lg font-semibold text-purple-800">首席方案</h3>
-                                <Badge className="bg-purple-100 text-purple-800">推薦</Badge>
-                              </div>
-                              <div className="text-right">
-                                <div className="text-2xl font-bold text-purple-600">$999</div>
-                                <div className="text-xs text-gray-500">月價格</div>
-                                <div className="text-sm text-purple-600">年優惠: $11,000</div>
-                              </div>
-                            </div>
-                            <div className="space-y-2 text-sm text-gray-600 mb-4">
-                              <div className="flex justify-between">
-                                <span>智慧人脈記錄</span>
-                                <span className="font-medium text-purple-600">500張</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>分享好友電子名片卡</span>
-                                <span className="font-medium text-purple-600 text-right">
-                                  500張
-                                  <br />
-                                  {'>'}500張，30點/張
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>OCR 名片識別</span>
-                                <span className="font-medium text-purple-600 text-right">
-                                  500張
-                                  <br />
-                                  {'>'}500張，30點/張
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>完整數據分析</span>
-                                <span className="font-medium text-purple-600">解鎖</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：新增行程</span>
-                                <span className="font-medium text-purple-600">10次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：語音記錄</span>
-                                <span className="font-medium text-purple-600">5次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>行程管理：發送信件</span>
-                                <span className="font-medium text-purple-600">5次</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>建立自訂名片樣式</span>
-                                <span className="font-medium text-purple-600">解鎖</span>
-                              </div>
-                            </div>
-                            <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
-                              立即升級
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* AI生態圈方案 */}
-                    <Card className="mb-6">
-                      <CardHeader>
-                        <CardTitle className="flex items-center text-lg">
-                          <Star className="w-5 h-5 mr-2 text-blue-600" />
-                          AI生態圈方案
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          {/* AiCard 名片夾 */}
-                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                            <h4 className="font-bold text-blue-800 mb-2">AiCard ｜名片夾</h4>
-                            <p className="text-blue-700 mb-3">建立個人電子名片，串起你的人脈鏈</p>
-                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100 flex-1 justify-center">
-                                👉 下載APP
-                              </Button>
-                              <Button variant="outline" size="sm" className="text-blue-600 border-blue-300 hover:bg-blue-100 flex-1 justify-center">
-                                更多 →
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Aile 商務對話助手 */}
-                          <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                            <h4 className="font-bold text-green-800 mb-2">Aile｜商務對話助手</h4>
-                            <p className="text-green-700 mb-3">無縫轉接、通路整合，打造專屬商務助手</p>
-                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100 flex-1 justify-center">
-                            100點兌換1個月試用
-                              </Button>
-                              <Button variant="outline" size="sm" className="text-green-600 border-green-300 hover:bg-green-100 flex-1 justify-center">
-                                更多 →
-                              </Button>
-                            </div>
-                          </div>
-
-                          {/* Aiwow 集點商城 */}
-                          <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-                            <h4 className="font-bold text-purple-800 mb-2">Aiwow｜集點商城</h4>
-                            <p className="text-purple-700 mb-3">點點累積、兌換好禮，打造品牌互動與消費循環</p>
-                            <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
-                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100 flex-1 justify-center">
-                                👉 前往商城
-                              </Button>
-                              <Button variant="outline" size="sm" className="text-purple-600 border-purple-300 hover:bg-purple-100 flex-1 justify-center">
-                                更多 →
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-
-                    {/* 兌點規則 */}
-                    <Card className="mb-6">
-                      <CardHeader>
-                        <CardTitle className="flex items-center text-lg">
-                          <Info className="w-5 h-5 mr-2 text-gray-600" />
-                          兌點規則
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-3">
-                          <div className="flex items-start space-x-2">
-                            <span className="text-gray-500 mt-1">•</span>
-                            <span className="text-gray-700">免費獲得點數：2年有效期</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="text-gray-500 mt-1">•</span>
-                            <span className="text-gray-700">會員購買點數：永久有效</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="text-gray-500 mt-1">•</span>
-                            <span className="text-gray-700">點數不可轉讓給其他用戶</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="text-gray-500 mt-1">•</span>
-                            <span className="text-gray-700">已兌換之商品或服務不可退換</span>
-                          </div>
-                          <div className="flex items-start space-x-2">
-                            <span className="text-gray-500 mt-1">•</span>
-                            <span className="text-gray-700">點數使用與兌換規則依官方公告為準，若有變動以最新公告為依據</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>}
-
-                {/* 累兌歷程 - 優化設計 */}
-                {pointsActiveTab === 'history' && <div className="space-y-4">
-                    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8">
-                      <div className="text-center">
-                        <div className="w-20 h-20 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                          <History className="w-10 h-10 text-gray-400" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-800 mb-2">暫無點數記錄</h3>
-                        <p className="text-gray-500 text-sm">當您開始使用點數時，記錄將會顯示在這裡</p>
-                      </div>
-                    </div>
-                  </div>}
-              </div>}
-
-            {/* 資料設定 Tab */}
-            {activeTab === 'settings' && <div className="space-y-4">
-                {/* 個人資料設定 - 直接展開 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-lg">
-                      <User className="w-5 h-5 mr-2 text-blue-600" />
-                      個人資料設定
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* 性別設定 */}
-                    <Dialog open={showGenderDialog} onOpenChange={setShowGenderDialog}>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                              <User className="w-4 h-4 text-blue-600" />
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-900">性別</span>
-                              <p className="text-sm text-gray-600">設定您的性別資訊</p>
-                            </div>
-                          </div>
-                          <span className="text-sm text-gray-500">
-                            {profileData.gender ? profileData.gender === 'male' ? '男性' : '女性' : '未設定'}
-                          </span>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>選擇性別</DialogTitle>
-                          <DialogDescription>
-                            請選擇您的性別
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-3">
-                          <Button variant="outline" className="w-full justify-start" onClick={() => handleGenderSelect('male')}>
-                            男性
-                          </Button>
-                          <Button variant="outline" className="w-full justify-start" onClick={() => handleGenderSelect('female')}>
-                            女性
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* 手機號碼驗證 */}
-                    <Dialog open={showPhoneDialog} onOpenChange={setShowPhoneDialog}>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                              <Smartphone className="w-4 h-4 text-green-600" />
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-900">手機號碼驗證</span>
-                              <p className="text-sm text-gray-600">
-                                {profileData.phone || '設定您的手機號碼'}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className={profileData.isPhoneVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
-                            {profileData.isPhoneVerified ? '已驗證' : '未驗證'}
-                          </Badge>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>手機號碼驗證</DialogTitle>
-                          <DialogDescription>
-                            {profileData.phone ? '修改您的手機號碼' : '設定您的手機號碼'}
-                          </DialogDescription>
-                        </DialogHeader>
-                        {!showPhoneOTP ? <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="phone">手機號碼</Label>
-                              <Input id="phone" type="tel" placeholder="請輸入手機號碼" value={tempPhone} onChange={e => setTempPhone(e.target.value)} />
-                            </div>
-                            <DialogFooter>
-                              <Button variant="outline" onClick={() => setShowPhoneDialog(false)}>
-                                取消
-                              </Button>
-                              <Button onClick={handlePhoneUpdate}>
-                                發送驗證碼
-                              </Button>
-                            </DialogFooter>
-                          </div> : <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="phoneOTP">驗證碼</Label>
-                              <Input id="phoneOTP" type="text" placeholder="請輸入驗證碼 (測試用: 123456)" value={phoneOTP} onChange={e => setPhoneOTP(e.target.value)} />
-                            </div>
-                            <DialogFooter>
-                              <Button variant="outline" onClick={() => {
-                        setShowPhoneOTP(false);
-                        setPhoneOTP('');
-                      }}>
-                                返回
-                              </Button>
-                              <Button onClick={handlePhoneOTPVerify}>
-                                驗證
-                              </Button>
-                            </DialogFooter>
-                          </div>}
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* 電子郵件驗證 */}
-                    <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
-                              <Mail className="w-4 h-4 text-orange-600" />
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-900">電子郵件驗證</span>
-                              <p className="text-sm text-gray-600">
-                                {profileData.email || '設定您的電子郵件'}
-                              </p>
-                            </div>
-                          </div>
-                          <Badge className={profileData.isEmailVerified ? "bg-green-100 text-green-800" : "bg-orange-100 text-orange-800"}>
-                            {profileData.isEmailVerified ? '已驗證' : '未驗證'}
-                          </Badge>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>電子郵件驗證</DialogTitle>
-                          <DialogDescription>
-                            {profileData.email ? '修改您的電子郵件' : '設定您的電子郵件'}
-                          </DialogDescription>
-                        </DialogHeader>
-                        {!emailVerificationSent ? <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="email">電子郵件</Label>
-                              <Input id="email" type="email" placeholder="請輸入電子郵件" value={tempEmail} onChange={e => setTempEmail(e.target.value)} />
-                            </div>
-                            <DialogFooter>
-                              <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
-                                取消
-                              </Button>
-                              <Button onClick={handleEmailVerification}>
-                                發送驗證信
-                              </Button>
-                            </DialogFooter>
-                          </div> : <div className="space-y-4 text-center">
-                            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                              <Mail className="w-8 h-8 text-green-600" />
-                            </div>
-                            <div>
-                              <h3 className="font-medium text-gray-900 mb-2">驗證信已發送</h3>
-                              <p className="text-sm text-gray-600 mb-4">
-                                我們已發送驗證連結至 {tempEmail}，請點擊郵件中的連結完成驗證。
-                              </p>
-                              <Button className="w-full mb-2" onClick={handleEmailVerificationSuccess}>
-                                <Check className="w-4 h-4 mr-2" />
-                                模擬驗證成功
-                              </Button>
-                              <Button variant="outline" className="w-full" onClick={() => {
-                        setEmailVerificationSent(false);
-                        setShowEmailDialog(false);
-                      }}>
-                                關閉
-                              </Button>
-                            </div>
-                          </div>}
-                      </DialogContent>
-                    </Dialog>
-
-                    {/* 生日設定 */}
-                    <Dialog open={showBirthdayDialog} onOpenChange={setShowBirthdayDialog}>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between p-3 border rounded-lg cursor-pointer hover:bg-gray-50">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
-                              <Calendar className="w-4 h-4 text-purple-600" />
-                            </div>
-                            <div>
-                              <span className="font-medium text-gray-900">生日</span>
-                              <p className="text-sm text-gray-600">設定您的生日</p>
-                            </div>
-                          </div>
-                          <span className="text-sm text-gray-500">
-                            {profileData.birthday || '未設定'}
-                          </span>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>設定生日</DialogTitle>
-                          <DialogDescription>
-                            請輸入您的出生日期 (西元年月日)
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <div>
-                            <Label htmlFor="birthday">生日</Label>
-                            <Input id="birthday" type="text" placeholder="YYYY/MM/DD" value={tempBirthday} onChange={e => setTempBirthday(formatBirthdayInput(e.target.value))} maxLength={10} />
-                            <p className="text-xs text-gray-500 mt-1">格式：1990/01/01</p>
-                          </div>
-                          <DialogFooter>
-                            <Button variant="outline" onClick={() => {
-                        setShowBirthdayDialog(false);
-                        setTempBirthday('');
-                      }}>
-                              取消
-                            </Button>
-                            <Button onClick={handleBirthdayUpdate}>
-                              確定
-                            </Button>
-                          </DialogFooter>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
-                  </CardContent>
-                </Card>
-
-                {/* 隱私與通知設定 - 直接展開 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-lg">
-                      <Shield className="w-5 h-5 mr-2 text-purple-600" />
-                      隱私與通知設定
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {/* 公開電子名片 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Eye className="w-4 h-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-900">公開電子名片</span>
-                          <p className="text-sm text-gray-600">您的名片可被其他用戶搜尋與發現</p>
-                        </div>
-                      </div>
-                      <Switch checked={profileData.publicCard} onCheckedChange={checked => saveProfileData({
-                  publicCard: checked
-                })} />
-                    </div>
-
-                    {/* 允許直接加入 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                          <Plus className="w-4 h-4 text-green-600" />
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-900">允許直接加入</span>
-                          <p className="text-sm text-gray-600">用戶可直接將您的名片儲存至他們的名片夾</p>
-                        </div>
-                      </div>
-                      <Switch checked={profileData.allowDirectAdd} onCheckedChange={checked => saveProfileData({
-                  allowDirectAdd: checked
-                })} />
-                    </div>
-
-                    {/* 接收通知 */}
-                    <div className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                          <MessageCircle className="w-4 h-4 text-yellow-600" />
-                        </div>
-                        <div>
-                          <span className="font-medium text-gray-900">接收通知</span>
-                          <p className="text-sm text-gray-600">您將收到各功能相關的系統通知與提醒</p>
-                        </div>
-                      </div>
-                      <Switch checked={profileData.receiveNotifications} onCheckedChange={checked => saveProfileData({
-                  receiveNotifications: checked
-                })} />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* 帳戶管理 - 直接展開 */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center text-lg">
-                      <LogOut className="w-5 h-5 mr-2 text-red-600" />
-                      帳戶管理
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center space-x-3 mb-4">
-                      <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                        <LogOut className="w-5 h-5 text-red-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium text-gray-900">登出帳戶</h4>
-                        <p className="text-sm text-gray-600">退出當前帳戶</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50" onClick={handleLogout}>
-                      <LogOut className="w-4 h-4 mr-2" />
-                      登出帳戶
-                    </Button>
-                  </CardContent>
-                </Card>
-              </div>}
-
+            {/* 服務條款 */}
+            <div className="mt-6 text-center px-4">
+              <p className="text-xs text-gray-500 leading-relaxed">
+                {hasRegistrationHistory ? '登入' : '註冊'}即表示您同意我們的
+                <span className="text-blue-500 underline cursor-pointer mx-1">服務條款</span>
+                和
+                <span className="text-blue-500 underline cursor-pointer mx-1">隱私政策</span>
+              </p>
+            </div>
           </div>
-        </div>}
-    </div>;
+        )}
+
+        {/* 已登入用戶的會員資料介面 */}
+        {userData && cardData && (
+          <div className="p-6">
+            {/* 新用戶提示 */}
+            {isNewUser && (
+              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700 font-medium">
+                  🎉 註冊成功！您的電子名片已建立，點擊「編輯個人資料」完善您的資訊
+                </p>
+              </div>
+            )}
+
+            {/* 會員資料卡片 */}
+            <Card className="border border-gray-200 mb-6">
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-3 mb-4">
+                  <Avatar className="w-16 h-16 border-2 border-gray-200">
+                    <AvatarImage src={cardData?.photo} alt={cardData?.name} />
+                    <AvatarFallback className="bg-blue-500 text-white font-semibold text-lg">
+                      {cardData?.name ? cardData.name.charAt(0).toUpperCase() : 'U'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1">
+                    <h4 className="font-semibold text-gray-900 text-lg">{cardData?.name || '未設定姓名'}</h4>
+                    {cardData?.companyName && <p className="text-sm text-gray-600">{cardData.companyName}</p>}
+                    {cardData?.jobTitle && <p className="text-sm text-gray-500">{cardData.jobTitle}</p>}
+                  </div>
+                  <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => setShowProfileSettings(true)}>
+                    <Settings className="w-4 h-4 mr-1" />
+                    設定
+                  </Button>
+                </div>
+
+                {/* 聯絡資訊 */}
+                <div className="space-y-2 mb-4">
+                  {cardData?.phone && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Phone className="w-4 h-4 text-gray-400" />
+                      <span>{cardData.phone}</span>
+                    </div>
+                  )}
+                  {cardData?.email && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <Mail className="w-4 h-4 text-gray-400" />
+                      <span>{cardData.email}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* 編輯按鈕 */}
+                <Button size="sm" variant="outline" className="w-full" onClick={() => setShowCreateCard(true)}>
+                  <Edit className="w-4 h-4 mr-1" />
+                  編輯個人資料
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* 提示訊息 */}
+            <Card className="border-l-4 border-l-blue-500 bg-blue-50">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <Info className="w-5 h-5 text-blue-600 mt-0.5" />
+                  <div>
+                    <h4 className="font-medium text-blue-900 mb-1">功能已整合至選單</h4>
+                    <p className="text-sm text-blue-700">
+                      名片管理和點數優惠功能已移至下方選單中，您可以透過選單快速存取這些功能。
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
+
 export default MyCard;

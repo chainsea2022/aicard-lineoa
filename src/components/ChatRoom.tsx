@@ -54,7 +54,7 @@ const menuItems: MenuItem[] = [{
   color: 'bg-gradient-to-br from-orange-500 to-orange-600'
 }, {
   id: 'create-card',
-  title: '註冊電子名片',
+  title: '會員註冊',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
 }, {
@@ -87,7 +87,7 @@ const newMenuItems: MenuItem[] = [{
   color: 'bg-gradient-to-br from-orange-500 to-orange-600'
 }, {
   id: 'create-card',
-  title: '設置電子名片',
+  title: '會員資料',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
 }, {
@@ -877,9 +877,9 @@ const ChatRoom = () => {
     // 註冊完成後的處理邏輯
     localStorage.setItem('aicard-user-registered', 'true');
 
-    // 關閉註冊界面
+    // 關閉註冊界面，回到聊天室
     setActiveView(null);
-    setIsMenuOpen(false);
+    setIsMenuOpen(true);
 
     // 顯示註冊成功訊息
     const successMessage = {
