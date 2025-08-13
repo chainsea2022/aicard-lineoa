@@ -880,11 +880,12 @@ const ChatRoom = () => {
     // 關閉註冊界面，回到聊天室
     setActiveView(null);
     setIsMenuOpen(true);
+    setUseNewMenu(true); // 註冊完成後使用新版 Richmenu
 
     // 顯示註冊成功訊息
     const successMessage = {
       id: Date.now(),
-      text: '🎉 恭喜您！電子名片建立成功！\n✅ 您已獲得 50 點 AiPoint 獎勵！\n📱 現在可以開始使用所有功能了！',
+      text: '🎉 恭喜您！電子名片建立成功！\n✅ 您已獲得 50 點 AiPoint 獎勵！\n📱 現在可以透過下方 Richmenu 管理您的名片！',
       isBot: true,
       timestamp: new Date()
     };

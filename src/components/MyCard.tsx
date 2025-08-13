@@ -224,6 +224,10 @@ Email: ${defaultCardData.email || ''}`;
     // 標記為新用戶並關閉驗證界面
     setIsNewUser(true);
     setShowOTPVerification(false);
+    
+    // 驗證完成後回到聊天室
+    window.dispatchEvent(new CustomEvent('registrationCompleted'));
+    onClose();
   };
 
   const handleLineLogin = () => {
@@ -272,6 +276,10 @@ Email: ${defaultCardData.email || ''}`;
     // 儲存名片資料
     localStorage.setItem('aile-card-data', JSON.stringify(cardInfo));
     setCardData(cardInfo);
+    
+    // 登入完成後回到聊天室
+    window.dispatchEvent(new CustomEvent('registrationCompleted'));
+    onClose();
   };
 
   const handleCardCreated = () => {
@@ -283,8 +291,10 @@ Email: ${defaultCardData.email || ''}`;
       const cardInfo = JSON.parse(savedCardData);
       setCardData(cardInfo);
       
-      // 發送註冊完成事件給 ChatRoom
+      // 發送註冊完成事件給 ChatRoom，並關閉會員資料頁面
       window.dispatchEvent(new CustomEvent('registrationCompleted'));
+      // 註冊完成後回到聊天室
+      onClose();
     }
   };
 
@@ -323,9 +333,9 @@ Email: ${defaultCardData.email || ''}`;
   }
 
   return (
-    <div className="fixed inset-0 bg-gray-50 flex flex-col">
+    <div className="w-full h-full max-w-md mx-auto bg-gray-50 flex flex-col" style={{ maxHeight: '80vh', minHeight: '600px' }}>
       {/* 頂部導航欄 */}
-      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center">
+      <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center flex-shrink-0">
         <Button variant="ghost" size="sm" onClick={onClose} className="mr-3">
           <ArrowLeft className="w-4 h-4" />
         </Button>
