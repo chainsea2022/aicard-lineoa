@@ -674,15 +674,19 @@ const ChatRoom = () => {
       setActiveView(itemId);
       setIsMenuOpen(false);
     } else if (itemId === 'my-card') {
-      const savedData = localStorage.getItem('aile-card-data');
-      if (savedData) {
-        // 如果有電子名片，先顯示名片選擇LIFF介面
+      // 檢查用戶是否已完成註冊和電子名片建立
+      const userData = localStorage.getItem('aile-user-data');
+      const cardData = localStorage.getItem('aile-card-data');
+      
+      if (userData && cardData) {
+        // 已註冊完成且有電子名片，顯示名片選擇LIFF介面
         setShowCardSelectionLIFF(true);
         setIsMenuOpen(false);
       } else {
+        // 尚未註冊完成，引導用戶註冊
         const noCardMessage: Message = {
           id: Date.now(),
-          text: "您尚未建立電子名片，請先建立您的名片。",
+          text: "⚠️ 您尚未建立電子名片，無法使用此功能。\n🎯 立即註冊，打造您的第一張專屬名片！\n👇 點擊下方連結開始註冊：",
           isBot: true,
           timestamp: new Date()
         };
