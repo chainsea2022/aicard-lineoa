@@ -458,10 +458,6 @@ Email: ${defaultCardData.email || ''}`;
                     {cardData?.companyName && <p className="text-sm text-gray-600">{cardData.companyName}</p>}
                     {cardData?.jobTitle && <p className="text-sm text-gray-500">{cardData.jobTitle}</p>}
                   </div>
-                  <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white" onClick={() => setShowProfileSettings(true)}>
-                    <Settings className="w-4 h-4 mr-1" />
-                    設定
-                  </Button>
                 </div>
 
                 {/* 聯絡資訊 */}
@@ -481,29 +477,416 @@ Email: ${defaultCardData.email || ''}`;
                 </div>
 
                 {/* 編輯按鈕 */}
-                <Button size="sm" variant="outline" className="w-full" onClick={() => setShowCreateCard(true)}>
-                  <Edit className="w-4 h-4 mr-1" />
-                  編輯個人資料
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* 提示訊息 */}
-            <Card className="border-l-4 border-l-blue-500 bg-blue-50">
-              <CardContent className="p-4">
-                <div className="flex items-start space-x-3">
-                  <Info className="w-5 h-5 text-blue-600 mt-0.5" />
-                  <div>
-                    <h4 className="font-medium text-blue-900 mb-1">功能已整合至選單</h4>
-                    <p className="text-sm text-blue-700">
-                      名片管理和點數優惠功能已移至下方選單中，您可以透過選單快速存取這些功能。
-                    </p>
-                  </div>
+                <div className="flex space-x-2">
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => setShowCreateCard(true)}>
+                    <Edit className="w-4 h-4 mr-1" />
+                    編輯個人資料
+                  </Button>
+                  <Button size="sm" className="flex-1 bg-blue-500 hover:bg-blue-600 text-white" onClick={() => setShowProfileSettings(true)}>
+                    <Settings className="w-4 h-4 mr-1" />
+                    資料設定
+                  </Button>
                 </div>
               </CardContent>
             </Card>
+
+            {/* 個人資料設定區塊 */}
+            <div className="space-y-4">
+              {/* 個人資料設定 */}
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-lg">
+                    <User className="w-5 h-5 mr-2" />
+                    個人資料
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* 性別設定 */}
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <User className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-900">性別</span>
+                        <p className="text-sm text-gray-500">
+                          {profileData.gender ? 
+                            (profileData.gender === 'male' ? '男性' : 
+                             profileData.gender === 'female' ? '女性' : '其他') 
+                            : '未設定'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowGenderDialog(true)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* 手機號碼設定 */}
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Smartphone className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-900">手機號碼</span>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm text-gray-500">
+                            {profileData.phone || '未設定'}
+                          </p>
+                          {profileData.isPhoneVerified && (
+                            <div className="flex items-center space-x-1 text-green-600">
+                              <CheckCircle className="w-3 h-3" />
+                              <span className="text-xs">已驗證</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowPhoneDialog(true)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* Email設定 */}
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                        <Mail className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-900">Email</span>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm text-gray-500">
+                            {profileData.email || '未設定'}
+                          </p>
+                          {profileData.isEmailVerified && (
+                            <div className="flex items-center space-x-1 text-green-600">
+                              <CheckCircle className="w-3 h-3" />
+                              <span className="text-xs">已驗證</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowEmailDialog(true)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+
+                  {/* 生日設定 */}
+                  <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-gray-900">生日</span>
+                        <p className="text-sm text-gray-500">
+                          {profileData.birthday || '未設定'}
+                        </p>
+                      </div>
+                    </div>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => setShowBirthdayDialog(true)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* 隱私與安全設定 */}
+              <Card className="shadow-lg">
+                <CardHeader>
+                  <CardTitle className="flex items-center text-lg">
+                    <Shield className="w-5 h-5 mr-2" />
+                    隱私與安全
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* 公開名片設定 */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-gray-900">公開名片</span>
+                      <p className="text-sm text-gray-500">允許其他用戶搜尋到您的名片</p>
+                    </div>
+                    <Switch
+                      checked={profileData.publicCard}
+                      onCheckedChange={(checked) => 
+                        setProfileData(prev => ({ ...prev, publicCard: checked }))
+                      }
+                    />
+                  </div>
+
+                  {/* 允許直接加入設定 */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-gray-900">允許直接加入</span>
+                      <p className="text-sm text-gray-500">其他用戶可直接將您加入名片夾</p>
+                    </div>
+                    <Switch
+                      checked={profileData.allowDirectAdd}
+                      onCheckedChange={(checked) => 
+                        setProfileData(prev => ({ ...prev, allowDirectAdd: checked }))
+                      }
+                    />
+                  </div>
+
+                  {/* 接收通知設定 */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="font-medium text-gray-900">接收通知</span>
+                      <p className="text-sm text-gray-500">接收系統通知與更新訊息</p>
+                    </div>
+                    <Switch
+                      checked={profileData.receiveNotifications}
+                      onCheckedChange={(checked) => 
+                        setProfileData(prev => ({ ...prev, receiveNotifications: checked }))
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         )}
+
+            {/* 對話框 - 性別設定 */}
+            <Dialog open={showGenderDialog} onOpenChange={setShowGenderDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>設定性別</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-3">
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start" 
+                    onClick={() => {
+                      setProfileData(prev => ({ ...prev, gender: 'male' }));
+                      setShowGenderDialog(false);
+                    }}
+                  >
+                    男性
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start" 
+                    onClick={() => {
+                      setProfileData(prev => ({ ...prev, gender: 'female' }));
+                      setShowGenderDialog(false);
+                    }}
+                  >
+                    女性
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start" 
+                    onClick={() => {
+                      setProfileData(prev => ({ ...prev, gender: 'other' }));
+                      setShowGenderDialog(false);
+                    }}
+                  >
+                    其他
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* 對話框 - 手機號碼設定 */}
+            <Dialog open={showPhoneDialog} onOpenChange={setShowPhoneDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>設定手機號碼</DialogTitle>
+                  <DialogDescription>
+                    修改手機號碼需要重新驗證
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="phone">手機號碼</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={tempPhone}
+                      onChange={(e) => setTempPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                      placeholder="請輸入10位手機號碼"
+                      maxLength={10}
+                    />
+                  </div>
+                  
+                  {showPhoneOTP && (
+                    <div className="space-y-3">
+                      <Label>驗證碼</Label>
+                      <Input
+                        type="text"
+                        value={phoneOTP}
+                        onChange={(e) => setPhoneOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        placeholder="請輸入6位驗證碼"
+                        maxLength={6}
+                      />
+                    </div>
+                  )}
+                </div>
+                <DialogFooter>
+                  {!showPhoneOTP ? (
+                    <Button 
+                      onClick={() => setShowPhoneOTP(true)}
+                      disabled={tempPhone.length !== 10}
+                    >
+                      發送驗證碼
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={() => {
+                        if (phoneOTP === '123456') {
+                          setProfileData(prev => ({ 
+                            ...prev, 
+                            phone: tempPhone, 
+                            isPhoneVerified: true 
+                          }));
+                          setShowPhoneDialog(false);
+                          setShowPhoneOTP(false);
+                          setTempPhone('');
+                          setPhoneOTP('');
+                          toast({
+                            title: "手機號碼驗證成功",
+                            description: "您的手機號碼已成功更新。"
+                          });
+                        } else {
+                          toast({
+                            title: "驗證失敗",
+                            description: "驗證碼錯誤，請重新輸入。",
+                            variant: "destructive"
+                          });
+                        }
+                      }}
+                      disabled={phoneOTP.length !== 6}
+                    >
+                      驗證
+                    </Button>
+                  )}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* 對話框 - Email設定 */}
+            <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>設定Email</DialogTitle>
+                  <DialogDescription>
+                    修改Email需要重新驗證
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="email">Email地址</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={tempEmail}
+                      onChange={(e) => setTempEmail(e.target.value)}
+                      placeholder="請輸入Email地址"
+                    />
+                  </div>
+                  
+                  {emailVerificationSent && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-sm text-blue-700">
+                        驗證郵件已發送至 {tempEmail}，請檢查您的郵箱並點擊驗證連結。
+                      </p>
+                      <Button 
+                        size="sm" 
+                        className="mt-2"
+                        onClick={() => {
+                          setProfileData(prev => ({ 
+                            ...prev, 
+                            email: tempEmail, 
+                            isEmailVerified: true 
+                          }));
+                          setShowEmailDialog(false);
+                          setEmailVerificationSent(false);
+                          setTempEmail('');
+                          toast({
+                            title: "Email驗證成功",
+                            description: "您的Email已成功更新。"
+                          });
+                        }}
+                      >
+                        模擬驗證完成
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <DialogFooter>
+                  {!emailVerificationSent ? (
+                    <Button 
+                      onClick={() => setEmailVerificationSent(true)}
+                      disabled={!tempEmail || !/\S+@\S+\.\S+/.test(tempEmail)}
+                    >
+                      發送驗證郵件
+                    </Button>
+                  ) : null}
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* 對話框 - 生日設定 */}
+            <Dialog open={showBirthdayDialog} onOpenChange={setShowBirthdayDialog}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>設定生日</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="birthday">生日</Label>
+                    <Input
+                      id="birthday"
+                      type="text"
+                      value={tempBirthday}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        // 簡單的日期格式處理
+                        const formatted = value.replace(/[^\d\/]/g, '');
+                        setTempBirthday(formatted);
+                      }}
+                      placeholder="YYYY/MM/DD"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button 
+                    onClick={() => {
+                      setProfileData(prev => ({ ...prev, birthday: tempBirthday }));
+                      setShowBirthdayDialog(false);
+                      setTempBirthday('');
+                      toast({
+                        title: "生日已更新",
+                        description: "您的生日資訊已成功更新。"
+                      });
+                    }}
+                    disabled={!tempBirthday}
+                  >
+                    確認
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
       </div>
     </div>
   );
