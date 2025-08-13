@@ -311,7 +311,7 @@ Email: ${defaultCardData.email || ''}`;
   };
 
   if (showCreateCard) {
-    return <CreateCard onClose={() => setShowCreateCard(false)} />;
+    return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
   }
 
   if (showOTPVerification) {
