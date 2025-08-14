@@ -375,8 +375,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 onClick={() => setFilter({ category: 'following' })}
                 className="hover:bg-accent"
               >
-                <Heart className="w-4 h-4 mr-2" />
-                關注
+                <Star className="w-4 h-4 mr-2" />
+                ⭐
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setFilter({ category: 'tags' })}
