@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart, Phone, MessageCircle, Mail, Send, Share, Copy, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart, Phone, MessageCircle, Mail, Send, Share, Copy, MessageSquare, Bell, Circle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -155,6 +155,13 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         const lineMessage = "邀請您註冊電子名片，體驗更便利的名片交換！";
         const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(lineMessage)}`;
         window.open(lineUrl, '_blank');
+        
+        // Mark as invited and update customer state
+        const updatedCustomers = customers.map(c => 
+          c.id === customerId ? { ...c, invitationSent: true } : c
+        );
+        setCustomers(updatedCustomers);
+        
         toast({
           title: "LINE 邀請已發送",
           description: `已向 ${customer.name} 發送 LINE 邀請`,
@@ -378,22 +385,35 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                     </div>
                     
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
-                          {customer.isRegisteredUser && customer.jobTitle && (
-                            <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
-                          )}
-                          {customer.isRegisteredUser && customer.company && (
-                            <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
-                          )}
-                          {!customer.isRegisteredUser && customer.lineId && (
-                            <p className="text-sm text-muted-foreground truncate">LINE 用戶</p>
-                          )}
-                          {!customer.isRegisteredUser && !customer.lineId && customer.company && (
-                            <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
-                          )}
-                        </div>
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              {customer.isRegisteredUser ? (
+                                <>
+                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                                  {customer.jobTitle && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                                  )}
+                                  {customer.company && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                                  )}
+                                </>
+                              ) : customer.lineId ? (
+                                <>
+                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                                  <p className="text-sm text-muted-foreground truncate">LINE 用戶</p>
+                                </>
+                              ) : (
+                                <>
+                                  {customer.company && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                                  )}
+                                  {customer.jobTitle && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                                  )}
+                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                                </>
+                              )}
+                            </div>
                         
                         <div className="flex flex-col items-end space-y-2 ml-2">
                           {cardStyle.badge && (
@@ -414,7 +434,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                   handleToggleFavorite(customer.id);
                                 }}
                               >
-                                <Heart className={`w-4 h-4 ${customer.isFavorite ? 'text-red-500 fill-current' : 'text-muted-foreground'}`} />
+                                <Star className={`w-4 h-4 ${customer.isFavorite ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
                               </Button>
                               {customer.line && (
                                 <Button
@@ -473,19 +493,55 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </div>
                           )}
                           
-                          {/* Unregistered user invitation button */}
+                          {/* Unregistered user buttons */}
                           {!customer.isRegisteredUser && !customer.isRecommendation && (
-                            <Button
-                              size="sm"
-                              variant="default"
-                              className="h-6 px-2 text-xs bg-unregistered-orange hover:bg-unregistered-orange/80"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleSendInvitation(customer.id);
-                              }}
-                            >
-                              {customer.lineId ? 'LINE 邀請' : '邀請紀錄'}
-                            </Button>
+                            <div className="flex space-x-1">
+                              {customer.lineId ? (
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="h-6 px-2 text-xs bg-unregistered-orange hover:bg-unregistered-orange/80"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSendInvitation(customer.id);
+                                  }}
+                                >
+                                  邀請註冊
+                                </Button>
+                              ) : (
+                                <>
+                                  {customer.phone && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePhoneCall(customer.id);
+                                      }}
+                                    >
+                                      <Phone className="w-4 h-4 text-blue-500" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setSelectedInvitationCustomer(customer);
+                                      setInvitationDialogOpen(true);
+                                    }}
+                                  >
+                                    {customer.invitationSent || customer.emailInvitationSent ? (
+                                      <Bell className="w-4 h-4 text-green-500" />
+                                    ) : (
+                                      <Circle className="w-4 h-4 text-muted-foreground" />
+                                    )}
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -513,6 +569,14 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           setSelectedInvitationCustomer(null);
         }}
         customerName={selectedInvitationCustomer?.name || ''}
+        onInvitationSent={() => {
+          if (selectedInvitationCustomer) {
+            const updatedCustomers = customers.map(c => 
+              c.id === selectedInvitationCustomer.id ? { ...c, invitationSent: true } : c
+            );
+            setCustomers(updatedCustomers);
+          }
+        }}
       />
     </div>
   );
