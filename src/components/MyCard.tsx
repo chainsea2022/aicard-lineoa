@@ -453,48 +453,6 @@ Email: ${defaultCardData.email || ''}`;
               </div>
             )}
 
-            {/* 會員資料卡片 */}
-            <Card className="border border-gray-200 mb-6">
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-3 mb-4">
-                  <Avatar className="w-16 h-16 border-2 border-gray-200">
-                    <AvatarImage src={cardData?.photo} alt={cardData?.name} />
-                    <AvatarFallback className="bg-blue-500 text-white font-semibold text-lg">
-                      {cardData?.name ? cardData.name.charAt(0).toUpperCase() : 'U'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900 text-lg">{cardData?.name || '未設定姓名'}</h4>
-                    {cardData?.companyName && <p className="text-sm text-gray-600">{cardData.companyName}</p>}
-                    {cardData?.jobTitle && <p className="text-sm text-gray-500">{cardData.jobTitle}</p>}
-                  </div>
-                </div>
-
-                {/* 聯絡資訊 */}
-                <div className="space-y-2 mb-4">
-                  {cardData?.phone && (
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Phone className="w-4 h-4 text-gray-400" />
-                      <span>{cardData.phone}</span>
-                    </div>
-                  )}
-                  {cardData?.email && (
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Mail className="w-4 h-4 text-gray-400" />
-                      <span>{cardData.email}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* 編輯按鈕 */}
-                <div className="flex space-x-2">
-                  <Button size="sm" variant="outline" className="flex-1" onClick={() => setShowCreateCard(true)}>
-                    <Edit className="w-4 h-4 mr-1" />
-                    編輯個人資料
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
 
             {/* 個人資料設定區塊 */}
             <div className="space-y-4">
