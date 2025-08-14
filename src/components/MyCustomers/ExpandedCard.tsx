@@ -279,14 +279,6 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     return <SmartRelationshipAnalysis customer={customer} onClose={() => setShowSmartAnalysis(false)} />;
   }
   return <div className="space-y-4">
-      {/* Header with collapse button */}
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-base text-gray-800">{customer.name}</h3>
-        <Button onClick={onCollapse} variant="ghost" size="sm">
-          <X className="w-4 h-4" />
-        </Button>
-      </div>
-
       {/* Invitation Section for Unregistered Paper Card Users */}
       {!customer.isRegisteredUser && !customer.lineId && (
         <div className="bg-orange-50 rounded-lg p-3 space-y-3">
@@ -455,6 +447,15 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           </TooltipProvider>
         </div>
       )}
+
+      {/* Header with collapse button */}
+      <div className="flex items-center justify-between">
+        <h3 className="font-semibold text-base text-gray-800">{customer.name}</h3>
+        <Button onClick={onCollapse} variant="ghost" size="sm">
+          <X className="w-4 h-4" />
+        </Button>
+      </div>
+
 
       {/* Basic Info */}
       <div className="space-y-3">
