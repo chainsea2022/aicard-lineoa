@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic, Plus, Tag, Send, Copy, CheckCircle } from 'lucide-react';
+import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic, Plus, Tag, Send, Copy, CheckCircle, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -68,6 +68,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [invitationStatus, setInvitationStatus] = useState<Record<string, boolean>>({});
   const [showInvitationHistory, setShowInvitationHistory] = useState(false);
   const [invitationHistory, setInvitationHistory] = useState<Record<string, string>>({});
+  const [showInvitationDialog, setShowInvitationDialog] = useState(false);
 
   // Handle invitation actions
   const handleInvitationAction = async (type: 'sms' | 'email' | 'line' | 'messenger' | 'instagram' | 'copy') => {
@@ -279,6 +280,36 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     return <SmartRelationshipAnalysis customer={customer} onClose={() => setShowSmartAnalysis(false)} />;
   }
   return <div className="space-y-4">
+      {/* Top Invitation Box - Always visible */}
+      <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">
+        <div className="flex items-center justify-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="flex items-center space-x-2 hover:bg-gray-50"
+            onClick={() => {
+              if (customer.invitationSent) {
+                setShowInvitationHistory(true);
+              } else {
+                setShowInvitationDialog(true);
+              }
+            }}
+          >
+            {customer.invitationSent ? (
+              <>
+                <CheckCircle className="w-5 h-5 text-green-600" />
+                <span className="text-sm text-green-600">已邀請</span>
+              </>
+            ) : (
+              <>
+                <UserPlus className="w-5 h-5 text-gray-600" />
+                <span className="text-sm text-gray-600">邀請建立電子名片</span>
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+
       {/* Invitation Section for Unregistered Paper Card Users */}
       {!customer.isRegisteredUser && !customer.lineId && (
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 space-y-3 bg-white">
@@ -717,6 +748,52 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         </div>
       </div>
 
+
+      {/* LIFF Invitation Dialog */}
+      <Dialog open={showInvitationDialog} onOpenChange={setShowInvitationDialog}>
+        <DialogContent className="max-w-[300px] mx-auto">
+          <DialogHeader>
+            <DialogTitle>LIFF:邀請您建立電子名片</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
+                <UserPlus className="w-8 h-8 text-blue-600" />
+              </div>
+              <h3 className="font-medium text-lg mb-2">{customer.name}</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                邀請此聯絡人建立電子名片，享受更便利的名片交換體驗
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => {
+                  // Update customer invitation status
+                  onSaveCustomer(customer.id, { invitationSent: true, invitationDate: new Date().toISOString() });
+                  setShowInvitationDialog(false);
+                  toast({
+                    title: "邀請已發送",
+                    description: "已成功邀請聯絡人建立電子名片",
+                    className: "max-w-[280px] mx-auto"
+                  });
+                }}
+              >
+                發送邀請
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => setShowInvitationDialog(false)}
+              >
+                取消
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Invitation History Dialog */}
       <Dialog open={showInvitationHistory} onOpenChange={setShowInvitationHistory}>
