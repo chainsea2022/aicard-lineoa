@@ -17,6 +17,7 @@ import { Customer } from './MyCustomers/types';
 import { generateMockCustomers } from './MyCustomers/mockData';
 import { getRandomProfessionalAvatar } from './MyCustomers/utils';
 import InvitationDialog from './InvitationDialog';
+import { SmartRecommendationDetail } from './SmartRecommendationDetail';
 
 interface UnifiedCardFolderProps {
   onClose: () => void;
@@ -58,6 +59,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
   const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
+  const [showRecommendationDetail, setShowRecommendationDetail] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
     const recommendations = generateMockRecommendations(4);
@@ -144,7 +146,12 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   };
 
   const handleCardClick = (customer: Customer) => {
-    setSelectedCustomer(customer);
+    if (customer.isRecommendation) {
+      setSelectedCustomer(customer);
+      setShowRecommendationDetail(true);
+    } else {
+      setSelectedCustomer(customer);
+    }
   };
 
   const handleSendInvitation = (customerId: number) => {
@@ -227,6 +234,20 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   };
 
   const filteredCustomers = getFilteredCustomers();
+
+  if (selectedCustomer && showRecommendationDetail) {
+    return (
+      <SmartRecommendationDetail
+        customer={selectedCustomer}
+        onClose={() => {
+          setSelectedCustomer(null);
+          setShowRecommendationDetail(false);
+        }}
+        onAddToFolder={handleAddToFolder}
+        onSkip={handleSkipRecommendation}
+      />
+    );
+  }
 
   if (selectedCustomer) {
     return (
@@ -375,14 +396,17 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 onClick={() => handleCardClick(customer)}
               >
                 <CardContent className="p-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="relative">
-                      <img
-                        src={customer.photo || getRandomProfessionalAvatar(customer.id)}
-                        alt={customer.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                    </div>
+                  <div className={`flex items-start ${(customer.isRegisteredUser || customer.lineId) ? 'space-x-3' : 'space-x-0'}`}>
+                    {/* Only show avatar for registered users and unregistered LINE users */}
+                    {(customer.isRegisteredUser || customer.lineId) && (
+                      <div className="relative">
+                        <img
+                          src={customer.photo || getRandomProfessionalAvatar(customer.id)}
+                          alt={customer.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      </div>
+                    )}
                     
                     <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
@@ -422,8 +446,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </Badge>
                           )}
                           
-                          {/* Action buttons for registered users */}
-                          {customer.isRegisteredUser && !customer.isRecommendation && (
+                          {/* Follow star for all cards except smart recommendations */}
+                          {!customer.isRecommendation && (
                             <div className="flex space-x-1">
                               <Button
                                 size="sm"
@@ -436,31 +460,84 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                               >
                                 <Star className={`w-4 h-4 ${customer.isFavorite ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
                               </Button>
-                              {customer.line && (
+                              
+                              {/* Action buttons for registered users */}
+                              {customer.isRegisteredUser && (
+                                <>
+                                  {customer.line && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLineContact(customer.id);
+                                      }}
+                                    >
+                                      <MessageCircle className="w-4 h-4 text-green-600" />
+                                    </Button>
+                                  )}
+                                  {customer.phone && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePhoneCall(customer.id);
+                                      }}
+                                    >
+                                      <Phone className="w-4 h-4 text-blue-600" />
+                                    </Button>
+                                  )}
+                                </>
+                              )}
+                              
+                              {/* Action buttons for unregistered LINE users */}
+                              {!customer.isRegisteredUser && customer.lineId && (
                                 <Button
                                   size="sm"
                                   variant="ghost"
                                   className="h-8 w-8 p-0"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleLineContact(customer.id);
+                                    handleSendInvitation(customer.id);
                                   }}
                                 >
-                                  <MessageCircle className="w-4 h-4 text-green-500" />
+                                  <UserPlus className="w-4 h-4 text-orange-600" />
                                 </Button>
                               )}
-                              {customer.phone && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePhoneCall(customer.id);
-                                  }}
-                                >
-                                  <Phone className="w-4 h-4 text-blue-500" />
-                                </Button>
+                              
+                              {/* Action buttons for paper card users */}
+                              {!customer.isRegisteredUser && !customer.lineId && (
+                                <>
+                                  {customer.phone && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePhoneCall(customer.id);
+                                      }}
+                                    >
+                                      <Phone className="w-4 h-4 text-blue-600" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                    }}
+                                  >
+                                    {customer.invitationSent || customer.emailInvitationSent ? 
+                                      <Bell className="w-4 h-4 text-green-600" /> : 
+                                      <Circle className="w-4 h-4 text-muted-foreground" />
+                                    }
+                                  </Button>
+                                </>
                               )}
                             </div>
                           )}
@@ -490,57 +567,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                               >
                                 略過
                               </Button>
-                            </div>
-                          )}
-                          
-                          {/* Unregistered user buttons */}
-                          {!customer.isRegisteredUser && !customer.isRecommendation && (
-                            <div className="flex space-x-1">
-                              {customer.lineId ? (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  className="h-6 px-2 text-xs bg-unregistered-orange hover:bg-unregistered-orange/80"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSendInvitation(customer.id);
-                                  }}
-                                >
-                                  邀請註冊
-                                </Button>
-                              ) : (
-                                <>
-                                  {customer.phone && (
-                                    <Button
-                                      size="sm"
-                                      variant="ghost"
-                                      className="h-8 w-8 p-0"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handlePhoneCall(customer.id);
-                                      }}
-                                    >
-                                      <Phone className="w-4 h-4 text-blue-500" />
-                                    </Button>
-                                  )}
-                                  <Button
-                                    size="sm"
-                                    variant="ghost"
-                                    className="h-8 w-8 p-0"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedInvitationCustomer(customer);
-                                      setInvitationDialogOpen(true);
-                                    }}
-                                  >
-                                    {customer.invitationSent || customer.emailInvitationSent ? (
-                                      <Bell className="w-4 h-4 text-green-500" />
-                                    ) : (
-                                      <Circle className="w-4 h-4 text-muted-foreground" />
-                                    )}
-                                  </Button>
-                                </>
-                              )}
                             </div>
                           )}
                         </div>
