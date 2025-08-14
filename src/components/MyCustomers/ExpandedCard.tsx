@@ -637,7 +637,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-3">
                 <UserPlus className="w-8 h-8 text-blue-600" />
               </div>
-              <h3 className="font-medium text-lg mb-2">{customer.name}</h3>
+              
               <p className="text-sm text-gray-600 mb-4">
                 Hi 👋 我想邀請你加入 AiCard 名片人脈圈，立即加入 AiCard 名片人脈圈，開始建立人脈關係👉 https://aicard.ai/invite?referral=甲的ID
               </p>
