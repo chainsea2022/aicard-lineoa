@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, Coins, Crown, RotateCcw, Phone, Mail, Globe } from 'lucide-react';
+import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, Coins, Crown, RotateCcw, Phone, Mail, Globe, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -30,6 +30,7 @@ interface Message {
   isClientFlexMessage?: boolean;
   isFullFlexMessage?: boolean;
   customerName?: string;
+  showFullCard?: boolean;
 }
 interface CardData {
   companyName: string;
@@ -409,6 +410,7 @@ const ChatRoom = () => {
   const [currentCardOwner, setCurrentCardOwner] = useState('');
   const [liffFlowType, setLiffFlowType] = useState<'qr_scan' | 'direct_add'>('qr_scan');
   const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({});
+  const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
   const [pendingCustomerName, setPendingCustomerName] = useState<string>('');
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
@@ -1035,113 +1037,135 @@ const ChatRoom = () => {
                           
                           {/* 電子名片預覽 */}
                           {message.isCard && message.cardData ? (
-                            <div className="bg-white rounded-2xl shadow-lg overflow-hidden max-w-sm">
-                              {/* 完整名片預覽 */}
-                              <div 
-                                className="p-6 text-center"
-                                style={{ 
-                                  background: `linear-gradient(135deg, ${message.cardData.backgroundColor || '#1e40af'}CC, ${message.cardData.backgroundColor || '#1e40af'}FF)`,
-                                  color: message.cardData.textColor || '#ffffff'
-                                }}
-                              >
-                                {/* 名片頭像 */}
-                                <div className="relative mb-4 flex justify-center">
-                                  <div className="w-16 h-16 rounded-full bg-white/20 overflow-hidden border-4 border-white/50 shadow-lg">
-                                    {message.cardData.photo ? (
-                                      <img 
-                                        src={message.cardData.photo} 
-                                        alt="Profile" 
-                                        className="w-full h-full object-cover"
-                                      />
-                                    ) : (
-                                      <div className="w-full h-full bg-white/30 flex items-center justify-center">
-                                        <User className="w-8 h-8 text-white" />
-                                      </div>
+                            <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm">
+                              {/* 名片頭部預覽 - 與CardPreview風格一致 */}
+                              <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                                <div className="flex items-center space-x-3">
+                                  {message.cardData.photo && (
+                                    <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                                      <img src={message.cardData.photo} alt="頭像" className="w-10 h-10 rounded-full object-cover" />
+                                    </div>
+                                  )}
+                                  <div className="flex-1">
+                                    {message.cardData.companyName && (
+                                      <p className="text-blue-100 text-xs">{message.cardData.companyName}</p>
+                                    )}
+                                    <h4 className="text-white text-base font-semibold">
+                                      {message.cardData.name || '您的姓名'}
+                                    </h4>
+                                    {message.cardData.jobTitle && (
+                                      <p className="text-blue-100 text-xs">{message.cardData.jobTitle}</p>
                                     )}
                                   </div>
-                                  {/* 名片類型標示 */}
-                                  {message.cardData.cardType && (
-                                    <div className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                                      {message.cardData.cardType === 'business' ? '商務' : 
-                                       message.cardData.cardType === 'professional' ? '專業' : '個人'}
-                                    </div>
-                                  )}
-                                </div>
-
-                                {/* 基本資訊 */}
-                                <div className="space-y-1 mb-4">
-                                  <h3 className="text-lg font-bold text-white">{message.cardData.name}</h3>
-                                  {message.cardData.jobTitle && (
-                                    <p className="text-sm text-white/90 font-medium">{message.cardData.jobTitle}</p>
-                                  )}
-                                  {message.cardData.companyName && (
-                                    <p className="text-sm text-white/80">{message.cardData.companyName}</p>
-                                  )}
-                                </div>
-
-                                {/* 聯絡資訊 */}
-                                <div className="space-y-1 text-sm text-white/90 mb-4">
-                                  {message.cardData.phone && (
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <Phone className="w-3 h-3" />
-                                      <span>{message.cardData.phone}</span>
-                                    </div>
-                                  )}
-                                  {message.cardData.email && (
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <Mail className="w-3 h-3" />
-                                      <span>{message.cardData.email}</span>
-                                    </div>
-                                  )}
-                                  {message.cardData.line && (
-                                    <div className="flex items-center justify-center space-x-2">
-                                      <MessageCircle className="w-3 h-3" />
-                                      <span>LINE: {message.cardData.line}</span>
-                                    </div>
-                                  )}
                                 </div>
                               </div>
 
+                              {/* 基本聯絡資訊預覽 */}
+                              <div className="p-3 space-y-2">
+                                {message.cardData.phone && (
+                                  <div className="flex items-center space-x-2 text-sm">
+                                    <span className="text-gray-600">📱</span>
+                                    <span className="text-gray-800">{message.cardData.phone}</span>
+                                  </div>
+                                )}
+                                {message.cardData.email && (
+                                  <div className="flex items-center space-x-2 text-sm">
+                                    <span className="text-gray-600">✉️</span>
+                                    <span className="text-gray-800">{message.cardData.email}</span>
+                                  </div>
+                                )}
+                                {message.cardData.line && (
+                                  <div className="flex items-center space-x-2 text-sm">
+                                    <span className="text-gray-600">💬</span>
+                                    <span className="text-gray-800">LINE: {message.cardData.line}</span>
+                                  </div>
+                                )}
+                              </div>
+
                               {/* 操作按鈕區域 */}
-                              <div className="bg-gray-50 p-4 space-y-2">
-                                <div className="flex space-x-2">
-                                  <Button 
-                                    size="sm"
-                                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-medium flex items-center justify-center space-x-1"
-                                  >
-                                    <UserPlus className="w-3 h-3" />
-                                    <span>加入聯絡人</span>
-                                  </Button>
-                                  
-                                  <Button 
-                                    size="sm"
-                                    variant="outline"
-                                    className="flex-1 text-xs font-medium flex items-center justify-center space-x-1"
-                                  >
-                                    <Share2 className="w-3 h-3" />
-                                    <span>分享</span>
-                                  </Button>
-                                </div>
+                              <div className="bg-gray-50 p-3 space-y-2">
+                                {/* 查看更多按鈕 */}
+                                <Button 
+                                  onClick={() => setExpandedCards(prev => ({ ...prev, [message.id]: !prev[message.id] }))}
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-sm font-medium flex items-center justify-center space-x-1"
+                                >
+                                  <Eye className="w-3 h-3" />
+                                  <span>{expandedCards[message.id] ? '收起' : '查看更多'}</span>
+                                  {expandedCards[message.id] ? 
+                                    <ChevronUp className="w-3 h-3" /> : 
+                                    <ChevronDown className="w-3 h-3" />
+                                  }
+                                </Button>
                                 
-                                <div className="flex space-x-2">
-                                  <Button 
-                                    size="sm"
-                                    variant="outline"
-                                    className="flex-1 text-xs font-medium flex items-center justify-center space-x-1"
-                                  >
-                                    <QrCode className="w-3 h-3" />
-                                    <span>QR碼</span>
-                                  </Button>
-                                  
-                                  <Button 
-                                    size="sm"
-                                    variant="outline"
-                                    className="flex-1 text-xs font-medium flex items-center justify-center space-x-1"
-                                  >
-                                    <BookmarkPlus className="w-3 h-3" />
-                                    <span>收藏</span>
-                                  </Button>
-                                </div>
+                                {/* 展開的完整資訊 */}
+                                {expandedCards[message.id] && (
+                                  <div className="space-y-3 pt-3 border-t border-gray-200">
+                                    {/* 完整聯絡資訊 */}
+                                    <div className="space-y-2">
+                                      {message.cardData.website && (
+                                        <div className="flex items-center space-x-2 text-sm">
+                                          <span className="text-gray-600">🌐</span>
+                                          <span className="text-gray-800">{message.cardData.website}</span>
+                                        </div>
+                                      )}
+                                      {message.cardData.address && (
+                                        <div className="flex items-start space-x-2 text-sm">
+                                          <span className="text-gray-600 mt-0.5">📍</span>
+                                          <span className="text-gray-800">{message.cardData.address}</span>
+                                        </div>
+                                      )}
+                                      {message.cardData.introduction && (
+                                        <div className="p-2 bg-blue-50 rounded-lg">
+                                          <div className="flex items-start space-x-2">
+                                            <span className="text-gray-600 mt-0.5">💬</span>
+                                            <div>
+                                              <p className="text-xs font-medium text-gray-700 mb-1">自我介紹</p>
+                                              <p className="text-xs text-gray-600">{message.cardData.introduction}</p>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+
+                                    {/* 社群媒體 */}
+                                    {(message.cardData.facebook || message.cardData.instagram || message.cardData.socialMedia) && (
+                                      <div className="flex justify-center space-x-2">
+                                        {message.cardData.facebook && (
+                                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                            <span className="text-white text-sm">📘</span>
+                                          </div>
+                                        )}
+                                        {message.cardData.instagram && (
+                                          <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
+                                            <span className="text-white text-sm">📷</span>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {/* 操作按鈕 */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <Button 
+                                        size="sm"
+                                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs flex items-center justify-center space-x-1"
+                                      >
+                                        <UserPlus className="w-3 h-3" />
+                                        <span>加入聯絡人</span>
+                                      </Button>
+                                      
+                                      <Button 
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-xs flex items-center justify-center space-x-1"
+                                      >
+                                        <Share2 className="w-3 h-3" />
+                                        <span>分享名片</span>
+                                      </Button>
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           ) : (
