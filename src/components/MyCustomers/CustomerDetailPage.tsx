@@ -72,7 +72,10 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
             console.log('Updated tags array after removal:', updatedTags);
             onSaveCustomer(id, { tags: updatedTags });
           }}
-          onSaveCustomer={onSaveCustomer}
+          onSaveCustomer={(id, updates) => {
+            console.log('CustomerDetailPage onSaveCustomer called', { id, updates });
+            onSaveCustomer(id, updates);
+          }}
           onDeleteCustomer={onDeleteCustomer}
           onCollapse={onClose}
         />
