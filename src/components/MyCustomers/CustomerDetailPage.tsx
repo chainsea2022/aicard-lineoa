@@ -55,6 +55,13 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
           onSendInvitation={onSendInvitation}
           onAddTag={(id, tag) => {
             console.log('onAddTag callback called', { id, tag, currentTags: customer.tags });
+            
+            // Check if tag already exists to prevent duplicates
+            if (customer.tags?.includes(tag)) {
+              console.log('Tag already exists, skipping addition');
+              return;
+            }
+            
             const updatedTags = [...(customer.tags || []), tag];
             console.log('Updated tags array:', updatedTags);
             onSaveCustomer(id, { tags: updatedTags });
