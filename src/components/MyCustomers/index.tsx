@@ -348,15 +348,21 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
         isFavorite: !prev.isFavorite
       } : prev);
     }} onAddFollower={handleAddFollower} onPhoneClick={handlePhoneClick} onLineClick={handleLineClick} onSendInvitation={handleSendInvitation} onSaveCustomer={(customerId: number, updates: Partial<Customer>) => {
+      console.log('onSaveCustomer called in main component', { customerId, updates });
       const updatedCustomers = localCustomers.map(c => c.id === customerId ? {
         ...c,
         ...updates
       } : c);
+      console.log('Updated customers:', updatedCustomers.find(c => c.id === customerId)?.tags);
       updateCustomers(updatedCustomers);
-      setSelectedCustomer(prev => prev && prev.id === customerId ? {
-        ...prev,
-        ...updates
-      } : prev);
+      setSelectedCustomer(prev => {
+        const newSelected = prev && prev.id === customerId ? {
+          ...prev,
+          ...updates
+        } : prev;
+        console.log('Updated selectedCustomer:', newSelected?.tags);
+        return newSelected;
+      });
     }} onDeleteCustomer={id => {
       const updatedCustomers = localCustomers.filter(customer => customer.id !== id);
       updateCustomers(updatedCustomers);
