@@ -12,6 +12,7 @@ import MemberPoints from './MemberPoints';
 import UpgradeExperience from './UpgradeExperience';
 import CardManagement from './CardManagement';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
+import { FullCardLIFF } from './FullCardLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 interface MenuItem {
@@ -415,6 +416,8 @@ const ChatRoom = () => {
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
   const [fullCardData, setFullCardData] = useState<any>(null);
   const [showCardSelectionLIFF, setShowCardSelectionLIFF] = useState(false);
+  const [showFullCardLIFF, setShowFullCardLIFF] = useState(false);
+  const [selectedCardData, setSelectedCardData] = useState<any>(null);
   const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
 
   // 初始化歡迎訊息
@@ -1086,86 +1089,45 @@ const ChatRoom = () => {
                               <div className="bg-gray-50 p-3 space-y-2">
                                 {/* 查看更多按鈕 */}
                                 <Button 
-                                  onClick={() => setExpandedCards(prev => ({ ...prev, [message.id]: !prev[message.id] }))}
+                                  onClick={() => {
+                                    setSelectedCardData(message.cardData);
+                                    setShowFullCardLIFF(true);
+                                  }}
                                   size="sm"
                                   variant="outline"
                                   className="w-full text-sm font-medium flex items-center justify-center space-x-1"
                                 >
                                   <Eye className="w-3 h-3" />
-                                  <span>{expandedCards[message.id] ? '收起' : '查看更多'}</span>
-                                  {expandedCards[message.id] ? 
-                                    <ChevronUp className="w-3 h-3" /> : 
-                                    <ChevronDown className="w-3 h-3" />
-                                  }
+                                  <span>查看更多</span>
                                 </Button>
                                 
-                                {/* 展開的完整資訊 */}
-                                {expandedCards[message.id] && (
-                                  <div className="space-y-3 pt-3 border-t border-gray-200">
-                                    {/* 完整聯絡資訊 */}
-                                    <div className="space-y-2">
-                                      {message.cardData.website && (
-                                        <div className="flex items-center space-x-2 text-sm">
-                                          <span className="text-gray-600">🌐</span>
-                                          <span className="text-gray-800">{message.cardData.website}</span>
-                                        </div>
-                                      )}
-                                      {message.cardData.address && (
-                                        <div className="flex items-start space-x-2 text-sm">
-                                          <span className="text-gray-600 mt-0.5">📍</span>
-                                          <span className="text-gray-800">{message.cardData.address}</span>
-                                        </div>
-                                      )}
-                                      {message.cardData.introduction && (
-                                        <div className="p-2 bg-blue-50 rounded-lg">
-                                          <div className="flex items-start space-x-2">
-                                            <span className="text-gray-600 mt-0.5">💬</span>
-                                            <div>
-                                              <p className="text-xs font-medium text-gray-700 mb-1">自我介紹</p>
-                                              <p className="text-xs text-gray-600">{message.cardData.introduction}</p>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      )}
-                                    </div>
-
-                                    {/* 社群媒體 */}
-                                    {(message.cardData.facebook || message.cardData.instagram || message.cardData.socialMedia) && (
-                                      <div className="flex justify-center space-x-2">
-                                        {message.cardData.facebook && (
-                                          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                            <span className="text-white text-sm">📘</span>
-                                          </div>
-                                        )}
-                                        {message.cardData.instagram && (
-                                          <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
-                                            <span className="text-white text-sm">📷</span>
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-
-                                    {/* 操作按鈕 */}
-                                    <div className="grid grid-cols-2 gap-2">
-                                      <Button 
-                                        size="sm"
-                                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs flex items-center justify-center space-x-1"
-                                      >
-                                        <UserPlus className="w-3 h-3" />
-                                        <span>加入聯絡人</span>
-                                      </Button>
-                                      
-                                      <Button 
-                                        size="sm"
-                                        variant="outline"
-                                        className="text-xs flex items-center justify-center space-x-1"
-                                      >
-                                        <Share2 className="w-3 h-3" />
-                                        <span>分享名片</span>
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
+                                {/* 操作按鈕 */}
+                                <div className="grid grid-cols-2 gap-2">
+                                  <Button 
+                                    size="sm"
+                                    className="bg-green-500 hover:bg-green-600 text-white text-xs flex items-center justify-center space-x-1"
+                                  >
+                                    <UserPlus className="w-3 h-3" />
+                                    <span>加入名片好友</span>
+                                  </Button>
+                                  
+                                  <Button 
+                                    size="sm"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs flex items-center justify-center space-x-1"
+                                  >
+                                    <Download className="w-3 h-3" />
+                                    <span>儲存名片</span>
+                                  </Button>
+                                </div>
+                                
+                                <Button 
+                                  size="sm"
+                                  variant="outline"
+                                  className="w-full text-xs flex items-center justify-center space-x-1"
+                                >
+                                  <Share2 className="w-3 h-3" />
+                                  <span>分享到聊天室或社群</span>
+                                </Button>
                               </div>
                             </div>
                           ) : (
@@ -1279,6 +1241,13 @@ const ChatRoom = () => {
 
       {/* 名片選擇 LIFF 介面 */}
       {showCardSelectionLIFF && <CardSelectionLIFF onClose={() => setShowCardSelectionLIFF(false)} onCardSelect={handleCardSelected} />}
+
+      {/* 完整電子名片 LIFF 介面 */}
+      <FullCardLIFF 
+        isOpen={showFullCardLIFF} 
+        onClose={() => setShowFullCardLIFF(false)} 
+        cardData={selectedCardData} 
+      />
     </div>;
 };
 export default ChatRoom;
