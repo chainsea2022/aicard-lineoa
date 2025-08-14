@@ -1102,13 +1102,13 @@ const ChatRoom = () => {
                                 </Button>
                                 
                                 {/* 操作按鈕 */}
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-3 gap-2">
                                   <Button 
                                     size="sm"
                                     className="bg-green-500 hover:bg-green-600 text-white text-xs flex items-center justify-center space-x-1"
                                   >
                                     <UserPlus className="w-3 h-3" />
-                                    <span>加入名片好友</span>
+                                    <span>加入好友</span>
                                   </Button>
                                   
                                   <Button 
@@ -1118,16 +1118,16 @@ const ChatRoom = () => {
                                     <Download className="w-3 h-3" />
                                     <span>儲存名片</span>
                                   </Button>
+                                  
+                                  <Button 
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs flex items-center justify-center space-x-1"
+                                  >
+                                    <Share2 className="w-3 h-3" />
+                                    <span>分享名片</span>
+                                  </Button>
                                 </div>
-                                
-                                <Button 
-                                  size="sm"
-                                  variant="outline"
-                                  className="w-full text-xs flex items-center justify-center space-x-1"
-                                >
-                                  <Share2 className="w-3 h-3" />
-                                  <span>分享到聊天室或社群</span>
-                                </Button>
                               </div>
                             </div>
                           ) : (
