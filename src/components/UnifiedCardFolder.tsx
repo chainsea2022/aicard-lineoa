@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart } from 'lucide-react';
+import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart, Phone, MessageCircle, Mail, Send, Share, Copy, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -16,6 +16,7 @@ import { CustomerDetailPage } from './MyCustomers/CustomerDetailPage';
 import { Customer } from './MyCustomers/types';
 import { generateMockCustomers } from './MyCustomers/mockData';
 import { getRandomProfessionalAvatar } from './MyCustomers/utils';
+import InvitationDialog from './InvitationDialog';
 
 interface UnifiedCardFolderProps {
   onClose: () => void;
@@ -55,6 +56,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState<FilterState>({ category: 'all' });
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
+  const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
     const recommendations = generateMockRecommendations(4);
@@ -147,11 +150,43 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const handleSendInvitation = (customerId: number) => {
     const customer = customers.find(c => c.id === customerId);
     if (customer) {
-      toast({
-        title: "邀請已發送",
-        description: `已向 ${customer.name} 發送邀請`,
-        className: "max-w-[280px] mx-auto"
-      });
+      if (customer.lineId) {
+        // User has LINE ID, send LINE invitation
+        const lineMessage = "邀請您註冊電子名片，體驗更便利的名片交換！";
+        const lineUrl = `https://line.me/R/share?text=${encodeURIComponent(lineMessage)}`;
+        window.open(lineUrl, '_blank');
+        toast({
+          title: "LINE 邀請已發送",
+          description: `已向 ${customer.name} 發送 LINE 邀請`,
+          className: "max-w-[280px] mx-auto"
+        });
+      } else {
+        // Paper card user, show invitation options dialog
+        setSelectedInvitationCustomer(customer);
+        setInvitationDialogOpen(true);
+      }
+    }
+  };
+
+  const handleToggleFavorite = (customerId: number) => {
+    const updatedCustomers = customers.map(c => 
+      c.id === customerId ? { ...c, isFavorite: !c.isFavorite } : c
+    );
+    setCustomers(updatedCustomers);
+  };
+
+  const handlePhoneCall = (customerId: number) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer?.phone) {
+      window.open(`tel:${customer.phone}`, '_blank');
+    }
+  };
+
+  const handleLineContact = (customerId: number) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer?.line || customer?.lineId) {
+      const lineId = customer.line || customer.lineId;
+      window.open(`https://line.me/ti/p/~${lineId}`, '_blank');
     }
   };
 
@@ -340,17 +375,24 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                         alt={customer.name}
                         className="w-12 h-12 rounded-full object-cover"
                       />
-                      {customer.isFavorite && (
-                        <Star className="absolute -top-1 -right-1 w-4 h-4 text-favorite-blue fill-current" />
-                      )}
                     </div>
                     
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
-                          <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
-                          <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                          {customer.isRegisteredUser && customer.jobTitle && (
+                            <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                          )}
+                          {customer.isRegisteredUser && customer.company && (
+                            <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                          )}
+                          {!customer.isRegisteredUser && customer.lineId && (
+                            <p className="text-sm text-muted-foreground truncate">LINE 用戶</p>
+                          )}
+                          {!customer.isRegisteredUser && !customer.lineId && customer.company && (
+                            <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                          )}
                         </div>
                         
                         <div className="flex flex-col items-end space-y-2 ml-2">
@@ -360,6 +402,50 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </Badge>
                           )}
                           
+                          {/* Action buttons for registered users */}
+                          {customer.isRegisteredUser && !customer.isRecommendation && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleFavorite(customer.id);
+                                }}
+                              >
+                                <Heart className={`w-4 h-4 ${customer.isFavorite ? 'text-red-500 fill-current' : 'text-muted-foreground'}`} />
+                              </Button>
+                              {customer.line && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleLineContact(customer.id);
+                                  }}
+                                >
+                                  <MessageCircle className="w-4 h-4 text-green-500" />
+                                </Button>
+                              )}
+                              {customer.phone && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePhoneCall(customer.id);
+                                  }}
+                                >
+                                  <Phone className="w-4 h-4 text-blue-500" />
+                                </Button>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Smart recommendation buttons */}
                           {customer.isRecommendation && (
                             <div className="flex space-x-1">
                               <Button
@@ -387,6 +473,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </div>
                           )}
                           
+                          {/* Unregistered user invitation button */}
                           {!customer.isRegisteredUser && !customer.isRecommendation && (
                             <Button
                               size="sm"
@@ -397,7 +484,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                 handleSendInvitation(customer.id);
                               }}
                             >
-                              發送邀請
+                              {customer.lineId ? 'LINE 邀請' : '邀請紀錄'}
                             </Button>
                           )}
                         </div>
@@ -417,6 +504,16 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           )}
         </div>
       </div>
+
+      {/* Invitation Dialog */}
+      <InvitationDialog
+        isOpen={invitationDialogOpen}
+        onClose={() => {
+          setInvitationDialogOpen(false);
+          setSelectedInvitationCustomer(null);
+        }}
+        customerName={selectedInvitationCustomer?.name || ''}
+      />
     </div>
   );
 };
