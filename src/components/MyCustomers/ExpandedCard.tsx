@@ -593,8 +593,8 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         <div className="pt-2 border-t border-gray-200">
           <div className="flex items-center justify-between mb-2">
             <h5 className="font-medium text-sm text-gray-800">備註</h5>
-            {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="text-xs">
-                <Mic className="w-3 h-3" />
+            {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="p-1">
+                <Edit className="w-4 h-4 text-gray-600" />
               </Button>}
           </div>
           
