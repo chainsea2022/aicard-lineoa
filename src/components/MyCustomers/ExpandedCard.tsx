@@ -71,6 +71,12 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [showInvitationDialog, setShowInvitationDialog] = useState(false);
   const [localInvitationSent, setLocalInvitationSent] = useState(customer.invitationSent || false);
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
+  const [localCustomer, setLocalCustomer] = useState<Customer>(customer);
+
+  // Update local customer when props change
+  useEffect(() => {
+    setLocalCustomer(customer);
+  }, [customer]);
 
   // Handle invitation actions
   const handleInvitationAction = async (type: 'sms' | 'email' | 'line' | 'messenger' | 'instagram' | 'copy') => {
@@ -780,9 +786,9 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         </div>
         
         {/* 已選擇的標籤 - 第一行 */}
-        {(customer.tags && customer.tags.length > 0) && (
+        {(localCustomer.tags && localCustomer.tags.length > 0) && (
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {customer.tags.map((tag, index) => {
+            {localCustomer.tags.map((tag, index) => {
               const isSelected = selectedTags.has(tag);
               return (
                 <div key={`selected-${index}`} className="relative flex-shrink-0 group">
@@ -818,7 +824,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 
         {/* AI 自動生成標籤 - 第二行 */}
         <div className="flex gap-2 overflow-x-auto pb-2">
-          {generateAutoTags().filter(tag => !customer.tags?.includes(tag)).map((tag, index) => (
+          {generateAutoTags().filter(tag => !localCustomer.tags?.includes(tag)).map((tag, index) => (
             <div key={`ai-${index}`} className="relative flex-shrink-0 group">
               <Badge 
                 variant="outline" 
