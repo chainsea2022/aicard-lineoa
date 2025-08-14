@@ -556,22 +556,21 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
             透過以下方式邀請 {customer.name} 註冊電子名片
           </p>
           
-          {/* Invitation Action Buttons */}
-          <div className="grid grid-cols-3 gap-2">
+          {/* Invitation Action Buttons - Row Layout */}
+          <div className="flex justify-center space-x-4">
             {/* SMS */}
             {customer.phone && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+                className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
                 onClick={() => handleInvitationAction('sms')}
               >
                 {invitationStatus.sms ? (
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                  <CheckCircle className="w-8 h-8 text-green-600" />
                 ) : (
-                  <Phone className="w-6 h-6 text-blue-600" />
+                  <Phone className="w-8 h-8 text-blue-600" />
                 )}
-                <span className="text-xs text-gray-700">簡訊</span>
               </Button>
             )}
             
@@ -580,15 +579,14 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+                className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
                 onClick={() => handleInvitationAction('email')}
               >
                 {invitationStatus.email ? (
-                  <CheckCircle className="w-6 h-6 text-green-600" />
+                  <CheckCircle className="w-8 h-8 text-green-600" />
                 ) : (
-                  <Mail className="w-6 h-6 text-red-600" />
+                  <Mail className="w-8 h-8 text-red-600" />
                 )}
-                <span className="text-xs text-gray-700">Email</span>
               </Button>
             )}
             
@@ -596,60 +594,56 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
               onClick={() => handleInvitationAction('line')}
             >
               {invitationStatus.line ? (
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <CheckCircle className="w-8 h-8 text-green-600" />
               ) : (
-                <MessageSquare className="w-6 h-6 text-green-600" />
+                <MessageSquare className="w-8 h-8 text-green-600" />
               )}
-              <span className="text-xs text-gray-700">LINE</span>
             </Button>
             
             {/* Messenger */}
             <Button
               variant="ghost"
               size="sm"
-              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
               onClick={() => handleInvitationAction('messenger')}
             >
               {invitationStatus.messenger ? (
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <CheckCircle className="w-8 h-8 text-green-600" />
               ) : (
-                <Send className="w-6 h-6 text-blue-500" />
+                <Send className="w-8 h-8 text-blue-500" />
               )}
-              <span className="text-xs text-gray-700">Messenger</span>
             </Button>
             
             {/* Instagram */}
             <Button
               variant="ghost"
               size="sm"
-              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
               onClick={() => handleInvitationAction('instagram')}
             >
               {invitationStatus.instagram ? (
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <CheckCircle className="w-8 h-8 text-green-600" />
               ) : (
-                <Instagram className="w-6 h-6 text-pink-600" />
+                <Instagram className="w-8 h-8 text-pink-600" />
               )}
-              <span className="text-xs text-gray-700">Instagram</span>
             </Button>
             
             {/* Copy Link */}
             <Button
               variant="ghost"
               size="sm"
-              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
               onClick={() => handleInvitationAction('copy')}
             >
               {invitationStatus.copy ? (
-                <CheckCircle className="w-6 h-6 text-green-600" />
+                <CheckCircle className="w-8 h-8 text-green-600" />
               ) : (
-                <Copy className="w-6 h-6 text-gray-600" />
+                <Copy className="w-8 h-8 text-gray-600" />
               )}
-              <span className="text-xs text-gray-700">複製連結</span>
             </Button>
           </div>
         </div>
