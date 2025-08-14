@@ -70,6 +70,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [invitationHistory, setInvitationHistory] = useState<Record<string, string>>({});
   const [showInvitationDialog, setShowInvitationDialog] = useState(false);
   const [localInvitationSent, setLocalInvitationSent] = useState(customer.invitationSent || false);
+  const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
 
   // Handle invitation actions
   const handleInvitationAction = async (type: 'sms' | 'email' | 'line' | 'messenger' | 'instagram' | 'copy') => {
@@ -200,8 +201,24 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   };
 
   const handleTagClick = (tag: string) => {
-    // TODO: 實現標籤篩選功能，這裡應該觸發父組件的篩選邏輯
-    console.log('Filter by tag:', tag);
+    setSelectedTags(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(tag)) {
+        newSet.delete(tag);
+      } else {
+        newSet.add(tag);
+      }
+      return newSet;
+    });
+  };
+
+  const handleRemoveSelectedTag = (tag: string) => {
+    setSelectedTags(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(tag);
+      return newSet;
+    });
+    onRemoveTag(customer.id, tag);
   };
   const handleAddScheduleRecord = (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => {
     const newRecord: ScheduleRecord = {
@@ -760,28 +777,37 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         {/* 已選擇的標籤 - 第一行 */}
         {(customer.tags && customer.tags.length > 0) && (
           <div className="flex gap-2 overflow-x-auto pb-2">
-            {customer.tags.map((tag, index) => (
-              <div key={`selected-${index}`} className="relative flex-shrink-0 group">
-                <Badge 
-                  variant="secondary" 
-                  className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 cursor-pointer px-3 py-1 rounded-full"
-                  onClick={() => handleTagClick(tag)}
-                >
-                  {tag}
-                </Badge>
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveTag(customer.id, tag);
-                  }}
-                  variant="ghost"
-                  size="sm"
-                  className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-2 h-2" />
-                </Button>
-              </div>
-            ))}
+            {customer.tags.map((tag, index) => {
+              const isSelected = selectedTags.has(tag);
+              return (
+                <div key={`selected-${index}`} className="relative flex-shrink-0 group">
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-xs cursor-pointer px-3 py-1 rounded-full transition-colors ${
+                      isSelected 
+                        ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                        : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                    }`}
+                    onClick={() => handleTagClick(tag)}
+                  >
+                    {tag}
+                  </Badge>
+                  {isSelected && (
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveSelectedTag(tag);
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="absolute -top-1 -right-1 w-4 h-4 p-0 bg-red-500 hover:bg-red-600 text-white rounded-full transition-opacity"
+                    >
+                      <X className="w-2 h-2" />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
