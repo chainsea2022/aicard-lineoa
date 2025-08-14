@@ -639,7 +639,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               </div>
               <h3 className="font-medium text-lg mb-2">{customer.name}</h3>
               <p className="text-sm text-gray-600 mb-4">
-                邀請您建立電子名片，享受更便利的名片交換體驗
+                Hi 👋 我想邀請你加入 AiCard 名片人脈圈，立即加入 AiCard 名片人脈圈，開始建立人脈關係👉 https://a
               </p>
             </div>
             
