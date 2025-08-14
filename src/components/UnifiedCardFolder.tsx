@@ -24,8 +24,9 @@ interface UnifiedCardFolderProps {
 }
 
 interface FilterState {
-  category: 'all' | 'my-cards' | 'unregistered' | 'recommendations' | 'invited-by' | 'invited' | 'following' | 'tags';
+  category: 'all' | 'my-cards' | 'unregistered' | 'recommendations' | 'invited-by' | 'invited' | 'following' | 'tags' | 'tag';
   selectedTags?: string[];
+  tag?: string;
 }
 
 // Mock data for smart recommendations
@@ -60,11 +61,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
   const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
   const [showRecommendationDetail, setShowRecommendationDetail] = useState(false);
+  const [showAllTags, setShowAllTags] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
     const recommendations = generateMockRecommendations(4);
     return [...mockData, ...recommendations];
   });
+
+  // Common tags data
+  const commonTags = ['同事', '客戶', '朋友', '供應商', '合作夥伴', '主管', '下屬', '同學', '家人', '醫生'];
 
   // Calculate counts for filters
   const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation).length;
@@ -101,6 +106,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           return customer.isFavorite;
         case 'tags':
           return filter.selectedTags ? filter.selectedTags.some(tag => customer.tags?.includes(tag)) : false;
+        case 'tag':
+          return filter.tag ? customer.tags?.includes(filter.tag) : false;
         case 'all':
         default:
           return true;
@@ -380,6 +387,45 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Common Tags Section */}
+      <div className="px-4 py-3 border-b border-border bg-background">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium text-foreground">常用標籤</h3>
+          {showAllTags ? (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowAllTags(false)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              收起
+            </Button>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowAllTags(true)}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              查看更多
+            </Button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {(showAllTags ? commonTags : commonTags.slice(0, 5)).map((tag, index) => (
+            <Button
+              key={index}
+              variant="outline"
+              size="sm"
+              onClick={() => setFilter({ category: 'tag', tag })}
+              className="text-xs bg-background hover:bg-accent border-border h-6 px-2 py-1 rounded-full"
+            >
+              #{tag}
+            </Button>
+          ))}
         </div>
       </div>
 
