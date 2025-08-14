@@ -260,7 +260,7 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                 </div>
 
                 {/* 操作按鈕區域 */}
-                <div className="bg-gray-50 p-4 space-y-3">
+                <div className="bg-gray-50 p-4">
                   {/* 主要選擇按鈕 */}
                   <Button
                     onClick={() => handleCardClick(card)}
@@ -269,25 +269,6 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                     <Share2 className="w-4 h-4" />
                     <span>選擇並發送此名片</span>
                   </Button>
-                  
-                  {/* 副功能按鈕 */}
-                  <div className="flex space-x-2">
-                    <Button 
-                      variant="outline"
-                      className="flex-1 py-2 px-4 text-sm font-medium flex items-center justify-center space-x-1"
-                    >
-                      <Edit className="w-3 h-3" />
-                      <span>編輯</span>
-                    </Button>
-                    
-                    <Button 
-                      variant="outline"
-                      className="flex-1 py-2 px-4 text-sm font-medium flex items-center justify-center space-x-1"
-                    >
-                      <QrCode className="w-3 h-3" />
-                      <span>QR碼</span>
-                    </Button>
-                  </div>
                 </div>
               </div>
             ))
