@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
 import { SmartRelationshipAnalysis } from './SmartRelationshipAnalysis';
@@ -27,11 +29,6 @@ interface ExpandedCardProps {
   onSaveCustomer: (id: number, updates: Partial<Customer>) => void;
   onDeleteCustomer: (id: number) => void;
   onCollapse: () => void;
-  invitationHistory?: Array<{
-    type: 'sms' | 'email';
-    date: string;
-    status: 'sent' | 'joined';
-  }>;
 }
 export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   customer,
@@ -46,8 +43,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   onRemoveTag,
   onSaveCustomer,
   onDeleteCustomer,
-  onCollapse,
-  invitationHistory = []
+  onCollapse
 }) => {
   const [isEditingNotes, setIsEditingNotes] = useState(false);
   const [editedNotes, setEditedNotes] = useState(customer.notes || '');
@@ -70,16 +66,20 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [showAddTag, setShowAddTag] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
   const [invitationStatus, setInvitationStatus] = useState<Record<string, boolean>>({});
+  const [showInvitationHistory, setShowInvitationHistory] = useState(false);
+  const [invitationHistory, setInvitationHistory] = useState<Record<string, string>>({});
 
   // Handle invitation actions
   const handleInvitationAction = async (type: 'sms' | 'email' | 'line' | 'messenger' | 'instagram' | 'copy') => {
     const inviteText = `您好！邀請您註冊 AiCard 電子名片，一起建立更便利的名片交換體驗。立即下載：https://aicard.app/download`;
+    const currentTime = new Date().toLocaleString('zh-TW');
     
     switch (type) {
       case 'sms':
         if (customer.phone) {
           window.open(`sms:${customer.phone}?body=${encodeURIComponent(inviteText)}`, '_blank');
           setInvitationStatus(prev => ({ ...prev, sms: true }));
+          setInvitationHistory(prev => ({ ...prev, sms: currentTime }));
           toast({
             title: "簡訊邀請",
             description: "已開啟簡訊應用程式",
@@ -93,6 +93,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           const body = `${customer.name} 您好！\n\n${inviteText}\n\n期待與您在數位名片平台相見！`;
           window.open(`mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
           setInvitationStatus(prev => ({ ...prev, email: true }));
+          setInvitationHistory(prev => ({ ...prev, email: currentTime }));
           toast({
             title: "Email 邀請",
             description: "已開啟郵件應用程式",
@@ -104,6 +105,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         const lineMessage = `${inviteText}`;
         window.open(`https://line.me/R/share?text=${encodeURIComponent(lineMessage)}`, '_blank');
         setInvitationStatus(prev => ({ ...prev, line: true }));
+        setInvitationHistory(prev => ({ ...prev, line: currentTime }));
         toast({
           title: "LINE 邀請",
           description: "已開啟 LINE 應用程式",
@@ -113,6 +115,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       case 'messenger':
         window.open(`https://m.me/`, '_blank');
         setInvitationStatus(prev => ({ ...prev, messenger: true }));
+        setInvitationHistory(prev => ({ ...prev, messenger: currentTime }));
         toast({
           title: "Messenger 邀請",
           description: "已開啟 Messenger 應用程式",
@@ -122,6 +125,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       case 'instagram':
         await navigator.clipboard.writeText(`https://aicard.app/download`);
         setInvitationStatus(prev => ({ ...prev, instagram: true }));
+        setInvitationHistory(prev => ({ ...prev, instagram: currentTime }));
         toast({
           title: "連結已複製",
           description: "請貼至限時動態 / 貼文 / 私訊",
@@ -131,6 +135,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       case 'copy':
         await navigator.clipboard.writeText(`https://aicard.app/download`);
         setInvitationStatus(prev => ({ ...prev, copy: true }));
+        setInvitationHistory(prev => ({ ...prev, copy: currentTime }));
         toast({
           title: "連結已複製",
           description: "邀請連結已複製到剪貼簿",
@@ -557,97 +562,194 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           </p>
           
           {/* Invitation Action Buttons - Row Layout */}
-          <div className="flex justify-center space-x-4">
-            {/* SMS */}
-            {customer.phone && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
-                onClick={() => handleInvitationAction('sms')}
-              >
-                {invitationStatus.sms ? (
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                ) : (
-                  <Phone className="w-8 h-8 text-blue-600" />
-                )}
-              </Button>
-            )}
-            
-            {/* Email */}
-            {customer.email && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
-                onClick={() => handleInvitationAction('email')}
-              >
-                {invitationStatus.email ? (
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                ) : (
-                  <Mail className="w-8 h-8 text-red-600" />
-                )}
-              </Button>
-            )}
-            
-            {/* LINE */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
-              onClick={() => handleInvitationAction('line')}
-            >
-              {invitationStatus.line ? (
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              ) : (
-                <MessageSquare className="w-8 h-8 text-green-600" />
+          <TooltipProvider>
+            <div className="flex justify-center space-x-4">
+              {/* SMS */}
+              {customer.phone && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      {invitationStatus.sms && (
+                        <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                        onClick={() => invitationStatus.sms ? setShowInvitationHistory(true) : handleInvitationAction('sms')}
+                      >
+                        <Phone className="w-8 h-8 text-blue-600" />
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>簡訊 SMS</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
-            </Button>
-            
-            {/* Messenger */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
-              onClick={() => handleInvitationAction('messenger')}
-            >
-              {invitationStatus.messenger ? (
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              ) : (
-                <Send className="w-8 h-8 text-blue-500" />
+              
+              {/* Email */}
+              {customer.email && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="relative">
+                      {invitationStatus.email && (
+                        <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                        onClick={() => invitationStatus.email ? setShowInvitationHistory(true) : handleInvitationAction('email')}
+                      >
+                        <Mail className="w-8 h-8 text-red-600" />
+                      </Button>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>電子郵件</p>
+                  </TooltipContent>
+                </Tooltip>
               )}
-            </Button>
-            
-            {/* Instagram */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
-              onClick={() => handleInvitationAction('instagram')}
-            >
-              {invitationStatus.instagram ? (
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              ) : (
-                <Instagram className="w-8 h-8 text-pink-600" />
-              )}
-            </Button>
-            
-            {/* Copy Link */}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
-              onClick={() => handleInvitationAction('copy')}
-            >
-              {invitationStatus.copy ? (
-                <CheckCircle className="w-8 h-8 text-green-600" />
-              ) : (
-                <Copy className="w-8 h-8 text-gray-600" />
-              )}
-            </Button>
-          </div>
+              
+              {/* LINE */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative">
+                    {invitationStatus.line && (
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                      onClick={() => invitationStatus.line ? setShowInvitationHistory(true) : handleInvitationAction('line')}
+                    >
+                      <MessageSquare className="w-8 h-8 text-green-600" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>LINE</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              {/* Messenger */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative">
+                    {invitationStatus.messenger && (
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                      onClick={() => invitationStatus.messenger ? setShowInvitationHistory(true) : handleInvitationAction('messenger')}
+                    >
+                      <Send className="w-8 h-8 text-blue-500" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Messenger</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              {/* Instagram */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative">
+                    {invitationStatus.instagram && (
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                      onClick={() => invitationStatus.instagram ? setShowInvitationHistory(true) : handleInvitationAction('instagram')}
+                    >
+                      <Instagram className="w-8 h-8 text-pink-600" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Instagram</p>
+                </TooltipContent>
+              </Tooltip>
+              
+              {/* Copy Link */}
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="relative">
+                    {invitationStatus.copy && (
+                      <div className="absolute -top-2 -right-2 w-4 h-4 bg-green-600 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                      onClick={() => invitationStatus.copy ? setShowInvitationHistory(true) : handleInvitationAction('copy')}
+                    >
+                      <Copy className="w-8 h-8 text-gray-600" />
+                    </Button>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>複製連結</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </TooltipProvider>
         </div>
       )}
+
+      {/* Invitation History Dialog */}
+      <Dialog open={showInvitationHistory} onOpenChange={setShowInvitationHistory}>
+        <DialogContent className="max-w-[300px] mx-auto">
+          <DialogHeader>
+            <DialogTitle>邀請紀錄</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {Object.entries(invitationHistory).map(([platform, time]) => (
+              <div key={platform} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                <div className="flex items-center space-x-2">
+                  {platform === 'sms' && <Phone className="w-4 h-4 text-blue-600" />}
+                  {platform === 'email' && <Mail className="w-4 h-4 text-red-600" />}
+                  {platform === 'line' && <MessageSquare className="w-4 h-4 text-green-600" />}
+                  {platform === 'messenger' && <Send className="w-4 h-4 text-blue-500" />}
+                  {platform === 'instagram' && <Instagram className="w-4 h-4 text-pink-600" />}
+                  {platform === 'copy' && <Copy className="w-4 h-4 text-gray-600" />}
+                  <span className="text-sm font-medium">
+                    {platform === 'sms' && '簡訊'}
+                    {platform === 'email' && 'Email'}
+                    {platform === 'line' && 'LINE'}
+                    {platform === 'messenger' && 'Messenger'}
+                    {platform === 'instagram' && 'Instagram'}
+                    {platform === 'copy' && '複製連結'}
+                  </span>
+                </div>
+                <span className="text-xs text-gray-500">{time}</span>
+              </div>
+            ))}
+            {Object.keys(invitationHistory).length === 0 && (
+              <p className="text-center text-gray-500 text-sm">尚無邀請紀錄</p>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Smart Analysis Button - 只對有電子名片的聯絡人顯示 */}
       {customer.hasCard && <div className="bg-purple-50 rounded-lg p-3">
@@ -661,7 +763,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         </div>}
 
       {/* For paper contacts (activeSection === 'contacts'), show invitation section */}
-      {activeSection === 'contacts' && <InvitationSection customer={customer} onSendInvitation={onSendInvitation} invitationHistory={invitationHistory} />}
+      {activeSection === 'contacts' && <InvitationSection customer={customer} onSendInvitation={onSendInvitation} invitationHistory={[]} />}
 
       {/* Smart Tags */}
       <div className="space-y-3">
