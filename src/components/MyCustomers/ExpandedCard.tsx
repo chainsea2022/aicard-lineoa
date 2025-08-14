@@ -762,7 +762,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               </div>
               <h3 className="font-medium text-lg mb-2">{customer.name}</h3>
               <p className="text-sm text-gray-600 mb-4">
-                邀請此聯絡人建立電子名片，享受更便利的名片交換體驗
+                邀請您建立電子名片，享受更便利的名片交換體驗
               </p>
             </div>
             
