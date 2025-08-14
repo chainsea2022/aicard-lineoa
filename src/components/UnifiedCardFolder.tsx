@@ -376,7 +376,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 className="hover:bg-accent"
               >
                 <Star className="w-4 h-4 mr-2" />
-                ⭐
+                ⭐關注
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setFilter({ category: 'tags' })}
