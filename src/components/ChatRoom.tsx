@@ -13,7 +13,6 @@ import UpgradeExperience from './UpgradeExperience';
 import CardManagement from './CardManagement';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { FullCardLIFF } from './FullCardLIFF';
-import ContactsPage from './ContactsPage';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 interface MenuItem {
@@ -679,10 +678,6 @@ const ChatRoom = () => {
     if (itemId === 'create-card') {
       setActiveView(itemId);
       setIsMenuOpen(false);
-    } else if (itemId === 'customers') {
-      // 名片夾 - 統一顯示電子名片與聯絡人
-      setActiveView('contacts');
-      setIsMenuOpen(false);
     } else if (itemId === 'my-card') {
       // 檢查用戶註冊狀態
       const isUserRegistered = localStorage.getItem('aicard-user-registered') === 'true';
@@ -976,8 +971,6 @@ const ChatRoom = () => {
         return <MyCard onClose={handleCloseView} />;
       case 'scanner':
         return;
-      case 'contacts':
-        return <ContactsPage onClose={handleCloseView} />;
       case 'customers':
         return <MyCustomers onClose={handleCloseView} customers={customers} onCustomersUpdate={setCustomers} />;
       case 'analytics':
