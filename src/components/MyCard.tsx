@@ -14,12 +14,12 @@ import { toast } from '@/hooks/use-toast';
 import CreateCard from './CreateCard';
 import OTPVerification from './OTPVerification';
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
-
 interface MyCardProps {
   onClose: () => void;
 }
-
-const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
+const MyCard: React.FC<MyCardProps> = ({
+  onClose
+}) => {
   const [cardData, setCardData] = useState<any>(null);
   const [userData, setUserData] = useState<any>(null);
   const [showCreateCard, setShowCreateCard] = useState(false);
@@ -53,13 +53,11 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
   const [phoneOTP, setPhoneOTP] = useState('');
   const [showPhoneOTP, setShowPhoneOTP] = useState(false);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
-
   const formatBirthdayDisplay = (dateStr: string) => {
     if (!dateStr) return '';
     const date = new Date(dateStr);
     return `${date.getMonth() + 1}月${date.getDate()}日`;
   };
-
   const getGenderDisplay = (gender: string) => {
     switch (gender) {
       case 'male':
@@ -72,7 +70,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
         return gender;
     }
   };
-
   useEffect(() => {
     const loadCardData = () => {
       const savedCardData = localStorage.getItem('aile-card-data');
@@ -89,7 +86,6 @@ const MyCard: React.FC<MyCardProps> = ({ onClose }) => {
         // 未註冊用戶 - 顯示註冊提示
         return;
       }
-
       if (savedCardData) {
         const cardInfo = JSON.parse(savedCardData);
         setCardData(cardInfo);
@@ -128,7 +124,6 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
         setQrCodeData(qrInfo);
         console.log('生成QR Code:', qrInfo);
       }
-      
       if (savedUserData) {
         setUserData(JSON.parse(savedUserData));
       }
@@ -174,7 +169,6 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
       window.removeEventListener('cardDataUpdated', handleCardDataUpdate);
     };
   }, []);
-
   const handleVerificationComplete = (phone: string) => {
     // 手機驗證完成後創建用戶資料
     const phoneUser = {
@@ -224,12 +218,11 @@ Email: ${defaultCardData.email || ''}`;
     // 標記為新用戶並關閉驗證界面
     setIsNewUser(true);
     setShowOTPVerification(false);
-    
+
     // 驗證完成後回到聊天室
     window.dispatchEvent(new CustomEvent('registrationCompleted'));
     onClose();
   };
-
   const handleLineLogin = () => {
     // 模擬 LINE 登入 - 生成模擬的 LINE 用戶資料
     const mockLineUser = {
@@ -276,12 +269,11 @@ Email: ${defaultCardData.email || ''}`;
     // 儲存名片資料
     localStorage.setItem('aile-card-data', JSON.stringify(cardInfo));
     setCardData(cardInfo);
-    
+
     // 登入完成後回到聊天室
     window.dispatchEvent(new CustomEvent('registrationCompleted'));
     onClose();
   };
-
   const handleCardCreated = () => {
     setShowCreateCard(false);
     setIsNewUser(false);
@@ -290,14 +282,13 @@ Email: ${defaultCardData.email || ''}`;
     if (savedCardData) {
       const cardInfo = JSON.parse(savedCardData);
       setCardData(cardInfo);
-      
+
       // 發送註冊完成事件給 ChatRoom，並關閉會員資料頁面
       window.dispatchEvent(new CustomEvent('registrationCompleted'));
       // 註冊完成後回到聊天室
       onClose();
     }
   };
-
   const handleLogout = () => {
     // 清除當前用戶資料，但保留註冊歷史
     localStorage.removeItem('aile-card-data');
@@ -319,41 +310,36 @@ Email: ${defaultCardData.email || ''}`;
       description: "您已成功登出，可重新登入使用服務。"
     });
   };
-
   if (showCreateCard) {
     return <CreateCard onClose={() => setShowCreateCard(false)} onRegistrationComplete={handleCardCreated} userData={userData} />;
   }
-
   if (showOTPVerification) {
     return <OTPVerification onClose={() => setShowOTPVerification(false)} onVerificationComplete={handleVerificationComplete} />;
   }
-
   if (showProfileSettings) {
     return <ProfileSettings onClose={() => setShowProfileSettings(false)} />;
   }
-
-  return (
-    <div className="w-full h-full max-w-md mx-auto bg-gray-50 flex flex-col" style={{ maxHeight: '80vh', minHeight: '600px' }}>
+  return <div className="w-full h-full max-w-md mx-auto bg-gray-50 flex flex-col" style={{
+    maxHeight: '80vh',
+    minHeight: '600px'
+  }}>
       {/* 頂部導航欄 */}
       <header className="bg-white border-b border-gray-200 px-4 py-3 flex items-center flex-shrink-0">
         <Button variant="ghost" size="sm" onClick={onClose} className="mr-3">
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <h1 className="text-lg font-semibold text-gray-800 flex-1">
-          {userData && cardData ? '會員資料' : (hasRegistrationHistory ? '設置電子名片' : '會員註冊')}
+          {userData && cardData ? '會員資料' : hasRegistrationHistory ? '設置電子名片' : '會員註冊'}
         </h1>
-        {userData && (
-          <Button variant="ghost" size="sm" onClick={handleLogout}>
+        {userData && <Button variant="ghost" size="sm" onClick={handleLogout}>
             <LogOut className="w-4 h-4" />
-          </Button>
-        )}
+          </Button>}
       </header>
 
       {/* 內容區域 */}
       <div className="flex-1 overflow-y-auto">
         {/* 未登入/註冊介面 */}
-        {!userData && (
-          <div className="p-6">
+        {!userData && <div className="p-6">
             {/* 歡迎資訊 */}
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -370,10 +356,7 @@ Email: ${defaultCardData.email || ''}`;
             {/* 登入/註冊選項 */}
             <div className="space-y-3 mb-6">
               {/* 手機註冊 */}
-              <Card 
-                className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer" 
-                onClick={() => setShowOTPVerification(true)}
-              >
+              <Card className="border-2 border-blue-200 hover:border-blue-300 transition-colors cursor-pointer" onClick={() => setShowOTPVerification(true)}>
                 <CardContent className="p-3">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
@@ -388,11 +371,7 @@ Email: ${defaultCardData.email || ''}`;
               </Card>
 
               {/* LINE 登入 (有註冊歷史時顯示) */}
-              {hasRegistrationHistory && (
-                <Card 
-                  className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer" 
-                  onClick={handleLineLogin}
-                >
+              {hasRegistrationHistory && <Card className="border-2 border-green-200 hover:border-green-300 transition-colors cursor-pointer" onClick={handleLineLogin}>
                   <CardContent className="p-3">
                     <div className="flex items-center space-x-3">
                       <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
@@ -404,29 +383,20 @@ Email: ${defaultCardData.email || ''}`;
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </div>
 
             {/* 註冊/登入按鈕 */}
             <div className="space-y-3">
-              <Button 
-                onClick={() => setShowOTPVerification(true)} 
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg"
-              >
+              <Button onClick={() => setShowOTPVerification(true)} className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white py-3 text-base font-medium shadow-lg">
                 <Smartphone className="w-4 h-4 mr-2" />
                 {hasRegistrationHistory ? '手機號碼登入' : '開始手機註冊'}
               </Button>
               
-              {hasRegistrationHistory && (
-                <Button 
-                  onClick={handleLineLogin} 
-                  className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg"
-                >
+              {hasRegistrationHistory && <Button onClick={handleLineLogin} className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 text-base font-medium shadow-lg">
                   <MessageCircle className="w-4 h-4 mr-2" />
                   LINE 登入
-                </Button>
-              )}
+                </Button>}
             </div>
 
             {/* 服務條款 */}
@@ -438,20 +408,16 @@ Email: ${defaultCardData.email || ''}`;
                 <span className="text-blue-500 underline cursor-pointer mx-1">隱私政策</span>
               </p>
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* 已登入用戶的會員資料介面 */}
-        {userData && cardData && (
-          <div className="p-6">
+        {userData && cardData && <div className="p-6">
             {/* 新用戶提示 */}
-            {isNewUser && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+            {isNewUser && <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-700 font-medium">
                   🎉 註冊成功！您的電子名片已建立，點擊「編輯個人資料」完善您的資訊
                 </p>
-              </div>
-            )}
+              </div>}
 
             {/* 會員資料卡片 */}
             <Card className="border border-gray-200 mb-6">
@@ -472,18 +438,14 @@ Email: ${defaultCardData.email || ''}`;
 
                 {/* 聯絡資訊 */}
                 <div className="space-y-2 mb-4">
-                  {cardData?.phone && (
-                    <div className="flex items-center space-x-2 text-sm">
+                  {cardData?.phone && <div className="flex items-center space-x-2 text-sm">
                       <Phone className="w-4 h-4 text-gray-400" />
                       <span>{cardData.phone}</span>
-                    </div>
-                  )}
-                  {cardData?.email && (
-                    <div className="flex items-center space-x-2 text-sm">
+                    </div>}
+                  {cardData?.email && <div className="flex items-center space-x-2 text-sm">
                       <Mail className="w-4 h-4 text-gray-400" />
                       <span>{cardData.email}</span>
-                    </div>
-                  )}
+                    </div>}
                 </div>
 
                 {/* 編輯按鈕 */}
@@ -520,18 +482,11 @@ Email: ${defaultCardData.email || ''}`;
                       <div>
                         <span className="font-medium text-gray-900">性別</span>
                         <p className="text-sm text-gray-500">
-                          {profileData.gender ? 
-                            (profileData.gender === 'male' ? '男性' : 
-                             profileData.gender === 'female' ? '女性' : '其他') 
-                            : '未設定'}
+                          {profileData.gender ? profileData.gender === 'male' ? '男性' : profileData.gender === 'female' ? '女性' : '其他' : '未設定'}
                         </p>
                       </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setShowGenderDialog(true)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setShowGenderDialog(true)}>
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
@@ -548,20 +503,14 @@ Email: ${defaultCardData.email || ''}`;
                           <p className="text-sm text-gray-500">
                             {profileData.phone || '未設定'}
                           </p>
-                          {profileData.isPhoneVerified && (
-                            <div className="flex items-center space-x-1 text-green-600">
+                          {profileData.isPhoneVerified && <div className="flex items-center space-x-1 text-green-600">
                               <CheckCircle className="w-3 h-3" />
                               <span className="text-xs">已驗證</span>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                       </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setShowPhoneDialog(true)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setShowPhoneDialog(true)}>
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
@@ -578,20 +527,14 @@ Email: ${defaultCardData.email || ''}`;
                           <p className="text-sm text-gray-500">
                             {profileData.email || '未設定'}
                           </p>
-                          {profileData.isEmailVerified && (
-                            <div className="flex items-center space-x-1 text-green-600">
+                          {profileData.isEmailVerified && <div className="flex items-center space-x-1 text-green-600">
                               <CheckCircle className="w-3 h-3" />
                               <span className="text-xs">已驗證</span>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                       </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setShowEmailDialog(true)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setShowEmailDialog(true)}>
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
@@ -609,11 +552,7 @@ Email: ${defaultCardData.email || ''}`;
                         </p>
                       </div>
                     </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => setShowBirthdayDialog(true)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => setShowBirthdayDialog(true)}>
                       <Edit className="w-4 h-4" />
                     </Button>
                   </div>
@@ -630,36 +569,18 @@ Email: ${defaultCardData.email || ''}`;
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* 公開名片設定 */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium text-gray-900">公開名片</span>
-                      <p className="text-sm text-gray-500">允許其他用戶搜尋到您的名片</p>
-                    </div>
-                    <Switch
-                      checked={profileData.publicCard}
-                      onCheckedChange={(checked) => 
-                        setProfileData(prev => ({ ...prev, publicCard: checked }))
-                      }
-                    />
-                  </div>
+                  
 
                   {/* 允許直接加入設定 */}
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="font-medium text-gray-900">允許直接加入</span>
-                      <p className="text-sm text-gray-500">
-                        {profileData.allowDirectAdd 
-                          ? "其他用戶可直接將您加入名片夾" 
-                          : "[✓] 當面掃描可自動互加"
-                        }
-                      </p>
+                      <p className="text-sm text-gray-500">其他用戶可直接將您加入名片夾</p>
                     </div>
-                    <Switch
-                      checked={profileData.allowDirectAdd}
-                      onCheckedChange={(checked) => 
-                        setProfileData(prev => ({ ...prev, allowDirectAdd: checked }))
-                      }
-                    />
+                    <Switch checked={profileData.allowDirectAdd} onCheckedChange={checked => setProfileData(prev => ({
+                  ...prev,
+                  allowDirectAdd: checked
+                }))} />
                   </div>
 
                   {/* 接收通知設定 */}
@@ -668,18 +589,15 @@ Email: ${defaultCardData.email || ''}`;
                       <span className="font-medium text-gray-900">接收通知</span>
                       <p className="text-sm text-gray-500">接收系統通知與更新訊息</p>
                     </div>
-                    <Switch
-                      checked={profileData.receiveNotifications}
-                      onCheckedChange={(checked) => 
-                        setProfileData(prev => ({ ...prev, receiveNotifications: checked }))
-                      }
-                    />
+                    <Switch checked={profileData.receiveNotifications} onCheckedChange={checked => setProfileData(prev => ({
+                  ...prev,
+                  receiveNotifications: checked
+                }))} />
                   </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
-        )}
+          </div>}
 
             {/* 對話框 - 性別設定 */}
             <Dialog open={showGenderDialog} onOpenChange={setShowGenderDialog}>
@@ -688,34 +606,31 @@ Email: ${defaultCardData.email || ''}`;
                   <DialogTitle>設定性別</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start" 
-                    onClick={() => {
-                      setProfileData(prev => ({ ...prev, gender: 'male' }));
-                      setShowGenderDialog(false);
-                    }}
-                  >
+                  <Button variant="outline" className="w-full justify-start" onClick={() => {
+              setProfileData(prev => ({
+                ...prev,
+                gender: 'male'
+              }));
+              setShowGenderDialog(false);
+            }}>
                     男性
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start" 
-                    onClick={() => {
-                      setProfileData(prev => ({ ...prev, gender: 'female' }));
-                      setShowGenderDialog(false);
-                    }}
-                  >
+                  <Button variant="outline" className="w-full justify-start" onClick={() => {
+              setProfileData(prev => ({
+                ...prev,
+                gender: 'female'
+              }));
+              setShowGenderDialog(false);
+            }}>
                     女性
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start" 
-                    onClick={() => {
-                      setProfileData(prev => ({ ...prev, gender: 'other' }));
-                      setShowGenderDialog(false);
-                    }}
-                  >
+                  <Button variant="outline" className="w-full justify-start" onClick={() => {
+              setProfileData(prev => ({
+                ...prev,
+                gender: 'other'
+              }));
+              setShowGenderDialog(false);
+            }}>
                     其他
                   </Button>
                 </div>
@@ -734,67 +649,42 @@ Email: ${defaultCardData.email || ''}`;
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="phone">手機號碼</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={tempPhone}
-                      onChange={(e) => setTempPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                      placeholder="請輸入10位手機號碼"
-                      maxLength={10}
-                    />
+                    <Input id="phone" type="tel" value={tempPhone} onChange={e => setTempPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} placeholder="請輸入10位手機號碼" maxLength={10} />
                   </div>
                   
-                  {showPhoneOTP && (
-                    <div className="space-y-3">
+                  {showPhoneOTP && <div className="space-y-3">
                       <Label>驗證碼</Label>
-                      <Input
-                        type="text"
-                        value={phoneOTP}
-                        onChange={(e) => setPhoneOTP(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                        placeholder="請輸入6位驗證碼"
-                        maxLength={6}
-                      />
-                    </div>
-                  )}
+                      <Input type="text" value={phoneOTP} onChange={e => setPhoneOTP(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="請輸入6位驗證碼" maxLength={6} />
+                    </div>}
                 </div>
                 <DialogFooter>
-                  {!showPhoneOTP ? (
-                    <Button 
-                      onClick={() => setShowPhoneOTP(true)}
-                      disabled={tempPhone.length !== 10}
-                    >
+                  {!showPhoneOTP ? <Button onClick={() => setShowPhoneOTP(true)} disabled={tempPhone.length !== 10}>
                       發送驗證碼
-                    </Button>
-                  ) : (
-                    <Button 
-                      onClick={() => {
-                        if (phoneOTP === '123456') {
-                          setProfileData(prev => ({ 
-                            ...prev, 
-                            phone: tempPhone, 
-                            isPhoneVerified: true 
-                          }));
-                          setShowPhoneDialog(false);
-                          setShowPhoneOTP(false);
-                          setTempPhone('');
-                          setPhoneOTP('');
-                          toast({
-                            title: "手機號碼驗證成功",
-                            description: "您的手機號碼已成功更新。"
-                          });
-                        } else {
-                          toast({
-                            title: "驗證失敗",
-                            description: "驗證碼錯誤，請重新輸入。",
-                            variant: "destructive"
-                          });
-                        }
-                      }}
-                      disabled={phoneOTP.length !== 6}
-                    >
+                    </Button> : <Button onClick={() => {
+              if (phoneOTP === '123456') {
+                setProfileData(prev => ({
+                  ...prev,
+                  phone: tempPhone,
+                  isPhoneVerified: true
+                }));
+                setShowPhoneDialog(false);
+                setShowPhoneOTP(false);
+                setTempPhone('');
+                setPhoneOTP('');
+                toast({
+                  title: "手機號碼驗證成功",
+                  description: "您的手機號碼已成功更新。"
+                });
+              } else {
+                toast({
+                  title: "驗證失敗",
+                  description: "驗證碼錯誤，請重新輸入。",
+                  variant: "destructive"
+                });
+              }
+            }} disabled={phoneOTP.length !== 6}>
                       驗證
-                    </Button>
-                  )}
+                    </Button>}
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -811,52 +701,35 @@ Email: ${defaultCardData.email || ''}`;
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="email">Email地址</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={tempEmail}
-                      onChange={(e) => setTempEmail(e.target.value)}
-                      placeholder="請輸入Email地址"
-                    />
+                    <Input id="email" type="email" value={tempEmail} onChange={e => setTempEmail(e.target.value)} placeholder="請輸入Email地址" />
                   </div>
                   
-                  {emailVerificationSent && (
-                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  {emailVerificationSent && <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
                       <p className="text-sm text-blue-700">
                         驗證郵件已發送至 {tempEmail}，請檢查您的郵箱並點擊驗證連結。
                       </p>
-                      <Button 
-                        size="sm" 
-                        className="mt-2"
-                        onClick={() => {
-                          setProfileData(prev => ({ 
-                            ...prev, 
-                            email: tempEmail, 
-                            isEmailVerified: true 
-                          }));
-                          setShowEmailDialog(false);
-                          setEmailVerificationSent(false);
-                          setTempEmail('');
-                          toast({
-                            title: "Email驗證成功",
-                            description: "您的Email已成功更新。"
-                          });
-                        }}
-                      >
+                      <Button size="sm" className="mt-2" onClick={() => {
+                setProfileData(prev => ({
+                  ...prev,
+                  email: tempEmail,
+                  isEmailVerified: true
+                }));
+                setShowEmailDialog(false);
+                setEmailVerificationSent(false);
+                setTempEmail('');
+                toast({
+                  title: "Email驗證成功",
+                  description: "您的Email已成功更新。"
+                });
+              }}>
                         模擬驗證完成
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </div>
                 <DialogFooter>
-                  {!emailVerificationSent ? (
-                    <Button 
-                      onClick={() => setEmailVerificationSent(true)}
-                      disabled={!tempEmail || !/\S+@\S+\.\S+/.test(tempEmail)}
-                    >
+                  {!emailVerificationSent ? <Button onClick={() => setEmailVerificationSent(true)} disabled={!tempEmail || !/\S+@\S+\.\S+/.test(tempEmail)}>
                       發送驗證郵件
-                    </Button>
-                  ) : null}
+                    </Button> : null}
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -870,41 +743,33 @@ Email: ${defaultCardData.email || ''}`;
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="birthday">生日</Label>
-                    <Input
-                      id="birthday"
-                      type="text"
-                      value={tempBirthday}
-                      onChange={(e) => {
-                        const value = e.target.value;
-                        // 簡單的日期格式處理
-                        const formatted = value.replace(/[^\d\/]/g, '');
-                        setTempBirthday(formatted);
-                      }}
-                      placeholder="YYYY/MM/DD"
-                    />
+                    <Input id="birthday" type="text" value={tempBirthday} onChange={e => {
+                const value = e.target.value;
+                // 簡單的日期格式處理
+                const formatted = value.replace(/[^\d\/]/g, '');
+                setTempBirthday(formatted);
+              }} placeholder="YYYY/MM/DD" />
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button 
-                    onClick={() => {
-                      setProfileData(prev => ({ ...prev, birthday: tempBirthday }));
-                      setShowBirthdayDialog(false);
-                      setTempBirthday('');
-                      toast({
-                        title: "生日已更新",
-                        description: "您的生日資訊已成功更新。"
-                      });
-                    }}
-                    disabled={!tempBirthday}
-                  >
+                  <Button onClick={() => {
+              setProfileData(prev => ({
+                ...prev,
+                birthday: tempBirthday
+              }));
+              setShowBirthdayDialog(false);
+              setTempBirthday('');
+              toast({
+                title: "生日已更新",
+                description: "您的生日資訊已成功更新。"
+              });
+            }} disabled={!tempBirthday}>
                     確認
                   </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default MyCard;
