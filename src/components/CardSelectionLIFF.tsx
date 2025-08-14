@@ -165,98 +165,61 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
             </div>
           ) : (
             cards.map((card) => (
-              <div key={card.id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
-                {/* 完整名片預覽 */}
-                <div 
-                  className="p-6 text-center"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${card.backgroundColor}CC, ${card.backgroundColor}FF)`,
-                    color: card.textColor 
-                  }}
-                >
-                  {/* 名片頭像 */}
-                  <div className="relative mb-4 flex justify-center">
-                    <div className="w-20 h-20 rounded-full bg-white/20 overflow-hidden border-4 border-white/50 shadow-lg">
-                      {card.photo ? (
-                        <img 
-                          src={card.photo} 
-                          alt="Profile" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-white/30 flex items-center justify-center">
-                          <User className="w-10 h-10 text-white" />
-                        </div>
+              <div key={card.id} className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+                {/* 名片頭部預覽 - 與聊天室風格一致 */}
+                <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                  <div className="flex items-center space-x-3">
+                    {card.photo && (
+                      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
+                        <img src={card.photo} alt="頭像" className="w-10 h-10 rounded-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      {card.company && (
+                        <p className="text-blue-100 text-xs">{card.company}</p>
+                      )}
+                      <h4 className="text-white text-base font-semibold">
+                        {card.name || '您的姓名'}
+                      </h4>
+                      {card.title && (
+                        <p className="text-blue-100 text-xs">{card.title}</p>
                       )}
                     </div>
-                    {/* 名片類型圖標 */}
-                    <div className="absolute -bottom-1 -right-8 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
-                      {getCardIcon(card.type)}
-                    </div>
-                    {/* 預設標籤 */}
+                    {/* 名片類型標籤 */}
                     {card.isDefault && (
-                      <div className="absolute -top-2 -left-8 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                      <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                         預設
                       </div>
                     )}
                   </div>
+                </div>
 
-                  {/* 基本資訊 */}
-                  <div className="space-y-2 mb-4">
-                    <h3 className="text-xl font-bold text-white">{card.name}</h3>
-                    {card.title && (
-                      <p className="text-sm text-white/90 font-medium">{card.title}</p>
-                    )}
-                    {card.company && (
-                      <p className="text-sm text-white/80">{card.company}</p>
-                    )}
-                  </div>
-
-                  {/* 詳細聯絡資訊 */}
-                  <div className="space-y-2 text-sm text-white/90 mb-6">
-                    {card.phone && (
-                      <div className="flex items-center justify-center space-x-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{card.phone}</span>
-                      </div>
-                    )}
-                    {card.email && (
-                      <div className="flex items-center justify-center space-x-2">
-                        <Mail className="w-4 h-4" />
-                        <span>{card.email}</span>
-                      </div>
-                    )}
-                    {card.website && (
-                      <div className="flex items-center justify-center space-x-2">
-                        <Globe className="w-4 h-4" />
-                        <span>{card.website}</span>
-                      </div>
-                    )}
-                    {card.line && (
-                      <div className="flex items-center justify-center space-x-2">
-                        <MessageCircle className="w-4 h-4" />
-                        <span>LINE: {card.line}</span>
-                      </div>
-                    )}
-                    
-                    {/* 社群媒體 */}
-                    {(card.facebook || card.instagram) && (
-                      <div className="flex items-center justify-center space-x-4 pt-2">
-                        {card.facebook && (
-                          <div className="flex items-center space-x-1">
-                            <Facebook className="w-4 h-4" />
-                            <span className="text-xs">Facebook</span>
-                          </div>
-                        )}
-                        {card.instagram && (
-                          <div className="flex items-center space-x-1">
-                            <Instagram className="w-4 h-4" />
-                            <span className="text-xs">Instagram</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
+                {/* 基本聯絡資訊預覽 */}
+                <div className="p-3 space-y-2">
+                  {card.phone && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <span className="text-gray-600">📱</span>
+                      <span className="text-gray-800">{card.phone}</span>
+                    </div>
+                  )}
+                  {card.email && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <span className="text-gray-600">✉️</span>
+                      <span className="text-gray-800">{card.email}</span>
+                    </div>
+                  )}
+                  {card.line && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <span className="text-gray-600">💬</span>
+                      <span className="text-gray-800">LINE: {card.line}</span>
+                    </div>
+                  )}
+                  {card.website && (
+                    <div className="flex items-center space-x-2 text-sm">
+                      <span className="text-gray-600">🌐</span>
+                      <span className="text-gray-800">{card.website}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* 操作按鈕區域 */}
