@@ -538,11 +538,11 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           </div>}
 
         {customer.website && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1">
-              <Globe className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.website}</span>
+            <div className="flex items-center space-x-2 flex-1 min-w-0">
+              <Globe className="w-4 h-4 text-gray-500 flex-shrink-0" />
+              <span className="text-sm truncate">{customer.website}</span>
             </div>
-            <Button onClick={() => window.open(customer.website, '_blank')} variant="outline" size="sm" className="text-xs">
+            <Button onClick={() => window.open(customer.website, '_blank')} variant="outline" size="sm" className="text-xs flex-shrink-0">
               開啟
             </Button>
           </div>}
