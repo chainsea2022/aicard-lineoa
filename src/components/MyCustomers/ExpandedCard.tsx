@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic, Plus, Tag } from 'lucide-react';
+import { ChevronDown, Phone, Mail, MessageSquare, Globe, Facebook, Instagram, Star, StarOff, Trash2, Edit, Calendar, MapPin, Building, Briefcase, Clock, User, X, Brain, Eye, CalendarPlus, Mic, Plus, Tag, Send, Copy, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from '@/hooks/use-toast';
 import { Customer } from './types';
 import { InvitationSection } from './InvitationSection';
 import { SmartRelationshipAnalysis } from './SmartRelationshipAnalysis';
@@ -68,6 +69,76 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [scheduleRecords, setScheduleRecords] = useState<ScheduleRecord[]>([]);
   const [showAddTag, setShowAddTag] = useState(false);
   const [newTagInput, setNewTagInput] = useState('');
+  const [invitationStatus, setInvitationStatus] = useState<Record<string, boolean>>({});
+
+  // Handle invitation actions
+  const handleInvitationAction = async (type: 'sms' | 'email' | 'line' | 'messenger' | 'instagram' | 'copy') => {
+    const inviteText = `您好！邀請您註冊 AiCard 電子名片，一起建立更便利的名片交換體驗。立即下載：https://aicard.app/download`;
+    
+    switch (type) {
+      case 'sms':
+        if (customer.phone) {
+          window.open(`sms:${customer.phone}?body=${encodeURIComponent(inviteText)}`, '_blank');
+          setInvitationStatus(prev => ({ ...prev, sms: true }));
+          toast({
+            title: "簡訊邀請",
+            description: "已開啟簡訊應用程式",
+            className: "max-w-[280px] mx-auto"
+          });
+        }
+        break;
+      case 'email':
+        if (customer.email) {
+          const subject = "邀請您加入 AiCard 電子名片";
+          const body = `${customer.name} 您好！\n\n${inviteText}\n\n期待與您在數位名片平台相見！`;
+          window.open(`mailto:${customer.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+          setInvitationStatus(prev => ({ ...prev, email: true }));
+          toast({
+            title: "Email 邀請",
+            description: "已開啟郵件應用程式",
+            className: "max-w-[280px] mx-auto"
+          });
+        }
+        break;
+      case 'line':
+        const lineMessage = `${inviteText}`;
+        window.open(`https://line.me/R/share?text=${encodeURIComponent(lineMessage)}`, '_blank');
+        setInvitationStatus(prev => ({ ...prev, line: true }));
+        toast({
+          title: "LINE 邀請",
+          description: "已開啟 LINE 應用程式",
+          className: "max-w-[280px] mx-auto"
+        });
+        break;
+      case 'messenger':
+        window.open(`https://m.me/`, '_blank');
+        setInvitationStatus(prev => ({ ...prev, messenger: true }));
+        toast({
+          title: "Messenger 邀請",
+          description: "已開啟 Messenger 應用程式",
+          className: "max-w-[280px] mx-auto"
+        });
+        break;
+      case 'instagram':
+        await navigator.clipboard.writeText(`https://aicard.app/download`);
+        setInvitationStatus(prev => ({ ...prev, instagram: true }));
+        toast({
+          title: "連結已複製",
+          description: "請貼至限時動態 / 貼文 / 私訊",
+          className: "max-w-[280px] mx-auto"
+        });
+        break;
+      case 'copy':
+        await navigator.clipboard.writeText(`https://aicard.app/download`);
+        setInvitationStatus(prev => ({ ...prev, copy: true }));
+        toast({
+          title: "連結已複製",
+          description: "邀請連結已複製到剪貼簿",
+          className: "max-w-[280px] mx-auto"
+        });
+        break;
+    }
+  };
 
   // 智能自動生成標籤
   const generateAutoTags = (): string[] => {
@@ -470,6 +541,119 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
             </p>}
         </div>
       </div>
+
+      {/* Invitation Section for Unregistered Paper Card Users */}
+      {!customer.isRegisteredUser && !customer.lineId && (
+        <div className="bg-orange-50 rounded-lg p-3 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-sm text-gray-800">邀請聯絡人</h4>
+            <Badge className="bg-orange-500 text-white text-xs">
+              未註冊
+            </Badge>
+          </div>
+          
+          <p className="text-sm text-gray-600">
+            透過以下方式邀請 {customer.name} 註冊電子名片
+          </p>
+          
+          {/* Invitation Action Buttons */}
+          <div className="grid grid-cols-3 gap-2">
+            {/* SMS */}
+            {customer.phone && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+                onClick={() => handleInvitationAction('sms')}
+              >
+                {invitationStatus.sms ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <Phone className="w-6 h-6 text-blue-600" />
+                )}
+                <span className="text-xs text-gray-700">簡訊</span>
+              </Button>
+            )}
+            
+            {/* Email */}
+            {customer.email && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+                onClick={() => handleInvitationAction('email')}
+              >
+                {invitationStatus.email ? (
+                  <CheckCircle className="w-6 h-6 text-green-600" />
+                ) : (
+                  <Mail className="w-6 h-6 text-red-600" />
+                )}
+                <span className="text-xs text-gray-700">Email</span>
+              </Button>
+            )}
+            
+            {/* LINE */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              onClick={() => handleInvitationAction('line')}
+            >
+              {invitationStatus.line ? (
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              ) : (
+                <MessageSquare className="w-6 h-6 text-green-600" />
+              )}
+              <span className="text-xs text-gray-700">LINE</span>
+            </Button>
+            
+            {/* Messenger */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              onClick={() => handleInvitationAction('messenger')}
+            >
+              {invitationStatus.messenger ? (
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              ) : (
+                <Send className="w-6 h-6 text-blue-500" />
+              )}
+              <span className="text-xs text-gray-700">Messenger</span>
+            </Button>
+            
+            {/* Instagram */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              onClick={() => handleInvitationAction('instagram')}
+            >
+              {invitationStatus.instagram ? (
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              ) : (
+                <Instagram className="w-6 h-6 text-pink-600" />
+              )}
+              <span className="text-xs text-gray-700">Instagram</span>
+            </Button>
+            
+            {/* Copy Link */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-16 flex flex-col items-center justify-center space-y-1 hover:bg-white"
+              onClick={() => handleInvitationAction('copy')}
+            >
+              {invitationStatus.copy ? (
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              ) : (
+                <Copy className="w-6 h-6 text-gray-600" />
+              )}
+              <span className="text-xs text-gray-700">複製連結</span>
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Smart Analysis Button - 只對有電子名片的聯絡人顯示 */}
       {customer.hasCard && <div className="bg-purple-50 rounded-lg p-3">
