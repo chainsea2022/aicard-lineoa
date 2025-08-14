@@ -331,32 +331,30 @@ LINE: ${cardData.line || ''}
             </div>
 
             {/* 操作按鈕 */}
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  onClick={handleAddToContacts}
-                  className="bg-green-500 hover:bg-green-600 text-white py-3 flex items-center justify-center space-x-2"
-                >
-                  <UserPlus className="w-4 h-4" />
-                  <span>加入名片好友</span>
-                </Button>
+            <div className="grid grid-cols-3 gap-3">
+              <Button
+                onClick={handleAddToContacts}
+                className="bg-green-500 hover:bg-green-600 text-white py-3 flex items-center justify-center space-x-1"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span className="text-xs">加入好友</span>
+              </Button>
 
-                <Button
-                  onClick={handleSaveCard}
-                  className="bg-blue-500 hover:bg-blue-600 text-white py-3 flex items-center justify-center space-x-2"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>儲存名片</span>
-                </Button>
-              </div>
+              <Button
+                onClick={handleSaveCard}
+                className="bg-blue-500 hover:bg-blue-600 text-white py-3 flex items-center justify-center space-x-1"
+              >
+                <Download className="w-4 h-4" />
+                <span className="text-xs">儲存名片</span>
+              </Button>
 
               <Button
                 onClick={handleShare}
                 variant="outline"
-                className="w-full py-3 border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center space-x-2"
+                className="py-3 border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center space-x-1"
               >
                 <Share2 className="w-4 h-4" />
-                <span>分享到聊天室或社群</span>
+                <span className="text-xs">分享名片</span>
               </Button>
             </div>
           </div>
