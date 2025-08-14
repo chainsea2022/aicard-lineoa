@@ -647,7 +647,12 @@ Email: ${defaultCardData.email || ''}`;
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="font-medium text-gray-900">允許直接加入</span>
-                      <p className="text-sm text-gray-500">其他用戶可直接將您加入名片夾</p>
+                      <p className="text-sm text-gray-500">
+                        {profileData.allowDirectAdd 
+                          ? "其他用戶可直接將您加入名片夾" 
+                          : "[✓] 當面掃描可自動互加"
+                        }
+                      </p>
                     </div>
                     <Switch
                       checked={profileData.allowDirectAdd}
