@@ -1,0 +1,424 @@
+import React, { useState, useEffect } from 'react';
+import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { toast } from '@/hooks/use-toast';
+import { CustomerDetailPage } from './MyCustomers/CustomerDetailPage';
+import { Customer } from './MyCustomers/types';
+import { generateMockCustomers } from './MyCustomers/mockData';
+import { getRandomProfessionalAvatar } from './MyCustomers/utils';
+
+interface UnifiedCardFolderProps {
+  onClose: () => void;
+}
+
+interface FilterState {
+  category: 'all' | 'my-cards' | 'unregistered' | 'recommendations' | 'invited-by' | 'invited' | 'following' | 'tags';
+  selectedTags?: string[];
+}
+
+// Mock data for smart recommendations
+const generateMockRecommendations = (count: number): Customer[] => {
+  const names = ['張志明', '李小美', '王大偉', '陳雅婷', '林俊傑'];
+  const companies = ['科技公司', '貿易公司', '設計工作室', '顧問公司', '媒體公司'];
+  const jobTitles = ['產品經理', '設計師', '工程師', '業務經理', '行銷專員'];
+  
+  return Array.from({ length: count }, (_, i) => ({
+    id: 2000 + i,
+    name: names[i % names.length],
+    phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+    email: `${names[i % names.length].toLowerCase()}@${companies[i % companies.length].toLowerCase().replace(/\s+/g, '')}.com`,
+    company: companies[i % companies.length],
+    jobTitle: jobTitles[i % jobTitles.length],
+    photo: getRandomProfessionalAvatar(2000 + i),
+    hasCard: true,
+    addedDate: new Date().toISOString(),
+    notes: '智能推薦聯絡人',
+    tags: ['智能推薦'],
+    relationshipStatus: 'collected' as const,
+    isDigitalCard: true,
+    isRegisteredUser: true,
+    isRecommendation: true
+  }));
+};
+
+const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState<FilterState>({ category: 'all' });
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [customers, setCustomers] = useState<Customer[]>(() => {
+    const mockData = generateMockCustomers();
+    const recommendations = generateMockRecommendations(4);
+    return [...mockData, ...recommendations];
+  });
+
+  // Calculate counts for filters
+  const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation).length;
+  const unregisteredCount = customers.filter(c => !c.isRegisteredUser).length;
+  const recommendationsCount = customers.filter(c => c.isRecommendation).length;
+  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe').length;
+  const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
+
+  const getFilteredCustomers = () => {
+    let filtered = customers.filter(customer => {
+      // Search filter
+      if (searchQuery) {
+        const searchRegex = new RegExp(searchQuery, 'i');
+        const matchesSearch = searchRegex.test(customer.name) || 
+                             searchRegex.test(customer.company || '') || 
+                             searchRegex.test(customer.phone || '') || 
+                             searchRegex.test(customer.jobTitle || '');
+        if (!matchesSearch) return false;
+      }
+
+      // Category filter
+      switch (filter.category) {
+        case 'my-cards':
+          return customer.isRegisteredUser && !customer.isRecommendation;
+        case 'unregistered':
+          return !customer.isRegisteredUser;
+        case 'recommendations':
+          return customer.isRecommendation;
+        case 'invited-by':
+          return customer.relationshipStatus === 'addedMe';
+        case 'invited':
+          return customer.invitationSent || customer.emailInvitationSent;
+        case 'following':
+          return customer.isFavorite;
+        case 'tags':
+          return filter.selectedTags ? filter.selectedTags.some(tag => customer.tags?.includes(tag)) : false;
+        case 'all':
+        default:
+          return true;
+      }
+    });
+
+    // Sort customers: favorites first, then by added date
+    return filtered.sort((a, b) => {
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      const dateA = new Date(a.addedDate || 0).getTime();
+      const dateB = new Date(b.addedDate || 0).getTime();
+      return dateB - dateA;
+    });
+  };
+
+  const getCardStyle = (customer: Customer) => {
+    if (customer.isRecommendation) {
+      return {
+        className: "border-2 border-dashed border-muted-foreground bg-card",
+        badge: { text: "智能推薦", className: "bg-recommendation-green text-white" }
+      };
+    }
+    
+    if (!customer.isRegisteredUser) {
+      return {
+        className: "border border-muted bg-card",
+        badge: { text: "未註冊", className: "bg-unregistered-orange text-white" }
+      };
+    }
+    
+    if (customer.isFavorite) {
+      return {
+        className: "border-2 border-favorite-blue bg-favorite-blue-bg",
+        badge: null
+      };
+    }
+    
+    return {
+      className: "border border-muted bg-card",
+      badge: null
+    };
+  };
+
+  const handleCardClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
+  };
+
+  const handleSendInvitation = (customerId: number) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      toast({
+        title: "邀請已發送",
+        description: `已向 ${customer.name} 發送邀請`,
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
+
+  const handleAddToFolder = (customerId: number) => {
+    const updatedCustomers = customers.map(c => 
+      c.id === customerId 
+        ? { ...c, isRecommendation: false, isRegisteredUser: true, relationshipStatus: 'collected' as const }
+        : c
+    );
+    setCustomers(updatedCustomers);
+    
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      toast({
+        title: "已加入名片夾",
+        description: `${customer.name} 已加入您的名片夾`,
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
+
+  const handleSkipRecommendation = (customerId: number) => {
+    const updatedCustomers = customers.filter(c => c.id !== customerId);
+    setCustomers(updatedCustomers);
+    
+    toast({
+      title: "已略過推薦",
+      description: "推薦已略過",
+      className: "max-w-[280px] mx-auto"
+    });
+  };
+
+  const filteredCustomers = getFilteredCustomers();
+
+  if (selectedCustomer) {
+    return (
+      <CustomerDetailPage 
+        customer={selectedCustomer} 
+        onClose={() => setSelectedCustomer(null)} 
+        onToggleFavorite={(id) => {
+          const updatedCustomers = customers.map(c => 
+            c.id === id ? { ...c, isFavorite: !c.isFavorite } : c
+          );
+          setCustomers(updatedCustomers);
+          setSelectedCustomer(prev => prev && prev.id === id ? { ...prev, isFavorite: !prev.isFavorite } : prev);
+        }}
+        onAddFollower={() => {}}
+        onPhoneClick={() => {}}
+        onLineClick={() => {}}
+        onSendInvitation={handleSendInvitation}
+        onSaveCustomer={() => {}}
+        onDeleteCustomer={(id) => {
+          const updatedCustomers = customers.filter(c => c.id !== id);
+          setCustomers(updatedCustomers);
+          setSelectedCustomer(null);
+        }}
+        activeSection="cards"
+      />
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 bg-background z-50 flex flex-col h-full overflow-hidden" style={{
+      maxWidth: '375px',
+      margin: '0 auto'
+    }}>
+      {/* Header */}
+      <div className="bg-background border-b border-border px-4 py-3 flex items-center justify-between flex-shrink-0">
+        <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+        <h2 className="font-semibold text-lg">名片夾</h2>
+        <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
+          <X className="w-5 h-5" />
+        </Button>
+      </div>
+
+      {/* Search Bar */}
+      <div className="px-4 py-3 border-b border-border bg-muted/30">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Input
+            type="search"
+            placeholder="可搜尋公司、姓名、手機號、職稱"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 rounded-full"
+          />
+        </div>
+      </div>
+
+      {/* Filter Buttons */}
+      <div className="px-4 py-3 border-b border-border bg-muted/30">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <Button
+            variant={filter.category === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'all' })}
+            className="whitespace-nowrap"
+          >
+            全部
+          </Button>
+          <Button
+            variant={filter.category === 'my-cards' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'my-cards' })}
+            className="whitespace-nowrap"
+          >
+            我的名片夾 ({myCardsCount})
+          </Button>
+          <Button
+            variant={filter.category === 'unregistered' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'unregistered' })}
+            className="whitespace-nowrap"
+          >
+            未註冊 ({unregisteredCount})
+          </Button>
+          <Button
+            variant={filter.category === 'recommendations' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'recommendations' })}
+            className="whitespace-nowrap"
+          >
+            智能推薦 ({recommendationsCount})
+          </Button>
+          
+          {/* Advanced Filters Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="whitespace-nowrap">
+                <Filter className="w-4 h-4 mr-1" />
+                更多篩選
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48 bg-popover border border-border">
+              <DropdownMenuItem 
+                onClick={() => setFilter({ category: 'invited-by' })}
+                className="hover:bg-accent"
+              >
+                被邀請 ({invitedByCount})
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setFilter({ category: 'invited' })}
+                className="hover:bg-accent"
+              >
+                已邀請 ({invitedCount})
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setFilter({ category: 'following' })}
+                className="hover:bg-accent"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                關注
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => setFilter({ category: 'tags' })}
+                className="hover:bg-accent"
+              >
+                <Tag className="w-4 h-4 mr-2" />
+                標籤
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Customer Cards */}
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="space-y-3">
+          {filteredCustomers.map((customer) => {
+            const cardStyle = getCardStyle(customer);
+            
+            return (
+              <Card 
+                key={customer.id} 
+                className={`${cardStyle.className} cursor-pointer transition-all hover:shadow-md`}
+                onClick={() => handleCardClick(customer)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="relative">
+                      <img
+                        src={customer.photo || getRandomProfessionalAvatar(customer.id)}
+                        alt={customer.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      {customer.isFavorite && (
+                        <Star className="absolute -top-1 -right-1 w-4 h-4 text-favorite-blue fill-current" />
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                          <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                          <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                        </div>
+                        
+                        <div className="flex flex-col items-end space-y-2 ml-2">
+                          {cardStyle.badge && (
+                            <Badge className={cardStyle.badge.className} variant="secondary">
+                              {cardStyle.badge.text}
+                            </Badge>
+                          )}
+                          
+                          {customer.isRecommendation && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-6 px-2 text-xs bg-recommendation-green hover:bg-recommendation-green/80"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToFolder(customer.id);
+                                }}
+                              >
+                                加入名片夾
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSkipRecommendation(customer.id);
+                                }}
+                              >
+                                略過
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {!customer.isRegisteredUser && !customer.isRecommendation && (
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="h-6 px-2 text-xs bg-unregistered-orange hover:bg-unregistered-orange/80"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleSendInvitation(customer.id);
+                              }}
+                            >
+                              發送邀請
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+          
+          {filteredCustomers.length === 0 && (
+            <div className="text-center py-12">
+              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">沒有找到符合條件的聯絡人</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default UnifiedCardFolder;

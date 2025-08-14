@@ -31,6 +31,7 @@ export interface Customer {
   isDigitalCard?: boolean; // true for digital cards, false for paper cards
   isRegisteredUser?: boolean; // true for registered digital card users, false for unregistered
   lineId?: string; // for unregistered users who only have LINE ID
+  isRecommendation?: boolean; // true for smart recommendations
 }
 
 export type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';

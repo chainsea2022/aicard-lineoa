@@ -40,6 +40,12 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
+
+    /* Custom card folder colors */
+    --favorite-blue: 219 100% 46%;
+    --favorite-blue-bg: 219 100% 96%;
+    --unregistered-orange: 25 95% 53%;
+    --recommendation-green: 120 100% 25%;
   }
 
   .dark {
@@ -76,6 +82,12 @@
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
+    /* Custom card folder colors - dark mode */
+    --favorite-blue: 219 100% 66%;
+    --favorite-blue-bg: 219 50% 20%;
+    --unregistered-orange: 25 95% 63%;
+    --recommendation-green: 120 60% 45%;
   }
 }
 

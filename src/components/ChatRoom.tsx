@@ -5,6 +5,7 @@ import CreateCard from './CreateCard';
 import MyCard from './MyCard';
 import Scanner from './Scanner';
 import MyCustomers from './MyCustomers';
+import UnifiedCardFolder from './UnifiedCardFolder';
 import Analytics from './Analytics';
 import Schedule from './Schedule';
 import Points from './Points';
@@ -972,7 +973,7 @@ const ChatRoom = () => {
       case 'scanner':
         return;
       case 'customers':
-        return <MyCustomers onClose={handleCloseView} customers={customers} onCustomersUpdate={setCustomers} />;
+        return <UnifiedCardFolder onClose={handleCloseView} />;
       case 'analytics':
         return <Analytics onClose={handleCloseView} />;
       case 'schedule':
