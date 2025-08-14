@@ -1086,7 +1086,7 @@ const ChatRoom = () => {
                               </div>
 
                               {/* 操作按鈕區域 */}
-                              <div className="bg-gray-50 p-3 space-y-2">
+                              <div className="bg-gray-50 p-2">
                                 {/* 查看更多按鈕 */}
                                 <Button 
                                   onClick={() => {
@@ -1095,37 +1095,37 @@ const ChatRoom = () => {
                                   }}
                                   size="sm"
                                   variant="outline"
-                                  className="w-full text-sm font-medium flex items-center justify-center space-x-1"
+                                  className="w-full h-8 text-xs mb-2 border-gray-300"
                                 >
-                                  <Eye className="w-3 h-3" />
-                                  <span>查看更多</span>
+                                  <Eye className="w-3 h-3 mr-1" />
+                                  查看更多
                                 </Button>
                                 
                                 {/* 操作按鈕 */}
-                                <div className="grid grid-cols-3 gap-2">
+                                <div className="grid grid-cols-3 gap-1">
                                   <Button 
                                     size="sm"
-                                    className="bg-green-500 hover:bg-green-600 text-white text-xs flex items-center justify-center space-x-1"
+                                    className="bg-green-500 hover:bg-green-600 text-white h-8 text-xs px-2"
                                   >
-                                    <UserPlus className="w-3 h-3" />
-                                    <span>加入好友</span>
+                                    <UserPlus className="w-3 h-3 mr-1" />
+                                    加入
                                   </Button>
                                   
                                   <Button 
                                     size="sm"
-                                    className="bg-blue-500 hover:bg-blue-600 text-white text-xs flex items-center justify-center space-x-1"
+                                    className="bg-blue-500 hover:bg-blue-600 text-white h-8 text-xs px-2"
                                   >
-                                    <Download className="w-3 h-3" />
-                                    <span>儲存名片</span>
+                                    <Download className="w-3 h-3 mr-1" />
+                                    儲存
                                   </Button>
                                   
                                   <Button 
                                     size="sm"
                                     variant="outline"
-                                    className="text-xs flex items-center justify-center space-x-1"
+                                    className="h-8 text-xs border-gray-300 px-2"
                                   >
-                                    <Share2 className="w-3 h-3" />
-                                    <span>分享名片</span>
+                                    <Share2 className="w-3 h-3 mr-1" />
+                                    分享
                                   </Button>
                                 </div>
                               </div>
