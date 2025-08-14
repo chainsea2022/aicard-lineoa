@@ -679,12 +679,23 @@ const ChatRoom = () => {
       const userData = localStorage.getItem('aile-user-data');
       const cardData = localStorage.getItem('aile-card-data');
       
+      // 調試信息
+      console.log('Debug - 我的電子名片點擊:', {
+        isUserRegistered,
+        hasUserData: !!userData,
+        hasCardData: !!cardData,
+        userData: userData ? JSON.parse(userData) : null,
+        cardData: cardData ? JSON.parse(cardData) : null
+      });
+      
       if (isUserRegistered && userData && cardData) {
         // 已註冊完成且有電子名片，顯示名片選擇LIFF介面
+        console.log('Debug - 顯示名片選擇LIFF');
         setShowCardSelectionLIFF(true);
         setIsMenuOpen(false);
       } else {
         // 尚未註冊完成，引導用戶註冊
+        console.log('Debug - 顯示註冊提示訊息');
         const noCardMessage: Message = {
           id: Date.now(),
           text: "⚠️ 您尚未完成會員註冊，無法使用此功能。\n🎯 立即註冊，打造您的第一張專屬電子名片！\n👇 點擊下方「會員註冊」開始設定：",
