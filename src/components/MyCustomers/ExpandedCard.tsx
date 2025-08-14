@@ -823,7 +823,10 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               <Badge 
                 variant="outline" 
                 className="text-xs bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 cursor-pointer px-3 py-1 rounded-full transition-colors"
-                onClick={() => onAddTag(customer.id, tag)}
+                onClick={() => {
+                  console.log('AI tag clicked:', tag, 'customer.id:', customer.id);
+                  onAddTag(customer.id, tag);
+                }}
               >
                 {tag}
               </Badge>
