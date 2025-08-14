@@ -391,41 +391,42 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       </div>
 
       {/* Common Tags Section */}
-      <div className="px-4 py-3 border-b border-border bg-background">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium text-foreground">常用標籤</h3>
-          {showAllTags ? (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setShowAllTags(false)}
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              收起
-            </Button>
-          ) : (
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setShowAllTags(true)}
-              className="text-xs text-muted-foreground hover:text-foreground"
-            >
-              查看更多
-            </Button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {(showAllTags ? commonTags : commonTags.slice(0, 5)).map((tag, index) => (
-            <Button
-              key={index}
-              variant="outline"
-              size="sm"
-              onClick={() => setFilter({ category: 'tag', tag })}
-              className="text-xs bg-background hover:bg-accent border-border h-6 px-2 py-1 rounded-full"
-            >
-              #{tag}
-            </Button>
-          ))}
+      <div className="px-4 py-2 border-b border-border bg-background">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用</span>
+          <div className="flex items-center gap-2 overflow-x-auto flex-1">
+            {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => setFilter({ category: 'tag', tag })}
+                className="text-xs bg-background hover:bg-accent border-border h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+              >
+                {tag}
+              </Button>
+            ))}
+            {!showAllTags && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAllTags(true)}
+                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
+              >
+                更多
+              </Button>
+            )}
+            {showAllTags && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAllTags(false)}
+                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
+              >
+                收起
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 
