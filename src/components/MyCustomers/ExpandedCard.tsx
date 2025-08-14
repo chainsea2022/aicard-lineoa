@@ -193,7 +193,9 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const allTags = [...new Set([...(customer.tags || []), ...generateAutoTags()])];
 
   const handleAddNewTag = () => {
+    console.log('handleAddNewTag called', { newTagInput: newTagInput.trim(), customerId: customer.id });
     if (newTagInput.trim()) {
+      console.log('Adding new tag:', newTagInput.trim());
       onAddTag(customer.id, newTagInput.trim());
       setNewTagInput('');
       setShowAddTag(false);
@@ -201,6 +203,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   };
 
   const handleTagClick = (tag: string) => {
+    console.log('handleTagClick called', { tag, customerId: customer.id });
     setSelectedTags(prev => {
       const newSet = new Set(prev);
       if (newSet.has(tag)) {
@@ -208,11 +211,13 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       } else {
         newSet.add(tag);
       }
+      console.log('Updated selected tags:', Array.from(newSet));
       return newSet;
     });
   };
 
   const handleRemoveSelectedTag = (tag: string) => {
+    console.log('handleRemoveSelectedTag called', { tag, customerId: customer.id });
     setSelectedTags(prev => {
       const newSet = new Set(prev);
       newSet.delete(tag);

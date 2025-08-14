@@ -54,11 +54,15 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
           onLineClick={onLineClick}
           onSendInvitation={onSendInvitation}
           onAddTag={(id, tag) => {
+            console.log('onAddTag callback called', { id, tag, currentTags: customer.tags });
             const updatedTags = [...(customer.tags || []), tag];
+            console.log('Updated tags array:', updatedTags);
             onSaveCustomer(id, { tags: updatedTags });
           }}
           onRemoveTag={(id, tag) => {
+            console.log('onRemoveTag callback called', { id, tag, currentTags: customer.tags });
             const updatedTags = (customer.tags || []).filter(t => t !== tag);
+            console.log('Updated tags array after removal:', updatedTags);
             onSaveCustomer(id, { tags: updatedTags });
           }}
           onSaveCustomer={onSaveCustomer}
