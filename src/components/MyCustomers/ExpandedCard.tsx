@@ -69,6 +69,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   const [showInvitationHistory, setShowInvitationHistory] = useState(false);
   const [invitationHistory, setInvitationHistory] = useState<Record<string, string>>({});
   const [showInvitationDialog, setShowInvitationDialog] = useState(false);
+  const [localInvitationSent, setLocalInvitationSent] = useState(customer.invitationSent || false);
 
   // Handle invitation actions
   const handleInvitationAction = async (type: 'sms' | 'email' | 'line' | 'messenger' | 'instagram' | 'copy') => {
@@ -289,14 +290,14 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               size="sm"
               className="flex items-center space-x-2 hover:bg-gray-50"
               onClick={() => {
-                if (customer.invitationSent) {
+                if (localInvitationSent || customer.invitationSent) {
                   setShowInvitationHistory(true);
                 } else {
                   setShowInvitationDialog(true);
                 }
               }}
             >
-              {customer.invitationSent ? (
+              {(localInvitationSent || customer.invitationSent) ? (
                 <>
                   <CheckCircle className="w-5 h-5 text-green-600" />
                   <span className="text-sm text-green-600">已邀請</span>
@@ -648,6 +649,9 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
                 onClick={() => {
                   // Update customer invitation status
                   onSaveCustomer(customer.id, { invitationSent: true, invitationDate: new Date().toISOString() });
+                  
+                  // Update local state immediately for UI feedback
+                  setLocalInvitationSent(true);
                   
                   // Add to invitation history
                   const currentTime = new Date().toLocaleString('zh-TW', {
