@@ -649,7 +649,7 @@ Email: ${defaultCardData.email || ''}`;
                       <span className="font-medium text-gray-900">允許直接加入</span>
                       <p className="text-sm text-gray-500">
                         {profileData.allowDirectAdd 
-                          ? "其他用戶可直接將您加入名片夾" 
+                          ? "允許其他用戶取得您的名片（搜尋、分享、掃描）" 
                           : "[✓] 當面掃描可自動互加"
                         }
                       </p>
