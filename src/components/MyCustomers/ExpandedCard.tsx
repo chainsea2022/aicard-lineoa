@@ -753,7 +753,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       <Dialog open={showInvitationDialog} onOpenChange={setShowInvitationDialog}>
         <DialogContent className="max-w-[300px] mx-auto">
           <DialogHeader>
-            <DialogTitle>LIFF:邀請您建立電子名片</DialogTitle>
+            <DialogTitle>邀請您建立電子名片</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="text-center">
