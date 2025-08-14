@@ -280,35 +280,37 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     return <SmartRelationshipAnalysis customer={customer} onClose={() => setShowSmartAnalysis(false)} />;
   }
   return <div className="space-y-4">
-      {/* Top Invitation Box - Always visible */}
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">
-        <div className="flex items-center justify-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex items-center space-x-2 hover:bg-gray-50"
-            onClick={() => {
-              if (customer.invitationSent) {
-                setShowInvitationHistory(true);
-              } else {
-                setShowInvitationDialog(true);
-              }
-            }}
-          >
-            {customer.invitationSent ? (
-              <>
-                <CheckCircle className="w-5 h-5 text-green-600" />
-                <span className="text-sm text-green-600">已邀請</span>
-              </>
-            ) : (
-              <>
-                <UserPlus className="w-5 h-5 text-gray-600" />
-                <span className="text-sm text-gray-600">邀請建立電子名片</span>
-              </>
-            )}
-          </Button>
+      {/* Top Invitation Box - Only for unregistered users */}
+      {!customer.isRegisteredUser && (
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 bg-white">
+          <div className="flex items-center justify-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center space-x-2 hover:bg-gray-50"
+              onClick={() => {
+                if (customer.invitationSent) {
+                  setShowInvitationHistory(true);
+                } else {
+                  setShowInvitationDialog(true);
+                }
+              }}
+            >
+              {customer.invitationSent ? (
+                <>
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span className="text-sm text-green-600">已邀請</span>
+                </>
+              ) : (
+                <>
+                  <UserPlus className="w-5 h-5 text-gray-600" />
+                  <span className="text-sm text-gray-600">邀請建立電子名片</span>
+                </>
+              )}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Invitation Section for Unregistered Paper Card Users */}
       {!customer.isRegisteredUser && !customer.lineId && (
