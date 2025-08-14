@@ -711,36 +711,85 @@ const ChatRoom = () => {
     }
   };
   const handleCardSelected = (selectedCard: any) => {
-    // 根據選擇的名片創建對應的名片數據，使用自定義樣式
+    // 從localStorage獲取完整的名片數據
+    const savedCardData = localStorage.getItem('aile-card-data');
+    let fullCardData: any = {};
+    
+    if (savedCardData) {
+      fullCardData = JSON.parse(savedCardData);
+    }
+    
+    // 根據選擇的名片創建對應的名片數據，包含完整的可見性設置
     const cardData = {
+      // 基本資訊
       name: selectedCard.name,
-      title: selectedCard.title,
-      company: selectedCard.company,
-      phone: selectedCard.phone || '+886 912-345-678',
-      email: selectedCard.email || 'contact@example.com',
-      website: selectedCard.website || 'https://example.com',
-      line: selectedCard.line || 'line_id',
-      facebook: selectedCard.facebook || '',
-      instagram: selectedCard.instagram || '',
-      photo: selectedCard.photo || null,
+      companyName: selectedCard.company,
+      jobTitle: selectedCard.title,
+      
+      // 聯絡方式
+      phone: selectedCard.phone || fullCardData.phone || '',
+      mobilePhone: fullCardData.mobilePhone || '',
+      email: selectedCard.email || fullCardData.email || '',
+      website: selectedCard.website || fullCardData.website || '',
+      
+      // 社群媒體
+      line: selectedCard.line || fullCardData.line || '',
+      facebook: selectedCard.facebook || fullCardData.facebook || '',
+      instagram: selectedCard.instagram || fullCardData.instagram || '',
+      socialMedia: fullCardData.socialMedia || [],
+      
+      // 額外資訊
+      address: fullCardData.address || '',
+      birthday: fullCardData.birthday || '',
+      gender: fullCardData.gender || '',
+      introduction: fullCardData.introduction || '',
+      otherInfo: fullCardData.otherInfo || '',
+      
+      // 可見性設置
+      nameVisible: fullCardData.nameVisible !== false,
+      companyNameVisible: fullCardData.companyNameVisible !== false,
+      jobTitleVisible: fullCardData.jobTitleVisible !== false,
+      phoneVisible: fullCardData.phoneVisible !== false,
+      mobilePhoneVisible: fullCardData.mobilePhoneVisible !== false,
+      emailVisible: fullCardData.emailVisible !== false,
+      websiteVisible: fullCardData.websiteVisible !== false,
+      lineVisible: fullCardData.lineVisible !== false,
+      facebookVisible: fullCardData.facebookVisible !== false,
+      instagramVisible: fullCardData.instagramVisible !== false,
+      addressVisible: fullCardData.addressVisible || false,
+      birthdayVisible: fullCardData.birthdayVisible || false,
+      genderVisible: fullCardData.genderVisible || false,
+      introductionVisible: fullCardData.introductionVisible !== false,
+      otherInfoVisible: fullCardData.otherInfoVisible !== false,
+      
+      // 其他
+      photo: selectedCard.photo || fullCardData.photo || null,
       backgroundColor: selectedCard.backgroundColor || '#3b82f6',
       textColor: selectedCard.textColor || '#ffffff',
-      cardType: selectedCard.type
+      cardType: selectedCard.type,
+      cardPublic: fullCardData.cardPublic || false
     };
+    
+    const cardTypeText = selectedCard.type === 'business' ? '商務' : 
+                        selectedCard.type === 'professional' ? '專業' : '個人';
+    
     const cardMessage: Message = {
       id: Date.now(),
-      text: `這是您的${selectedCard.type === 'business' ? '商務' : selectedCard.type === 'professional' ? '專業' : '個人'}電子名片：`,
+      text: `✨ 您選擇了${cardTypeText}電子名片${selectedCard.isDefault ? '（預設名片）' : ''}`,
       isBot: true,
       timestamp: new Date()
     };
+    
     const cardPreviewMessage: Message = {
       id: Date.now() + 1,
       text: "",
       isBot: true,
       timestamp: new Date(),
       isCard: true,
-      cardData: cardData
+      cardData: cardData,
+      isClientFlexMessage: true
     };
+    
     setMessages(prev => [...prev, cardMessage, cardPreviewMessage]);
     setShowCardSelectionLIFF(false);
   };

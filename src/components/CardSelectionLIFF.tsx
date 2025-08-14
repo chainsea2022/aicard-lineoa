@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, X, User, Building2, Briefcase, Phone, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -32,51 +32,78 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
   onClose,
   onCardSelect
 }) => {
-  // 模擬多張名片數據
-  const mockCards: CardInfo[] = [
-    {
-      id: '1',
-      name: '張小明',
-      title: '執行長',
-      company: 'ABC科技有限公司',
-      type: 'business',
-      isDefault: true,
-      phone: '+886 912-345-678',
-      email: 'ceo@abc-tech.com',
-      website: 'https://abc-tech.com',
-      line: 'zhang_ceo',
-      photo: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      backgroundColor: '#1e40af',
-      textColor: '#ffffff'
-    },
-    {
-      id: '2',
-      name: '張小明',
-      title: '產品經理',
-      company: 'XYZ創新公司',
-      type: 'professional',
-      phone: '+886 987-654-321',
-      email: 'pm@xyz-innovation.com',
-      website: 'https://xyz-innovation.com',
-      line: 'zhang_pm',
-      photo: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-      backgroundColor: '#7c3aed',
-      textColor: '#ffffff'
-    },
-    {
-      id: '3',
-      name: '張小明',
-      title: '個人名片',
-      company: '自由工作者',
-      type: 'personal',
-      phone: '+886 900-123-456',
-      email: 'personal@zhang.com',
-      instagram: 'zhang_personal',
-      facebook: 'zhang.xiaoming',
-      backgroundColor: '#059669',
-      textColor: '#ffffff'
-    }
-  ];
+  const [cards, setCards] = useState<CardInfo[]>([]);
+
+  useEffect(() => {
+    // 從localStorage加載用戶的名片數據
+    const loadUserCards = () => {
+      const cardData = localStorage.getItem('aile-card-data');
+      const userData = localStorage.getItem('aile-user-data');
+      
+      if (cardData && userData) {
+        const parsedCardData = JSON.parse(cardData);
+        const parsedUserData = JSON.parse(userData);
+        
+        // 創建主要名片（預設名片）
+        const mainCard: CardInfo = {
+          id: 'main',
+          name: parsedCardData.name || parsedUserData.name || '您的姓名',
+          title: parsedCardData.jobTitle || '您的職位',
+          company: parsedCardData.companyName || '您的公司',
+          type: 'business',
+          isDefault: true,
+          phone: parsedCardData.phone || parsedCardData.mobilePhone || '',
+          email: parsedCardData.email || '',
+          website: parsedCardData.website || '',
+          line: parsedCardData.line || '',
+          facebook: parsedCardData.facebook || '',
+          instagram: parsedCardData.instagram || '',
+          photo: parsedCardData.photo || null,
+          backgroundColor: '#1e40af',
+          textColor: '#ffffff'
+        };
+
+        // 檢查是否有額外的名片數據
+        const additionalCards = localStorage.getItem('aile-additional-cards');
+        let allCards = [mainCard];
+        
+        if (additionalCards) {
+          try {
+            const parsed = JSON.parse(additionalCards);
+            if (Array.isArray(parsed)) {
+              const formattedAdditionalCards = parsed.map((card, index) => ({
+                id: `additional-${index}`,
+                name: card.name || mainCard.name,
+                title: card.jobTitle || card.title || '',
+                company: card.companyName || card.company || '',
+                type: card.type || 'professional',
+                isDefault: false,
+                phone: card.phone || card.mobilePhone || '',
+                email: card.email || '',
+                website: card.website || '',
+                line: card.line || '',
+                facebook: card.facebook || '',
+                instagram: card.instagram || '',
+                photo: card.photo || mainCard.photo,
+                backgroundColor: card.backgroundColor || '#7c3aed',
+                textColor: card.textColor || '#ffffff'
+              }));
+              allCards = [...allCards, ...formattedAdditionalCards];
+            }
+          } catch (error) {
+            console.error('Error parsing additional cards:', error);
+          }
+        }
+        
+        setCards(allCards);
+      } else {
+        // 如果沒有名片數據，顯示空狀態
+        setCards([]);
+      }
+    };
+
+    loadUserCards();
+  }, []);
 
   const getCardIcon = (type: string) => {
     switch (type) {
@@ -129,7 +156,15 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
         </div>
 
         <div className="space-y-3">
-          {mockCards.map((card) => (
+          {cards.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-gray-500 mb-4">您還沒有任何電子名片</p>
+              <Button onClick={onClose} variant="outline">
+                先去建立名片
+              </Button>
+            </div>
+          ) : (
+            cards.map((card) => (
             <Card 
               key={card.id}
               className={`cursor-pointer transition-all duration-200 ${getCardBorderColor(card.type)} hover:shadow-md active:scale-98`}
@@ -197,7 +232,8 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                 </div>
               </div>
             </Card>
-          ))}
+            ))
+          )}
         </div>
 
       </div>
