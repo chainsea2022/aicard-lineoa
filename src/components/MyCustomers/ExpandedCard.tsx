@@ -202,7 +202,13 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     console.log('handleAddNewTag called', { newTagInput: newTagInput.trim(), customerId: customer.id });
     if (newTagInput.trim()) {
       console.log('Adding new tag:', newTagInput.trim());
-      onAddTag(customer.id, newTagInput.trim());
+      const newTag = newTagInput.trim();
+      
+      // Update local state immediately
+      const updatedTags = [...(localCustomer.tags || []), newTag];
+      setLocalCustomer(prev => ({ ...prev, tags: updatedTags }));
+      
+      onAddTag(customer.id, newTag);
       setNewTagInput('');
       setShowAddTag(false);
     }
@@ -224,12 +230,27 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 
   const handleRemoveSelectedTag = (tag: string) => {
     console.log('handleRemoveSelectedTag called', { tag, customerId: customer.id });
+    
+    // Update local state immediately
+    const updatedTags = (localCustomer.tags || []).filter(t => t !== tag);
+    setLocalCustomer(prev => ({ ...prev, tags: updatedTags }));
+    
     setSelectedTags(prev => {
       const newSet = new Set(prev);
       newSet.delete(tag);
       return newSet;
     });
     onRemoveTag(customer.id, tag);
+  };
+
+  const handleAITagClick = (tag: string) => {
+    console.log('AI tag clicked:', tag, 'customer.id:', customer.id);
+    
+    // Update local state immediately
+    const updatedTags = [...(localCustomer.tags || []), tag];
+    setLocalCustomer(prev => ({ ...prev, tags: updatedTags }));
+    
+    onAddTag(customer.id, tag);
   };
   const handleAddScheduleRecord = (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => {
     const newRecord: ScheduleRecord = {
@@ -829,10 +850,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               <Badge 
                 variant="outline" 
                 className="text-xs bg-gray-50 text-gray-600 border-gray-200 hover:bg-gray-100 cursor-pointer px-3 py-1 rounded-full transition-colors"
-                onClick={() => {
-                  console.log('AI tag clicked:', tag, 'customer.id:', customer.id);
-                  onAddTag(customer.id, tag);
-                }}
+                onClick={() => handleAITagClick(tag)}
               >
                 {tag}
               </Badge>
