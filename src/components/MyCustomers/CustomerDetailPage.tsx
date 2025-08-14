@@ -58,12 +58,12 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
             
             // Check if tag already exists to prevent duplicates
             if (customer.tags?.includes(tag)) {
-              console.log('Tag already exists, skipping addition');
+              console.log('Tag already exists, skipping addition:', tag);
               return;
             }
             
             const updatedTags = [...(customer.tags || []), tag];
-            console.log('Updated tags array:', updatedTags);
+            console.log('Adding new tag, updated tags array:', updatedTags);
             onSaveCustomer(id, { tags: updatedTags });
           }}
           onRemoveTag={(id, tag) => {
