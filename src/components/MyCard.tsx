@@ -629,19 +629,6 @@ Email: ${defaultCardData.email || ''}`;
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* 公開名片設定 */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-medium text-gray-900">公開名片</span>
-                      <p className="text-sm text-gray-500">允許其他用戶搜尋到您的名片</p>
-                    </div>
-                    <Switch
-                      checked={profileData.publicCard}
-                      onCheckedChange={(checked) => 
-                        setProfileData(prev => ({ ...prev, publicCard: checked }))
-                      }
-                    />
-                  </div>
 
                   {/* 允許直接加入設定 */}
                   <div className="flex items-center justify-between">
