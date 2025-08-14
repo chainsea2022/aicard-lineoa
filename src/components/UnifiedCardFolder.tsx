@@ -393,7 +393,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       {/* Common Tags Section */}
       <div className="px-4 py-2 border-b border-border bg-background">
         <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用</span>
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
           <div className="flex items-center gap-2 overflow-x-auto flex-1">
             {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
               <Button
@@ -401,7 +401,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 variant="outline"
                 size="sm"
                 onClick={() => setFilter({ category: 'tag', tag })}
-                className="text-xs bg-background hover:bg-accent border-border h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+                className="text-xs bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
               >
                 {tag}
               </Button>
