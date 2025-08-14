@@ -504,7 +504,10 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                     handleSendInvitation(customer.id);
                                   }}
                                 >
-                                  <UserPlus className="w-4 h-4 text-orange-600" />
+                                  {customer.invitationSent ? 
+                                    <Bell className="w-4 h-4 text-green-600" /> : 
+                                    <Circle className="w-4 h-4 text-muted-foreground" />
+                                  }
                                 </Button>
                               )}
                               
