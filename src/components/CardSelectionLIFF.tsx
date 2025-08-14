@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, X, User, Building2, Briefcase, Phone, Mail } from 'lucide-react';
+import { ArrowLeft, X, User, Building2, Briefcase, Phone, Mail, Share2, Edit, QrCode, MessageCircle, Globe, Facebook, Instagram } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -155,7 +155,7 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
           <p className="text-gray-600 text-sm">請選擇要分享的電子名片：</p>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {cards.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500 mb-4">您還沒有任何電子名片</p>
@@ -165,73 +165,131 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
             </div>
           ) : (
             cards.map((card) => (
-            <Card 
-              key={card.id}
-              className={`cursor-pointer transition-all duration-200 ${getCardBorderColor(card.type)} hover:shadow-md active:scale-98`}
-              onClick={() => handleCardClick(card)}
-            >
-              {/* 電子名片展示 */}
-              <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 m-3">
-                <div className="flex items-center space-x-3">
-                  {/* 大頭照 */}
-                  <div className="flex-shrink-0">
-                    <Avatar className="w-14 h-14 border-2 border-white shadow-sm">
-                      <AvatarImage src={card.photo} alt={card.name} />
-                      <AvatarFallback className="bg-blue-500 text-white font-semibold text-lg">
-                        {card.name ? card.name.charAt(0).toUpperCase() : 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                  </div>
-                  
-                  {/* 名片主要資訊 */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h4 className="font-semibold text-gray-900 text-base truncate">{card.name}</h4>
-                      {card.isDefault && (
-                        <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700 border-0">
-                          預設
-                        </Badge>
+              <div key={card.id} className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                {/* 完整名片預覽 */}
+                <div 
+                  className="p-6 text-center"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${card.backgroundColor}CC, ${card.backgroundColor}FF)`,
+                    color: card.textColor 
+                  }}
+                >
+                  {/* 名片頭像 */}
+                  <div className="relative mb-4 flex justify-center">
+                    <div className="w-20 h-20 rounded-full bg-white/20 overflow-hidden border-4 border-white/50 shadow-lg">
+                      {card.photo ? (
+                        <img 
+                          src={card.photo} 
+                          alt="Profile" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-white/30 flex items-center justify-center">
+                          <User className="w-10 h-10 text-white" />
+                        </div>
                       )}
                     </div>
-                    
-                    {/* 職位 */}
+                    {/* 名片類型圖標 */}
+                    <div className="absolute -bottom-1 -right-8 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-md">
+                      {getCardIcon(card.type)}
+                    </div>
+                    {/* 預設標籤 */}
+                    {card.isDefault && (
+                      <div className="absolute -top-2 -left-8 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
+                        預設
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 基本資訊 */}
+                  <div className="space-y-2 mb-4">
+                    <h3 className="text-xl font-bold text-white">{card.name}</h3>
                     {card.title && (
-                      <p className="text-sm font-medium text-gray-700 truncate mb-1">
-                        {card.title}
-                      </p>
+                      <p className="text-sm text-white/90 font-medium">{card.title}</p>
                     )}
-                    
-                    {/* 公司名稱 */}
                     {card.company && (
-                      <p className="text-sm text-gray-600 truncate mb-1">
-                        {card.company}
-                      </p>
+                      <p className="text-sm text-white/80">{card.company}</p>
+                    )}
+                  </div>
+
+                  {/* 詳細聯絡資訊 */}
+                  <div className="space-y-2 text-sm text-white/90 mb-6">
+                    {card.phone && (
+                      <div className="flex items-center justify-center space-x-2">
+                        <Phone className="w-4 h-4" />
+                        <span>{card.phone}</span>
+                      </div>
+                    )}
+                    {card.email && (
+                      <div className="flex items-center justify-center space-x-2">
+                        <Mail className="w-4 h-4" />
+                        <span>{card.email}</span>
+                      </div>
+                    )}
+                    {card.website && (
+                      <div className="flex items-center justify-center space-x-2">
+                        <Globe className="w-4 h-4" />
+                        <span>{card.website}</span>
+                      </div>
+                    )}
+                    {card.line && (
+                      <div className="flex items-center justify-center space-x-2">
+                        <MessageCircle className="w-4 h-4" />
+                        <span>LINE: {card.line}</span>
+                      </div>
                     )}
                     
-                    {/* 聯絡資訊 */}
-                    <div className="flex items-center space-x-3 text-xs text-gray-500">
-                      {card.phone && (
-                        <span className="flex items-center">
-                          <Phone className="w-3 h-3 mr-1" />
-                          {card.phone.length > 10 ? `${card.phone.slice(0, 10)}...` : card.phone}
-                        </span>
-                      )}
-                      {card.email && (
-                        <span className="flex items-center">
-                          <Mail className="w-3 h-3 mr-1" />
-                          {card.email.length > 15 ? `${card.email.slice(0, 15)}...` : card.email}
-                        </span>
-                      )}
-                    </div>
+                    {/* 社群媒體 */}
+                    {(card.facebook || card.instagram) && (
+                      <div className="flex items-center justify-center space-x-4 pt-2">
+                        {card.facebook && (
+                          <div className="flex items-center space-x-1">
+                            <Facebook className="w-4 h-4" />
+                            <span className="text-xs">Facebook</span>
+                          </div>
+                        )}
+                        {card.instagram && (
+                          <div className="flex items-center space-x-1">
+                            <Instagram className="w-4 h-4" />
+                            <span className="text-xs">Instagram</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
+                </div>
+
+                {/* 操作按鈕區域 */}
+                <div className="bg-gray-50 p-4 space-y-3">
+                  {/* 主要選擇按鈕 */}
+                  <Button
+                    onClick={() => handleCardClick(card)}
+                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span>選擇並發送此名片</span>
+                  </Button>
                   
-                  {/* 狀態指示器 */}
-                  <div className="flex-shrink-0">
-                    <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  {/* 副功能按鈕 */}
+                  <div className="flex space-x-2">
+                    <Button 
+                      variant="outline"
+                      className="flex-1 py-2 px-4 text-sm font-medium flex items-center justify-center space-x-1"
+                    >
+                      <Edit className="w-3 h-3" />
+                      <span>編輯</span>
+                    </Button>
+                    
+                    <Button 
+                      variant="outline"
+                      className="flex-1 py-2 px-4 text-sm font-medium flex items-center justify-center space-x-1"
+                    >
+                      <QrCode className="w-3 h-3" />
+                      <span>QR碼</span>
+                    </Button>
                   </div>
                 </div>
               </div>
-            </Card>
             ))
           )}
         </div>
