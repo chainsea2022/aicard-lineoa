@@ -492,10 +492,6 @@ Email: ${defaultCardData.email || ''}`;
                     <Edit className="w-4 h-4 mr-1" />
                     編輯個人資料
                   </Button>
-                  <Button size="sm" className="flex-1 bg-blue-500 hover:bg-blue-600 text-white" onClick={() => setShowProfileSettings(true)}>
-                    <Settings className="w-4 h-4 mr-1" />
-                    資料設定
-                  </Button>
                 </div>
               </CardContent>
             </Card>
