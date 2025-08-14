@@ -772,6 +772,19 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
                 onClick={() => {
                   // Update customer invitation status
                   onSaveCustomer(customer.id, { invitationSent: true, invitationDate: new Date().toISOString() });
+                  
+                  // Add to invitation history
+                  const currentTime = new Date().toLocaleString('zh-TW', {
+                    month: '2-digit',
+                    day: '2-digit', 
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
+                  setInvitationHistory(prev => ({
+                    ...prev,
+                    'liff': currentTime
+                  }));
+                  
                   setShowInvitationDialog(false);
                   toast({
                     title: "邀請已發送",
@@ -811,6 +824,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
                   {platform === 'messenger' && <Send className="w-4 h-4 text-blue-500" />}
                   {platform === 'instagram' && <Instagram className="w-4 h-4 text-pink-600" />}
                   {platform === 'copy' && <Copy className="w-4 h-4 text-gray-600" />}
+                  {platform === 'liff' && <UserPlus className="w-4 h-4 text-blue-600" />}
                   <span className="text-sm font-medium">
                     {platform === 'sms' && '簡訊'}
                     {platform === 'email' && 'Email'}
@@ -818,6 +832,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
                     {platform === 'messenger' && 'Messenger'}
                     {platform === 'instagram' && 'Instagram'}
                     {platform === 'copy' && '複製連結'}
+                    {platform === 'liff' && '電子名片邀請'}
                   </span>
                 </div>
                 <span className="text-xs text-gray-500">{time}</span>
