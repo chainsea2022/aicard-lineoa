@@ -12,7 +12,6 @@ import Points from './Points';
 import MemberPoints from './MemberPoints';
 import UpgradeExperience from './UpgradeExperience';
 import CardManagement from './CardManagement';
-import MemberInterface from './MemberInterface';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { FullCardLIFF } from './FullCardLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -78,7 +77,7 @@ const menuItems: MenuItem[] = [{
   color: 'bg-gradient-to-br from-red-500 to-red-600'
 }];
 
-// 新的 Richmenu 模式選項 - 只保留3個選單
+// 新的 Richmenu 模式選項
 const newMenuItems: MenuItem[] = [{
   id: 'my-card',
   title: '我的電子名片',
@@ -90,10 +89,25 @@ const newMenuItems: MenuItem[] = [{
   icon: Users,
   color: 'bg-gradient-to-br from-orange-500 to-orange-600'
 }, {
-  id: 'member',
-  title: '會員',
+  id: 'create-card',
+  title: '會員資料',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+}, {
+  id: 'customers-manage',
+  title: '名片管理',
+  icon: Users,
+  color: 'bg-gradient-to-br from-purple-500 to-purple-600'
+}, {
+  id: 'points',
+  title: '點數優惠',
+  icon: Coins,
+  color: 'bg-gradient-to-br from-yellow-500 to-orange-500'
+}, {
+  id: 'upgrade',
+  title: '升級體驗',
+  icon: Crown,
+  color: 'bg-gradient-to-br from-purple-600 to-pink-600'
 }];
 
 // 統一使用的客戶名稱
@@ -980,8 +994,12 @@ const ChatRoom = () => {
         return <Analytics onClose={handleCloseView} />;
       case 'schedule':
         return <Schedule onClose={handleCloseView} />;
-      case 'member':
-        return <MemberInterface onClose={handleCloseView} />;
+      case 'points':
+        return <MemberPoints onClose={handleCloseView} />;
+      case 'upgrade':
+        return <UpgradeExperience onClose={handleCloseView} />;
+      case 'card-management':
+        return <CardManagement onClose={handleCloseView} />;
       default:
         return null;
     }
