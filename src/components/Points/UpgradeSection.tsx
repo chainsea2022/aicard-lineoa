@@ -77,83 +77,82 @@ const UpgradeSection: React.FC = () => {
       <GiftPackage />
 
       {/* 方案卡片 */}
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle className="flex items-center text-lg">
-            <Award className="w-5 h-5 mr-2 text-purple-600" />
-            兌點方案
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4">
-            {plans.map((plan, index) => (
-              <PlanCard key={index} {...plan} />
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mx-4 mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <Award className="w-5 h-5 mr-2 text-blue-600" />
+          升級方案
+        </h2>
+        <div className="grid gap-4">
+          {plans.map((plan, index) => (
+            <PlanCard key={index} {...plan} />
+          ))}
+        </div>
+      </div>
 
       {/* AI生態圈 */}
-      <Card className="mb-4">
-        <CardHeader>
-          <CardTitle className="flex items-center text-lg">
-            <Star className="w-5 h-5 mr-2 text-blue-600" />
-            AI生態圈
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
-            {aiEcosystem.map((item, index) => (
-              <div key={index} className={`bg-${item.color}-50 border border-${item.color}-200 rounded-lg p-3`}>
-                <h4 className={`font-bold text-${item.color}-800 mb-1 text-sm`}>{item.title}</h4>
-                <p className={`text-${item.color}-700 mb-2 text-xs`}>{item.description}</p>
+      <div className="mx-4 mb-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <Star className="w-5 h-5 mr-2 text-blue-600" />
+          AI生態圈
+        </h2>
+        <div className="space-y-3">
+          {aiEcosystem.map((item, index) => {
+            const colorClasses = {
+              blue: { bg: 'bg-blue-50', border: 'border-blue-100', text: 'text-blue-900', button: 'text-blue-600 border-blue-200 hover:bg-blue-50' },
+              green: { bg: 'bg-green-50', border: 'border-green-100', text: 'text-green-900', button: 'text-green-600 border-green-200 hover:bg-green-50' },
+              purple: { bg: 'bg-purple-50', border: 'border-purple-100', text: 'text-purple-900', button: 'text-purple-600 border-purple-200 hover:bg-purple-50' }
+            };
+            const colors = colorClasses[item.color as keyof typeof colorClasses];
+            
+            return (
+              <div key={index} className={`${colors.bg} border ${colors.border} rounded-xl p-4 shadow-sm`}>
+                <h4 className={`font-semibold ${colors.text} mb-1 text-sm`}>{item.title}</h4>
+                <p className="text-gray-600 mb-3 text-xs leading-relaxed">{item.description}</p>
                 <div className="flex space-x-2">
                   {item.buttons.map((buttonText, btnIndex) => (
                     <Button 
                       key={btnIndex}
                       variant="outline" 
                       size="sm" 
-                      className={`text-${item.color}-600 border-${item.color}-300 hover:bg-${item.color}-100 text-xs px-2 py-1`}
+                      className={`${colors.button} text-xs px-3 py-1.5 rounded-lg font-medium`}
                     >
                       {buttonText}
                     </Button>
                   ))}
                 </div>
               </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+            );
+          })}
+        </div>
+      </div>
 
       {/* 兌點規則 */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center text-lg">
-            <Info className="w-5 h-5 mr-2 text-gray-600" />
-            兌點規則
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <div className="flex items-start space-x-2">
-              <span className="text-gray-500 mt-1">•</span>
+      <div className="mx-4">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <Info className="w-5 h-5 mr-2 text-gray-600" />
+          兌點規則
+        </h2>
+        <div className="bg-gray-50 rounded-xl p-4">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
               <span className="text-gray-700">免費獲得點數：2年有效期</span>
             </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-gray-500 mt-1">•</span>
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
               <span className="text-gray-700">會員購買點數：永久有效</span>
             </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-gray-500 mt-1">•</span>
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
               <span className="text-gray-700">點數不可轉讓給其他用戶</span>
             </div>
-            <div className="flex items-start space-x-2">
-              <span className="text-gray-500 mt-1">•</span>
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
               <span className="text-gray-700">已兌換之商品或服務不可退換</span>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </>
   );
 };

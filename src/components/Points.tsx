@@ -181,38 +181,60 @@ const Points: React.FC<PointsProps> = ({
   };
   const canRedeemTrial = currentPoints >= 50;
   return <div className="absolute inset-0 bg-white overflow-y-auto">
-      {/* 固定的目前點數區塊 */}
-      <div className="bg-gradient-to-r from-orange-500 to-yellow-500 p-4">
-        <div className="flex items-center justify-center space-x-3 text-white">
-          <Coins className="w-6 h-6" />
-          <div className="text-center">
-            <div className="text-sm font-medium">目前點數</div>
-            <div className="text-2xl font-bold">{currentPoints.toLocaleString()}</div>
-          </div>
-        </div>
-        {canRedeemTrial && (
-          <div className="mt-2 text-center">
-            <div className="inline-flex items-center bg-white/20 rounded-full px-3 py-1 text-sm">
-              <Award className="w-4 h-4 mr-1" />
-              可兌換商務版試用
+      {/* 緊湊的目前點數區塊 */}
+      <div className="bg-white border-b border-gray-100 px-4 py-3 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+              <Coins className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <div className="text-xs text-gray-500">目前點數</div>
+              <div className="text-lg font-semibold text-gray-900">{currentPoints.toLocaleString()}</div>
             </div>
           </div>
-        )}
+          {canRedeemTrial && (
+            <div className="px-3 py-1 bg-blue-50 rounded-full border border-blue-200">
+              <div className="flex items-center text-xs text-blue-600 font-medium">
+                <Award className="w-3 h-3 mr-1" />
+                可兌換試用
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* 分頁標籤 */}
-      <div className="flex bg-white border-b border-gray-200">
-        <button onClick={() => setActiveTab('overview')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'overview' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
-          <TrendingUp className="w-4 h-4 inline-block mr-1" />
+      {/* iOS風格分頁標籤 */}
+      <div className="flex bg-gray-50 mx-4 mt-3 mb-4 rounded-xl p-1">
+        <button 
+          onClick={() => setActiveTab('overview')} 
+          className={`flex-1 py-2 px-3 text-center font-medium rounded-lg text-sm transition-all ${
+            activeTab === 'overview' 
+              ? 'bg-white text-blue-600 shadow-sm' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
           點數總覽
         </button>
-        <button onClick={() => setActiveTab('upgrade')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'upgrade' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
-          <Award className="w-4 h-4 inline-block mr-1" />
-          兑點升級
+        <button 
+          onClick={() => setActiveTab('upgrade')} 
+          className={`flex-1 py-2 px-3 text-center font-medium rounded-lg text-sm transition-all ${
+            activeTab === 'upgrade' 
+              ? 'bg-white text-blue-600 shadow-sm' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          兌點升級
         </button>
-        <button onClick={() => setActiveTab('history')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'history' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
-          <History className="w-4 h-4 inline-block mr-1" />
-          累兌歷程
+        <button 
+          onClick={() => setActiveTab('history')} 
+          className={`flex-1 py-2 px-3 text-center font-medium rounded-lg text-sm transition-all ${
+            activeTab === 'history' 
+              ? 'bg-white text-blue-600 shadow-sm' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          歷程記錄
         </button>
       </div>
 
