@@ -662,7 +662,23 @@ const ChatRoom = () => {
   };
   const getDynamicMenuItems = () => {
     if (useNewMenu) {
-      return newMenuItems;
+      const baseItems = [...newMenuItems];
+      if (isRegistered()) {
+        baseItems[2] = {
+          id: 'create-card',
+          title: '會員',
+          icon: User,
+          color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+        };
+      } else {
+        baseItems[2] = {
+          id: 'create-card',
+          title: '註冊',
+          icon: User,
+          color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+        };
+      }
+      return baseItems;
     }
     const baseItems = [...menuItems];
     if (isRegistered()) {
