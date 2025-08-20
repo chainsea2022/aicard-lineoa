@@ -658,7 +658,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
                 <p className="text-xs text-gray-600">
                   {publicSettings.allowDirectContact 
                     ? "允許用戶直接加入您的名片" 
-                    : "需要您同意才能加入，[✓] 當面掃描可自動互加"
+                    : "需要您同意才能加入，[✓] 當面掃描可自動加入"
                   }
                 </p>
               </div>
