@@ -238,7 +238,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       // Category filter
       switch (filter.category) {
         case 'my-cards':
-          return customer.isRegisteredUser && !customer.isRecommendation && !customer.isPendingInvitation;
+          return (customer.isRegisteredUser && !customer.isRecommendation && !customer.isPendingInvitation) || 
+                 customer.needsManualApproval || customer.isPendingInvitation;
         case 'unregistered':
           return !customer.isRegisteredUser;
         case 'recommendations':
@@ -259,8 +260,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       }
     });
 
-    // Include pending invitations in the filtered results
-    if (filter.category === 'invited-by' || filter.category === 'all') {
+    // Include pending invitations in the filtered results for appropriate categories
+    if (filter.category === 'invited-by' || filter.category === 'all' || filter.category === 'my-cards') {
       filtered = [...filtered, ...pendingInvitations];
     }
 
@@ -511,9 +512,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             className="whitespace-nowrap relative"
           >
             我的名片夾 ({myCardsCount})
-            {newAutoAddedCards.size > 0 && (
-              <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                NEW
+            {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {newAutoAddedCards.size + pendingInvitationsCount}
               </span>
             )}
           </Button>
