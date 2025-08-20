@@ -384,9 +384,18 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                 <p className="mt-2 text-sm text-gray-600">
                   最多可建立3張名片
                 </p>
-                <p className="mt-1 text-xs text-gray-500">
+                <Button
+                  variant="link"
+                  className="mt-1 text-xs text-gray-500 hover:text-blue-600 h-auto p-0"
+                  onClick={() => {
+                    toast({
+                      title: "下載APP",
+                      description: "請前往App Store或Google Play下載完整版APP"
+                    });
+                  }}
+                >
                   更多名片與個人化設置請下載APP
-                </p>
+                </Button>
               </div>
             </div>
           )}
