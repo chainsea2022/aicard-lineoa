@@ -656,7 +656,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
               <div className="space-y-1">
                 <Label className="text-sm font-medium">允許直接加入</Label>
                 <p className="text-xs text-gray-600">
-                  啟用後，其他用戶可以直接把您的電子名片存到他們的名片夾。未啟用時，對方必須等您同意後，才能收到您的電子名片
+                  允許用戶直接加入您的名片
                 </p>
               </div>
               <Switch
