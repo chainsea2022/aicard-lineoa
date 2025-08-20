@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, X, User, Building2, Briefcase, Phone, Mail, Share2, Edit, QrCode, MessageCircle, Globe, Facebook, Instagram, Trash2 } from 'lucide-react';
+import { ArrowLeft, X, User, Building2, Briefcase, Phone, Mail, Share2, Edit, QrCode, MessageCircle, Globe, Facebook, Instagram, Trash2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -203,6 +203,22 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
     handleCardClick(card);
   };
 
+  const handleAddNewCard = () => {
+    const additionalCards = JSON.parse(localStorage.getItem('aile-additional-cards') || '[]');
+    if (additionalCards.length >= 3) {
+      toast({
+        title: "名片數量已達上限",
+        description: "最多只能建立3張名片，更多名片與個人化設置請下載APP。"
+      });
+      return;
+    }
+    
+    // 清除編輯狀態，設定為新增模式
+    localStorage.removeItem('editing-card-data');
+    localStorage.setItem('card-creation-mode', 'new');
+    onClose();
+  };
+
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header - LIFF style */}
@@ -349,6 +365,28 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                 </div>
               </div>
             ))
+          )}
+          
+          {/* 新增名片按鈕 */}
+          {cards.length > 0 && (
+            <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
+              <div className="p-6 text-center">
+                <Button
+                  onClick={handleAddNewCard}
+                  variant="outline"
+                  className="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 hover:border-blue-500 hover:bg-blue-50 transition-colors duration-200 flex items-center justify-center"
+                >
+                  <Plus className="w-8 h-8 text-gray-400 hover:text-blue-500" />
+                </Button>
+                <h3 className="mt-4 text-lg font-semibold text-gray-800">新增名片</h3>
+                <p className="mt-2 text-sm text-gray-600">
+                  最多可建立3張名片
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  更多名片與個人化設置請下載APP
+                </p>
+              </div>
+            </div>
           )}
         </div>
 
