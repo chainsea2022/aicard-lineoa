@@ -809,7 +809,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                   handleAcceptInvitation(customer.id);
                                 }}
                               >
-                                接受
+                                加入名片夾
                               </Button>
                               <Button
                                 size="sm"
