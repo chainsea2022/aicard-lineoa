@@ -101,8 +101,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
                 setShowCreateCard(true);
               }}
             >
-              <Plus className="w-4 h-4 mr-1" />
-              加入
+              <Plus className="w-4 h-4" />
             </Button>
           </div>
 
