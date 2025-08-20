@@ -415,6 +415,12 @@ const ChatRoom = () => {
       const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
       const cardDataExists = localStorage.getItem('aile-card-data');
       const hasStartedRegistration = localStorage.getItem('aicard-user-started-registration') === 'true';
+      
+      // 如果用戶已註冊，自動切換到新版選單
+      if (userRegistered) {
+        setUseNewMenu(true);
+      }
+      
       if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
         // 全新用戶 - 顯示歡迎文案和電子名片預覽
         // 初次加入用戶 - 顯示歡迎文案和電子名片預覽
@@ -644,8 +650,10 @@ const ChatRoom = () => {
     }
   };
   const isRegistered = () => {
+    const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
     const savedData = localStorage.getItem('aile-card-data');
-    return !!savedData;
+    const userData = localStorage.getItem('aile-user-data');
+    return userRegistered && (!!savedData || !!userData);
   };
   const getDynamicMenuItems = () => {
     if (useNewMenu) {
