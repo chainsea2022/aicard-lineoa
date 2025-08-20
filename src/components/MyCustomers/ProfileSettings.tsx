@@ -643,7 +643,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
               <div className="space-y-1">
                 <Label className="text-sm font-medium">公開電子名片</Label>
                 <p className="text-xs text-gray-600">
-                  您的名片將可被其他用戶在智能推薦中搜尋與發現
+                  允許主動曝光您的名片(例如熱門推薦、智能推薦)
                 </p>
               </div>
               <Switch
