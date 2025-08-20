@@ -82,19 +82,7 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
 
           <div className="flex-1 overflow-y-auto">
             <TabsContent value="card-management" className="mt-0 h-full">
-              <div className="p-6 h-full flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
-                  <CreditCard className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">名片管理</h3>
-                <p className="text-gray-600 mb-6">管理您的電子名片，新增、編輯或分享名片</p>
-                <Button 
-                  onClick={() => handleTabChange('card-management')}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2"
-                >
-                  進入名片管理
-                </Button>
-              </div>
+              <CardManagement onClose={onClose} />
             </TabsContent>
 
             <TabsContent value="points" className="mt-0 h-full">
