@@ -340,7 +340,7 @@ Email: ${defaultCardData.email || ''}`;
           <ArrowLeft className="w-4 h-4" />
         </Button>
         <h1 className="text-lg font-semibold text-gray-800 flex-1">
-          {userData && cardData ? '會員資料' : (hasRegistrationHistory ? '設置電子名片' : '會員註冊')}
+          資料設定
         </h1>
         {userData && (
           <Button variant="ghost" size="sm" onClick={handleLogout}>
