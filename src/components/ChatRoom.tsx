@@ -15,7 +15,6 @@ import CardManagement from './CardManagement';
 import MemberInterface from './MemberInterface';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { FullCardLIFF } from './FullCardLIFF';
-import PhoneVerificationLIFF from './PhoneVerificationLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 interface MenuItem {
@@ -407,8 +406,6 @@ const ChatRoom = () => {
   const [showFullCardLIFF, setShowFullCardLIFF] = useState(false);
   const [selectedCardData, setSelectedCardData] = useState<any>(null);
   const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
-  const [forceMenuUpdate, setForceMenuUpdate] = useState(0); // 強制更新選單狀態
-  const [showPhoneVerificationLIFF, setShowPhoneVerificationLIFF] = useState(false); // 手機驗證LIFF
 
   // 初始化歡迎訊息
   useEffect(() => {
@@ -417,12 +414,6 @@ const ChatRoom = () => {
       const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
       const cardDataExists = localStorage.getItem('aile-card-data');
       const hasStartedRegistration = localStorage.getItem('aicard-user-started-registration') === 'true';
-      
-      // 如果用戶已註冊，自動切換到新版選單
-      if (userRegistered) {
-        setUseNewMenu(true);
-      }
-      
       if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
         // 全新用戶 - 顯示歡迎文案和電子名片預覽
         // 初次加入用戶 - 顯示歡迎文案和電子名片預覽
@@ -652,25 +643,13 @@ const ChatRoom = () => {
     }
   };
   const isRegistered = () => {
-    const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
     const savedData = localStorage.getItem('aile-card-data');
-    const userData = localStorage.getItem('aile-user-data');
-    return userRegistered && (!!savedData || !!userData);
+    return !!savedData;
   };
   const getDynamicMenuItems = () => {
     if (useNewMenu) {
-      // 新版選單：根據註冊狀態顯示不同的第三個選項
-      const baseNewMenuItems = [...newMenuItems];
-      if (!isRegistered()) {
-        // 未註冊用戶顯示"註冊"
-        baseNewMenuItems[2] = {
-          id: 'register',
-          title: '註冊',
-          icon: User,
-          color: 'bg-gradient-to-br from-blue-500 to-blue-600'
-        };
-      }
-      return baseNewMenuItems;
+      // 新版選單始終保持三個固定項目：我的電子名片、名片夾、會員
+      return [...newMenuItems];
     }
     const baseItems = [...menuItems];
     if (isRegistered()) {
@@ -731,11 +710,6 @@ const ChatRoom = () => {
       // 會員介面：包含名片管理、點數優惠、資料設定三個分頁
       console.log('Debug - 會員按鈕被點擊');
       setActiveView('member');
-      setIsMenuOpen(false);
-    } else if (itemId === 'register') {
-      // 註冊流程：打開手機驗證 LIFF
-      console.log('Debug - 註冊按鈕被點擊');
-      setShowPhoneVerificationLIFF(true);
       setIsMenuOpen(false);
     } else if (itemId === 'upgrade') {
       // 升級體驗
@@ -970,7 +944,6 @@ const ChatRoom = () => {
     setActiveView(null);
     setIsMenuOpen(true);
     setUseNewMenu(true); // 註冊完成後使用新版 Richmenu
-    setForceMenuUpdate(prev => prev + 1); // 強制更新選單
 
     // 顯示註冊成功訊息
     const successMessage = {
@@ -983,59 +956,6 @@ const ChatRoom = () => {
     toast({
       title: "註冊成功！",
       description: "歡迎加入 AiCard 電子名片平台！"
-    });
-  };
-  const handlePhoneVerificationComplete = (phone: string) => {
-    // 模擬抓取LINE暱稱（演示版本）
-    const mockLineNickname = '王小明'; // 實際應用中這裡會呼叫LINE API
-    
-    // 手機驗證完成後創建用戶資料
-    const phoneUser = {
-      phone: phone,
-      displayName: mockLineNickname,
-      pictureUrl: null,
-      loginMethod: 'phone',
-      registeredAt: new Date(),
-      isVerified: true
-    };
-
-    // 儲存用戶登入資訊和註冊歷史
-    localStorage.setItem('aile-user-data', JSON.stringify(phoneUser));
-    localStorage.setItem('aile-registration-history', JSON.stringify({
-      registeredAt: new Date(),
-      method: 'phone',
-      hasRegistered: true
-    }));
-    localStorage.setItem('aicard-user-registered', 'true'); // 標記用戶已註冊
-
-    // 創建預設名片資料（包含手機號碼和LINE暱稱）
-    const defaultCardData = {
-      companyName: '',
-      name: mockLineNickname, // 自動填入LINE暱稱
-      phone: phone,
-      email: '',
-      website: '',
-      line: mockLineNickname, // 設定LINE暱稱
-      facebook: '',
-      instagram: '',
-      photo: null,
-      jobTitle: '',
-      introduction: '透過 AiCard 電子名片與我連結！'
-    };
-
-    // 儲存預設名片資料
-    localStorage.setItem('aile-card-data', JSON.stringify(defaultCardData));
-
-    // 關閉驗證界面
-    setShowPhoneVerificationLIFF(false);
-    
-    // 呼叫註冊完成處理
-    handleRegistrationComplete();
-    
-    // 顯示成功提示
-    toast({
-      title: "🎉 註冊成功！",
-      description: "您的第一張電子名片已建立完成，包含 LINE 暱稱和手機號碼",
     });
   };
   const renderActiveView = () => {
@@ -1317,13 +1237,6 @@ const ChatRoom = () => {
         isOpen={showFullCardLIFF} 
         onClose={() => setShowFullCardLIFF(false)} 
         cardData={selectedCardData} 
-      />
-
-      {/* 手機驗證 LIFF 介面 */}
-      <PhoneVerificationLIFF
-        isOpen={showPhoneVerificationLIFF}
-        onClose={() => setShowPhoneVerificationLIFF(false)}
-        onVerificationComplete={handlePhoneVerificationComplete}
       />
     </div>;
 };

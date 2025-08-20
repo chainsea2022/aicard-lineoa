@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, X, User, Coins, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, X, User, Coins, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import CardManagement from './CardManagement';
@@ -13,19 +13,6 @@ interface MemberInterfaceProps {
 const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState('card-management');
 
-  const handleLogout = () => {
-    // 清除所有用戶資料，包括註冊歷史
-    localStorage.removeItem('aile-card-data');
-    localStorage.removeItem('aile-user-data');
-    localStorage.removeItem('aile-profile-settings');
-    localStorage.removeItem('aile-user-points');
-    localStorage.removeItem('aile-registration-history');
-    
-    // 發送登出事件，讓應用回到首次註冊流程
-    window.dispatchEvent(new CustomEvent('userLoggedOut'));
-    onClose();
-  };
-
   return (
     <div className="absolute inset-0 bg-white z-50 flex flex-col h-full overflow-hidden">{/* 改為absolute避免與ChatRoom衝突 */}
       {/* Header */}
@@ -37,14 +24,9 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
             </Button>
             <h1 className="font-bold text-lg">會員</h1>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="text-white hover:bg-white/20">
-              <LogOut className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
+          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+            <X className="w-5 h-5" />
+          </Button>
         </div>
       </div>
 
