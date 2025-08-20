@@ -414,6 +414,11 @@ const ChatRoom = () => {
       const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
       const cardDataExists = localStorage.getItem('aile-card-data');
       const hasStartedRegistration = localStorage.getItem('aicard-user-started-registration') === 'true';
+      
+      // 如果是已註冊用戶，使用新版選單
+      if (userRegistered && cardDataExists) {
+        setUseNewMenu(true);
+      }
       if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
         // 全新用戶 - 顯示歡迎文案和電子名片預覽
         // 初次加入用戶 - 顯示歡迎文案和電子名片預覽
@@ -603,17 +608,35 @@ const ChatRoom = () => {
     const handleRegistrationCompleted = () => {
       handleRegistrationComplete();
     };
+    
+    // 監聽登出事件
+    const handleUserLogout = () => {
+      setUseNewMenu(false);
+      setActiveView(null);
+      setIsMenuOpen(true);
+      
+      // 顯示登出成功訊息
+      const logoutMessage = {
+        id: Date.now(),
+        text: '👋 您已成功登出！\n🔄 歡迎隨時重新註冊使用 AiCard 服務！',
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, logoutMessage]);
+    };
     window.addEventListener('customerScannedCard', handleCustomerAdded as EventListener);
     window.addEventListener('qrCodeScanned', handleQRScanned as EventListener);
     window.addEventListener('paperCardScanned', handlePaperScanned as EventListener);
     window.addEventListener('liffCardShared', handleLiffCardShared as EventListener);
     window.addEventListener('registrationCompleted', handleRegistrationCompleted as EventListener);
+    window.addEventListener('userLogout', handleUserLogout as EventListener);
     return () => {
       window.removeEventListener('customerScannedCard', handleCustomerAdded as EventListener);
       window.removeEventListener('qrCodeScanned', handleQRScanned as EventListener);
       window.removeEventListener('paperCardScanned', handlePaperScanned as EventListener);
       window.removeEventListener('liffCardShared', handleLiffCardShared as EventListener);
       window.removeEventListener('registrationCompleted', handleRegistrationCompleted as EventListener);
+      window.removeEventListener('userLogout', handleUserLogout as EventListener);
     };
   }, []);
   const handleSendMessage = () => {
