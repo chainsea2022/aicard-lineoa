@@ -12,29 +12,6 @@ interface MemberInterfaceProps {
 
 const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState<'card-management' | 'points' | 'settings'>('card-management');
-  const [showSubComponent, setShowSubComponent] = useState(false);
-
-  const handleTabChange = (tab: 'card-management' | 'points' | 'settings') => {
-    setActiveTab(tab);
-    setShowSubComponent(true);
-  };
-
-  const handleBackToTabs = () => {
-    setShowSubComponent(false);
-  };
-
-  // If showing a sub-component, render it directly
-  if (showSubComponent) {
-    if (activeTab === 'card-management') {
-      return <CardManagement onClose={handleBackToTabs} />;
-    }
-    if (activeTab === 'points') {
-      return <MemberPoints onClose={handleBackToTabs} />;
-    }
-    if (activeTab === 'settings') {
-      return <ProfileSettings onClose={handleBackToTabs} />;
-    }
-  }
 
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
@@ -80,41 +57,17 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
             </TabsTrigger>
           </TabsList>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-hidden">
             <TabsContent value="card-management" className="mt-0 h-full">
               <CardManagement onClose={onClose} />
             </TabsContent>
 
             <TabsContent value="points" className="mt-0 h-full">
-              <div className="p-6 h-full flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                  <Coins className="w-8 h-8 text-orange-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">點數優惠</h3>
-                <p className="text-gray-600 mb-6">查看您的點數餘額、獲得點數方式和兌換優惠</p>
-                <Button 
-                  onClick={() => handleTabChange('points')}
-                  className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2"
-                >
-                  查看點數優惠
-                </Button>
-              </div>
+              <MemberPoints onClose={onClose} />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-0 h-full">
-              <div className="p-6 h-full flex flex-col items-center justify-center text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                  <Settings className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">資料設定</h3>
-                <p className="text-gray-600 mb-6">管理您的個人資料、隱私設定和通知偏好</p>
-                <Button 
-                  onClick={() => handleTabChange('settings')}
-                  className="bg-green-500 hover:bg-green-600 text-white px-6 py-2"
-                >
-                  進入資料設定
-                </Button>
-              </div>
+              <ProfileSettings onClose={onClose} />
             </TabsContent>
           </div>
         </Tabs>
