@@ -109,7 +109,7 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-6">
+      <div className="flex-1 overflow-auto p-4">
         {step === 1 && (
           <div className="max-w-md mx-auto space-y-6">
             {/* Welcome Section */}
