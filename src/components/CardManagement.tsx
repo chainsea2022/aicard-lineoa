@@ -102,7 +102,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
               }}
             >
               <Plus className="w-4 h-4 mr-1" />
-              新增名片
+              加入
             </Button>
           </div>
 
