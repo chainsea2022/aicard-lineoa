@@ -378,7 +378,10 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                 >
                   <Plus className="w-8 h-8 text-gray-400 hover:text-blue-500" />
                 </Button>
-                <h3 className="mt-4 text-lg font-semibold text-gray-800 flex items-center justify-center">
+                <h3 
+                  className="mt-4 text-lg font-semibold text-gray-800 flex items-center justify-center cursor-pointer hover:text-blue-600 transition-colors duration-200"
+                  onClick={handleAddNewCard}
+                >
                   <Plus className="w-6 h-6" />
                 </h3>
                 <p className="mt-2 text-sm text-gray-600">
