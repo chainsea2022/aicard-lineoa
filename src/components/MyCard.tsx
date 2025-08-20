@@ -214,16 +214,20 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
     setCardData(defaultCardData);
 
     // 生成QR Code資料
-    const qrInfo = `名片資訊
-姓名: ${defaultCardData.name || ''}
-公司: ${defaultCardData.companyName || ''}
-電話: ${defaultCardData.phone || ''}
-Email: ${defaultCardData.email || ''}`;
+    const qrInfo = `電子名片
+手機: ${defaultCardData.phone}
+歡迎使用 AiCard 電子名片服務`;
     setQrCodeData(qrInfo);
 
     // 標記為新用戶並關閉驗證界面
     setIsNewUser(true);
     setShowOTPVerification(false);
+    
+    // 顯示成功提示
+    toast({
+      title: "🎉 註冊成功！",
+      description: "您的第一張電子名片已建立完成",
+    });
     
     // 驗證完成後回到聊天室
     window.dispatchEvent(new CustomEvent('registrationCompleted'));
@@ -446,10 +450,16 @@ Email: ${defaultCardData.email || ''}`;
           <div className="p-6">
             {/* 新用戶提示 */}
             {isNewUser && (
-              <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-700 font-medium">
-                  🎉 註冊成功！您的電子名片已建立，點擊「編輯個人資料」完善您的資訊
-                </p>
+              <div className="mb-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-xl">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                    <span className="text-green-600 text-xl">🎉</span>
+                  </div>
+                  <div>
+                    <p className="text-green-800 font-semibold text-sm">註冊成功！</p>
+                    <p className="text-green-700 text-xs">您的第一張電子名片已建立，請完善個人資訊</p>
+                  </div>
+                </div>
               </div>
             )}
 
