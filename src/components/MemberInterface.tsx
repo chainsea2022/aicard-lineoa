@@ -14,13 +14,14 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState('card-management');
 
   const handleLogout = () => {
-    // 清除用戶資料
+    // 清除所有用戶資料，包括註冊歷史
     localStorage.removeItem('aile-card-data');
     localStorage.removeItem('aile-user-data');
     localStorage.removeItem('aile-profile-settings');
     localStorage.removeItem('aile-user-points');
+    localStorage.removeItem('aile-registration-history');
     
-    // 發送登出事件，讓應用回到註冊流程
+    // 發送登出事件，讓應用回到首次註冊流程
     window.dispatchEvent(new CustomEvent('userLoggedOut'));
     onClose();
   };
