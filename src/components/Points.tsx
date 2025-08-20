@@ -181,6 +181,26 @@ const Points: React.FC<PointsProps> = ({
   };
   const canRedeemTrial = currentPoints >= 50;
   return <div className="absolute inset-0 bg-white overflow-y-auto">
+      {/* 固定的目前點數區塊 */}
+      <div className="bg-gradient-to-r from-orange-500 to-yellow-500 p-4">
+        <div className="flex items-center justify-center space-x-3 text-white">
+          <Coins className="w-6 h-6" />
+          <div className="text-center">
+            <div className="text-sm font-medium">目前點數</div>
+            <div className="text-2xl font-bold">{currentPoints.toLocaleString()}</div>
+          </div>
+        </div>
+        {canRedeemTrial && (
+          <div className="mt-2 text-center">
+            <div className="inline-flex items-center bg-white/20 rounded-full px-3 py-1 text-sm">
+              <Award className="w-4 h-4 mr-1" />
+              可兌換商務版試用
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 分頁標籤 */}
       <div className="flex bg-white border-b border-gray-200">
         <button onClick={() => setActiveTab('overview')} className={`flex-1 py-3 text-center font-medium ${activeTab === 'overview' ? 'text-orange-600 border-b-2 border-orange-600' : 'text-gray-600'}`}>
           <TrendingUp className="w-4 h-4 inline-block mr-1" />
@@ -198,29 +218,6 @@ const Points: React.FC<PointsProps> = ({
 
       <div className="p-4">
         {activeTab === 'overview' ? <>
-            <Card className="mb-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-orange-200">
-              <CardContent className="p-6 text-center">
-                <div className="mb-4">
-                  <Coins className="w-16 h-16 mx-auto text-orange-500 mb-2" />
-                  <h2 className="text-2xl font-bold text-gray-800">目前點數</h2>
-                </div>
-                <div className="text-4xl font-bold text-orange-600 mb-2">
-                  {currentPoints.toLocaleString()}
-                </div>
-                <p className="text-gray-600">點</p>
-                
-                <div className="mt-4 p-3 bg-white rounded-lg border">
-                  {canRedeemTrial ? <div className="text-green-600">
-                      <Award className="w-5 h-5 inline-block mr-1" />
-                      <span className="font-medium">可兌換商務版試用！</span>
-                    </div> : <div className="text-gray-600">
-                      <span className="text-sm">
-                        還需 {50 - currentPoints} 點即可兌換商務版試用
-                      </span>
-                    </div>}
-                </div>
-              </CardContent>
-            </Card>
 
             <Card className="mb-4">
               <CardHeader>
