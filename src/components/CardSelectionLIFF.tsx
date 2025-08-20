@@ -378,7 +378,9 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                 >
                   <Plus className="w-8 h-8 text-gray-400 hover:text-blue-500" />
                 </Button>
-                <h3 className="mt-4 text-lg font-semibold text-gray-800">新增名片</h3>
+                <h3 className="mt-4 text-lg font-semibold text-gray-800 flex items-center justify-center">
+                  <Plus className="w-6 h-6" />
+                </h3>
                 <p className="mt-2 text-sm text-gray-600">
                   最多可建立3張名片
                 </p>
