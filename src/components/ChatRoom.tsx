@@ -648,23 +648,8 @@ const ChatRoom = () => {
   };
   const getDynamicMenuItems = () => {
     if (useNewMenu) {
-      const baseItems = [...newMenuItems];
-      if (isRegistered()) {
-        baseItems[2] = {
-          id: 'create-card',
-          title: '會員',
-          icon: User,
-          color: 'bg-gradient-to-br from-blue-500 to-blue-600'
-        };
-      } else {
-        baseItems[2] = {
-          id: 'create-card',
-          title: '註冊',
-          icon: User,
-          color: 'bg-gradient-to-br from-blue-500 to-blue-600'
-        };
-      }
-      return baseItems;
+      // 新版選單始終保持三個固定項目：我的電子名片、名片夾、會員
+      return [...newMenuItems];
     }
     const baseItems = [...menuItems];
     if (isRegistered()) {
