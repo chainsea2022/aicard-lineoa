@@ -10,7 +10,7 @@ export const getRandomProfessionalAvatar = (id: number): string => {
   return avatars[id % avatars.length];
 };
 
-export const getRelationshipStatusDisplay = (status?: 'collected' | 'addedMe' | 'ignored' | 'archived') => {
+export const getRelationshipStatusDisplay = (status?: 'collected' | 'addedMe' | 'ignored' | 'archived' | 'invited') => {
   switch (status) {
     case 'collected':
       return { text: '已收藏', color: 'text-green-600' };
@@ -20,6 +20,8 @@ export const getRelationshipStatusDisplay = (status?: 'collected' | 'addedMe' | 
       return { text: '已忽略', color: 'text-gray-500' };
     case 'archived':
       return { text: '已封存', color: 'text-orange-600' };
+    case 'invited':
+      return { text: '邀請中', color: 'text-purple-600' };
     default:
       return { text: '未知', color: 'text-gray-400' };
   }

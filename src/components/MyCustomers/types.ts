@@ -24,7 +24,7 @@ export interface Customer {
   isMyFriend?: boolean;
   isFollowingMe?: boolean;
   hasPendingInvitation?: boolean;
-  relationshipStatus?: 'collected' | 'addedMe' | 'ignored' | 'archived';
+  relationshipStatus?: 'collected' | 'addedMe' | 'ignored' | 'archived' | 'invited';
   isNewAddition?: boolean;
   isPublicProfile?: boolean;
   allowDirectContact?: boolean;
@@ -32,9 +32,11 @@ export interface Customer {
   isRegisteredUser?: boolean; // true for registered digital card users, false for unregistered
   lineId?: string; // for unregistered users who only have LINE ID
   isRecommendation?: boolean; // true for smart recommendations
+  isPendingInvitation?: boolean; // true for pending friend invitations
+  needsManualApproval?: boolean; // true when manual approval is needed
 }
 
-export type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived';
+export type CustomerRelationshipStatus = 'collected' | 'addedMe' | 'ignored' | 'archived' | 'invited';
 
 export interface RecommendedContact {
   id: number;

@@ -62,9 +62,31 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
   const [showRecommendationDetail, setShowRecommendationDetail] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false);
+  const [pendingInvitations, setPendingInvitations] = useState<Customer[]>([]);
+  const [newAutoAddedCards, setNewAutoAddedCards] = useState<Set<number>>(new Set());
+  const [autoAddSettings, setAutoAddSettings] = useState(true); // Privacy setting for auto-add
+  const [declinedInvitations, setDeclinedInvitations] = useState<Customer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
     const recommendations = generateMockRecommendations(4);
+    // Add some mock pending invitations
+    const mockInvitations = Array.from({ length: 2 }, (_, i) => ({
+      id: 3000 + i,
+      name: ['李小華', '王建國'][i],
+      phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+      email: `invitation${i}@example.com`,
+      company: ['新創公司', '設計工作室'][i],
+      jobTitle: ['產品經理', '設計師'][i],
+      photo: getRandomProfessionalAvatar(3000 + i),
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '邀請加入',
+      tags: [],
+      relationshipStatus: 'invited' as const,
+      isDigitalCard: true,
+      isRegisteredUser: true,
+      isPendingInvitation: true
+    }));
     return [...mockData, ...recommendations];
   });
 
@@ -72,11 +94,134 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const commonTags = ['同事', '客戶', '朋友', '供應商', '合作夥伴', '主管', '下屬', '同學', '家人', '醫生'];
 
   // Calculate counts for filters
-  const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation).length;
+  const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation && !c.isPendingInvitation).length;
   const unregisteredCount = customers.filter(c => !c.isRegisteredUser).length;
   const recommendationsCount = customers.filter(c => c.isRecommendation).length;
-  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe').length;
+  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
+  const pendingInvitationsCount = pendingInvitations.length;
+
+  // Initialize mock pending invitations
+  useEffect(() => {
+    const mockInvitations = Array.from({ length: 2 }, (_, i) => ({
+      id: 3000 + i,
+      name: ['李小華', '王建國'][i],
+      phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+      email: `invitation${i}@example.com`,
+      company: ['新創公司', '設計工作室'][i],
+      jobTitle: ['產品經理', '設計師'][i],
+      photo: getRandomProfessionalAvatar(3000 + i),
+      hasCard: true,
+      addedDate: new Date().toISOString(),
+      notes: '邀請加入',
+      tags: [],
+      relationshipStatus: 'invited' as const,
+      isDigitalCard: true,
+      isRegisteredUser: true,
+      isPendingInvitation: true
+    }));
+    setPendingInvitations(mockInvitations);
+  }, []);
+
+  // Handle invitation acceptance
+  const handleAcceptInvitation = (customerId: number) => {
+    const invitation = pendingInvitations.find(inv => inv.id === customerId);
+    if (invitation) {
+      if (autoAddSettings) {
+        // Auto-add to card folder
+        const newCustomer = { 
+          ...invitation, 
+          isPendingInvitation: false, 
+          relationshipStatus: 'collected' as const 
+        };
+        setCustomers(prev => [...prev, newCustomer]);
+        setNewAutoAddedCards(prev => new Set([...prev, customerId]));
+        
+        toast({
+          title: "自動加入名片夾",
+          description: `${invitation.name} 已自動加入您的名片夾`,
+          className: "max-w-[280px] mx-auto"
+        });
+      } else {
+        // Manual approval - add invitation to customers list for manual handling
+        const newCustomer = { 
+          ...invitation, 
+          isPendingInvitation: false,
+          needsManualApproval: true,
+          relationshipStatus: 'invited' as const 
+        };
+        setCustomers(prev => [...prev, newCustomer]);
+        
+        toast({
+          title: "收到邀請",
+          description: `${invitation.name} 想要加入您的名片夾`,
+          className: "max-w-[280px] mx-auto"
+        });
+      }
+      
+      // Remove from pending invitations
+      setPendingInvitations(prev => prev.filter(inv => inv.id !== customerId));
+    }
+  };
+
+  // Handle declining invitation
+  const handleDeclineInvitation = (customerId: number) => {
+    const invitation = pendingInvitations.find(inv => inv.id === customerId);
+    if (invitation) {
+      setDeclinedInvitations(prev => [...prev, invitation]);
+      setPendingInvitations(prev => prev.filter(inv => inv.id !== customerId));
+      
+      toast({
+        title: "已略過邀請",
+        description: `已略過 ${invitation.name} 的邀請`,
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
+
+  // Handle manual approval from customer card
+  const handleManualApproval = (customerId: number, approved: boolean) => {
+    if (approved) {
+      const updatedCustomers = customers.map(c => 
+        c.id === customerId 
+          ? { ...c, needsManualApproval: false, relationshipStatus: 'collected' as const }
+          : c
+      );
+      setCustomers(updatedCustomers);
+      
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        toast({
+          title: "已加入名片夾",
+          description: `${customer.name} 已加入您的名片夾`,
+          className: "max-w-[280px] mx-auto"
+        });
+      }
+    } else {
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        setDeclinedInvitations(prev => [...prev, customer]);
+      }
+      
+      const updatedCustomers = customers.filter(c => c.id !== customerId);
+      setCustomers(updatedCustomers);
+      
+      toast({
+        title: "已略過邀請",
+        description: "邀請已略過",
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
+
+  // Clear NEW badges when viewing card folder
+  const handleFilterChange = (newFilter: FilterState) => {
+    setFilter(newFilter);
+    if (newFilter.category === 'my-cards' || newFilter.category === 'invited-by') {
+      // Clear NEW badges when user views these sections
+      setNewAutoAddedCards(new Set());
+    }
+  };
 
   const getFilteredCustomers = () => {
     let filtered = customers.filter(customer => {
@@ -93,13 +238,13 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       // Category filter
       switch (filter.category) {
         case 'my-cards':
-          return customer.isRegisteredUser && !customer.isRecommendation;
+          return customer.isRegisteredUser && !customer.isRecommendation && !customer.isPendingInvitation;
         case 'unregistered':
           return !customer.isRegisteredUser;
         case 'recommendations':
           return customer.isRecommendation;
         case 'invited-by':
-          return customer.relationshipStatus === 'addedMe';
+          return customer.relationshipStatus === 'addedMe' || customer.isPendingInvitation || customer.needsManualApproval;
         case 'invited':
           return customer.invitationSent || customer.emailInvitationSent;
         case 'following':
@@ -114,10 +259,24 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       }
     });
 
-    // Sort customers: favorites first, then by added date
+    // Include pending invitations in the filtered results
+    if (filter.category === 'invited-by' || filter.category === 'all') {
+      filtered = [...filtered, ...pendingInvitations];
+    }
+
+    // Sort customers: NEW cards first, then favorites, then by added date
     return filtered.sort((a, b) => {
+      // NEW auto-added cards come first
+      const aIsNew = newAutoAddedCards.has(a.id);
+      const bIsNew = newAutoAddedCards.has(b.id);
+      if (aIsNew && !bIsNew) return -1;
+      if (!aIsNew && bIsNew) return 1;
+      
+      // Then favorites
       if (a.isFavorite && !b.isFavorite) return -1;
       if (!a.isFavorite && b.isFavorite) return 1;
+      
+      // Then by added date
       const dateA = new Date(a.addedDate || 0).getTime();
       const dateB = new Date(b.addedDate || 0).getTime();
       return dateB - dateA;
@@ -125,6 +284,27 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   };
 
   const getCardStyle = (customer: Customer) => {
+    if (customer.isPendingInvitation) {
+      return {
+        className: "border-2 border-purple-300 bg-purple-50",
+        badge: { text: "邀請中", className: "bg-purple-500 text-white" }
+      };
+    }
+    
+    if (customer.needsManualApproval) {
+      return {
+        className: "border-2 border-blue-300 bg-blue-50",
+        badge: { text: "等待確認", className: "bg-blue-500 text-white" }
+      };
+    }
+    
+    if (newAutoAddedCards.has(customer.id)) {
+      return {
+        className: "border-2 border-pink-300 bg-pink-50",
+        badge: { text: "NEW", className: "bg-pink-500 text-white" }
+      };
+    }
+    
     if (customer.isRecommendation) {
       return {
         className: "border-2 border-dashed border-muted-foreground bg-card",
@@ -327,10 +507,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           <Button
             variant={filter.category === 'my-cards' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setFilter({ category: 'my-cards' })}
-            className="whitespace-nowrap"
+            onClick={() => handleFilterChange({ category: 'my-cards' })}
+            className="whitespace-nowrap relative"
           >
             我的名片夾 ({myCardsCount})
+            {newAutoAddedCards.size > 0 && (
+              <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                NEW
+              </span>
+            )}
           </Button>
           <Button
             variant={filter.category === 'unregistered' ? 'default' : 'outline'}
@@ -351,10 +536,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           <Button
             variant={filter.category === 'invited-by' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => setFilter({ category: 'invited-by' })}
-            className="whitespace-nowrap"
+            onClick={() => handleFilterChange({ category: 'invited-by' })}
+            className="whitespace-nowrap relative"
           >
             被邀請 ({invitedByCount})
+            {pendingInvitationsCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {pendingInvitationsCount}
+              </span>
+            )}
           </Button>
           <Button
             variant={filter.category === 'invited' ? 'default' : 'outline'}
@@ -599,6 +789,62 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleSkipRecommendation(customer.id);
+                                }}
+                              >
+                                略過
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {/* Pending invitation buttons */}
+                          {customer.isPendingInvitation && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-6 px-2 text-xs bg-purple-500 hover:bg-purple-600 text-white"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAcceptInvitation(customer.id);
+                                }}
+                              >
+                                接受
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeclineInvitation(customer.id);
+                                }}
+                              >
+                                略過
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {/* Manual approval buttons */}
+                          {customer.needsManualApproval && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-6 px-2 text-xs bg-blue-500 hover:bg-blue-600 text-white"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleManualApproval(customer.id, true);
+                                }}
+                              >
+                                加入名片夾
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleManualApproval(customer.id, false);
                                 }}
                               >
                                 略過
