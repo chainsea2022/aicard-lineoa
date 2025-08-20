@@ -494,15 +494,51 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Fixed Filter Buttons */}
+      {/* Filter Buttons */}
       <div className="px-4 py-3 border-b border-border bg-muted/30">
-        {/* Main fixed filters */}
-        <div className="flex gap-2 mb-3">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <Button
+            variant={filter.category === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'all' })}
+            className="whitespace-nowrap"
+          >
+            全部
+          </Button>
+          <Button
+            variant={filter.category === 'my-cards' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => handleFilterChange({ category: 'my-cards' })}
+            className="whitespace-nowrap relative"
+          >
+            我的名片夾 ({myCardsCount})
+            {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {newAutoAddedCards.size + pendingInvitationsCount}
+              </span>
+            )}
+          </Button>
+          <Button
+            variant={filter.category === 'unregistered' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'unregistered' })}
+            className="whitespace-nowrap"
+          >
+            未註冊 ({unregisteredCount})
+          </Button>
+          <Button
+            variant={filter.category === 'recommendations' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'recommendations' })}
+            className="whitespace-nowrap"
+          >
+            智能推薦 ({recommendationsCount})
+          </Button>
           <Button
             variant={filter.category === 'invited-by' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleFilterChange({ category: 'invited-by' })}
-            className="relative"
+            className="whitespace-nowrap relative"
           >
             被邀請 ({invitedByCount})
             {pendingInvitationsCount > 0 && (
@@ -515,6 +551,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             variant={filter.category === 'invited' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter({ category: 'invited' })}
+            className="whitespace-nowrap"
           >
             已邀請 ({invitedCount})
           </Button>
@@ -522,63 +559,12 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             variant={filter.category === 'following' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setFilter({ category: 'following' })}
+            className="whitespace-nowrap"
           >
             <Star className="w-4 h-4 mr-1" />
             關注
           </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowAllTags(!showAllTags)}
-            className="ml-auto"
-          >
-            <Filter className="w-4 h-4 mr-1" />
-            篩選
-          </Button>
         </div>
-        
-        {/* Expandable additional filters */}
-        {showAllTags && (
-          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-            <Button
-              variant={filter.category === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter({ category: 'all' })}
-              className="whitespace-nowrap"
-            >
-              全部
-            </Button>
-            <Button
-              variant={filter.category === 'my-cards' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleFilterChange({ category: 'my-cards' })}
-              className="whitespace-nowrap relative"
-            >
-              我的名片夾 ({myCardsCount})
-              {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {newAutoAddedCards.size + pendingInvitationsCount}
-                </span>
-              )}
-            </Button>
-            <Button
-              variant={filter.category === 'unregistered' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter({ category: 'unregistered' })}
-              className="whitespace-nowrap"
-            >
-              未註冊 ({unregisteredCount})
-            </Button>
-            <Button
-              variant={filter.category === 'recommendations' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter({ category: 'recommendations' })}
-              className="whitespace-nowrap"
-            >
-              智能推薦 ({recommendationsCount})
-            </Button>
-          </div>
-        )}
       </div>
 
       {/* Common Tags Section */}
