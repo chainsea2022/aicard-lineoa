@@ -719,6 +719,11 @@ const ChatRoom = () => {
     if (itemId === 'create-card') {
       setActiveView(itemId);
       setIsMenuOpen(false);
+    } else if (itemId === 'register') {
+      // 點擊註冊按鈕，打開手機驗證LIFF介面
+      console.log('Debug - 註冊按鈕被點擊');
+      setShowPhoneVerificationLIFF(true);
+      setIsMenuOpen(false);
     } else if (itemId === 'my-card') {
       // 檢查用戶註冊狀態
       const isUserRegistered = localStorage.getItem('aicard-user-registered') === 'true';
@@ -744,7 +749,7 @@ const ChatRoom = () => {
         console.log('Debug - 顯示註冊提示訊息');
         const noCardMessage: Message = {
           id: Date.now(),
-          text: "⚠️ 您尚未完成會員註冊，無法使用此功能。\n🎯 立即註冊，打造您的第一張專屬電子名片！\n👇 點擊下方「會員註冊」開始設定：",
+          text: "⚠️ 您尚未完成會員註冊，無法使用此功能。\n🎯 立即註冊，打造您的第一張專屬電子名片！\n👇 點擊下方「註冊」開始設定：",
           isBot: true,
           timestamp: new Date()
         };
