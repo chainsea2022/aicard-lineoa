@@ -65,7 +65,7 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
               className="py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600"
             >
               <Coins className="w-4 h-4 mr-2" />
-              點數優惠
+              我的點數
             </TabsTrigger>
             <TabsTrigger 
               value="profile-settings" 
