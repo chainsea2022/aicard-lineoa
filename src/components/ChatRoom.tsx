@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPlus, Edit, Share2, Download, BookmarkPlus, ChevronDown, ChevronUp, QrCode, MessageCircle, Facebook, Instagram, Youtube, Linkedin, CheckCircle, Coins, Crown, RotateCcw, Phone, Mail, Globe, Eye, EyeOff } from 'lucide-react';
+import { PhoneVerificationLIFF } from './PhoneVerificationLIFF';
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
@@ -78,8 +79,26 @@ const menuItems: MenuItem[] = [{
   color: 'bg-gradient-to-br from-red-500 to-red-600'
 }];
 
-// 新的 Richmenu 模式選項
+// 新的 Richmenu 模式選項 - 未註冊用戶
 const newMenuItems: MenuItem[] = [{
+  id: 'my-card',
+  title: '我的電子名片',
+  icon: Zap,
+  color: 'bg-gradient-to-br from-green-500 to-green-600'
+}, {
+  id: 'customers',
+  title: '名片夾',
+  icon: Users,
+  color: 'bg-gradient-to-br from-orange-500 to-orange-600'
+}, {
+  id: 'register',
+  title: '註冊',
+  icon: UserPlus,
+  color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+}];
+
+// 新的 Richmenu 模式選項 - 已註冊用戶
+const registeredMenuItems: MenuItem[] = [{
   id: 'my-card',
   title: '我的電子名片',
   icon: Zap,
@@ -398,6 +417,8 @@ const ChatRoom = () => {
   const [currentCardOwner, setCurrentCardOwner] = useState('');
   const [liffFlowType, setLiffFlowType] = useState<'qr_scan' | 'direct_add'>('qr_scan');
   const [expandedQrCodes, setExpandedQrCodes] = useState<Record<number, boolean>>({});
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [showRegistrationLIFF, setShowRegistrationLIFF] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>({});
   const [pendingCustomerName, setPendingCustomerName] = useState<string>('');
   const [showFullCardPopup, setShowFullCardPopup] = useState(false);
@@ -665,33 +686,59 @@ const ChatRoom = () => {
       handleSendMessage();
     }
   };
-  const isRegistered = () => {
-    const savedData = localStorage.getItem('aile-card-data');
-    return !!savedData;
+  // 檢查用戶註冊狀態
+  const checkUserRegistration = () => {
+    return localStorage.getItem('userRegistered') === 'true';
   };
+
+  // 初始化時檢查註冊狀態
+  useEffect(() => {
+    const registrationStatus = checkUserRegistration();
+    setIsRegistered(registrationStatus);
+    
+    // 監聽註冊事件
+    const handleUserRegistered = () => {
+      setIsRegistered(true);
+      toast({
+        title: "註冊成功！",
+        description: "歡迎加入 AiCard 電子名片服務",
+      });
+    };
+
+    const handleUserLogout = () => {
+      setIsRegistered(false);
+    };
+
+    window.addEventListener('userRegistered', handleUserRegistered);
+    window.addEventListener('userLogout', handleUserLogout);
+
+    return () => {
+      window.removeEventListener('userRegistered', handleUserRegistered);
+      window.removeEventListener('userLogout', handleUserLogout);
+    };
+  }, []);
+
   const getDynamicMenuItems = () => {
-    if (useNewMenu) {
-      // 新版選單始終保持三個固定項目：我的電子名片、名片夾、會員
-      return [...newMenuItems];
+    if (isRegistered) {
+      return registeredMenuItems;
+    } else {
+      return newMenuItems;
     }
-    const baseItems = [...menuItems];
-    if (isRegistered()) {
-      baseItems[2] = {
-        id: 'create-card',
-        title: '設置電子名片',
-        icon: User,
-        color: 'bg-gradient-to-br from-blue-500 to-blue-600'
-      };
-    }
-    return baseItems;
   };
   const handleMenuItemClick = (itemId: string) => {
-    if (itemId === 'create-card') {
+    if (itemId === 'register') {
+      // 點擊註冊按鈕，開啟註冊LIFF
+      setShowRegistrationLIFF(true);
+    } else if (itemId === 'member') {
+      // 點擊會員按鈕，開啟會員介面
+      setActiveView(itemId);
+      setIsMenuOpen(false);
+    } else if (itemId === 'create-card') {
       setActiveView(itemId);
       setIsMenuOpen(false);
     } else if (itemId === 'my-card') {
       // 檢查用戶註冊狀態
-      const isUserRegistered = localStorage.getItem('aicard-user-registered') === 'true';
+      const isUserRegistered = checkUserRegistration();
       const userData = localStorage.getItem('aile-user-data');
       const cardData = localStorage.getItem('aile-card-data');
       
@@ -1236,10 +1283,13 @@ const ChatRoom = () => {
           } else {
             setIsMenuOpen(true);
           }
-        }} className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg active:scale-95 transition-transform" size="sm">
-              <Plus className="w-5 h-5" />
-            </Button>
-          </div>}
+          }}
+          className="w-12 h-12 rounded-full bg-green-500 hover:bg-green-600 shadow-lg active:scale-95 transition-transform"
+          size="sm"
+        >
+          <Plus className="w-5 h-5" />
+        </Button>
+      </div>}
       </div>
 
       {/* LIFF 彈跳介面 */}
@@ -1248,6 +1298,16 @@ const ChatRoom = () => {
       setPendingCustomerName(''); // 清除暫存的客戶名稱
     }} cardOwnerName={currentCardOwner} onUserJoined={handleUserJoined} flowType={liffFlowType} customerName={pendingCustomerName} // 傳遞統一的客戶名稱
     />
+
+      {/* 註冊 LIFF 介面 */}
+      <PhoneVerificationLIFF
+        isOpen={showRegistrationLIFF}
+        onClose={() => setShowRegistrationLIFF(false)}
+        onRegistrationComplete={() => {
+          setIsRegistered(true);
+          setShowRegistrationLIFF(false);
+        }}
+      />
 
       {/* 完整電子名片 LIFF 彈跳介面 */}
       <FullCardLIFFPopup isOpen={showFullCardPopup} onClose={() => setShowFullCardPopup(false)} cardData={fullCardData} onJoinAiCardOA={handleJoinAiCardOA} onSaveCard={handleSaveCard} onShareCard={handleShareCard} />
