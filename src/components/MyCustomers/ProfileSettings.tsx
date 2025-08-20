@@ -221,32 +221,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
   };
 
   return (
-    <div className="absolute inset-0 bg-white z-50 overflow-y-auto">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="text-white hover:bg-white/20"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <h1 className="font-bold text-lg">資料設定</h1>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onClose}
-            className="text-white hover:bg-white/20"
-          >
-            <X className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-
+    <div className="absolute inset-0 bg-white overflow-y-auto">
       <div className="p-6 space-y-6">
         {/* 個人資料區塊 */}
         <Card className="shadow-lg">
