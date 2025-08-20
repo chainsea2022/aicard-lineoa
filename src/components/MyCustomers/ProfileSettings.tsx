@@ -682,18 +682,6 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
             </div>
           </CardContent>
         </Card>
-
-        {/* 說明區塊 */}
-        <Card className="bg-blue-50 border border-blue-200">
-          <CardContent className="p-4">
-            <h4 className="font-medium text-blue-800 mb-2">設定說明</h4>
-            <ul className="text-xs text-blue-700 space-y-1">
-              <li>• 個人資料：包含性別、Email 驗證和生日等基本資訊</li>
-              <li>• 公開電子名片：開啟後其他用戶可以在智能推薦中找到您</li>
-              <li>• 通知設定：管理您希望接收的通知類型，包含聊天室彈跳通知</li>
-            </ul>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
