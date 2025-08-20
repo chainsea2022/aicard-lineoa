@@ -9,42 +9,98 @@ interface MemberInterfaceProps {
   onClose: () => void;
 }
 
-const ProfileSettings = () => {
-  return (
-    <div className="p-6 space-y-6">
-      <div className="text-center">
-        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
-          <Settings className="w-10 h-10 text-white" />
-        </div>
-        <h3 className="text-lg font-semibold text-gray-800 mb-2">資料設定</h3>
-        <p className="text-sm text-gray-600">管理您的個人資料和帳戶設定</p>
-      </div>
+const ProfileSettings = ({ onClose }: { onClose: () => void }) => {
+  const [activeSection, setActiveSection] = useState<'profile' | 'card-manage' | 'points'>('profile');
 
-      <div className="space-y-4">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-medium text-gray-800 mb-2">個人資料</h4>
-          <div className="space-y-2 text-sm text-gray-600">
-            <div>姓名：陳先生</div>
-            <div>電話：0912-345-678</div>
-            <div>Email：example@email.com</div>
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'card-manage':
+        return <CardManagement onClose={onClose} />;
+      case 'points':
+        return <Points onClose={onClose} />;
+      default:
+        return (
+          <div className="p-6 space-y-6">
+            <div className="text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <Settings className="w-10 h-10 text-white" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-2">資料設定</h3>
+              <p className="text-sm text-gray-600">管理您的個人資料和帳戶設定</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-2">個人資料</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div>姓名：陳先生</div>
+                  <div>電話：0912-345-678</div>
+                  <div>Email：example@email.com</div>
+                </div>
+              </div>
+
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-800 mb-2">帳戶設定</h4>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div>會員等級：一般會員</div>
+                  <div>註冊日期：2024-01-15</div>
+                  <div>最後登入：2024-01-20</div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Button 
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => setActiveSection('card-manage')}
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  名片管理
+                </Button>
+                
+                <Button 
+                  className="w-full justify-start"
+                  variant="outline"
+                  onClick={() => setActiveSection('points')}
+                >
+                  <Coins className="w-4 h-4 mr-2" />
+                  點數優惠
+                </Button>
+                
+                <Button className="w-full" variant="outline">
+                  編輯個人資料
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
+        );
+    }
+  };
 
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-medium text-gray-800 mb-2">帳戶設定</h4>
-          <div className="space-y-2 text-sm text-gray-600">
-            <div>會員等級：一般會員</div>
-            <div>註冊日期：2024-01-15</div>
-            <div>最後登入：2024-01-20</div>
-          </div>
+  if (activeSection !== 'profile') {
+    return (
+      <div className="h-full">
+        <div className="flex items-center p-4 border-b">
+          <Button 
+            onClick={() => setActiveSection('profile')}
+            variant="ghost"
+            size="sm"
+            className="mr-2"
+          >
+            ← 返回
+          </Button>
+          <h3 className="font-medium">
+            {activeSection === 'card-manage' ? '名片管理' : '點數優惠'}
+          </h3>
         </div>
-
-        <Button className="w-full" variant="outline">
-          編輯個人資料
-        </Button>
+        <div className="h-full overflow-auto">
+          {renderContent()}
+        </div>
       </div>
-    </div>
-  );
+    );
+  }
+
+  return renderContent();
 };
 
 const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
@@ -95,7 +151,7 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
 
           <TabsContent value="settings" className="h-full mt-0 p-0">
             <div className="h-full overflow-auto">
-              <ProfileSettings />
+              <ProfileSettings onClose={onClose} />
             </div>
           </TabsContent>
         </Tabs>
