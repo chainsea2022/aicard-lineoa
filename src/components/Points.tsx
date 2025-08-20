@@ -247,7 +247,7 @@ const Points: React.FC<PointsProps> = ({
                           {method.icon}
                         </div>
                         <div>
-                          <h4 className={`font-semibold ${method.textColor} ${method.completed ? 'line-through opacity-75' : ''}`}>{method.title}</h4>
+                          <h4 className={`font-semibold ${method.textColor} ${method.completed ? 'opacity-75' : ''}`}>{method.title}</h4>
                           {method.completed && (
                             <p className="text-xs text-green-600 font-medium mt-1">✓ 已完成</p>
                           )}
