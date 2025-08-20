@@ -496,74 +496,86 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
 
       {/* Filter Buttons */}
       <div className="px-4 py-3 border-b border-border bg-muted/30">
-        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          <Button
-            variant={filter.category === 'all' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter({ category: 'all' })}
-            className="whitespace-nowrap"
-          >
-            全部
-          </Button>
-          <Button
-            variant={filter.category === 'my-cards' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleFilterChange({ category: 'my-cards' })}
-            className="whitespace-nowrap relative"
-          >
-            我的名片夾 ({myCardsCount})
-            {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {newAutoAddedCards.size + pendingInvitationsCount}
-              </span>
-            )}
-          </Button>
-          <Button
-            variant={filter.category === 'unregistered' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter({ category: 'unregistered' })}
-            className="whitespace-nowrap"
-          >
-            未註冊 ({unregisteredCount})
-          </Button>
-          <Button
-            variant={filter.category === 'recommendations' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter({ category: 'recommendations' })}
-            className="whitespace-nowrap"
-          >
-            智能推薦 ({recommendationsCount})
-          </Button>
-          <Button
-            variant={filter.category === 'invited-by' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => handleFilterChange({ category: 'invited-by' })}
-            className="whitespace-nowrap relative"
-          >
-            被邀請 ({invitedByCount})
-            {pendingInvitationsCount > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                {pendingInvitationsCount}
-              </span>
-            )}
-          </Button>
-          <Button
-            variant={filter.category === 'invited' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter({ category: 'invited' })}
-            className="whitespace-nowrap"
-          >
-            已邀請 ({invitedCount})
-          </Button>
-          <Button
-            variant={filter.category === 'following' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setFilter({ category: 'following' })}
-            className="whitespace-nowrap"
-          >
-            <Star className="w-4 h-4 mr-1" />
-            關注
-          </Button>
+        <div className="flex items-center justify-between">
+          <div className="flex gap-2 flex-1 overflow-x-auto scrollbar-hide">
+            <Button
+              variant={filter.category === 'all' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter({ category: 'all' })}
+              className="whitespace-nowrap"
+            >
+              全部
+            </Button>
+            <Button
+              variant={filter.category === 'my-cards' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleFilterChange({ category: 'my-cards' })}
+              className="whitespace-nowrap relative"
+            >
+              我的名片夾 ({myCardsCount})
+              {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {newAutoAddedCards.size + pendingInvitationsCount}
+                </span>
+              )}
+            </Button>
+            <Button
+              variant={filter.category === 'unregistered' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter({ category: 'unregistered' })}
+              className="whitespace-nowrap"
+            >
+              未註冊 ({unregisteredCount})
+            </Button>
+            <Button
+              variant={filter.category === 'recommendations' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setFilter({ category: 'recommendations' })}
+              className="whitespace-nowrap"
+            >
+              智能推薦 ({recommendationsCount})
+            </Button>
+          </div>
+          
+          {/* Filter Dropdown */}
+          <div className="ml-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="whitespace-nowrap">
+                  <Filter className="w-4 h-4 mr-1" />
+                  篩選
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg">
+                <DropdownMenuItem 
+                  onClick={() => handleFilterChange({ category: 'invited-by' })}
+                  className={filter.category === 'invited-by' ? 'bg-accent text-accent-foreground' : ''}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span>被邀請 ({invitedByCount})</span>
+                    {pendingInvitationsCount > 0 && (
+                      <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {pendingInvitationsCount}
+                      </span>
+                    )}
+                  </div>
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setFilter({ category: 'invited' })}
+                  className={filter.category === 'invited' ? 'bg-accent text-accent-foreground' : ''}
+                >
+                  已邀請 ({invitedCount})
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => setFilter({ category: 'following' })}
+                  className={filter.category === 'following' ? 'bg-accent text-accent-foreground' : ''}
+                >
+                  <Star className="w-4 h-4 mr-2" />
+                  關注
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
 
