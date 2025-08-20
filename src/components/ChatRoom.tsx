@@ -12,7 +12,6 @@ import Points from './Points';
 import MemberPoints from './MemberPoints';
 import UpgradeExperience from './UpgradeExperience';
 import CardManagement from './CardManagement';
-import MemberInterface from './MemberInterface';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { FullCardLIFF } from './FullCardLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -57,10 +56,25 @@ const menuItems: MenuItem[] = [{
   icon: Users,
   color: 'bg-gradient-to-br from-orange-500 to-orange-600'
 }, {
-  id: 'member',
-  title: '會員',
+  id: 'create-card',
+  title: '會員註冊',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+}, {
+  id: 'scanner',
+  title: '名片識別',
+  icon: Scan,
+  color: 'bg-gradient-to-br from-purple-500 to-purple-600'
+}, {
+  id: 'schedule',
+  title: '行程管理',
+  icon: Calendar,
+  color: 'bg-gradient-to-br from-indigo-500 to-indigo-600'
+}, {
+  id: 'analytics',
+  title: '數據分析',
+  icon: BarChart3,
+  color: 'bg-gradient-to-br from-red-500 to-red-600'
 }];
 
 // 新的 Richmenu 模式選項
@@ -970,12 +984,22 @@ const ChatRoom = () => {
   };
   const renderActiveView = () => {
     switch (activeView) {
-      case 'my-card':
+      case 'create-card':
         return <MyCard onClose={handleCloseView} />;
+      case 'scanner':
+        return;
       case 'customers':
         return <UnifiedCardFolder onClose={handleCloseView} />;
-      case 'member':
-        return <MemberInterface onClose={handleCloseView} />;
+      case 'analytics':
+        return <Analytics onClose={handleCloseView} />;
+      case 'schedule':
+        return <Schedule onClose={handleCloseView} />;
+      case 'points':
+        return <MemberPoints onClose={handleCloseView} />;
+      case 'upgrade':
+        return <UpgradeExperience onClose={handleCloseView} />;
+      case 'card-management':
+        return <CardManagement onClose={handleCloseView} />;
       default:
         return null;
     }
