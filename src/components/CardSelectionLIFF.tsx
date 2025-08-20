@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { toast } from '@/hooks/use-toast';
 
 interface CardInfo {
   id: string;
@@ -180,6 +181,12 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
       setCards(newCards);
       setShowDeleteConfirm(null);
       setSwipedCardId(null);
+      
+      // 顯示成功提示
+      toast({
+        title: "名片已刪除",
+        description: "電子名片已成功刪除。"
+      });
     } else {
       // 顯示刪除確認
       setShowDeleteConfirm(cardId);
