@@ -15,6 +15,7 @@ import CardManagement from './CardManagement';
 import MemberInterface from './MemberInterface';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { FullCardLIFF } from './FullCardLIFF';
+import PhoneVerificationLIFF from './PhoneVerificationLIFF';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from '@/hooks/use-toast';
 interface MenuItem {
@@ -78,8 +79,8 @@ const menuItems: MenuItem[] = [{
   color: 'bg-gradient-to-br from-red-500 to-red-600'
 }];
 
-// 新的 Richmenu 模式選項
-const newMenuItems: MenuItem[] = [{
+// 新的 Richmenu 模式選項 - 會員版本
+const newMenuItemsForMember: MenuItem[] = [{
   id: 'my-card',
   title: '我的電子名片',
   icon: Zap,
@@ -94,6 +95,24 @@ const newMenuItems: MenuItem[] = [{
   title: '會員',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+}];
+
+// 新的 Richmenu 模式選項 - 未註冊版本
+const newMenuItemsForGuest: MenuItem[] = [{
+  id: 'my-card',
+  title: '我的電子名片',
+  icon: Zap,
+  color: 'bg-gradient-to-br from-green-500 to-green-600'
+}, {
+  id: 'customers',
+  title: '名片夾',
+  icon: Users,
+  color: 'bg-gradient-to-br from-orange-500 to-orange-600'
+}, {
+  id: 'register',
+  title: '註冊',
+  icon: User,
+  color: 'bg-gradient-to-br from-purple-500 to-purple-600'
 }];
 
 // 統一使用的客戶名稱
@@ -406,6 +425,7 @@ const ChatRoom = () => {
   const [showFullCardLIFF, setShowFullCardLIFF] = useState(false);
   const [selectedCardData, setSelectedCardData] = useState<any>(null);
   const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
+  const [showPhoneVerificationLIFF, setShowPhoneVerificationLIFF] = useState(false); // 新增：控制註冊 LIFF
 
   // 初始化歡迎訊息
   useEffect(() => {
@@ -671,8 +691,15 @@ const ChatRoom = () => {
   };
   const getDynamicMenuItems = () => {
     if (useNewMenu) {
-      // 新版選單始終保持三個固定項目：我的電子名片、名片夾、會員
-      return [...newMenuItems];
+      // 檢查用戶註冊狀態決定顯示哪個版本的新版選單
+      const userRegistered = localStorage.getItem('aicard-user-registered') === 'true';
+      const cardDataExists = localStorage.getItem('aile-card-data');
+      
+      if (userRegistered && cardDataExists) {
+        return [...newMenuItemsForMember];
+      } else {
+        return [...newMenuItemsForGuest];
+      }
     }
     const baseItems = [...menuItems];
     if (isRegistered()) {
@@ -981,6 +1008,12 @@ const ChatRoom = () => {
       description: "歡迎加入 AiCard 電子名片平台！"
     });
   };
+
+  const handlePhoneVerificationComplete = (phoneNumber: string) => {
+    // 手機驗證完成的處理邏輯
+    setShowPhoneVerificationLIFF(false);
+    handleRegistrationComplete();
+  };
   const renderActiveView = () => {
     switch (activeView) {
       case 'my-card':
@@ -1261,6 +1294,14 @@ const ChatRoom = () => {
         onClose={() => setShowFullCardLIFF(false)} 
         cardData={selectedCardData} 
       />
+
+      {/* 手機驗證 LIFF 介面 */}
+      {showPhoneVerificationLIFF && (
+        <PhoneVerificationLIFF
+          onClose={() => setShowPhoneVerificationLIFF(false)}
+          onVerificationComplete={handlePhoneVerificationComplete}
+        />
+      )}
     </div>;
 };
 export default ChatRoom;
