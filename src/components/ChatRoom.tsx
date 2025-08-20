@@ -648,8 +648,18 @@ const ChatRoom = () => {
   };
   const getDynamicMenuItems = () => {
     if (useNewMenu) {
-      // 新版選單始終保持三個固定項目：我的電子名片、名片夾、會員
-      return [...newMenuItems];
+      // 新版選單：根據註冊狀態顯示不同的第三個選項
+      const baseNewMenuItems = [...newMenuItems];
+      if (!isRegistered()) {
+        // 未註冊用戶顯示"註冊"
+        baseNewMenuItems[2] = {
+          id: 'register',
+          title: '註冊',
+          icon: User,
+          color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+        };
+      }
+      return baseNewMenuItems;
     }
     const baseItems = [...menuItems];
     if (isRegistered()) {
@@ -710,6 +720,11 @@ const ChatRoom = () => {
       // 會員介面：包含名片管理、點數優惠、資料設定三個分頁
       console.log('Debug - 會員按鈕被點擊');
       setActiveView('member');
+      setIsMenuOpen(false);
+    } else if (itemId === 'register') {
+      // 註冊流程：引導用戶進行會員註冊
+      console.log('Debug - 註冊按鈕被點擊');
+      setActiveView('mycard');
       setIsMenuOpen(false);
     } else if (itemId === 'upgrade') {
       // 升級體驗
