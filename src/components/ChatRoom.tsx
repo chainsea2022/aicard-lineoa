@@ -406,6 +406,7 @@ const ChatRoom = () => {
   const [showFullCardLIFF, setShowFullCardLIFF] = useState(false);
   const [selectedCardData, setSelectedCardData] = useState<any>(null);
   const [useNewMenu, setUseNewMenu] = useState(false); // 新增：控制選單模式
+  const [forceMenuUpdate, setForceMenuUpdate] = useState(0); // 強制更新選單狀態
 
   // 初始化歡迎訊息
   useEffect(() => {
@@ -959,6 +960,7 @@ const ChatRoom = () => {
     setActiveView(null);
     setIsMenuOpen(true);
     setUseNewMenu(true); // 註冊完成後使用新版 Richmenu
+    setForceMenuUpdate(prev => prev + 1); // 強制更新選單
 
     // 顯示註冊成功訊息
     const successMessage = {

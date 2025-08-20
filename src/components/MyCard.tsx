@@ -176,10 +176,13 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
   }, []);
 
   const handleVerificationComplete = (phone: string) => {
+    // 模擬抓取LINE暱稱（演示版本）
+    const mockLineNickname = '王小明'; // 實際應用中這裡會呼叫LINE API
+    
     // 手機驗證完成後創建用戶資料
     const phoneUser = {
       phone: phone,
-      displayName: '',
+      displayName: mockLineNickname,
       pictureUrl: null,
       loginMethod: 'phone',
       registeredAt: new Date(),
@@ -193,20 +196,23 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
       method: 'phone',
       hasRegistered: true
     }));
+    localStorage.setItem('aicard-user-registered', 'true'); // 標記用戶已註冊
     setUserData(phoneUser);
     setHasRegistrationHistory(true);
 
-    // 創建預設名片資料（只包含手機號碼）
+    // 創建預設名片資料（包含手機號碼和LINE暱稱）
     const defaultCardData = {
       companyName: '',
-      name: '',
+      name: mockLineNickname, // 自動填入LINE暱稱
       phone: phone,
       email: '',
       website: '',
-      line: '',
+      line: mockLineNickname, // 設定LINE暱稱
       facebook: '',
       instagram: '',
-      photo: null
+      photo: null,
+      jobTitle: '',
+      introduction: '透過 AiCard 電子名片與我連結！'
     };
 
     // 儲存預設名片資料
@@ -215,7 +221,9 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
 
     // 生成QR Code資料
     const qrInfo = `電子名片
+姓名: ${defaultCardData.name}
 手機: ${defaultCardData.phone}
+LINE: ${defaultCardData.line}
 歡迎使用 AiCard 電子名片服務`;
     setQrCodeData(qrInfo);
 
@@ -226,11 +234,12 @@ ${cardInfo.otherInfo && cardInfo.otherInfoVisible !== false ? `其他資訊: ${c
     // 顯示成功提示
     toast({
       title: "🎉 註冊成功！",
-      description: "您的第一張電子名片已建立完成",
+      description: "您的第一張電子名片已建立完成，包含 LINE 暱稱和手機號碼",
     });
     
-    // 驗證完成後回到聊天室
+    // 發送註冊完成事件，讓Rich Menu切換到會員模式
     window.dispatchEvent(new CustomEvent('registrationCompleted'));
+    window.dispatchEvent(new CustomEvent('userRegistered')); // 觸發選單更新
     onClose();
   };
 
