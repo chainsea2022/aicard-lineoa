@@ -669,7 +669,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
               <div className="space-y-1">
                 <Label className="text-sm font-medium">接收通知</Label>
                 <p className="text-xs text-gray-600">
-                  您會收到所有關於電子名片、人脈互動、活動邀請和點數變動的系統通知
+                  系統通知與互動提醒
                 </p>
               </div>
               <Switch
