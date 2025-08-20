@@ -14,7 +14,7 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({ onClose }) => {
   const [activeTab, setActiveTab] = useState('card-management');
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
+    <div className="absolute inset-0 bg-white z-50 flex flex-col h-full overflow-hidden">{/* 改為absolute避免與ChatRoom衝突 */}
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 shadow-lg flex-shrink-0">
         <div className="flex items-center justify-between">

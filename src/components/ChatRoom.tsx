@@ -723,6 +723,7 @@ const ChatRoom = () => {
       setIsMenuOpen(false);
     } else if (itemId === 'member') {
       // 會員介面：包含名片管理、點數優惠、資料設定三個分頁
+      console.log('Debug - 會員按鈕被點擊');
       setActiveView('member');
       setIsMenuOpen(false);
     } else if (itemId === 'upgrade') {
@@ -985,6 +986,7 @@ const ChatRoom = () => {
       case 'schedule':
         return <Schedule onClose={handleCloseView} />;
       case 'member':
+        console.log('Debug - 渲染會員介面');
         return <MemberInterface onClose={handleCloseView} />;
       default:
         return null;
