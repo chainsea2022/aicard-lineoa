@@ -343,9 +343,6 @@ const Points: React.FC<PointsProps> = ({
                   </div>
                   
                   <div className="bg-orange-50 p-4 rounded-lg mb-4">
-                    <p className="text-center text-orange-700 font-semibold text-sm">
-                      每月只要＄600，預繳一年＄7200
-                    </p>
                     <p className="text-center text-orange-700 font-semibold mt-1">
                       🎉 一年不限次數全功能解鎖 🎉
                     </p>
