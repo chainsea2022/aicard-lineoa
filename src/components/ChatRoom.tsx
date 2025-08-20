@@ -438,6 +438,9 @@ const ChatRoom = () => {
       // 如果是已註冊用戶，使用新版選單
       if (userRegistered && cardDataExists) {
         setUseNewMenu(true);
+      } else {
+        // 首次用戶也使用新版選單來顯示註冊按鈕
+        setUseNewMenu(true);
       }
       if (!userRegistered && !cardDataExists && !hasStartedRegistration) {
         // 全新用戶 - 顯示歡迎文案和電子名片預覽
@@ -631,7 +634,7 @@ const ChatRoom = () => {
     
     // 監聽登出事件
     const handleUserLogout = () => {
-      setUseNewMenu(false);
+      setUseNewMenu(true); // 登出後仍使用新版選單，但顯示註冊按鈕
       setActiveView(null);
       setIsMenuOpen(true);
       
