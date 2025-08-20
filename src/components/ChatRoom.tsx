@@ -721,6 +721,10 @@ const ChatRoom = () => {
       // 點數優惠：同步會員點數的內容和樣式
       setActiveView('points');
       setIsMenuOpen(false);
+    } else if (itemId === 'member') {
+      // 會員介面：包含名片管理、點數優惠、資料設定三個分頁
+      setActiveView('member');
+      setIsMenuOpen(false);
     } else if (itemId === 'upgrade') {
       // 升級體驗
       setActiveView('upgrade');
