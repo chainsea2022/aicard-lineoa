@@ -62,62 +62,21 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
   const [showRecommendationDetail, setShowRecommendationDetail] = useState(false);
   const [showAllTags, setShowAllTags] = useState(false);
-  const [pendingInvitations, setPendingInvitations] = useState(3); // Mock pending invitations count
-  const [isCardFolderExpanded, setIsCardFolderExpanded] = useState(false);
-  const [autoAddSettings, setAutoAddSettings] = useState(true); // Privacy setting for auto-add
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
     const recommendations = generateMockRecommendations(4);
-    // Add some mock pending invitations
-    const pendingInvites = [
-      {
-        id: 3001,
-        name: '李承恩',
-        phone: '0987654321',
-        email: 'licheng@company.com',
-        company: '創新科技',
-        jobTitle: '產品總監',
-        photo: getRandomProfessionalAvatar(3001),
-        hasCard: true,
-        addedDate: new Date().toISOString(),
-        notes: '等待確認的邀請',
-        relationshipStatus: 'addedMe' as const,
-        isDigitalCard: true,
-        isRegisteredUser: true,
-        hasPendingInvitation: true,
-        isNewAddition: autoAddSettings
-      },
-      {
-        id: 3002,
-        name: '王美玲',
-        phone: '0912345678',
-        email: 'wangmeiling@design.com',
-        company: '設計工作室',
-        jobTitle: '創意總監',
-        photo: getRandomProfessionalAvatar(3002),
-        hasCard: true,
-        addedDate: new Date().toISOString(),
-        notes: '等待確認的邀請',
-        relationshipStatus: 'addedMe' as const,
-        isDigitalCard: true,
-        isRegisteredUser: true,
-        hasPendingInvitation: true,
-        isNewAddition: autoAddSettings
-      }
-    ];
-    return [...mockData, ...recommendations, ...pendingInvites];
+    return [...mockData, ...recommendations];
   });
 
   // Common tags data
   const commonTags = ['同事', '客戶', '朋友', '供應商', '合作夥伴', '主管', '下屬', '同學', '家人', '醫生'];
 
   // Calculate counts for filters
-  const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation && !c.hasPendingInvitation).length;
+  const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation).length;
   const unregisteredCount = customers.filter(c => !c.isRegisteredUser).length;
   const recommendationsCount = customers.filter(c => c.isRecommendation).length;
-  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' && c.hasPendingInvitation).length;
+  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe').length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
-  const newAdditionsCount = customers.filter(c => c.isNewAddition && !c.hasPendingInvitation).length;
 
   const getFilteredCustomers = () => {
     let filtered = customers.filter(customer => {
@@ -134,13 +93,13 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       // Category filter
       switch (filter.category) {
         case 'my-cards':
-          return customer.isRegisteredUser && !customer.isRecommendation && !customer.hasPendingInvitation;
+          return customer.isRegisteredUser && !customer.isRecommendation;
         case 'unregistered':
           return !customer.isRegisteredUser;
         case 'recommendations':
           return customer.isRecommendation;
         case 'invited-by':
-          return customer.relationshipStatus === 'addedMe' && customer.hasPendingInvitation;
+          return customer.relationshipStatus === 'addedMe';
         case 'invited':
           return customer.invitationSent || customer.emailInvitationSent;
         case 'following':
@@ -270,44 +229,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     }
   };
 
-  const handleAcceptInvitation = (customerId: number) => {
-    const updatedCustomers = customers.map(c => 
-      c.id === customerId 
-        ? { ...c, hasPendingInvitation: false, relationshipStatus: 'collected' as const, isNewAddition: true }
-        : c
-    );
-    setCustomers(updatedCustomers);
-    setPendingInvitations(prev => Math.max(0, prev - 1));
-    
-    const customer = customers.find(c => c.id === customerId);
-    if (customer) {
-      toast({
-        title: "已加入名片夾",
-        description: `${customer.name} 已加入您的名片夾`,
-        className: "max-w-[280px] mx-auto"
-      });
-    }
-  };
-
-  const handleRejectInvitation = (customerId: number) => {
-    const updatedCustomers = customers.filter(c => c.id !== customerId);
-    setCustomers(updatedCustomers);
-    setPendingInvitations(prev => Math.max(0, prev - 1));
-    
-    toast({
-      title: "已略過邀請",
-      description: "邀請已略過",
-      className: "max-w-[280px] mx-auto"
-    });
-  };
-
-  const handleExpandCardFolder = () => {
-    setIsCardFolderExpanded(true);
-    // Clear new addition indicators when folder is expanded
-    const updatedCustomers = customers.map(c => ({ ...c, isNewAddition: false }));
-    setCustomers(updatedCustomers);
-  };
-
   const handleSkipRecommendation = (customerId: number) => {
     const updatedCustomers = customers.filter(c => c.id !== customerId);
     setCustomers(updatedCustomers);
@@ -372,14 +293,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <div className="relative">
-          <h2 className="font-semibold text-lg">名片夾</h2>
-          {pendingInvitations > 0 && (
-            <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {pendingInvitations}
-            </div>
-          )}
-        </div>
+        <h2 className="font-semibold text-lg">名片夾</h2>
         <Button onClick={onClose} variant="ghost" size="sm" className="p-1">
           <X className="w-5 h-5" />
         </Button>
@@ -413,23 +327,10 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           <Button
             variant={filter.category === 'my-cards' ? 'default' : 'outline'}
             size="sm"
-            onClick={() => {
-              setFilter({ category: 'my-cards' });
-              handleExpandCardFolder();
-            }}
-            className="whitespace-nowrap relative"
+            onClick={() => setFilter({ category: 'my-cards' })}
+            className="whitespace-nowrap"
           >
             我的名片夾 ({myCardsCount})
-            {newAdditionsCount > 0 && (
-              <Badge className="absolute -top-1 -right-1 bg-green-500 text-white text-xs h-4 min-w-[16px] px-1">
-                NEW
-              </Badge>
-            )}
-            {pendingInvitations > 0 && !autoAddSettings && (
-              <div className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                {pendingInvitations}
-              </div>
-            )}
           </Button>
           <Button
             variant={filter.category === 'unregistered' ? 'default' : 'outline'}
@@ -459,14 +360,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             <DropdownMenuContent align="end" className="w-48 bg-popover border border-border">
               <DropdownMenuItem 
                 onClick={() => setFilter({ category: 'invited-by' })}
-                className="hover:bg-accent relative"
+                className="hover:bg-accent"
               >
                 被邀請 ({invitedByCount})
-                {invitedByCount > 0 && (
-                  <div className="absolute top-1 right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                    {invitedByCount}
-                  </div>
-                )}
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={() => setFilter({ category: 'invited' })}
@@ -689,68 +585,33 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </div>
                           )}
                           
-                           {/* Smart recommendation buttons */}
-                           {customer.isRecommendation && (
-                             <div className="flex space-x-1">
-                               <Button
-                                 size="sm"
-                                 variant="default"
-                                 className="h-6 px-2 text-xs bg-recommendation-green hover:bg-recommendation-green/80"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleAddToFolder(customer.id);
-                                 }}
-                               >
-                                 加入名片夾
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant="outline"
-                                 className="h-6 px-2 text-xs"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleSkipRecommendation(customer.id);
-                                 }}
-                               >
-                                 略過
-                               </Button>
-                             </div>
-                           )}
-
-                           {/* Pending invitation buttons */}
-                           {customer.hasPendingInvitation && !autoAddSettings && (
-                             <div className="flex space-x-1">
-                               <Button
-                                 size="sm"
-                                 variant="default"
-                                 className="h-6 px-2 text-xs bg-green-600 hover:bg-green-700 text-white"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleAcceptInvitation(customer.id);
-                                 }}
-                               >
-                                 接受
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant="outline"
-                                 className="h-6 px-2 text-xs"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleRejectInvitation(customer.id);
-                                 }}
-                               >
-                                 略過
-                               </Button>
-                             </div>
-                           )}
-
-                           {/* New addition indicator */}
-                           {customer.isNewAddition && !customer.hasPendingInvitation && (
-                             <Badge className="bg-green-500 text-white text-xs h-4 px-2">
-                               NEW
-                             </Badge>
-                           )}
+                          {/* Smart recommendation buttons */}
+                          {customer.isRecommendation && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-6 px-2 text-xs bg-recommendation-green hover:bg-recommendation-green/80"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToFolder(customer.id);
+                                }}
+                              >
+                                加入名片夾
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSkipRecommendation(customer.id);
+                                }}
+                              >
+                                略過
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
