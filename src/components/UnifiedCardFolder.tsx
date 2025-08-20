@@ -348,38 +348,31 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           >
             智能推薦 ({recommendationsCount})
           </Button>
-          
-          {/* Advanced Filters Dropdown */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" className="whitespace-nowrap">
-                <Filter className="w-4 h-4 mr-1" />
-                更多篩選
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-popover border border-border">
-              <DropdownMenuItem 
-                onClick={() => setFilter({ category: 'invited-by' })}
-                className="hover:bg-accent"
-              >
-                被邀請 ({invitedByCount})
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setFilter({ category: 'invited' })}
-                className="hover:bg-accent"
-              >
-                已邀請 ({invitedCount})
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                onClick={() => setFilter({ category: 'following' })}
-                className="hover:bg-accent"
-              >
-                <Star className="w-4 h-4 mr-2" />
-                關注
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <Button
+            variant={filter.category === 'invited-by' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'invited-by' })}
+            className="whitespace-nowrap"
+          >
+            被邀請 ({invitedByCount})
+          </Button>
+          <Button
+            variant={filter.category === 'invited' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'invited' })}
+            className="whitespace-nowrap"
+          >
+            已邀請 ({invitedCount})
+          </Button>
+          <Button
+            variant={filter.category === 'following' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setFilter({ category: 'following' })}
+            className="whitespace-nowrap"
+          >
+            <Star className="w-4 h-4 mr-1" />
+            關注
+          </Button>
         </div>
       </div>
 
