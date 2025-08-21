@@ -62,7 +62,7 @@ const UpgradeSection: React.FC = () => {
         { name: '個人化主題', locked: true },
         { name: 'AI名片設計', locked: true },
         { name: '智慧標籤分類', locked: true },
-        { name: '數據分析報告', locked: true },
+        { name: '智能信件發送', locked: true },
         { name: 'AI人脈行程管理', locked: true }
       ]
     },
