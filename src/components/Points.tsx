@@ -338,6 +338,38 @@ const Points: React.FC<PointsProps> = ({
                 </div>
               </CardContent>
             </Card>
+
+            {/* 兌點規則 */}
+            <Card className="mb-4">
+              <CardHeader>
+                <CardTitle className="flex items-center text-lg">
+                  <TrendingUp className="w-5 h-5 mr-2 text-gray-600" />
+                  兌點規則
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="space-y-3 text-sm">
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+                      <span className="text-gray-700">免費獲得點數：2年有效期</span>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+                      <span className="text-gray-700">會員購買點數：永久有效</span>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+                      <span className="text-gray-700">點數不可轉讓給其他用戶</span>
+                    </div>
+                    <div className="flex items-start space-x-3">
+                      <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+                      <span className="text-gray-700">已兌換之商品或服務不可退換</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </> : activeTab === 'upgrade' ? <UpgradeSection /> : <div className="space-y-3">
             {transactions.length === 0 ? <div className="text-center py-8">
                 <History className="w-12 h-12 mx-auto text-gray-400 mb-3" />
