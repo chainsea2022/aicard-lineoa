@@ -75,7 +75,7 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
         </div>
 
         {/* 頭部資訊 */}
-        <div className="p-4 bg-gradient-to-r from-primary to-primary-variant text-white mx-4 mb-4 rounded-xl">
+        <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white mx-4 mb-4 rounded-xl">
           <div className="flex items-center space-x-3">
             {cardData?.photo && (
               <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
@@ -84,13 +84,13 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
             )}
             <div className="flex-1">
               {cardData?.companyName && (
-                <p className="text-white/70 text-sm">{cardData.companyName}</p>
+                <p className="text-blue-100 text-sm">{cardData.companyName}</p>
               )}
               <h3 className="text-white text-lg font-semibold mb-1">
                 {cardData?.name || '未設定姓名'}
               </h3>
               {cardData?.jobTitle && (
-                <p className="text-white/70 text-sm">{cardData.jobTitle}</p>
+                <p className="text-blue-100 text-sm">{cardData.jobTitle}</p>
               )}
             </div>
           </div>
@@ -136,8 +136,7 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
             <Button
               onClick={handleAddToLineOA}
               size="sm"
-              variant="liff"
-              className="text-xs py-2 flex-col h-auto"
+              className="bg-green-500 hover:bg-green-600 text-white text-xs py-2 flex-col h-auto"
             >
               <Plus className="w-4 h-4 mb-1" />
               <span>加入LINE OA</span>
@@ -146,7 +145,7 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
             <Button
               onClick={handleSaveCard}
               size="sm"
-              variant="liff-accessible"
+              variant="outline"
               className="text-xs py-2 flex-col h-auto"
             >
               <Save className="w-4 h-4 mb-1" />
@@ -156,7 +155,7 @@ const MiniCardPreview: React.FC<MiniCardPreviewProps> = ({
             <Button
               onClick={handleShareCard}
               size="sm"
-              variant="liff-outline"
+              variant="outline"
               className="text-xs py-2 flex-col h-auto"
             >
               <Share2 className="w-4 h-4 mb-1" />
