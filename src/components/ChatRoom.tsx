@@ -1131,10 +1131,10 @@ const ChatRoom = () => {
                                     <span className="text-gray-800">{message.cardData.email}</span>
                                   </div>
                                 )}
-                                {message.cardData.line && (
+                                {message.cardData.address && (
                                   <div className="flex items-center space-x-2 text-sm">
-                                    <span className="text-gray-600">💬</span>
-                                    <span className="text-gray-800">LINE: {message.cardData.line}</span>
+                                    <span className="text-gray-600">📍</span>
+                                    <span className="text-gray-800">{message.cardData.address}</span>
                                   </div>
                                 )}
                               </div>
