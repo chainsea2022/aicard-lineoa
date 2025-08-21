@@ -631,18 +631,20 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 className={`${cardStyle.className} cursor-pointer transition-all hover:shadow-md`}
                 onClick={() => handleCardClick(customer)}
               >
-                <CardContent className="p-4">
-                  <div className={`flex items-start ${(customer.isRegisteredUser || customer.lineId) ? 'space-x-3' : 'space-x-0'}`}>
-                    {/* Only show avatar for registered users and unregistered LINE users */}
-                    {(customer.isRegisteredUser || customer.lineId) && (
-                      <div className="relative">
+                <CardContent className="p-4 h-20">
+                  <div className="flex items-start space-x-3 h-full">
+                    {/* Avatar space reserved for all cards for consistent layout */}
+                    <div className="relative flex-shrink-0">
+                      {(customer.isRegisteredUser || customer.lineId) ? (
                         <img
                           src={customer.photo || getRandomProfessionalAvatar(customer.id)}
                           alt={customer.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="w-12 h-12" />
+                      )}
+                    </div>
                     
                     <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between">
