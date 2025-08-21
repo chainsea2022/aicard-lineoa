@@ -139,7 +139,7 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header - LIFF style */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 flex items-center justify-between flex-shrink-0">
+      <div className="bg-gradient-to-r from-primary to-primary-variant text-white p-4 flex items-center justify-between flex-shrink-0">
         <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20 p-1">
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -167,7 +167,7 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
             cards.map((card) => (
               <div key={card.id} className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm mx-auto">
                 {/* 頭部資訊 - 與電子名片預覽樣式一致 */}
-                <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+                <div className="p-4 bg-gradient-to-r from-primary to-primary-variant text-white">
                   <div className="flex items-center space-x-3">
                     {card.photo && (
                       <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
@@ -176,13 +176,13 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                     )}
                     <div className="flex-1">
                       {card.company && (
-                        <p className="text-blue-100 text-sm">{card.company}</p>
+                        <p className="text-white/70 text-sm">{card.company}</p>
                       )}
                       <h3 className="text-white text-lg font-semibold mb-1">
                         {card.name || '您的姓名'}
                       </h3>
                       {card.title && (
-                        <p className="text-blue-100 text-sm">{card.title}</p>
+                        <p className="text-white/70 text-sm">{card.title}</p>
                       )}
                     </div>
                     {/* 預設標籤 */}
@@ -256,7 +256,8 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                   {/* 選擇按鈕 */}
                   <Button
                     onClick={() => handleCardClick(card)}
-                    className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
+                    variant="liff"
+                    className="w-full py-3 px-6 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
                   >
                     <Share2 className="w-4 h-4" />
                     <span>選擇並發送此名片</span>

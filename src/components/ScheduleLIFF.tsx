@@ -209,7 +209,7 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-primary to-primary-variant text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-xl">行程管理</h1>
           <Button
@@ -227,27 +227,27 @@ const ScheduleLIFF: React.FC<ScheduleLIFFProps> = ({ onClose }) => {
       <div className="bg-white border-b border-gray-200 p-4">
         <div className="flex justify-between items-center">
           <div className="flex space-x-2">
-            <Button
-              variant={viewMode === 'list' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('list')}
-            >
-              行程列表
-            </Button>
-            <Button
-              variant={viewMode === 'calendar' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setViewMode('calendar')}
-            >
-              日曆檢視
-            </Button>
-          </div>
-          
-          <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
-            <DialogTrigger asChild>
-              <Button size="sm" className="bg-indigo-600 hover:bg-indigo-700">
-                <Plus className="w-4 h-4 mr-2" />
-                新增行程
+          <Button
+            variant={viewMode === 'list' ? 'liff' : 'liff-outline'}
+            size="sm"
+            onClick={() => setViewMode('list')}
+          >
+            行程列表
+          </Button>
+          <Button
+            variant={viewMode === 'calendar' ? 'liff' : 'liff-outline'}
+            size="sm"
+            onClick={() => setViewMode('calendar')}
+          >
+            日曆檢視
+          </Button>
+        </div>
+        
+        <Dialog open={showEventDialog} onOpenChange={setShowEventDialog}>
+          <DialogTrigger asChild>
+            <Button size="sm" variant="liff">
+              <Plus className="w-4 h-4 mr-2" />
+              新增行程
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">

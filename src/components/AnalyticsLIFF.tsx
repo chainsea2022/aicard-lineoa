@@ -44,7 +44,7 @@ const AnalyticsLIFF: React.FC<AnalyticsLIFFProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-primary to-primary-variant text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-xl">數據分析</h1>
           <Button
@@ -68,7 +68,7 @@ const AnalyticsLIFF: React.FC<AnalyticsLIFFProps> = ({ onClose }) => {
           ].map((range) => (
             <Button
               key={range.key}
-              variant={timeRange === range.key ? 'default' : 'outline'}
+              variant={timeRange === range.key ? 'liff' : 'liff-outline'}
               size="sm"
               onClick={() => setTimeRange(range.key)}
             >
@@ -273,7 +273,7 @@ const AnalyticsLIFF: React.FC<AnalyticsLIFFProps> = ({ onClose }) => {
         {/* 導出按鈕 */}
         <Card>
           <CardContent className="p-4">
-            <Button variant="outline" className="w-full">
+            <Button variant="liff-outline" className="w-full">
               <Download className="w-4 h-4 mr-2" />
               導出分析報告
             </Button>

@@ -101,7 +101,7 @@ LINE: ${cardData.line || ''}
   return (
     <div className="fixed inset-0 bg-white z-50 flex flex-col h-full overflow-hidden" style={{ maxWidth: '375px', margin: '0 auto' }}>
       {/* Header - LIFF style */}
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 flex items-center justify-between flex-shrink-0">
+      <div className="bg-gradient-to-r from-primary to-primary-variant text-white p-4 flex items-center justify-between flex-shrink-0">
         <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20 p-1">
           <ArrowLeft className="w-5 h-5" />
         </Button>
@@ -116,7 +116,7 @@ LINE: ${cardData.line || ''}
         {/* 完整名片預覽 - 使用與 CardPreview 相同的樣式 */}
         <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden mb-6">
           {/* 頭部資訊 */}
-          <div className="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+          <div className="p-6 bg-gradient-to-r from-primary to-primary-variant text-white">
             <div className="flex items-center space-x-4">
               {cardData.photo && (
                 <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center">
@@ -125,13 +125,13 @@ LINE: ${cardData.line || ''}
               )}
               <div className="flex-1">
                 {cardData.companyName && cardData.companyNameVisible !== false && (
-                  <p className="text-blue-100 text-sm">{cardData.companyName}</p>
+                  <p className="text-white/70 text-sm">{cardData.companyName}</p>
                 )}
                 <h3 className="text-white text-xl font-semibold mb-1">
                   {(cardData.name && cardData.nameVisible !== false) ? cardData.name : '您的姓名'}
                 </h3>
                 {cardData.jobTitle && cardData.jobTitleVisible !== false && (
-                  <p className="text-blue-100 text-sm">{cardData.jobTitle}</p>
+                  <p className="text-white/70 text-sm">{cardData.jobTitle}</p>
                 )}
               </div>
             </div>
@@ -334,7 +334,8 @@ LINE: ${cardData.line || ''}
             <div className="grid grid-cols-3 gap-3">
               <Button
                 onClick={handleAddToContacts}
-                className="bg-green-500 hover:bg-green-600 text-white py-3 flex items-center justify-center space-x-1"
+                variant="liff"
+                className="py-3 flex items-center justify-center space-x-1"
               >
                 <UserPlus className="w-4 h-4" />
                 <span className="text-xs">加入好友</span>
@@ -342,7 +343,8 @@ LINE: ${cardData.line || ''}
 
               <Button
                 onClick={handleSaveCard}
-                className="bg-blue-500 hover:bg-blue-600 text-white py-3 flex items-center justify-center space-x-1"
+                variant="liff-accessible"
+                className="py-3 flex items-center justify-center space-x-1"
               >
                 <Download className="w-4 h-4" />
                 <span className="text-xs">儲存名片</span>
@@ -350,8 +352,8 @@ LINE: ${cardData.line || ''}
 
               <Button
                 onClick={handleShare}
-                variant="outline"
-                className="py-3 border-gray-300 text-gray-700 hover:bg-gray-50 flex items-center justify-center space-x-1"
+                variant="liff-outline"
+                className="py-3 flex items-center justify-center space-x-1"
               >
                 <Share2 className="w-4 h-4" />
                 <span className="text-xs">分享名片</span>

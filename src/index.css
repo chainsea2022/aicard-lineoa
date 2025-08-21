@@ -14,17 +14,21 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    /* LIFF Primary Color System */
+    --primary: 191 100% 42%; /* #00B4D8 - Primary Default 0 */
     --primary-foreground: 210 40% 98%;
+    --primary-variant: 200 85% 49%; /* #11A1E9 - Primary Default 1 */
+    --primary-dark: 221 83% 53%; /* #2263EB - Primary Dark */
+    --primary-accessible: 225 71% 43%; /* #1F46BA - Primary A11y */
 
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary: 191 100% 95%; /* Light version of primary for backgrounds */
+    --secondary-foreground: 225 71% 43%;
 
-    --muted: 210 40% 96%;
+    --muted: 191 30% 95%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --accent: 200 85% 49%; /* Using Primary Default 1 as accent */
+    --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -58,8 +62,12 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
+    /* LIFF Primary Color System - Dark Mode */
+    --primary: 191 100% 55%; /* Lighter version for dark mode */
     --primary-foreground: 222.2 47.4% 11.2%;
+    --primary-variant: 200 85% 60%; /* Lighter version for dark mode */
+    --primary-dark: 221 83% 65%; /* Lighter version for dark mode */
+    --primary-accessible: 225 71% 55%; /* Lighter version for dark mode */
 
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
@@ -67,7 +75,7 @@
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 200 85% 60%; /* Lighter accent for dark mode */
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;

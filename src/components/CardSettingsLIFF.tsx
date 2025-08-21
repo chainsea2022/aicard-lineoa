@@ -334,7 +334,7 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
   return (
     <div className="fixed inset-0 bg-white z-50 overflow-y-auto">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 shadow-lg">
+      <div className="bg-gradient-to-r from-primary to-primary-variant text-white p-4 shadow-lg">
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-xl">設置電子名片</h1>
           <Button
@@ -355,8 +355,8 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
             onClick={() => setActiveTab('basic')}
             className={`flex-1 py-3 px-4 text-center font-medium ${
               activeTab === 'basic'
-                ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
-                : 'text-gray-600 hover:text-blue-600'
+                ? 'border-b-2 border-primary text-primary bg-primary/10'
+                : 'text-gray-600 hover:text-primary'
             }`}
           >
             基本資料
@@ -365,8 +365,8 @@ const CardSettingsLIFF: React.FC<CardSettingsLIFFProps> = ({ onClose }) => {
             onClick={() => setActiveTab('privacy')}
             className={`flex-1 py-3 px-4 text-center font-medium ${
               activeTab === 'privacy'
-                ? 'border-b-2 border-blue-500 text-blue-600 bg-blue-50'
-                : 'text-gray-600 hover:text-blue-600'
+                ? 'border-b-2 border-primary text-primary bg-primary/10'
+                : 'text-gray-600 hover:text-primary'
             }`}
           >
             隱私設定
