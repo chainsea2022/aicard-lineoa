@@ -89,6 +89,34 @@ const UpgradeSection: React.FC = () => {
         </div>
       </div>
 
+      {/* 兌點規則 */}
+      <div className="mx-4">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+          <Info className="w-5 h-5 mr-2 text-gray-600" />
+          兌點規則
+        </h2>
+        <div className="bg-gray-50 rounded-xl p-4">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+              <span className="text-gray-700">免費獲得點數：2年有效期</span>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+              <span className="text-gray-700">會員購買點數：永久有效</span>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+              <span className="text-gray-700">點數不可轉讓給其他用戶</span>
+            </div>
+            <div className="flex items-start space-x-3">
+              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
+              <span className="text-gray-700">已兌換之商品或服務不可退換</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* AI生態圈 */}
       <div className="mx-4 mb-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -123,34 +151,6 @@ const UpgradeSection: React.FC = () => {
               </div>
             );
           })}
-        </div>
-      </div>
-
-      {/* 兌點規則 */}
-      <div className="mx-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-          <Info className="w-5 h-5 mr-2 text-gray-600" />
-          兌點規則
-        </h2>
-        <div className="bg-gray-50 rounded-xl p-4">
-          <div className="space-y-3 text-sm">
-            <div className="flex items-start space-x-3">
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
-              <span className="text-gray-700">免費獲得點數：2年有效期</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
-              <span className="text-gray-700">會員購買點數：永久有效</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
-              <span className="text-gray-700">點數不可轉讓給其他用戶</span>
-            </div>
-            <div className="flex items-start space-x-3">
-              <div className="w-1.5 h-1.5 bg-gray-400 rounded-full mt-2"></div>
-              <span className="text-gray-700">已兌換之商品或服務不可退換</span>
-            </div>
-          </div>
         </div>
       </div>
     </>
