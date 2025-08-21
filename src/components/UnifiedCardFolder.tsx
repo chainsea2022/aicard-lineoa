@@ -631,49 +631,51 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 className={`${cardStyle.className} cursor-pointer transition-all hover:shadow-md`}
                 onClick={() => handleCardClick(customer)}
               >
-                <CardContent className="p-4">
-                  <div className={`flex items-start ${(customer.isRegisteredUser || customer.lineId) ? 'space-x-3' : 'space-x-0'}`}>
-                    {/* Only show avatar for registered users and unregistered LINE users */}
-                    {(customer.isRegisteredUser || customer.lineId) && (
-                      <div className="relative">
+                <CardContent className="p-4 h-24">
+                  <div className="flex items-start space-x-3 h-full">
+                    {/* Avatar space - always reserved for consistent layout */}
+                    <div className="relative w-12 flex-shrink-0">
+                      {(customer.isRegisteredUser || customer.lineId) ? (
                         <img
                           src={customer.photo || getRandomProfessionalAvatar(customer.id)}
                           alt={customer.name}
                           className="w-12 h-12 rounded-full object-cover"
                         />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="w-12 h-12" />
+                      )}
+                    </div>
                     
-                    <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              {customer.isRegisteredUser ? (
-                                <>
-                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
-                                  {customer.jobTitle && (
-                                    <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
-                                  )}
-                                  {customer.company && (
-                                    <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
-                                  )}
-                                </>
-                              ) : customer.lineId ? (
-                                <>
-                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
-                                  <p className="text-sm text-muted-foreground truncate">LINE 用戶</p>
-                                </>
-                              ) : (
-                                <>
-                                  {customer.company && (
-                                    <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
-                                  )}
-                                  {customer.jobTitle && (
-                                    <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
-                                  )}
-                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
-                                </>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          {customer.isRegisteredUser ? (
+                            <>
+                              <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                              {customer.jobTitle && (
+                                <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
                               )}
-                            </div>
+                              {customer.company && (
+                                <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                              )}
+                            </>
+                          ) : customer.lineId ? (
+                            <>
+                              <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                              <p className="text-sm text-muted-foreground truncate">LINE 用戶</p>
+                            </>
+                          ) : (
+                            <>
+                              {customer.company && (
+                                <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                              )}
+                              {customer.jobTitle && (
+                                <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                              )}
+                              <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                            </>
+                          )}
+                        </div>
                         
                         <div className="flex flex-col items-end space-y-2 ml-2">
                           {cardStyle.badge && (
