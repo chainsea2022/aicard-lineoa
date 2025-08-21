@@ -317,20 +317,45 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
           
           {/* APP下載提示 */}
           <div className="mt-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-100">
-              <div className="flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center mx-auto mb-2">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-5 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer animate-fade-in">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg pulse">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <p className="text-sm font-medium text-gray-800 mb-1">
-                    更多名片與個人化設置，請下載APP
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    享受更完整的功能體驗
-                  </p>
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900 mb-1">
+                      🚀 解鎖完整功能
+                    </p>
+                    <p className="text-sm text-gray-600 mb-2">
+                      更多名片與個人化設置，請下載APP
+                    </p>
+                    <div className="flex items-center space-x-2 text-xs text-blue-600">
+                      <span>✨ 無限名片數量</span>
+                      <span>•</span>
+                      <span>🎨 個人化主題</span>
+                      <span>•</span>
+                      <span>📊 詳細分析</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col items-center space-y-2">
+                  <Button 
+                    size="sm" 
+                    className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white font-medium px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toast({
+                        title: "即將前往下載",
+                        description: "正在為您準備APP下載連結..."
+                      });
+                    }}
+                  >
+                    立即下載
+                  </Button>
+                  <span className="text-xs text-gray-400">免費使用</span>
                 </div>
               </div>
             </div>
