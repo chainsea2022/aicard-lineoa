@@ -53,7 +53,7 @@ const UpgradeSection: React.FC = () => {
 
   const aiEcosystem = [
     {
-      title: 'AiCard ｜名片夾',
+      title: 'AiCard ｜智慧名片',
       description: '建立個人電子名片，串起你的人脈鏈',
       color: 'blue',
       buttons: ['👉 下載APP', '🔗【了解更多】']
