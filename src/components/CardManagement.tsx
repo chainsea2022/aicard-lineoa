@@ -320,24 +320,22 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
             <div className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 rounded-2xl p-5 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 hover-scale cursor-pointer animate-fade-in">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg pulse">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg">
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
                     </svg>
                   </div>
                   <div className="flex-1">
-                    <p className="text-base font-semibold text-gray-900 mb-1">
-                      🚀 解鎖完整功能
-                    </p>
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">
+                      解鎖完整功能
+                    </h3>
                     <p className="text-sm text-gray-600 mb-2">
                       更多名片與個人化設置，請下載APP
                     </p>
-                    <div className="flex items-center space-x-2 text-xs text-blue-600">
-                      <span>✨ 無限名片數量</span>
-                      <span>•</span>
-                      <span>🎨 個人化主題</span>
-                      <span>•</span>
-                      <span>📊 詳細分析</span>
+                    <div className="flex items-center space-x-3 text-xs text-blue-600">
+                      <span className="bg-blue-100 px-2 py-1 rounded-md">無限名片</span>
+                      <span className="bg-indigo-100 px-2 py-1 rounded-md">個人主題</span>
+                      <span className="bg-purple-100 px-2 py-1 rounded-md">數據分析</span>
                     </div>
                   </div>
                 </div>
@@ -355,7 +353,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
                   >
                     立即下載
                   </Button>
-                  <span className="text-xs text-gray-400">免費使用</span>
+                  <span className="text-xs text-gray-500">免費使用</span>
                 </div>
               </div>
             </div>
