@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Shield, Star, Crown } from 'lucide-react';
+import { Shield, Star, Crown, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface PlanFeature {
   name: string;
@@ -55,8 +55,12 @@ const PlanCard: React.FC<PlanCardProps> = ({
   features,
   isCurrentPlan = false
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const Icon = planIcons[type];
   const colors = planColors[type];
+
+  const displayedFeatures = isExpanded ? features : features.slice(0, 4);
+  const hasMoreFeatures = features.length > 4;
 
   return (
     <div className={`${colors.bg} border ${colors.border} rounded-2xl p-5 relative shadow-sm hover:shadow-md transition-shadow`}>
@@ -83,15 +87,30 @@ const PlanCard: React.FC<PlanCardProps> = ({
       </div>
       
       <div className="space-y-3 mb-6">
-        {features.slice(0, 4).map((feature, index) => (
+        {displayedFeatures.map((feature, index) => (
           <div key={index} className="flex justify-between items-center py-1">
             <span className="text-sm text-gray-600">{feature.name}</span>
             <span className="text-sm font-medium text-gray-900">{feature.value}</span>
           </div>
         ))}
-        {features.length > 4 && (
+        {hasMoreFeatures && (
           <div className="pt-2 border-t border-gray-100">
-            <span className="text-xs text-gray-500">+{features.length - 4} 項功能</span>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="flex items-center justify-center w-full text-xs text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            >
+              {isExpanded ? (
+                <>
+                  <span>收起功能</span>
+                  <ChevronUp className="w-3 h-3 ml-1" />
+                </>
+              ) : (
+                <>
+                  <span>查看全部 {features.length} 項功能</span>
+                  <ChevronDown className="w-3 h-3 ml-1" />
+                </>
+              )}
+            </button>
           </div>
         )}
       </div>
