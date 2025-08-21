@@ -165,27 +165,27 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
             </div>
           ) : (
             cards.map((card) => (
-              <div key={card.id} className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
-                {/* 名片頭部預覽 - 與聊天室風格一致 */}
+              <div key={card.id} className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden max-w-sm mx-auto">
+                {/* 頭部資訊 - 與電子名片預覽樣式一致 */}
                 <div className="p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
                   <div className="flex items-center space-x-3">
                     {card.photo && (
-                      <div className="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center">
-                        <img src={card.photo} alt="頭像" className="w-10 h-10 rounded-full object-cover" />
+                      <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center">
+                        <img src={card.photo} alt="頭像" className="w-14 h-14 rounded-full object-cover" />
                       </div>
                     )}
                     <div className="flex-1">
                       {card.company && (
-                        <p className="text-blue-100 text-xs">{card.company}</p>
+                        <p className="text-blue-100 text-sm">{card.company}</p>
                       )}
-                      <h4 className="text-white text-base font-semibold">
+                      <h3 className="text-white text-lg font-semibold mb-1">
                         {card.name || '您的姓名'}
-                      </h4>
+                      </h3>
                       {card.title && (
-                        <p className="text-blue-100 text-xs">{card.title}</p>
+                        <p className="text-blue-100 text-sm">{card.title}</p>
                       )}
                     </div>
-                    {/* 名片類型標籤 */}
+                    {/* 預設標籤 */}
                     {card.isDefault && (
                       <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                         預設
@@ -194,37 +194,66 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
                   </div>
                 </div>
 
-                {/* 基本聯絡資訊預覽 */}
-                <div className="p-3 space-y-2">
+                {/* 聯絡資訊 - 簡化版電子名片預覽樣式 */}
+                <div className="p-4 space-y-3">
+                  {/* 電話 */}
                   {card.phone && (
-                    <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center space-x-2">
                       <span className="text-gray-600">📱</span>
-                      <span className="text-gray-800">{card.phone}</span>
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">電話</p>
+                        <p className="text-sm text-gray-800">{card.phone}</p>
+                      </div>
                     </div>
                   )}
+
+                  {/* Email */}
                   {card.email && (
-                    <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center space-x-2">
                       <span className="text-gray-600">✉️</span>
-                      <span className="text-gray-800">{card.email}</span>
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">Email</p>
+                        <p className="text-sm text-gray-800">{card.email}</p>
+                      </div>
                     </div>
                   )}
-                  {card.line && (
-                    <div className="flex items-center space-x-2 text-sm">
-                      <span className="text-gray-600">💬</span>
-                      <span className="text-gray-800">LINE: {card.line}</span>
-                    </div>
-                  )}
+
+                  {/* 網站 */}
                   {card.website && (
-                    <div className="flex items-center space-x-2 text-sm">
+                    <div className="flex items-center space-x-2">
                       <span className="text-gray-600">🌐</span>
-                      <span className="text-gray-800">{card.website}</span>
+                      <div>
+                        <p className="text-xs font-medium text-gray-700">網站</p>
+                        <p className="text-sm text-gray-800">{card.website}</p>
+                      </div>
                     </div>
                   )}
                 </div>
 
-                {/* 操作按鈕區域 */}
-                <div className="bg-gray-50 p-4">
-                  {/* 主要選擇按鈕 */}
+                {/* 社群媒體與操作區域 */}
+                <div className="p-4 bg-gray-50 border-t border-gray-200">
+                  {/* 社群媒體符號 */}
+                  {(card.line || card.facebook || card.instagram) && (
+                    <div className="flex justify-center gap-3 mb-4">
+                      {card.line && (
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">💬</span>
+                        </div>
+                      )}
+                      {card.facebook && (
+                        <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">📘</span>
+                        </div>
+                      )}
+                      {card.instagram && (
+                        <div className="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-sm">📷</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* 選擇按鈕 */}
                   <Button
                     onClick={() => handleCardClick(card)}
                     className="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-6 rounded-xl font-medium transition-colors duration-200 flex items-center justify-center space-x-2"
