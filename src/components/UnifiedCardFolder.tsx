@@ -510,7 +510,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'my-cards' ? 'default' : 'outline'}
               size="sm"
               onClick={() => handleFilterChange({ category: 'my-cards' })}
-              className="whitespace-nowrap relative"
+              className="whitespace-nowrap relative overflow-visible"
             >
               我的名片夾 ({myCardsCount})
               {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
