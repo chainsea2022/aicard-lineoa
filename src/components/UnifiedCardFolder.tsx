@@ -429,18 +429,75 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   };
 
   const handleAddToFolder = (customerId: number) => {
-    const updatedCustomers = customers.map(c => 
-      c.id === customerId 
-        ? { ...c, isRecommendation: false, isRegisteredUser: true, relationshipStatus: 'collected' as const }
-        : c
-    );
-    setCustomers(updatedCustomers);
-    
     const customer = customers.find(c => c.id === customerId);
-    if (customer) {
+    if (!customer) return;
+    
+    if (customer.isRecommendation) {
+      // Smart recommendation - add to registered users
+      const updatedCustomers = customers.map(c => 
+        c.id === customerId 
+          ? { ...c, isRecommendation: false, isRegisteredUser: true, relationshipStatus: 'collected' as const }
+          : c
+      );
+      setCustomers(updatedCustomers);
+      
       toast({
         title: "已加入名片夾",
         description: `${customer.name} 已加入您的名片夾`,
+        className: "max-w-[280px] mx-auto"
+      });
+    } else if (!customer.isRegisteredUser && customer.lineId) {
+      // LINE OA contact - check if they should be registered or stay as contact
+      const updatedCustomers = customers.map(c => 
+        c.id === customerId 
+          ? { 
+              ...c, 
+              isRegisteredUser: false, // Keep as unregistered (contact folder)
+              relationshipStatus: 'collected' as const,
+              invitationSent: true
+            }
+          : c
+      );
+      setCustomers(updatedCustomers);
+      
+      toast({
+        title: "已加入聯絡人名片夾",
+        description: `${customer.name} 已加入聯絡人名片夾`,
+        className: "max-w-[280px] mx-auto"
+      });
+    } else {
+      // Other cases - add to appropriate folder based on registration status
+      const updatedCustomers = customers.map(c => 
+        c.id === customerId 
+          ? { ...c, relationshipStatus: 'collected' as const }
+          : c
+      );
+      setCustomers(updatedCustomers);
+      
+      const folderType = customer.isRegisteredUser ? "電子名片夾" : "聯絡人名片夾";
+      
+      toast({
+        title: "已加入名片夾",
+        description: `${customer.name} 已加入${folderType}`,
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
+
+  // Handle ignoring invitation from LINE OA contacts
+  const handleIgnoreInvitation = (customerId: number) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      // Add to declined invitations history
+      setDeclinedInvitations(prev => [...prev, customer]);
+      
+      // Remove from current customers list
+      const updatedCustomers = customers.filter(c => c.id !== customerId);
+      setCustomers(updatedCustomers);
+      
+      toast({
+        title: "已忽略邀請",
+        description: `已忽略 ${customer.name} 的邀請，可在邀請歷史中查看`,
         className: "max-w-[280px] mx-auto"
       });
     }
@@ -915,9 +972,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                              </div>
                            )}
                            
-                           {/* Invited LINE user buttons (unregistered with LINE ID) */}
+                           {/* LINE OA contacts with invitation - show all buttons */}
                            {!customer.isRegisteredUser && customer.lineId && customer.invitationSent && (
-                             <div className="flex space-x-1">
+                             <div className="flex flex-wrap gap-1">
                                <Button
                                  size="sm"
                                  variant="default"
@@ -932,13 +989,33 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                <Button
                                  size="sm"
                                  variant="outline"
-                                 className="h-6 px-2 text-xs"
+                                 className="h-6 px-1 text-xs bg-purple-50 border-purple-200 text-purple-700"
                                  onClick={(e) => {
                                    e.stopPropagation();
-                                   // Show "被邀請" status
                                  }}
                                >
                                  被邀請
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 className="h-6 px-1 text-xs bg-gray-50 border-gray-200 text-gray-600"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                 }}
+                               >
+                                 未註冊
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 className="h-6 px-1 text-xs bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleIgnoreInvitation(customer.id);
+                                 }}
+                               >
+                                 忽略
                                </Button>
                              </div>
                            )}
@@ -952,7 +1029,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                  className="h-6 px-2 text-xs bg-gray-100 border-gray-300 text-gray-600"
                                  onClick={(e) => {
                                    e.stopPropagation();
-                                   // Show unregistered status
                                  }}
                                >
                                  未註冊
