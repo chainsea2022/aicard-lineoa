@@ -122,7 +122,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation && !c.isPendingInvitation).length;
   const unregisteredCount = customers.filter(c => !c.isRegisteredUser).length;
   const recommendationsCount = customers.filter(c => c.isRecommendation).length;
-  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length + pendingInvitations.length + declinedInvitations.length;
+  const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
   const pendingInvitationsCount = pendingInvitations.length;
   // Count unregistered LINE users who have been invited as friends
@@ -291,9 +291,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       }
     });
 
-    // Include pending invitations and declined invitations in the filtered results for appropriate categories
+    // Include pending invitations in the filtered results for appropriate categories
     if (filter.category === 'invited-by' || filter.category === 'all' || filter.category === 'my-cards') {
-      filtered = [...filtered, ...pendingInvitations, ...declinedInvitations];
+      filtered = [...filtered, ...pendingInvitations];
     }
 
     // Sort customers: NEW cards first, then favorites, then by added date
@@ -316,16 +316,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   };
 
   const getCardStyle = (customer: Customer) => {
-    // Check if this is a declined invitation
-    const isDeclinedInvitation = declinedInvitations.some(inv => inv.id === customer.id);
-    
-    if (isDeclinedInvitation) {
-      return {
-        className: "border-2 border-gray-300 bg-gray-50 opacity-75",
-        badge: { text: "已略過", className: "bg-gray-500 text-white" }
-      };
-    }
-    
     if (customer.isPendingInvitation) {
       return {
         className: "border-2 border-purple-300 bg-purple-50",
@@ -488,35 +478,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     }
   };
 
-  // Handle restoring declined invitation
-  const handleRestoreInvitation = (customerId: number) => {
-    const declinedInvitation = declinedInvitations.find(inv => inv.id === customerId);
-    if (declinedInvitation) {
-      // Move back to pending invitations
-      setPendingInvitations(prev => [...prev, declinedInvitation]);
-      setDeclinedInvitations(prev => prev.filter(inv => inv.id !== customerId));
-      
-      toast({
-        title: "已恢復邀請",
-        description: `${declinedInvitation.name} 的邀請已恢復`,
-        className: "max-w-[280px] mx-auto"
-      });
-    }
-  };
-
-  // Handle permanently deleting declined invitation
-  const handleDeleteInvitation = (customerId: number) => {
-    const declinedInvitation = declinedInvitations.find(inv => inv.id === customerId);
-    if (declinedInvitation) {
-      setDeclinedInvitations(prev => prev.filter(inv => inv.id !== customerId));
-      
-      toast({
-        title: "已刪除邀請",
-        description: `${declinedInvitation.name} 的邀請已永久刪除`,
-        className: "max-w-[280px] mx-auto"
-      });
-    }
-  };
+  // Handle ignoring invitation from LINE OA contacts
   const handleIgnoreInvitation = (customerId: number) => {
     const customer = customers.find(c => c.id === customerId);
     if (customer) {
@@ -775,202 +737,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       {/* Customer Cards */}
       <div className="flex-1 overflow-y-auto p-4">
         <div className="space-y-3">
-          {/* Active Invitations Section - Only show when in invited-by filter */}
-          {filter.category === 'invited-by' && (pendingInvitations.length > 0 || filteredCustomers.some(c => c.needsManualApproval)) && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 px-1">新邀請</h3>
-              <div className="space-y-3">
-                {filteredCustomers.filter(c => c.isPendingInvitation || c.needsManualApproval).map((customer) => {
-                  const cardStyle = getCardStyle(customer);
-                  
-                  return (
-                    <Card 
-                      key={customer.id} 
-                      className={`${cardStyle.className} cursor-pointer transition-all hover:shadow-md`}
-                      onClick={() => handleCardClick(customer)}
-                    >
-                      <CardContent className="p-4">
-                        <div className={`flex items-start ${(customer.isRegisteredUser || customer.lineId) ? 'space-x-3' : 'space-x-0'}`}>
-                          {/* Avatar and content - same as regular cards */}
-                          {(customer.isRegisteredUser || customer.lineId) && (
-                            <div className="relative">
-                              <img
-                                src={customer.photo || getRandomProfessionalAvatar(customer.id)}
-                                alt={customer.name}
-                                className="w-12 h-12 rounded-full object-cover"
-                              />
-                            </div>
-                          )}
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
-                                {customer.jobTitle && (
-                                  <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
-                                )}
-                                {customer.company && (
-                                  <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
-                                )}
-                              </div>
-                          
-                              <div className="flex flex-col items-end space-y-2 ml-2">
-                                {cardStyle.badge && (
-                                  <Badge className={cardStyle.badge.className} variant="secondary">
-                                    {cardStyle.badge.text}
-                                  </Badge>
-                                )}
-                                
-                                {/* Invitation action buttons */}
-                                {customer.isPendingInvitation && (
-                                  <div className="flex space-x-1">
-                                    <Button
-                                      size="sm"
-                                      variant="default"
-                                      className="h-6 px-2 text-xs bg-purple-500 hover:bg-purple-600 text-white"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAcceptInvitation(customer.id);
-                                      }}
-                                    >
-                                      加入名片夾
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="h-6 px-2 text-xs"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleDeclineInvitation(customer.id);
-                                      }}
-                                    >
-                                      略過
-                                    </Button>
-                                  </div>
-                                )}
-                                
-                                {customer.needsManualApproval && (
-                                  <div className="flex space-x-1">
-                                    <Button
-                                      size="sm"
-                                      variant="default"
-                                      className="h-6 px-2 text-xs bg-blue-500 hover:bg-blue-600 text-white"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleManualApproval(customer.id, true);
-                                      }}
-                                    >
-                                      加入名片夾
-                                    </Button>
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="h-6 px-2 text-xs"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleManualApproval(customer.id, false);
-                                      }}
-                                    >
-                                      略過
-                                    </Button>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          
-          {/* Declined Invitations History Section - Only show when in invited-by filter */}
-          {filter.category === 'invited-by' && declinedInvitations.length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3 px-1">邀請歷史</h3>
-              <div className="space-y-3">
-                {declinedInvitations.map((customer) => {
-                  const cardStyle = getCardStyle(customer);
-                  
-                  return (
-                    <Card 
-                      key={customer.id} 
-                      className={`${cardStyle.className} cursor-pointer transition-all hover:shadow-md`}
-                      onClick={() => handleCardClick(customer)}
-                    >
-                      <CardContent className="p-4">
-                        <div className={`flex items-start ${(customer.isRegisteredUser || customer.lineId) ? 'space-x-3' : 'space-x-0'}`}>
-                          {(customer.isRegisteredUser || customer.lineId) && (
-                            <div className="relative">
-                              <img
-                                src={customer.photo || getRandomProfessionalAvatar(customer.id)}
-                                alt={customer.name}
-                                className="w-12 h-12 rounded-full object-cover"
-                              />
-                            </div>
-                          )}
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between">
-                              <div className="flex-1 min-w-0">
-                                <h3 className="font-medium text-card-foreground truncate opacity-75">{customer.name}</h3>
-                                {customer.jobTitle && (
-                                  <p className="text-sm text-muted-foreground truncate opacity-75">{customer.jobTitle}</p>
-                                )}
-                                {customer.company && (
-                                  <p className="text-sm text-muted-foreground truncate opacity-75">{customer.company}</p>
-                                )}
-                              </div>
-                          
-                              <div className="flex flex-col items-end space-y-2 ml-2">
-                                {cardStyle.badge && (
-                                  <Badge className={cardStyle.badge.className} variant="secondary">
-                                    {cardStyle.badge.text}
-                                  </Badge>
-                                )}
-                                
-                                {/* History action buttons */}
-                                <div className="flex space-x-1">
-                                  <Button
-                                    size="sm"
-                                    variant="default"
-                                    className="h-6 px-2 text-xs bg-green-500 hover:bg-green-600 text-white"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleRestoreInvitation(customer.id);
-                                    }}
-                                  >
-                                    恢復
-                                  </Button>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="h-6 px-2 text-xs bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteInvitation(customer.id);
-                                    }}
-                                  >
-                                    刪除
-                                  </Button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-          
-          {/* Regular Cards Section */}
-          {filteredCustomers.filter(c => !c.isPendingInvitation && !c.needsManualApproval && !declinedInvitations.some(inv => inv.id === c.id)).map((customer) => {
+          {filteredCustomers.map((customer) => {
             const cardStyle = getCardStyle(customer);
             
             return (
