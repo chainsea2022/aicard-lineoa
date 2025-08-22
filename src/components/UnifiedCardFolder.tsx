@@ -246,7 +246,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   // Clear NEW badges when viewing card folder
   const handleFilterChange = (newFilter: FilterState) => {
     setFilter(newFilter);
-    if (newFilter.category === 'my-cards' || newFilter.category === 'invited-by') {
+    if (newFilter.category === 'my-cards' || newFilter.category === 'invited-by' || newFilter.category === 'unregistered') {
       // Clear NEW badges when user views these sections
       setNewAutoAddedCards(new Set());
     }
@@ -461,6 +461,11 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           : c
       );
       setCustomers(updatedCustomers);
+      
+      // Add NEW badge for unregistered users (contacts)
+      if (!customer.isRegisteredUser) {
+        setNewAutoAddedCards(prev => new Set([...prev, customerId]));
+      }
       
       const folderType = customer.isRegisteredUser ? "電子名片夾" : "聯絡人名片夾";
       
