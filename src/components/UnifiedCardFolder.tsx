@@ -322,8 +322,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     
     if (customer.needsManualApproval) {
       return {
-        className: "border-2 border-blue-300 bg-blue-50",
-        badge: { text: "被邀請", className: "bg-blue-500 text-white" }
+        className: "border-2 border-purple-300 bg-purple-50",
+        badge: { text: "被邀請", className: "bg-purple-500 text-white" }
       };
     }
     
