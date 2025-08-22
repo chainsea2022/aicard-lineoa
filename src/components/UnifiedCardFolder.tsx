@@ -995,7 +995,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                    handleIgnoreInvitation(customer.id);
                                  }}
                                >
-                                 忽略
+                                 略過
                                </Button>
                              </div>
                            )}
