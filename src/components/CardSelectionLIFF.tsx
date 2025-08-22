@@ -143,7 +143,7 @@ export const CardSelectionLIFF: React.FC<CardSelectionLIFFProps> = ({
         <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20 p-1">
           <ArrowLeft className="w-5 h-5" />
         </Button>
-        <h2 className="font-bold text-lg">我的電子名片</h2>
+        <h2 className="font-bold text-lg">我的名片</h2>
         <Button onClick={onClose} variant="ghost" size="sm" className="text-white hover:bg-white/20 p-1">
           <X className="w-5 h-5" />
         </Button>
