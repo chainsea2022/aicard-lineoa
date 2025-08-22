@@ -82,7 +82,7 @@ const menuItems: MenuItem[] = [{
 // 新的 Richmenu 模式選項 - 會員版本
 const newMenuItemsForMember: MenuItem[] = [{
   id: 'my-card',
-  title: '我的電子名片',
+  title: '我的名片',
   icon: Zap,
   color: 'bg-gradient-to-br from-green-500 to-green-600'
 }, {
@@ -100,7 +100,7 @@ const newMenuItemsForMember: MenuItem[] = [{
 // 新的 Richmenu 模式選項 - 未註冊版本
 const newMenuItemsForGuest: MenuItem[] = [{
   id: 'my-card',
-  title: '我的電子名片',
+  title: '我的名片',
   icon: Zap,
   color: 'bg-gradient-to-br from-green-500 to-green-600'
 }, {
