@@ -155,7 +155,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     const invitation = pendingInvitations.find(inv => inv.id === customerId);
     if (invitation) {
       if (autoAddSettings) {
-        // Auto-add to card folder
+        // Auto-add to card folder - preserve original registration status
         const newCustomer = { 
           ...invitation, 
           isPendingInvitation: false, 
@@ -164,9 +164,10 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         setCustomers(prev => [...prev, newCustomer]);
         setNewAutoAddedCards(prev => new Set([...prev, customerId]));
         
+        const folderType = invitation.isRegisteredUser ? "電子名片夾" : "聯絡人名片夾";
         toast({
           title: "自動加入名片夾",
-          description: `${invitation.name} 已自動加入您的名片夾`,
+          description: `${invitation.name} 已自動加入您的${folderType}`,
           className: "max-w-[280px] mx-auto"
         });
       } else {
@@ -209,6 +210,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   // Handle manual approval from customer card
   const handleManualApproval = (customerId: number, approved: boolean) => {
     if (approved) {
+      const customer = customers.find(c => c.id === customerId);
       const updatedCustomers = customers.map(c => 
         c.id === customerId 
           ? { ...c, needsManualApproval: false, relationshipStatus: 'collected' as const }
@@ -216,11 +218,11 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       );
       setCustomers(updatedCustomers);
       
-      const customer = customers.find(c => c.id === customerId);
       if (customer) {
+        const folderType = customer.isRegisteredUser ? "電子名片夾" : "聯絡人名片夾";
         toast({
           title: "已加入名片夾",
-          description: `${customer.name} 已加入您的名片夾`,
+          description: `${customer.name} 已加入您的${folderType}`,
           className: "max-w-[280px] mx-auto"
         });
       }
@@ -434,7 +436,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     if (!customer) return;
     
     if (customer.isRecommendation) {
-      // Smart recommendation - add to registered users
+      // Smart recommendation - add to electronic business card folder (registered users)
       const updatedCustomers = customers.map(c => 
         c.id === customerId 
           ? { ...c, isRecommendation: false, isRegisteredUser: true, relationshipStatus: 'collected' as const }
@@ -444,33 +446,18 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       
       toast({
         title: "已加入名片夾",
-        description: `${customer.name} 已加入您的名片夾`,
+        description: `${customer.name} 已加入您的電子名片夾`,
         className: "max-w-[280px] mx-auto"
       });
-    } else if (!customer.isRegisteredUser && customer.lineId) {
-      // LINE OA contact - check if they should be registered or stay as contact
+    } else {
+      // Preserve original registration status - electronic cards stay electronic, contacts stay contacts
       const updatedCustomers = customers.map(c => 
         c.id === customerId 
           ? { 
               ...c, 
-              isRegisteredUser: false, // Keep as unregistered (contact folder)
               relationshipStatus: 'collected' as const,
-              invitationSent: true
+              invitationSent: customer.lineId ? true : c.invitationSent
             }
-          : c
-      );
-      setCustomers(updatedCustomers);
-      
-      toast({
-        title: "已加入聯絡人名片夾",
-        description: `${customer.name} 已加入聯絡人名片夾`,
-        className: "max-w-[280px] mx-auto"
-      });
-    } else {
-      // Other cases - add to appropriate folder based on registration status
-      const updatedCustomers = customers.map(c => 
-        c.id === customerId 
-          ? { ...c, relationshipStatus: 'collected' as const }
           : c
       );
       setCustomers(updatedCustomers);
