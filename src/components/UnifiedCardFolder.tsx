@@ -25,7 +25,7 @@ interface UnifiedCardFolderProps {
 }
 
 interface FilterState {
-  category: 'all' | 'my-cards' | 'unregistered' | 'recommendations' | 'invited-by' | 'invited' | 'following' | 'tags' | 'tag';
+  category: 'all' | 'none' | 'my-cards' | 'unregistered' | 'recommendations' | 'invited-by' | 'invited' | 'following' | 'tags' | 'tag';
   selectedTags?: string[];
   tag?: string;
 }
@@ -256,6 +256,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           return filter.selectedTags ? filter.selectedTags.some(tag => customer.tags?.includes(tag)) : false;
         case 'tag':
           return filter.tag ? customer.tags?.includes(filter.tag) : false;
+        case 'none':
+          return true; // Show all when deselected
         case 'all':
         default:
           return true;
@@ -512,7 +514,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             <Button
               variant={filter.category === 'all' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setFilter({ category: 'all' })}
+              onClick={() => setFilter({ category: filter.category === 'all' ? 'none' : 'all' })}
               className="whitespace-nowrap"
             >
               全部
@@ -523,7 +525,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               onClick={() => handleFilterChange({ category: 'my-cards' })}
               className="whitespace-nowrap relative overflow-visible"
             >
-              我的名片夾 ({myCardsCount})
+              電子名片 ({myCardsCount})
               {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                   {newAutoAddedCards.size + pendingInvitationsCount}
@@ -536,7 +538,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               onClick={() => setFilter({ category: 'unregistered' })}
               className="whitespace-nowrap"
             >
-              未註冊 ({unregisteredCount})
+              聯絡人 ({unregisteredCount})
             </Button>
             <Button
               variant={filter.category === 'recommendations' ? 'default' : 'outline'}
