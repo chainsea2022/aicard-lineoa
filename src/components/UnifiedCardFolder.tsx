@@ -604,9 +604,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'all' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: filter.category === 'all' ? 'none' : 'all' })}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap px-3"
             >
-              全部
+              <Users className="w-4 h-4" />
             </Button>
             <Button
               variant={filter.category === 'my-cards' ? 'default' : 'outline'}
