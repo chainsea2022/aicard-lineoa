@@ -687,10 +687,10 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       </div>
 
       {/* Common Tags Section */}
-      {showTagsSection && (
-        <div className="px-4 py-2 border-b border-border bg-background">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
+      <div className="px-4 py-2 border-b border-border bg-background">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
+          {showTagsSection && (
             <div className="flex items-center gap-2 overflow-x-auto flex-1">
               {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
                 <Button
@@ -724,18 +724,12 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 </Button>
               )}
             </div>
-          </div>
-        </div>
-      )}
-      
-      {/* Collapse Toggle Button */}
-      <div className="px-4 py-1 border-b border-border bg-background">
-        <div className="flex justify-center">
+          )}
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={() => setShowTagsSection(!showTagsSection)}
-            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
           >
             {showTagsSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
