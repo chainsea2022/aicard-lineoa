@@ -102,10 +102,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
   const pendingInvitationsCount = pendingInvitations.length;
-  // Calculate unregistered contacts with LINE ID invitations
-  const unregisteredInvitationsCount = customers.filter(c => !c.isRegisteredUser && c.lineId && c.invitationSent).length;
-  // Total invitation notifications (for "被邀請" filter)
-  const totalInvitationNotifications = pendingInvitationsCount + unregisteredInvitationsCount;
 
   // Initialize mock pending invitations
   useEffect(() => {
@@ -540,14 +536,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'unregistered' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: 'unregistered' })}
-              className="whitespace-nowrap relative overflow-visible"
+              className="whitespace-nowrap"
             >
               聯絡人 ({unregisteredCount})
-              {unregisteredInvitationsCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {unregisteredInvitationsCount}
-                </span>
-              )}
             </Button>
             <Button
               variant={filter.category === 'recommendations' ? 'default' : 'outline'}
@@ -575,9 +566,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 >
                   <div className="flex items-center justify-between w-full">
                     <span>被邀請 ({invitedByCount})</span>
-                    {totalInvitationNotifications > 0 && (
+                    {pendingInvitationsCount > 0 && (
                       <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {totalInvitationNotifications}
+                        {pendingInvitationsCount}
                       </span>
                     )}
                   </div>
