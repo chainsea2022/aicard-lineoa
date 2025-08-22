@@ -989,16 +989,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                <Button
                                  size="sm"
                                  variant="outline"
-                                 className="h-6 px-1 text-xs bg-purple-50 border-purple-200 text-purple-700"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                 }}
-                               >
-                                 被邀請
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant="outline"
                                  className="h-6 px-1 text-xs bg-gray-50 border-gray-200 text-gray-600"
                                  onClick={(e) => {
                                    e.stopPropagation();
