@@ -605,7 +605,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'my-cards' ? 'default' : 'outline'}
               size="sm"
               onClick={() => handleFilterChange({ category: 'my-cards' })}
-              className="whitespace-nowrap relative overflow-visible text-xs px-3 h-8 flex-1 min-w-0"
+              className="whitespace-nowrap relative overflow-visible text-sm px-3 h-8 flex-1 min-w-0"
             >
               電子名片 ({myCardsCount})
               {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
@@ -618,7 +618,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'unregistered' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: 'unregistered' })}
-              className="whitespace-nowrap relative overflow-visible text-xs px-3 h-8 flex-1 min-w-0"
+              className="whitespace-nowrap relative overflow-visible text-sm px-3 h-8 flex-1 min-w-0"
             >
               聯絡人 ({unregisteredCount})
               {invitedLineUsersCount > 0 && (
@@ -631,7 +631,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'recommendations' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: 'recommendations' })}
-              className="whitespace-nowrap text-xs px-3 h-8 flex-1 min-w-0"
+              className="whitespace-nowrap text-sm px-3 h-8 flex-1 min-w-0"
             >
               智能推薦 ({recommendationsCount})
             </Button>
