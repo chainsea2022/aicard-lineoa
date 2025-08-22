@@ -18,6 +18,7 @@ import { generateMockCustomers } from './MyCustomers/mockData';
 import { getRandomProfessionalAvatar } from './MyCustomers/utils';
 import InvitationDialog from './InvitationDialog';
 import { SmartRecommendationDetail } from './SmartRecommendationDetail';
+import AppDownloadLIFF from './AppDownloadLIFF';
 
 interface UnifiedCardFolderProps {
   onClose: () => void;
@@ -65,6 +66,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [pendingInvitations, setPendingInvitations] = useState<Customer[]>([]);
   const [newAutoAddedCards, setNewAutoAddedCards] = useState<Set<number>>(new Set());
   const [autoAddSettings, setAutoAddSettings] = useState(true); // Privacy setting for auto-add
+  const [showAppDownload, setShowAppDownload] = useState(false);
   const [declinedInvitations, setDeclinedInvitations] = useState<Customer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
@@ -423,6 +425,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
 
   const filteredCustomers = getFilteredCustomers();
 
+  // Show app download LIFF if requested
+  if (showAppDownload) {
+    return (
+      <AppDownloadLIFF
+        onClose={() => setShowAppDownload(false)}
+      />
+    );
+  }
+
   if (selectedCustomer && showRecommendationDetail) {
     return (
       <SmartRecommendationDetail
@@ -599,13 +610,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => {
-                  toast({
-                    title: "更多功能請下載APP",
-                    description: "完整的名片管理功能和更多進階特色，盡在我們的專屬APP中！",
-                    duration: 4000,
-                  });
-                }}
+                onClick={() => setShowAppDownload(true)}
                 className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
               >
                 更多
