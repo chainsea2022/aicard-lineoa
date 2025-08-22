@@ -276,7 +276,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         case 'invited-by':
           return customer.relationshipStatus === 'addedMe' || customer.isPendingInvitation || customer.needsManualApproval;
         case 'invited':
-          return customer.invitationSent || customer.emailInvitationSent;
+          return customer.invitationSent || customer.emailInvitationSent || customer.relationshipStatus === 'invited';
         case 'following':
           return customer.isFavorite;
         case 'tags':
@@ -488,7 +488,67 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     }
   };
 
-  // Handle restoring declined invitation
+  // Get invitation status for display
+  const getInvitationStatus = (customer: Customer) => {
+    if (customer.isRegisteredUser && customer.relationshipStatus === 'invited') {
+      return {
+        type: 'registered_waiting',
+        label: '等待對方同意',
+        description: '已加入生態，已註冊'
+      };
+    } else if (!customer.isRegisteredUser && customer.lineId && customer.invitationSent) {
+      return {
+        type: 'ecosystem_unregistered', 
+        label: '等待註冊',
+        description: '已加入生態，未註冊'
+      };
+    } else if (!customer.isRegisteredUser && !customer.lineId && (customer.invitationSent || customer.emailInvitationSent)) {
+      return {
+        type: 'outside_ecosystem',
+        label: '等待註冊',
+        description: '未加入生態，未註冊'
+      };
+    }
+    return null;
+  };
+
+  // Handle canceling invitation
+  const handleCancelInvitation = (customerId: number) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      const updatedCustomers = customers.map(c => 
+        c.id === customerId 
+          ? { 
+              ...c, 
+              invitationSent: false, 
+              emailInvitationSent: false,
+              relationshipStatus: 'collected' as const 
+            }
+          : c
+      );
+      setCustomers(updatedCustomers);
+      
+      toast({
+        title: "已取消邀請",
+        description: `已取消向 ${customer.name} 的邀請`,
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
+
+  // Handle resending invitation
+  const handleResendInvitation = (customerId: number) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (customer) {
+      handleSendInvitation(customerId);
+      
+      toast({
+        title: "邀請已重新發送",
+        description: `已重新向 ${customer.name} 發送邀請`,
+        className: "max-w-[280px] mx-auto"
+      });
+    }
+  };
   const handleRestoreInvitation = (customerId: number) => {
     const declinedInvitation = declinedInvitations.find(inv => inv.id === customerId);
     if (declinedInvitation) {
@@ -972,6 +1032,330 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           {/* Regular Cards Section */}
           {filteredCustomers.filter(c => !c.isPendingInvitation && !c.needsManualApproval && !declinedInvitations.some(inv => inv.id === c.id)).map((customer) => {
             const cardStyle = getCardStyle(customer);
+            const invitationStatus = getInvitationStatus(customer);
+            
+            return (
+              <Card 
+                key={customer.id} 
+                className={`${cardStyle.className} cursor-pointer transition-all hover:shadow-md`}
+                onClick={() => handleCardClick(customer)}
+              >
+                <CardContent className="p-4">
+                  <div className={`flex items-start ${(customer.isRegisteredUser || customer.lineId) ? 'space-x-3' : 'space-x-0'}`}>
+                    {/* Only show avatar for registered users and unregistered LINE users */}
+                    {(customer.isRegisteredUser || customer.lineId) && (
+                      <div className="relative">
+                        <img
+                          src={customer.photo || getRandomProfessionalAvatar(customer.id)}
+                          alt={customer.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      </div>
+                    )}
+                    
+                    <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1 min-w-0">
+                              {customer.isRegisteredUser ? (
+                                <>
+                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                                  {customer.jobTitle && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                                  )}
+                                  {customer.company && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                                  )}
+                                  {/* Show invitation status for invited filter */}
+                                  {filter.category === 'invited' && invitationStatus && (
+                                    <p className="text-xs text-muted-foreground mt-1">{invitationStatus.description}</p>
+                                  )}
+                                </>
+                              ) : customer.lineId ? (
+                                <>
+                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                                  <p className="text-sm text-muted-foreground truncate">LINE 用戶</p>
+                                  {/* Show invitation status for invited filter */}
+                                  {filter.category === 'invited' && invitationStatus && (
+                                    <p className="text-xs text-muted-foreground mt-1">{invitationStatus.description}</p>
+                                  )}
+                                </>
+                              ) : (
+                                <>
+                                  {customer.company && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                                  )}
+                                  {customer.jobTitle && (
+                                    <p className="text-sm text-muted-foreground truncate">{customer.jobTitle}</p>
+                                  )}
+                                  <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
+                                  {/* Show invitation status for invited filter */}
+                                  {filter.category === 'invited' && invitationStatus && (
+                                    <p className="text-xs text-muted-foreground mt-1">{invitationStatus.description}</p>
+                                  )}
+                                </>
+                              )}
+                            </div>
+                        
+                        <div className="flex flex-col items-end space-y-2 ml-2">
+                          {cardStyle.badge && (
+                            <Badge className={cardStyle.badge.className} variant="secondary">
+                              {cardStyle.badge.text}
+                            </Badge>
+                          )}
+                          
+                          {/* Special buttons for invited filter */}
+                          {filter.category === 'invited' && invitationStatus && (
+                            <div className="flex flex-col space-y-1">
+                              <div className="text-xs text-center text-muted-foreground mb-1">
+                                {invitationStatus.label}
+                              </div>
+                              <div className="flex space-x-1">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-6 px-2 text-xs"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleResendInvitation(customer.id);
+                                  }}
+                                >
+                                  重新發送
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-6 px-2 text-xs bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleCancelInvitation(customer.id);
+                                  }}
+                                >
+                                  取消
+                                </Button>
+                              </div>
+                            </div>
+                          )}
+                          
+                          {/* Follow star for all cards except smart recommendations and not in invited filter */}
+                          {!customer.isRecommendation && filter.category !== 'invited' && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="h-8 w-8 p-0"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleFavorite(customer.id);
+                                }}
+                              >
+                                <Star className={`w-4 h-4 ${customer.isFavorite ? 'text-yellow-500 fill-current' : 'text-muted-foreground'}`} />
+                              </Button>
+                              
+                              {/* Action buttons for registered users */}
+                              {customer.isRegisteredUser && (
+                                <>
+                                  {customer.line && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleLineContact(customer.id);
+                                      }}
+                                    >
+                                      <MessageCircle className="w-4 h-4 text-green-600" />
+                                    </Button>
+                                  )}
+                                  {customer.phone && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePhoneCall(customer.id);
+                                      }}
+                                    >
+                                      <Phone className="w-4 h-4 text-blue-600" />
+                                    </Button>
+                                  )}
+                                </>
+                              )}
+                              
+                              {/* Action buttons for unregistered LINE users */}
+                              {!customer.isRegisteredUser && customer.lineId && (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-8 w-8 p-0"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSendInvitation(customer.id);
+                                  }}
+                                >
+                                  {customer.invitationSent ? 
+                                    <Bell className="w-4 h-4 text-green-600" /> : 
+                                    <Circle className="w-4 h-4 text-muted-foreground" />
+                                  }
+                                </Button>
+                              )}
+                              
+                              {/* Action buttons for paper card users */}
+                              {!customer.isRegisteredUser && !customer.lineId && (
+                                <>
+                                  {customer.phone && (
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-8 w-8 p-0"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePhoneCall(customer.id);
+                                      }}
+                                    >
+                                      <Phone className="w-4 h-4 text-blue-600" />
+                                    </Button>
+                                  )}
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                    }}
+                                  >
+                                    {customer.invitationSent || customer.emailInvitationSent ? 
+                                      <Bell className="w-4 h-4 text-green-600" /> : 
+                                      <Circle className="w-4 h-4 text-muted-foreground" />
+                                    }
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Smart recommendation buttons */}
+                          {customer.isRecommendation && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-6 px-2 text-xs bg-recommendation-green hover:bg-recommendation-green/80"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddToFolder(customer.id);
+                                }}
+                              >
+                                加入名片夾
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleSkipRecommendation(customer.id);
+                                }}
+                              >
+                                略過
+                              </Button>
+                            </div>
+                          )}
+                          
+                          {/* Pending invitation buttons */}
+                          {customer.isPendingInvitation && (
+                            <div className="flex space-x-1">
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="h-6 px-2 text-xs bg-purple-500 hover:bg-purple-600 text-white"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAcceptInvitation(customer.id);
+                                }}
+                              >
+                                加入名片夾
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-6 px-2 text-xs"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeclineInvitation(customer.id);
+                                }}
+                              >
+                                略過
+                              </Button>
+                            </div>
+                          )}
+                          
+                           {/* Manual approval buttons */}
+                           {customer.needsManualApproval && (
+                             <div className="flex space-x-1">
+                               <Button
+                                 size="sm"
+                                 variant="default"
+                                 className="h-6 px-2 text-xs bg-blue-500 hover:bg-blue-600 text-white"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleManualApproval(customer.id, true);
+                                 }}
+                               >
+                                 加入名片夾
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 className="h-6 px-2 text-xs"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleManualApproval(customer.id, false);
+                                 }}
+                               >
+                                 略過
+                               </Button>
+                             </div>
+                           )}
+                           
+                           {/* LINE OA contacts with invitation - show all buttons only if not collected */}
+                           {!customer.isRegisteredUser && customer.lineId && customer.invitationSent && customer.relationshipStatus !== 'collected' && filter.category !== 'invited' && (
+                             <div className="flex flex-wrap gap-1">
+                               <Button
+                                 size="sm"
+                                 variant="default"
+                                 className="h-6 px-2 text-xs bg-orange-500 hover:bg-orange-600 text-white"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleAddToFolder(customer.id);
+                                 }}
+                               >
+                                 加入名片夾
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 className="h-6 px-1 text-xs bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleIgnoreInvitation(customer.id);
+                                 }}
+                               >
+                                 略過
+                               </Button>
+                             </div>
+                           )}
+                           
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+            const cardStyle = getCardStyle(customer);
             
             return (
               <Card 
@@ -1250,7 +1634,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             );
           })}
           
-          {filteredCustomers.length === 0 && (
+          {(filteredCustomers.length === 0 || (filter.category === 'invited-by' && pendingInvitations.length === 0 && declinedInvitations.length === 0)) && (
             <div className="text-center py-12">
               <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">沒有找到符合條件的聯絡人</p>
