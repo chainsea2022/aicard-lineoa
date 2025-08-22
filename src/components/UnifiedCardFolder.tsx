@@ -359,7 +359,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     
     if (customer.isFavorite) {
       return {
-        className: "border-2 border-favorite-blue bg-favorite-blue-bg",
+        className: "border border-muted bg-card",
         badge: null
       };
     }
