@@ -1020,21 +1020,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                              </div>
                            )}
                            
-                           {/* Unregistered user button (no LINE ID or not invited) */}
-                           {!customer.isRegisteredUser && !customer.invitationSent && !customer.emailInvitationSent && (
-                             <div className="flex space-x-1">
-                               <Button
-                                 size="sm"
-                                 variant="outline"
-                                 className="h-6 px-2 text-xs bg-gray-100 border-gray-300 text-gray-600"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                 }}
-                               >
-                                 未註冊
-                               </Button>
-                             </div>
-                           )}
                         </div>
                       </div>
                     </div>
