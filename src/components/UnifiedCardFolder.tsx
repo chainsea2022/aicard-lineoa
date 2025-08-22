@@ -18,6 +18,7 @@ import { generateMockCustomers } from './MyCustomers/mockData';
 import { getRandomProfessionalAvatar } from './MyCustomers/utils';
 import InvitationDialog from './InvitationDialog';
 import { SmartRecommendationDetail } from './SmartRecommendationDetail';
+import InvitationHistoryLIFF from './InvitationHistoryLIFF';
 import AppDownloadLIFF from './AppDownloadLIFF';
 
 interface UnifiedCardFolderProps {
@@ -68,6 +69,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [newAutoAddedCards, setNewAutoAddedCards] = useState<Set<number>>(new Set());
   const [autoAddSettings, setAutoAddSettings] = useState(true); // Privacy setting for auto-add
   const [showAppDownload, setShowAppDownload] = useState(false);
+  const [showInvitationHistory, setShowInvitationHistory] = useState(false);
   const [declinedInvitations, setDeclinedInvitations] = useState<Customer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
@@ -510,6 +512,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
 
   const filteredCustomers = getFilteredCustomers();
 
+  // Show invitation history LIFF if requested
+  if (showInvitationHistory) {
+    return (
+      <InvitationHistoryLIFF
+        onClose={() => setShowInvitationHistory(false)}
+      />
+    );
+  }
+
   // Show app download LIFF if requested
   if (showAppDownload) {
     return (
@@ -640,8 +651,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg">
                 <DropdownMenuItem 
-                  onClick={() => handleFilterChange({ category: 'invited-by' })}
-                  className={filter.category === 'invited-by' ? 'bg-accent text-accent-foreground' : ''}
+                  onClick={() => setShowInvitationHistory(true)}
                 >
                   <div className="flex items-center justify-between w-full">
                     <span>被邀請 ({invitedByCount})</span>
