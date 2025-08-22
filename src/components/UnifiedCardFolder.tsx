@@ -680,9 +680,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
 
       {/* Common Tags Section */}
       <div className="px-4 py-2 border-b border-border bg-background">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
-          {showTagsSection && (
+        {showTagsSection ? (
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
             <div className="flex items-center gap-2 overflow-x-auto flex-1">
               {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
                 <Button
@@ -716,16 +716,27 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 </Button>
               )}
             </div>
-          )}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => setShowTagsSection(!showTagsSection)}
-            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
-          >
-            {showTagsSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </Button>
-        </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowTagsSection(!showTagsSection)}
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
+            >
+              <ChevronUp className="w-4 h-4" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex justify-center">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setShowTagsSection(!showTagsSection)}
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
+            >
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Customer Cards */}
