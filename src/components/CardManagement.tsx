@@ -317,7 +317,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
           
           {/* APP下載提示 */}
           <div className="mt-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer">
+            <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-4 border border-blue-400 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer">
               <div className="flex items-center space-x-4">
                 <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-lg flex items-center justify-center flex-shrink-0">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,10 +325,10 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
                   </svg>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-sm font-medium text-gray-900 mb-1">
+                  <h3 className="text-sm font-medium text-white mb-1">
                     更多名片與個人化設置，請下載APP
                   </h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-blue-100">
                     享受完整功能體驗
                   </p>
                 </div>
