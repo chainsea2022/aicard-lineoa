@@ -649,8 +649,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="whitespace-nowrap">
-                  <Filter className="w-4 h-4 mr-1" />
-                  篩選
+                  <Filter className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-48 bg-background border border-border shadow-lg">
