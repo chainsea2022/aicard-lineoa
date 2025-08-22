@@ -679,8 +679,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       </div>
 
       {/* Common Tags Section */}
-      <div className="px-4 py-2 border-b border-border bg-background">
-        {showTagsSection ? (
+      {showTagsSection ? (
+        <div className="px-4 py-2 border-b border-border bg-background">
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
             <div className="flex items-center gap-2 overflow-x-auto flex-1">
@@ -725,19 +725,21 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               <ChevronUp className="w-4 h-4" />
             </Button>
           </div>
-        ) : (
+        </div>
+      ) : (
+        <div className="px-4 py-1 border-b border-border bg-background">
           <div className="flex justify-center">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setShowTagsSection(!showTagsSection)}
-              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
+              className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
             >
               <ChevronDown className="w-4 h-4" />
             </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Customer Cards */}
       <div className="flex-1 overflow-y-auto p-4">
