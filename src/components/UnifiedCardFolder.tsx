@@ -62,6 +62,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
   const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
   const [showRecommendationDetail, setShowRecommendationDetail] = useState(false);
+  const [showTagsSection, setShowTagsSection] = useState(true);
   const [showAllTags, setShowAllTags] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState<Customer[]>([]);
   const [newAutoAddedCards, setNewAutoAddedCards] = useState<Set<number>>(new Set());
@@ -686,49 +687,57 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       </div>
 
       {/* Common Tags Section */}
-      <div className="px-4 py-2 border-b border-border bg-background">
-        <div className="flex items-center gap-3">
-          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
-          <div className="flex items-center gap-2 overflow-x-auto flex-1">
-            {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                size="sm"
-                onClick={() => setFilter({ category: 'tag', tag })}
-                className="text-xs bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
-              >
-                {tag}
-              </Button>
-            ))}
-            {!showAllTags && (
-               <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowAppDownload(true)}
-                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
-              >
-                更多
-              </Button>
-            )}
-            {showAllTags && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setShowAllTags(false)}
-                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
-              >
-                收起
-              </Button>
-            )}
+      {showTagsSection && (
+        <div className="px-4 py-2 border-b border-border bg-background">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
+            <div className="flex items-center gap-2 overflow-x-auto flex-1">
+              {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFilter({ category: 'tag', tag })}
+                  className="text-xs bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+                >
+                  {tag}
+                </Button>
+              ))}
+              {!showAllTags && (
+                 <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowAppDownload(true)}
+                  className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
+                >
+                  更多
+                </Button>
+              )}
+              {showAllTags && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => setShowAllTags(false)}
+                  className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
+                >
+                  收起
+                </Button>
+              )}
+            </div>
           </div>
+        </div>
+      )}
+      
+      {/* Collapse Toggle Button */}
+      <div className="px-4 py-1 border-b border-border bg-background">
+        <div className="flex justify-center">
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={() => setShowAllTags(!showAllTags)}
-            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
+            onClick={() => setShowTagsSection(!showTagsSection)}
+            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
           >
-            {showAllTags ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {showTagsSection ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </Button>
         </div>
       </div>
