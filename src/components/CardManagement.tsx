@@ -90,7 +90,7 @@ const CardManagement: React.FC<CardManagementProps> = ({ onClose }) => {
         {/* 多名片管理區塊 */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-800">電子名片列表</h3>
+            <h3 className="text-lg font-semibold text-gray-800">名片列表</h3>
             <Button 
               size="sm" 
               className="bg-blue-500 hover:bg-blue-600 text-white" 
