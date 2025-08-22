@@ -344,14 +344,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       };
     }
     
-    // Invited LINE users who are unregistered - special styling with both badges
-    if (!customer.isRegisteredUser && customer.lineId && customer.invitationSent) {
+    // Invited LINE users who are unregistered - special styling with both badges (only if not collected)
+    if (!customer.isRegisteredUser && customer.lineId && customer.invitationSent && customer.relationshipStatus !== 'collected') {
       return {
         className: "border-2 border-orange-300 bg-orange-50",
         badge: { text: "被邀請", className: "bg-orange-500 text-white" }
       };
     }
     
+    // All unregistered users (contacts) should show "未註冊" badge
     if (!customer.isRegisteredUser) {
       return {
         className: "border border-muted bg-card",
@@ -361,7 +362,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     
     if (customer.isFavorite) {
       return {
-        className: "border-2 border-favorite-blue bg-favorite-blue-bg",
+        className: "border border-muted bg-card",
         badge: null
       };
     }
