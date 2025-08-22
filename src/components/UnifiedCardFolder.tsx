@@ -596,10 +596,16 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               </Button>
             ))}
             {!showAllTags && (
-              <Button 
+               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => setShowAllTags(true)}
+                onClick={() => {
+                  toast({
+                    title: "更多功能請下載APP",
+                    description: "完整的名片管理功能和更多進階特色，盡在我們的專屬APP中！",
+                    duration: 4000,
+                  });
+                }}
                 className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
               >
                 更多
