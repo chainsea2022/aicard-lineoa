@@ -62,7 +62,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [invitationDialogOpen, setInvitationDialogOpen] = useState(false);
   const [selectedInvitationCustomer, setSelectedInvitationCustomer] = useState<Customer | null>(null);
   const [showRecommendationDetail, setShowRecommendationDetail] = useState(false);
-  const [showCommonTags, setShowCommonTags] = useState(false);
+  const [showAllTags, setShowAllTags] = useState(false);
   const [pendingInvitations, setPendingInvitations] = useState<Customer[]>([]);
   const [newAutoAddedCards, setNewAutoAddedCards] = useState<Set<number>>(new Set());
   const [autoAddSettings, setAutoAddSettings] = useState(true); // Privacy setting for auto-add
@@ -685,38 +685,44 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         </div>
       </div>
 
-      {/* Common Tags Section - Collapsible */}
-      {showCommonTags && (
-        <div className="px-4 py-2 border-b border-border bg-background">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
-            <div className="flex items-center gap-2 overflow-x-auto flex-1">
-              {commonTags.slice(0, 5).map((tag, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setFilter({ category: 'tag', tag })}
-                  className="text-xs bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
-                >
-                  {tag}
-                </Button>
-              ))}
-            </div>
+      {/* Common Tags Section */}
+      <div className="px-4 py-2 border-b border-border bg-background">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
+          <div className="flex items-center gap-2 overflow-x-auto flex-1">
+            {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                size="sm"
+                onClick={() => setFilter({ category: 'tag', tag })}
+                className="text-xs bg-gray-100 hover:bg-gray-200 border-gray-300 text-gray-800 h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0"
+              >
+                {tag}
+              </Button>
+            ))}
+            {!showAllTags && (
+               <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAppDownload(true)}
+                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
+              >
+                更多
+              </Button>
+            )}
+            {showAllTags && (
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setShowAllTags(false)}
+                className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 whitespace-nowrap flex-shrink-0"
+              >
+                收起
+              </Button>
+            )}
           </div>
         </div>
-      )}
-
-      {/* Toggle Tags Button */}
-      <div className="px-4 py-1 border-b border-border bg-background">
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          onClick={() => setShowCommonTags(!showCommonTags)}
-          className="text-xs text-muted-foreground hover:text-foreground h-6 px-2 w-full justify-center"
-        >
-          {showCommonTags ? '收起標籤' : '展開標籤'}
-        </Button>
       </div>
 
       {/* Customer Cards */}
