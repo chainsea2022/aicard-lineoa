@@ -71,6 +71,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
     const recommendations = generateMockRecommendations(4);
+    
     // Add some mock pending invitations
     const mockInvitations = Array.from({ length: 2 }, (_, i) => ({
       id: 3000 + i,
@@ -89,7 +90,28 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       isRegisteredUser: true,
       isPendingInvitation: true
     }));
-    return [...mockData, ...recommendations];
+    
+    // Add mock unregistered LINE users who have been invited as friends
+    const mockLineInvitedUsers = Array.from({ length: 3 }, (_, i) => ({
+      id: 4000 + i,
+      name: ['林小明', '陳雅雯', '黃志強'][i],
+      phone: `09${Math.floor(10000000 + Math.random() * 90000000)}`,
+      email: `line${i}@example.com`,
+      company: ['科技公司', '設計公司', '貿易公司'][i],
+      jobTitle: ['工程師', '設計師', '業務'][i],
+      photo: getRandomProfessionalAvatar(4000 + i),
+      hasCard: false,
+      addedDate: new Date().toISOString(),
+      notes: 'LINE 用戶未註冊',
+      tags: [],
+      relationshipStatus: 'invited' as const,
+      isDigitalCard: false,
+      isRegisteredUser: false,
+      lineId: `line${4000 + i}`,
+      invitationSent: true
+    }));
+    
+    return [...mockData, ...recommendations, ...mockLineInvitedUsers];
   });
 
   // Common tags data
@@ -102,6 +124,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
   const pendingInvitationsCount = pendingInvitations.length;
+  // Count unregistered LINE users who have been invited as friends
+  const invitedLineUsersCount = customers.filter(c => !c.isRegisteredUser && c.lineId && c.invitationSent).length;
 
   // Initialize mock pending invitations
   useEffect(() => {
@@ -314,6 +338,14 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       return {
         className: "border-2 border-dashed border-muted-foreground bg-card",
         badge: { text: "智能推薦", className: "bg-recommendation-green text-white" }
+      };
+    }
+    
+    // Invited LINE users who are unregistered - special styling with both badges
+    if (!customer.isRegisteredUser && customer.lineId && customer.invitationSent) {
+      return {
+        className: "border-2 border-orange-300 bg-orange-50",
+        badge: { text: "被邀請", className: "bg-orange-500 text-white" }
       };
     }
     
@@ -536,9 +568,14 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'unregistered' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: 'unregistered' })}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap relative overflow-visible"
             >
               聯絡人 ({unregisteredCount})
+              {invitedLineUsersCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {invitedLineUsersCount}
+                </span>
+              )}
             </Button>
             <Button
               variant={filter.category === 'recommendations' ? 'default' : 'outline'}
@@ -850,33 +887,61 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </div>
                           )}
                           
-                          {/* Manual approval buttons */}
-                          {customer.needsManualApproval && (
-                            <div className="flex space-x-1">
-                              <Button
-                                size="sm"
-                                variant="default"
-                                className="h-6 px-2 text-xs bg-blue-500 hover:bg-blue-600 text-white"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleManualApproval(customer.id, true);
-                                }}
-                              >
-                                加入名片夾
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-6 px-2 text-xs"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleManualApproval(customer.id, false);
-                                }}
-                              >
-                                略過
-                              </Button>
-                            </div>
-                          )}
+                           {/* Manual approval buttons */}
+                           {customer.needsManualApproval && (
+                             <div className="flex space-x-1">
+                               <Button
+                                 size="sm"
+                                 variant="default"
+                                 className="h-6 px-2 text-xs bg-blue-500 hover:bg-blue-600 text-white"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleManualApproval(customer.id, true);
+                                 }}
+                               >
+                                 加入名片夾
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 className="h-6 px-2 text-xs"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleManualApproval(customer.id, false);
+                                 }}
+                               >
+                                 略過
+                               </Button>
+                             </div>
+                           )}
+                           
+                           {/* Invited LINE user buttons (unregistered with LINE ID) */}
+                           {!customer.isRegisteredUser && customer.lineId && customer.invitationSent && (
+                             <div className="flex space-x-1">
+                               <Button
+                                 size="sm"
+                                 variant="default"
+                                 className="h-6 px-2 text-xs bg-orange-500 hover:bg-orange-600 text-white"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   handleAddToFolder(customer.id);
+                                 }}
+                               >
+                                 加入名片夾
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant="outline"
+                                 className="h-6 px-2 text-xs"
+                                 onClick={(e) => {
+                                   e.stopPropagation();
+                                   // Show "被邀請" status
+                                 }}
+                               >
+                                 被邀請
+                               </Button>
+                             </div>
+                           )}
                         </div>
                       </div>
                     </div>
