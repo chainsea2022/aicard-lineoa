@@ -602,18 +602,10 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
         <div className="flex items-center justify-between overflow-visible">
           <div className="flex gap-2 flex-1 overflow-x-auto scrollbar-hide py-2 pr-2">
             <Button
-              variant={filter.category === 'all' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFilter({ category: filter.category === 'all' ? 'none' : 'all' })}
-              className="whitespace-nowrap px-3"
-            >
-              <Users className="w-4 h-4" />
-            </Button>
-            <Button
               variant={filter.category === 'my-cards' ? 'default' : 'outline'}
               size="sm"
               onClick={() => handleFilterChange({ category: 'my-cards' })}
-              className="whitespace-nowrap relative overflow-visible"
+              className="whitespace-nowrap relative overflow-visible text-xs px-3 h-8 flex-1 min-w-0"
             >
               電子名片 ({myCardsCount})
               {(newAutoAddedCards.size > 0 || pendingInvitationsCount > 0) && (
@@ -626,7 +618,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'unregistered' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: 'unregistered' })}
-              className="whitespace-nowrap relative overflow-visible"
+              className="whitespace-nowrap relative overflow-visible text-xs px-3 h-8 flex-1 min-w-0"
             >
               聯絡人 ({unregisteredCount})
               {invitedLineUsersCount > 0 && (
@@ -639,7 +631,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               variant={filter.category === 'recommendations' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setFilter({ category: 'recommendations' })}
-              className="whitespace-nowrap"
+              className="whitespace-nowrap text-xs px-3 h-8 flex-1 min-w-0"
             >
               智能推薦 ({recommendationsCount})
             </Button>
