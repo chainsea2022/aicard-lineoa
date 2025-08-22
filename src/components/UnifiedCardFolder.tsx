@@ -125,8 +125,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
   const pendingInvitationsCount = pendingInvitations.length;
-  // Count unregistered LINE users who have been invited as friends
-  const invitedLineUsersCount = customers.filter(c => !c.isRegisteredUser && c.lineId && c.invitationSent).length;
+  // Count unregistered LINE users who have been invited as friends but not yet collected
+  const invitedLineUsersCount = customers.filter(c => !c.isRegisteredUser && c.lineId && c.invitationSent && c.relationshipStatus !== 'collected').length;
 
   // Initialize mock pending invitations
   useEffect(() => {
