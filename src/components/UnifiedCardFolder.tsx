@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart, Phone, MessageCircle, Mail, Send, Share, Copy, MessageSquare, Bell, Circle } from 'lucide-react';
+import { ArrowLeft, Search, Filter, X, Star, UserPlus, CheckCircle, Users, Tag, Heart, Phone, MessageCircle, Mail, Send, Share, Copy, MessageSquare, Bell, Circle, ChevronUp, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -722,6 +722,14 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               </Button>
             )}
           </div>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowAllTags(!showAllTags)}
+            className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground flex-shrink-0"
+          >
+            {showAllTags ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </Button>
         </div>
       </div>
 
