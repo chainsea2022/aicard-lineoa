@@ -155,19 +155,18 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     const invitation = pendingInvitations.find(inv => inv.id === customerId);
     if (invitation) {
       if (autoAddSettings) {
-        // Auto-add to contacts folder
+        // Auto-add to card folder
         const newCustomer = { 
           ...invitation, 
           isPendingInvitation: false, 
-          relationshipStatus: 'collected' as const,
-          isRegisteredUser: false // Add to contacts folder
+          relationshipStatus: 'collected' as const 
         };
         setCustomers(prev => [...prev, newCustomer]);
         setNewAutoAddedCards(prev => new Set([...prev, customerId]));
         
         toast({
-          title: "自動加入聯絡人名片夾",
-          description: `${invitation.name} 已自動加入聯絡人名片夾`,
+          title: "自動加入名片夾",
+          description: `${invitation.name} 已自動加入您的名片夾`,
           className: "max-w-[280px] mx-auto"
         });
       } else {
@@ -176,14 +175,13 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           ...invitation, 
           isPendingInvitation: false,
           needsManualApproval: true,
-          relationshipStatus: 'invited' as const,
-          isRegisteredUser: false // Will be added to contacts folder after approval
+          relationshipStatus: 'invited' as const 
         };
         setCustomers(prev => [...prev, newCustomer]);
         
         toast({
           title: "收到邀請",
-          description: `${invitation.name} 想要加入您的聯絡人名片夾`,
+          description: `${invitation.name} 想要加入您的名片夾`,
           className: "max-w-[280px] mx-auto"
         });
       }
@@ -213,12 +211,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     if (approved) {
       const updatedCustomers = customers.map(c => 
         c.id === customerId 
-          ? { 
-              ...c, 
-              needsManualApproval: false, 
-              relationshipStatus: 'collected' as const,
-              isRegisteredUser: false // Add to contacts folder
-            }
+          ? { ...c, needsManualApproval: false, relationshipStatus: 'collected' as const }
           : c
       );
       setCustomers(updatedCustomers);
@@ -226,8 +219,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       const customer = customers.find(c => c.id === customerId);
       if (customer) {
         toast({
-          title: "已加入聯絡人名片夾",
-          description: `${customer.name} 已加入聯絡人名片夾`,
+          title: "已加入名片夾",
+          description: `${customer.name} 已加入您的名片夾`,
           className: "max-w-[280px] mx-auto"
         });
       }
@@ -323,14 +316,14 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const getCardStyle = (customer: Customer) => {
     if (customer.isPendingInvitation) {
       return {
-        className: "border border-muted bg-card",
+        className: "border-2 border-purple-300 bg-purple-50",
         badge: { text: "被邀請", className: "bg-purple-500 text-white" }
       };
     }
     
     if (customer.needsManualApproval) {
       return {
-        className: "border border-muted bg-card",
+        className: "border-2 border-purple-300 bg-purple-50",
         badge: { text: "被邀請", className: "bg-purple-500 text-white" }
       };
     }
