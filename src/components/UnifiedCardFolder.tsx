@@ -20,6 +20,7 @@ import InvitationDialog from './InvitationDialog';
 import { SmartRecommendationDetail } from './SmartRecommendationDetail';
 import InvitationHistoryLIFF from './InvitationHistoryLIFF';
 import AppDownloadLIFF from './AppDownloadLIFF';
+import SentInvitationsLIFF from './SentInvitationsLIFF';
 
 interface UnifiedCardFolderProps {
   onClose: () => void;
@@ -70,6 +71,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const [autoAddSettings, setAutoAddSettings] = useState(true); // Privacy setting for auto-add
   const [showAppDownload, setShowAppDownload] = useState(false);
   const [showInvitationHistory, setShowInvitationHistory] = useState(false);
+  const [showSentInvitations, setShowSentInvitations] = useState(false);
   const [declinedInvitations, setDeclinedInvitations] = useState<Customer[]>([]);
   const [customers, setCustomers] = useState<Customer[]>(() => {
     const mockData = generateMockCustomers();
@@ -530,6 +532,15 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     );
   }
 
+  // Show sent invitations LIFF if requested
+  if (showSentInvitations) {
+    return (
+      <SentInvitationsLIFF
+        onClose={() => setShowSentInvitations(false)}
+      />
+    );
+  }
+
   if (selectedCustomer && showRecommendationDetail) {
     return (
       <SmartRecommendationDetail
@@ -663,8 +674,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem 
-                  onClick={() => setFilter({ category: 'invited' })}
-                  className={filter.category === 'invited' ? 'bg-accent text-accent-foreground' : ''}
+                  onClick={() => setShowSentInvitations(true)}
                 >
                   已邀請 ({invitedCount})
                 </DropdownMenuItem>
