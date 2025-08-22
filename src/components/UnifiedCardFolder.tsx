@@ -495,9 +495,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       </div>
 
       {/* Filter Buttons */}
-      <div className="px-4 py-3 border-b border-border bg-muted/30">
-        <div className="flex items-center justify-between">
-          <div className="flex gap-2 flex-1 overflow-x-auto scrollbar-hide">
+      <div className="px-4 py-3 border-b border-border bg-muted/30 overflow-visible">
+        <div className="flex items-center justify-between overflow-visible">
+          <div className="flex gap-2 flex-1 overflow-x-auto scrollbar-hide py-2 pr-2">
             <Button
               variant={filter.category === 'all' ? 'default' : 'outline'}
               size="sm"
