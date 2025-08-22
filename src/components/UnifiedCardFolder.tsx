@@ -979,33 +979,33 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                              </div>
                            )}
                            
-                           {/* LINE OA contacts with invitation - show all buttons */}
-                           {!customer.isRegisteredUser && customer.lineId && customer.invitationSent && (
-                             <div className="flex flex-wrap gap-1">
-                               <Button
-                                 size="sm"
-                                 variant="default"
-                                 className="h-6 px-2 text-xs bg-orange-500 hover:bg-orange-600 text-white"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleAddToFolder(customer.id);
-                                 }}
-                               >
-                                 加入名片夾
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant="outline"
-                                 className="h-6 px-1 text-xs bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
-                                 onClick={(e) => {
-                                   e.stopPropagation();
-                                   handleIgnoreInvitation(customer.id);
-                                 }}
-                               >
-                                 略過
-                               </Button>
-                             </div>
-                           )}
+                            {/* LINE OA contacts with invitation - show all buttons only if not collected */}
+                            {!customer.isRegisteredUser && customer.lineId && customer.invitationSent && customer.relationshipStatus !== 'collected' && (
+                              <div className="flex flex-wrap gap-1">
+                                <Button
+                                  size="sm"
+                                  variant="default"
+                                  className="h-6 px-2 text-xs bg-orange-500 hover:bg-orange-600 text-white"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleAddToFolder(customer.id);
+                                  }}
+                                >
+                                  加入名片夾
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-6 px-1 text-xs bg-red-50 border-red-200 text-red-600 hover:bg-red-100"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleIgnoreInvitation(customer.id);
+                                  }}
+                                >
+                                  略過
+                                </Button>
+                              </div>
+                            )}
                            
                         </div>
                       </div>
