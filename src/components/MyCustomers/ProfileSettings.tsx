@@ -635,7 +635,7 @@ export const ProfileSettings: React.FC<ProfileSettingsProps> = ({ onClose, focus
           <CardHeader>
             <CardTitle className="flex items-center text-lg">
               <Eye className="w-5 h-5 mr-2" />
-              公開設定
+              其他設定
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
