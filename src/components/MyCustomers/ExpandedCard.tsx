@@ -15,6 +15,12 @@ import { ScheduleRecordForm } from './ScheduleRecordForm';
 import { ScheduleRecord } from './types';
 import VoiceInput from '../VoiceInput';
 import { CardEditForm } from './CardEditForm';
+interface Note {
+  id: string;
+  content: string;
+  createdAt: string;
+}
+
 interface ExpandedCardProps {
   customer: Customer;
   activeSection: 'cards' | 'contacts';
@@ -45,8 +51,20 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
   onDeleteCustomer,
   onCollapse
 }) => {
-  const [isEditingNotes, setIsEditingNotes] = useState(false);
-  const [editedNotes, setEditedNotes] = useState(customer.notes || '');
+  const [notes, setNotes] = useState<Note[]>(() => {
+    // Convert existing notes to note array format
+    if (customer.notes && customer.notes.trim()) {
+      return [{
+        id: `note_${Date.now()}`,
+        content: customer.notes,
+        createdAt: new Date().toISOString()
+      }];
+    }
+    return [];
+  });
+  const [newNoteText, setNewNoteText] = useState('');
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
   const [showSmartAnalysis, setShowSmartAnalysis] = useState(false);
   const [showScheduleForm, setShowScheduleForm] = useState(false);
   const [isEditingContact, setIsEditingContact] = useState(false);
@@ -261,12 +279,55 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
     };
     setScheduleRecords(prev => [...prev, newRecord]);
   };
-  const handleSaveNotes = () => {
-    onSaveCustomer(customer.id, {
-      notes: editedNotes
-    });
-    setIsEditingNotes(false);
+
+  const handleAddNote = () => {
+    if (newNoteText.trim()) {
+      const newNote: Note = {
+        id: `note_${Date.now()}`,
+        content: newNoteText.trim(),
+        createdAt: new Date().toISOString()
+      };
+      const updatedNotes = [...notes, newNote];
+      setNotes(updatedNotes);
+      
+      // Save to customer
+      const notesString = updatedNotes.map(n => n.content).join('\n');
+      onSaveCustomer(customer.id, { notes: notesString });
+      
+      setNewNoteText('');
+    }
   };
+
+  const handleEditNote = (note: Note) => {
+    setEditingNoteId(note.id);
+    setEditingNoteText(note.content);
+  };
+
+  const handleSaveNote = (noteId: string) => {
+    if (editingNoteText.trim()) {
+      const updatedNotes = notes.map(note => 
+        note.id === noteId ? { ...note, content: editingNoteText.trim() } : note
+      );
+      setNotes(updatedNotes);
+      
+      // Save to customer
+      const notesString = updatedNotes.map(n => n.content).join('\n');
+      onSaveCustomer(customer.id, { notes: notesString });
+      
+      setEditingNoteId(null);
+      setEditingNoteText('');
+    }
+  };
+
+  const handleDeleteNote = (noteId: string) => {
+    const updatedNotes = notes.filter(note => note.id !== noteId);
+    setNotes(updatedNotes);
+    
+    // Save to customer
+    const notesString = updatedNotes.map(n => n.content).join('\n');
+    onSaveCustomer(customer.id, { notes: notesString });
+  };
+
   const handleVoiceInput = (text: string) => {
     const now = new Date();
     const timeStamp = now.toLocaleString('zh-TW', {
@@ -276,8 +337,8 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       minute: '2-digit',
       hour12: false
     });
-    const timestampedText = `\n[${timeStamp}語音] ${text}`;
-    setEditedNotes(editedNotes + timestampedText);
+    const timestampedText = `[${timeStamp}語音] ${text}`;
+    setNewNoteText(timestampedText);
   };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -376,32 +437,110 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
       <div className="bg-gray-50 rounded-lg p-3 space-y-2">
         <div className="flex items-center justify-between">
           <h4 className="font-medium text-sm text-gray-800">備註</h4>
-          {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="p-1">
-              <Edit className="w-4 h-4 text-gray-600" />
-            </Button>}
         </div>
         
-        {isEditingNotes ? <div className="space-y-2">
-            <div className="relative">
-              <Textarea value={editedNotes} onChange={e => setEditedNotes(e.target.value)} placeholder="輸入備註..." rows={3} className="text-sm pr-10" />
-              <div className="absolute top-2 right-2">
-                <VoiceInput onResult={handleVoiceInput} placeholder="語音輸入備註" />
-              </div>
+        {/* Add new note input */}
+        <div className="relative">
+          <Input 
+            value={newNoteText} 
+            onChange={e => setNewNoteText(e.target.value)}
+            placeholder="快速新增備註..." 
+            className="text-sm pr-20"
+            onKeyPress={(e) => {
+              if (e.key === 'Enter' && newNoteText.trim()) {
+                handleAddNote();
+              }
+            }}
+          />
+          <div className="absolute top-1/2 right-2 -translate-y-1/2 flex items-center space-x-1">
+            <VoiceInput 
+              onResult={(text) => {
+                setNewNoteText(text);
+                setTimeout(() => handleAddNote(), 100);
+              }}
+              className="p-1"
+            />
+            <Button 
+              onClick={handleAddNote}
+              size="sm" 
+              variant="ghost" 
+              className="p-1 h-auto"
+              disabled={!newNoteText.trim()}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Notes list */}
+        <div className="space-y-2">
+          {notes.map((note) => (
+            <div key={note.id} className="bg-white rounded p-2 group hover:bg-gray-50 transition-colors">
+              {editingNoteId === note.id ? (
+                <div className="space-y-2">
+                  <div className="relative">
+                    <Textarea 
+                      value={editingNoteText} 
+                      onChange={e => setEditingNoteText(e.target.value)}
+                      className="text-sm pr-10"
+                      rows={2}
+                    />
+                    <div className="absolute top-2 right-2">
+                      <VoiceInput 
+                        onResult={(text) => setEditingNoteText(text)}
+                        className="p-1"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button onClick={() => handleSaveNote(note.id)} size="sm" className="text-xs">
+                      儲存
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        setEditingNoteId(null);
+                        setEditingNoteText('');
+                      }} 
+                      variant="outline" 
+                      size="sm" 
+                      className="text-xs"
+                    >
+                      取消
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start justify-between">
+                  <p className="text-sm text-gray-700 flex-1 cursor-pointer" onClick={() => handleEditNote(note)}>
+                    {note.content}
+                  </p>
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button 
+                      onClick={() => handleEditNote(note)}
+                      variant="ghost" 
+                      size="sm" 
+                      className="p-1 h-auto"
+                    >
+                      <Edit className="w-3 h-3 text-gray-400" />
+                    </Button>
+                    <Button 
+                      onClick={() => handleDeleteNote(note.id)}
+                      variant="ghost" 
+                      size="sm" 
+                      className="p-1 h-auto"
+                    >
+                      <X className="w-3 h-3 text-gray-400" />
+                    </Button>
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="flex space-x-2">
-              <Button onClick={handleSaveNotes} size="sm" className="text-xs">
-                儲存
-              </Button>
-              <Button onClick={() => {
-            setIsEditingNotes(false);
-            setEditedNotes(customer.notes || '');
-          }} variant="outline" size="sm" className="text-xs">
-                取消
-              </Button>
-            </div>
-          </div> : <p className="text-sm text-gray-600 bg-white rounded p-2 min-h-[2.5rem] cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-            {customer.notes || '點擊新增備註...'}
-          </p>}
+          ))}
+          
+          {notes.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-2">尚無備註，點擊上方輸入框新增</p>
+          )}
+        </div>
       </div>
 
 
