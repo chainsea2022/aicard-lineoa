@@ -161,8 +161,7 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
                   className="text-xs text-blue-600 p-1"
                   onClick={() => setShowInvitationHistory(!showInvitationHistory)}
                 >
-                  <Clock className="w-3 h-3 mr-1" />
-                  紀錄
+                  <Clock className="w-4 h-4" />
                 </Button>
               </div>
             </div>
@@ -174,28 +173,46 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
             {/* Invitation History */}
             {showInvitationHistory && (
               <div className="bg-gray-50 rounded-lg p-3 text-xs space-y-1">
-                <div className="font-medium text-gray-700">邀請紀錄：</div>
+                <div className="font-medium text-gray-700">分享紀錄：</div>
                 {customer.lineInvitationDate && (
-                  <div className="text-gray-600">LINE: {new Date(customer.lineInvitationDate).toLocaleDateString()}</div>
+                  <div className="text-gray-600">
+                    <MessageSquare className="w-3 h-3 inline mr-1 text-green-600" />
+                    LINE: {new Date(customer.lineInvitationDate).toLocaleDateString()}
+                  </div>
                 )}
                 {customer.messengerInvitationDate && (
-                  <div className="text-gray-600">Messenger: {new Date(customer.messengerInvitationDate).toLocaleDateString()}</div>
+                  <div className="text-gray-600">
+                    <Send className="w-3 h-3 inline mr-1 text-blue-500" />
+                    Messenger: {new Date(customer.messengerInvitationDate).toLocaleDateString()}
+                  </div>
                 )}
                 {customer.instagramInvitationDate && (
-                  <div className="text-gray-600">Instagram: {new Date(customer.instagramInvitationDate).toLocaleDateString()}</div>
+                  <div className="text-gray-600">
+                    <Instagram className="w-3 h-3 inline mr-1 text-pink-600" />
+                    Instagram: {new Date(customer.instagramInvitationDate).toLocaleDateString()}
+                  </div>
                 )}
                 {customer.copyInvitationDate && (
-                  <div className="text-gray-600">複製連結: {new Date(customer.copyInvitationDate).toLocaleDateString()}</div>
+                  <div className="text-gray-600">
+                    <Copy className="w-3 h-3 inline mr-1 text-gray-600" />
+                    複製連結: {new Date(customer.copyInvitationDate).toLocaleDateString()}
+                  </div>
                 )}
                 {customer.emailInvitationDate && (
-                  <div className="text-gray-600">Email: {new Date(customer.emailInvitationDate).toLocaleDateString()}</div>
+                  <div className="text-gray-600">
+                    <Mail className="w-3 h-3 inline mr-1 text-red-600" />
+                    Email: {new Date(customer.emailInvitationDate).toLocaleDateString()}
+                  </div>
                 )}
                 {customer.invitationDate && (
-                  <div className="text-gray-600">SMS: {new Date(customer.invitationDate).toLocaleDateString()}</div>
+                  <div className="text-gray-600">
+                    <Phone className="w-3 h-3 inline mr-1 text-blue-600" />
+                    SMS: {new Date(customer.invitationDate).toLocaleDateString()}
+                  </div>
                 )}
                 {!customer.lineInvitationDate && !customer.messengerInvitationDate && !customer.instagramInvitationDate && 
                  !customer.copyInvitationDate && !customer.emailInvitationDate && !customer.invitationDate && (
-                  <div className="text-gray-500">尚未發送邀請</div>
+                  <div className="text-gray-500">尚未有分享紀錄</div>
                 )}
               </div>
             )}
