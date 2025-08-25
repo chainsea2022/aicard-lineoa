@@ -90,72 +90,82 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-white z-50 flex flex-col">
+    <div className="fixed inset-0 bg-background z-50 flex flex-col max-w-sm mx-auto border-x border-border">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white p-4 shadow-lg flex-shrink-0">
+      <div className="bg-gradient-to-r from-primary to-primary-foreground text-primary-foreground px-4 py-3 shadow-md flex-shrink-0 safe-area-top">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+          <div className="flex items-center space-x-2">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={onClose} 
+              className="text-primary-foreground hover:bg-white/20 p-2 min-w-[44px] min-h-[44px]"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Button>
-            <h1 className="font-bold text-lg">
+            <h1 className="font-semibold text-base sm:text-lg">
               {step === 1 ? '註冊 AiCard' : '手機驗證'}
             </h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={onClose} className="text-white hover:bg-white/20">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onClose} 
+            className="text-primary-foreground hover:bg-white/20 p-2 min-w-[44px] min-h-[44px]"
+          >
             <X className="w-5 h-5" />
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto p-4">
+      <div className="flex-1 overflow-auto px-4 py-6 safe-area-bottom">
         {step === 1 && (
-          <div className="max-w-md mx-auto space-y-6">
+          <div className="w-full space-y-6">
             {/* Welcome Section */}
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full mx-auto flex items-center justify-center">
-                <Shield className="w-10 h-10 text-white" />
+            <div className="text-center space-y-3 px-2">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full mx-auto flex items-center justify-center">
+                <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">歡迎加入 AiCard</h2>
-              <p className="text-gray-600">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">歡迎加入 AiCard</h2>
+              <p className="text-sm sm:text-base text-muted-foreground px-4">
                 立即註冊，打造您的專屬智能電子名片
               </p>
             </div>
 
             {/* Phone Input */}
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
+            <div className="space-y-3">
+              <Label htmlFor="phone" className="text-sm font-medium text-foreground">
                 手機號碼
               </Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="09xxxxxxxx"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="pl-11 h-12 text-lg"
+                  className="pl-11 h-12 sm:h-14 text-base sm:text-lg border-2 focus:border-primary"
                   maxLength={10}
                 />
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground px-1">
                 我們將發送驗證碼到此手機號碼
               </p>
             </div>
 
             {/* Terms Agreement */}
-            <div className="space-y-4">
+            <div className="space-y-4 px-1">
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
                   checked={agreedToTerms}
                   onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-                  className="mt-1"
+                  className="mt-1 min-w-[20px] min-h-[20px]"
                 />
-                <label htmlFor="terms" className="text-sm text-gray-700 leading-relaxed">
-                  我已閱讀並同意 <span className="text-blue-600 underline cursor-pointer">服務條款</span>
+                <label htmlFor="terms" className="text-sm text-foreground leading-relaxed cursor-pointer">
+                  我已閱讀並同意 <span className="text-primary underline">服務條款</span>
                 </label>
               </div>
               
@@ -164,42 +174,44 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
                   id="privacy"
                   checked={agreedToPrivacy}
                   onCheckedChange={(checked) => setAgreedToPrivacy(checked as boolean)}
-                  className="mt-1"
+                  className="mt-1 min-w-[20px] min-h-[20px]"
                 />
-                <label htmlFor="privacy" className="text-sm text-gray-700 leading-relaxed">
-                  我已閱讀並同意 <span className="text-blue-600 underline cursor-pointer">隱私權政策</span>
+                <label htmlFor="privacy" className="text-sm text-foreground leading-relaxed cursor-pointer">
+                  我已閱讀並同意 <span className="text-primary underline">隱私權政策</span>
                 </label>
               </div>
             </div>
 
             {/* Register Button */}
-            <Button
-              onClick={handleStartRegistration}
-              disabled={!phoneNumber || !agreedToTerms || !agreedToPrivacy || isLoading}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white font-medium text-lg rounded-xl"
-            >
-              {isLoading ? '發送驗證碼中...' : '開始註冊'}
-            </Button>
+            <div className="pt-2">
+              <Button
+                onClick={handleStartRegistration}
+                disabled={!phoneNumber || !agreedToTerms || !agreedToPrivacy || isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50"
+              >
+                {isLoading ? '發送驗證碼中...' : '開始註冊'}
+              </Button>
+            </div>
           </div>
         )}
 
         {step === 2 && (
-          <div className="max-w-md mx-auto space-y-6">
+          <div className="w-full space-y-6">
             {/* Verification Section */}
-            <div className="text-center space-y-4">
-              <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-blue-500 rounded-full mx-auto flex items-center justify-center">
-                <Phone className="w-10 h-10 text-white" />
+            <div className="text-center space-y-3 px-2">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-primary rounded-full mx-auto flex items-center justify-center">
+                <Phone className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-800">手機驗證</h2>
-              <p className="text-gray-600">
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground">手機驗證</h2>
+              <p className="text-sm sm:text-base text-muted-foreground px-4">
                 驗證碼已發送至<br />
-                <span className="font-medium text-blue-600">{phoneNumber}</span>
+                <span className="font-medium text-primary">{phoneNumber}</span>
               </p>
             </div>
 
             {/* OTP Input */}
-            <div className="space-y-2">
-              <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
+            <div className="space-y-3">
+              <Label htmlFor="otp" className="text-sm font-medium text-foreground">
                 驗證碼
               </Label>
               <Input
@@ -208,31 +220,34 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
                 placeholder="請輸入6位數驗證碼"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="text-center text-2xl font-mono h-14 tracking-widest"
+                className="text-center text-xl sm:text-2xl font-mono h-14 sm:h-16 tracking-widest border-2 focus:border-primary"
                 maxLength={6}
               />
-              <p className="text-xs text-gray-500 text-center">
-                沒收到驗證碼？<span className="text-blue-600 underline cursor-pointer">重新發送</span>
+              <p className="text-xs text-muted-foreground text-center px-1">
+                沒收到驗證碼？<span className="text-primary underline cursor-pointer">重新發送</span>
               </p>
             </div>
 
-            {/* Verify Button */}
-            <Button
-              onClick={handleVerifyOTP}
-              disabled={!otp || otp.length !== 6 || isLoading}
-              className="w-full h-12 bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-medium text-lg rounded-xl"
-            >
-              {isLoading ? '驗證中...' : '完成驗證'}
-            </Button>
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-2">
+              {/* Verify Button */}
+              <Button
+                onClick={handleVerifyOTP}
+                disabled={!otp || otp.length !== 6 || isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-green-500 to-primary hover:from-green-600 hover:to-primary/90 text-white font-medium text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50"
+              >
+                {isLoading ? '驗證中...' : '完成驗證'}
+              </Button>
 
-            {/* Back Button */}
-            <Button
-              onClick={() => setStep(1)}
-              variant="outline"
-              className="w-full h-12 border-gray-300 text-gray-700 font-medium text-lg rounded-xl"
-            >
-              返回修改手機號碼
-            </Button>
+              {/* Back Button */}
+              <Button
+                onClick={() => setStep(1)}
+                variant="outline"
+                className="w-full h-12 sm:h-14 border-2 border-border text-foreground hover:bg-secondary font-medium text-base sm:text-lg rounded-xl"
+              >
+                返回修改手機號碼
+              </Button>
+            </div>
           </div>
         )}
       </div>
