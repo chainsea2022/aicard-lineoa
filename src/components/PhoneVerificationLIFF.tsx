@@ -90,16 +90,16 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-background z-50 flex flex-col max-w-sm mx-auto border-x border-border">
+    <div className="fixed inset-0 bg-white z-50 flex flex-col max-w-sm mx-auto border-x border-gray-200">
       {/* Header */}
-      <div className="bg-gradient-to-r from-primary to-primary-foreground text-primary-foreground px-4 py-3 shadow-md flex-shrink-0 safe-area-top">
+      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-3 shadow-md flex-shrink-0 safe-area-top">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={onClose} 
-              className="text-primary-foreground hover:bg-white/20 p-2 min-w-[44px] min-h-[44px]"
+              className="text-white hover:bg-white/20 p-2 min-w-[44px] min-h-[44px]"
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
@@ -111,7 +111,7 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
             variant="ghost" 
             size="sm" 
             onClick={onClose} 
-            className="text-primary-foreground hover:bg-white/20 p-2 min-w-[44px] min-h-[44px]"
+            className="text-white hover:bg-white/20 p-2 min-w-[44px] min-h-[44px]"
           >
             <X className="w-5 h-5" />
           </Button>
@@ -119,44 +119,48 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-auto px-4 py-6 safe-area-bottom">
+      <div className="flex-1 overflow-auto px-4 py-6 safe-area-bottom bg-gray-50" style={{
+        backgroundImage: 'linear-gradient(45deg, #f8f9fa 25%, transparent 25%), linear-gradient(-45deg, #f8f9fa 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f8f9fa 75%), linear-gradient(-45deg, transparent 75%, #f8f9fa 75%)',
+        backgroundSize: '20px 20px',
+        backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0px'
+      }}>
         {step === 1 && (
           <div className="w-full space-y-6">
             {/* Welcome Section */}
             <div className="text-center space-y-3 px-2">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary to-primary/80 rounded-full mx-auto flex items-center justify-center">
-                <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-primary-foreground" />
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center">
+                <Shield className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">歡迎加入 AiCard</h2>
-              <p className="text-sm sm:text-base text-muted-foreground px-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">歡迎加入 AiCard</h2>
+              <p className="text-sm sm:text-base text-gray-600 px-4">
                 立即註冊，打造您的專屬智能電子名片
               </p>
             </div>
 
             {/* Phone Input */}
-            <div className="space-y-3">
-              <Label htmlFor="phone" className="text-sm font-medium text-foreground">
+            <div className="space-y-3 bg-white rounded-xl p-4 shadow-sm">
+              <Label htmlFor="phone" className="text-sm font-medium text-gray-700">
                 手機號碼
               </Label>
               <div className="relative">
-                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                 <Input
                   id="phone"
                   type="tel"
                   placeholder="09xxxxxxxx"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="pl-11 h-12 sm:h-14 text-base sm:text-lg border-2 focus:border-primary"
+                  className="pl-11 h-12 sm:h-14 text-base sm:text-lg border-2 focus:border-green-500"
                   maxLength={10}
                 />
               </div>
-              <p className="text-xs text-muted-foreground px-1">
+              <p className="text-xs text-gray-500 px-1">
                 我們將發送驗證碼到此手機號碼
               </p>
             </div>
 
             {/* Terms Agreement */}
-            <div className="space-y-4 px-1">
+            <div className="space-y-4 px-1 bg-white rounded-xl p-4 shadow-sm">
               <div className="flex items-start space-x-3">
                 <Checkbox
                   id="terms"
@@ -164,8 +168,8 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
                   onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
                   className="mt-1 min-w-[20px] min-h-[20px]"
                 />
-                <label htmlFor="terms" className="text-sm text-foreground leading-relaxed cursor-pointer">
-                  我已閱讀並同意 <span className="text-primary underline">服務條款</span>
+                <label htmlFor="terms" className="text-sm text-gray-700 leading-relaxed cursor-pointer">
+                  我已閱讀並同意 <span className="text-green-600 underline">服務條款</span>
                 </label>
               </div>
               
@@ -176,8 +180,8 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
                   onCheckedChange={(checked) => setAgreedToPrivacy(checked as boolean)}
                   className="mt-1 min-w-[20px] min-h-[20px]"
                 />
-                <label htmlFor="privacy" className="text-sm text-foreground leading-relaxed cursor-pointer">
-                  我已閱讀並同意 <span className="text-primary underline">隱私權政策</span>
+                <label htmlFor="privacy" className="text-sm text-gray-700 leading-relaxed cursor-pointer">
+                  我已閱讀並同意 <span className="text-green-600 underline">隱私權政策</span>
                 </label>
               </div>
             </div>
@@ -187,7 +191,7 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
               <Button
                 onClick={handleStartRegistration}
                 disabled={!phoneNumber || !agreedToTerms || !agreedToPrivacy || isLoading}
-                className="w-full h-12 sm:h-14 bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-primary-foreground font-medium text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50"
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50"
               >
                 {isLoading ? '發送驗證碼中...' : '開始註冊'}
               </Button>
@@ -199,19 +203,19 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
           <div className="w-full space-y-6">
             {/* Verification Section */}
             <div className="text-center space-y-3 px-2">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-primary rounded-full mx-auto flex items-center justify-center">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-full mx-auto flex items-center justify-center">
                 <Phone className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
               </div>
-              <h2 className="text-xl sm:text-2xl font-bold text-foreground">手機驗證</h2>
-              <p className="text-sm sm:text-base text-muted-foreground px-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-800">手機驗證</h2>
+              <p className="text-sm sm:text-base text-gray-600 px-4">
                 驗證碼已發送至<br />
-                <span className="font-medium text-primary">{phoneNumber}</span>
+                <span className="font-medium text-green-600">{phoneNumber}</span>
               </p>
             </div>
 
             {/* OTP Input */}
-            <div className="space-y-3">
-              <Label htmlFor="otp" className="text-sm font-medium text-foreground">
+            <div className="space-y-3 bg-white rounded-xl p-4 shadow-sm">
+              <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
                 驗證碼
               </Label>
               <Input
@@ -220,11 +224,11 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
                 placeholder="請輸入6位數驗證碼"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                className="text-center text-xl sm:text-2xl font-mono h-14 sm:h-16 tracking-widest border-2 focus:border-primary"
+                className="text-center text-xl sm:text-2xl font-mono h-14 sm:h-16 tracking-widest border-2 focus:border-green-500"
                 maxLength={6}
               />
-              <p className="text-xs text-muted-foreground text-center px-1">
-                沒收到驗證碼？<span className="text-primary underline cursor-pointer">重新發送</span>
+              <p className="text-xs text-gray-500 text-center px-1">
+                沒收到驗證碼？<span className="text-green-600 underline cursor-pointer">重新發送</span>
               </p>
             </div>
 
@@ -234,7 +238,7 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
               <Button
                 onClick={handleVerifyOTP}
                 disabled={!otp || otp.length !== 6 || isLoading}
-                className="w-full h-12 sm:h-14 bg-gradient-to-r from-green-500 to-primary hover:from-green-600 hover:to-primary/90 text-white font-medium text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50"
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-medium text-base sm:text-lg rounded-xl shadow-lg disabled:opacity-50"
               >
                 {isLoading ? '驗證中...' : '完成驗證'}
               </Button>
@@ -243,7 +247,7 @@ const PhoneVerificationLIFF: React.FC<PhoneVerificationLIFFProps> = ({
               <Button
                 onClick={() => setStep(1)}
                 variant="outline"
-                className="w-full h-12 sm:h-14 border-2 border-border text-foreground hover:bg-secondary font-medium text-base sm:text-lg rounded-xl"
+                className="w-full h-12 sm:h-14 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-medium text-base sm:text-lg rounded-xl"
               >
                 返回修改手機號碼
               </Button>
