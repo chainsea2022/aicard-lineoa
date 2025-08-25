@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Calendar, Clock, Mic, Send, X, Trash2, Edit, Users, UserPlus } from 'lucide-react';
+import { Plus, Calendar, Clock, Mic, Send, X, Trash2, Edit, Users, UserPlus, ChevronDown, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,6 +14,7 @@ interface ScheduleRecordFormProps {
   scheduleRecords: ScheduleRecord[];
   onAddRecord: (record: Omit<ScheduleRecord, 'id' | 'createdAt'>) => void;
   onDeleteRecord?: (recordId: number) => void;
+  onUpdateRecord?: (recordId: number, updates: Partial<ScheduleRecord>) => void;
 }
 
 export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
@@ -21,7 +22,8 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   customerName,
   scheduleRecords,
   onAddRecord,
-  onDeleteRecord
+  onDeleteRecord,
+  onUpdateRecord
 }) => {
   const [isAdding, setIsAdding] = useState(false);
   const [title, setTitle] = useState('');
@@ -37,6 +39,38 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
   const [contactSearchTerm, setContactSearchTerm] = useState('');
   const [showManualInput, setShowManualInput] = useState(false);
   const [manualContactName, setManualContactName] = useState('');
+  const [showCompletedRecords, setShowCompletedRecords] = useState(false);
+
+  // 處理標記行程完成
+  const handleMarkCompleted = (recordId: number, completionNotes?: string) => {
+    if (onUpdateRecord) {
+      onUpdateRecord(recordId, {
+        completed: true,
+        completedAt: new Date().toISOString(),
+        completionNotes: completionNotes || ''
+      });
+    }
+  };
+
+  // 處理取消完成標記
+  const handleMarkIncomplete = (recordId: number) => {
+    if (onUpdateRecord) {
+      onUpdateRecord(recordId, {
+        completed: false,
+        completedAt: undefined,
+        completionNotes: undefined
+      });
+    }
+  };
+
+  // 過濾已完成和未完成的行程
+  const currentRecords = scheduleRecords.filter(record => 
+    record.customerId === customerId && !record.completed
+  );
+  
+  const completedRecords = scheduleRecords.filter(record => 
+    record.customerId === customerId && record.completed
+  );
 
   // 模擬名片夾聯絡人資料 (區分已註冊和未註冊)
   const mockContacts = [
@@ -517,9 +551,22 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
 
   return (
     <div className="space-y-3">
-      {/* Header */}
+      {/* Header with Completed Records Statistics */}
       <div className="flex items-center justify-between">
-        <h4 className="font-medium text-sm text-gray-800">行程管理</h4>
+        <div className="flex items-center gap-3">
+          <h4 className="font-medium text-sm text-gray-800">行程管理</h4>
+          {completedRecords.length > 0 && (
+            <Button
+              onClick={() => setShowCompletedRecords(!showCompletedRecords)}
+              variant="ghost"
+              size="sm"
+              className="text-xs text-green-600 hover:text-green-700"
+            >
+              已完成 ({completedRecords.length})
+              <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${showCompletedRecords ? 'rotate-180' : ''}`} />
+            </Button>
+          )}
+        </div>
         {!isAdding && (
           <Button
             onClick={() => setIsAdding(true)}
@@ -531,6 +578,97 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
           </Button>
         )}
       </div>
+
+      {/* Completed Records Section */}
+      {showCompletedRecords && completedRecords.length > 0 && (
+        <div className="bg-green-50 rounded-lg p-3 space-y-2 border border-green-200">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-green-800">已完成行程記錄</span>
+            <Badge className="text-xs bg-green-200 text-green-800">
+              {completedRecords.length} 筆記錄
+            </Badge>
+          </div>
+          
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {completedRecords
+              .sort((a, b) => new Date(b.completedAt || '').getTime() - new Date(a.completedAt || '').getTime())
+              .map((record) => (
+                <div key={record.id} className="bg-white rounded-lg p-2 border border-green-100">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-medium text-sm text-gray-800">
+                          {record.title}
+                        </span>
+                        <Badge className={`text-xs ${getTypeColor(record.type)}`}>
+                          {getTypeName(record.type)}
+                        </Badge>
+                        <Badge className="text-xs bg-green-200 text-green-700">
+                          ✓ 已完成
+                        </Badge>
+                      </div>
+                      
+                      {record.description && (
+                        <p className="text-xs text-gray-600 mb-1">
+                          {record.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        {record.date && (
+                          <div className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            <span>{formatDate(record.date)}</span>
+                          </div>
+                        )}
+                        {record.time && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            <span>{record.time}</span>
+                          </div>
+                        )}
+                        {record.completedAt && (
+                          <div className="flex items-center gap-1 text-green-600">
+                            <CheckCircle className="w-3 h-3" />
+                            <span>完成於 {new Date(record.completedAt).toLocaleDateString('zh-TW')}</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {record.completionNotes && (
+                        <div className="mt-1 text-xs text-gray-600 bg-gray-50 rounded p-1">
+                          完成備註：{record.completionNotes}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <Button
+                        onClick={() => handleMarkIncomplete(record.id)}
+                        variant="ghost"
+                        size="sm"
+                        className="p-1 h-6 w-6 text-orange-500 hover:text-orange-700"
+                        title="標記為未完成"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                      {onDeleteRecord && (
+                        <Button
+                          onClick={() => handleDeleteRecord(record.id)}
+                          variant="ghost"
+                          size="sm"
+                          className="p-1 h-6 w-6 text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
 
       {/* Add New Record Form */}
       {isAdding && (
@@ -860,11 +998,10 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
         </div>
       )}
 
-      {/* Schedule Records List */}
-      {scheduleRecords.length > 0 && (
+      {/* Schedule Records List - Current Records */}
+      {currentRecords.length > 0 && (
         <div className="space-y-2">
-          {scheduleRecords
-            .filter(record => record.customerId === customerId)
+          {currentRecords
             .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
             .map((record) => {
               const isEditable = isRecordEditable(record);
@@ -873,7 +1010,7 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
               return (
                 <div key={record.id} className={`rounded-lg p-3 space-y-2 transition-colors border border-transparent group ${
                   isPast 
-                    ? 'bg-gray-100 border-gray-200' 
+                    ? 'bg-orange-50 border-orange-200' 
                     : isEditable 
                       ? 'bg-gray-50 hover:bg-gray-100 cursor-pointer hover:border-blue-200' 
                       : 'bg-gray-50'
@@ -1019,6 +1156,21 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                          </div>
                        </div>
                         <div className="flex items-center gap-1">
+                          {isPast && !record.completed && (
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const notes = prompt('請輸入完成備註（可選）：');
+                                handleMarkCompleted(record.id, notes || undefined);
+                              }}
+                              variant="outline"
+                              size="sm"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 h-6 w-6 text-green-600 hover:text-green-700 border-green-300"
+                              title="標記為已完成"
+                            >
+                              <CheckCircle className="w-3 h-3" />
+                            </Button>
+                          )}
                           {onDeleteRecord && (
                             <Button
                               onClick={(e) => {
@@ -1032,11 +1184,11 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
                               <Trash2 className="w-3 h-3" />
                             </Button>
                           )}
-                         {isPast && (
-                           <div className="text-xs text-gray-400">
-                             記錄
-                           </div>
-                         )}
+                          {isPast && !record.completed && (
+                            <div className="text-xs text-orange-600 font-medium">
+                              逾期未完成
+                            </div>
+                          )}
                        </div>
                     </div>
                   )}
@@ -1046,9 +1198,14 @@ export const ScheduleRecordForm: React.FC<ScheduleRecordFormProps> = ({
         </div>
       )}
 
-      {scheduleRecords.filter(record => record.customerId === customerId).length === 0 && !isAdding && (
+      {currentRecords.length === 0 && !isAdding && (
         <div className="text-center py-4 text-gray-500 text-sm">
-          尚無行程記錄
+          尚無進行中的行程記錄
+          {completedRecords.length > 0 && (
+            <div className="mt-1 text-xs text-green-600">
+              {completedRecords.length} 筆已完成記錄
+            </div>
+          )}
         </div>
       )}
     </div>
