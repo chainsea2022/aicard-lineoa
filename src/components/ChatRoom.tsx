@@ -3,7 +3,7 @@ import { Plus, X, User, Zap, Scan, Users, BarChart3, Calendar, Send, Bot, UserPl
 import { Button } from '@/components/ui/button';
 import CreateCard from './CreateCard';
 import MyCard from './MyCard';
-import Scanner from './Scanner';
+import CardRecognitionLIFF from './CardRecognitionLIFF';
 import MyCustomers from './MyCustomers';
 import UnifiedCardFolder from './UnifiedCardFolder';
 import Analytics from './Analytics';
@@ -1027,7 +1027,7 @@ const ChatRoom = () => {
       case 'my-card':
         return <MyCard onClose={handleCloseView} />;
       case 'scanner':
-        return;
+        return <CardRecognitionLIFF onClose={handleCloseView} />;
       case 'customers':
         return <UnifiedCardFolder onClose={handleCloseView} />;
       case 'analytics':
