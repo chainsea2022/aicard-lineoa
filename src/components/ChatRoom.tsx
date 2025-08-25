@@ -92,7 +92,7 @@ const newMenuItemsForMember: MenuItem[] = [{
   color: 'bg-gradient-to-br from-orange-500 to-orange-600'
 }, {
   id: 'member',
-  title: '會員',
+  title: '帳戶設置',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
 }];
