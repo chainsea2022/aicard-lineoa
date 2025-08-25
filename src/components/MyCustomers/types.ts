@@ -19,6 +19,16 @@ export interface Customer {
   emailInvitationSent?: boolean;
   invitationDate?: string;
   emailInvitationDate?: string;
+  lineInvitationSent?: boolean;
+  lineInvitationDate?: string;
+  messengerInvitationSent?: boolean;
+  messengerInvitationDate?: string;
+  instagramInvitationSent?: boolean;
+  instagramInvitationDate?: string;
+  copyInvitationSent?: boolean;
+  copyInvitationDate?: string;
+  smsInvitationSent?: boolean;
+  smsInvitationDate?: string;
   tags?: string[];
   isFavorite?: boolean;
   isMyFriend?: boolean;
