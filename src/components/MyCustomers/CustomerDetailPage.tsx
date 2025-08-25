@@ -1,6 +1,7 @@
 import React from 'react';
-import { ArrowLeft, X } from 'lucide-react';
+import { ArrowLeft, X, MessageSquare, Send, Instagram, Copy, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ExpandedCard } from './ExpandedCard';
 import { Customer } from './types';
 
@@ -44,6 +45,105 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
+        {/* Invitation Section */}
+        {!customer.isRegisteredUser && (
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 space-y-3 bg-white mb-4">
+            <div className="flex items-center justify-between">
+              <h4 className="font-medium text-sm text-gray-800">邀請聯絡人</h4>
+              <Badge className="bg-orange-500 text-white text-xs">
+                未註冊
+              </Badge>
+            </div>
+            
+            <p className="text-sm text-gray-600">
+              透過以下方式邀請 {customer.name} 註冊電子名片
+            </p>
+            
+            {/* Invitation Action Buttons */}
+            <div className="flex justify-center space-x-4">
+              {/* LINE */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                  onClick={() => console.log('LINE invitation')}
+                >
+                  <MessageSquare className="w-8 h-8 text-green-600" />
+                </Button>
+              </div>
+              
+              {/* Messenger */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                  onClick={() => console.log('Messenger invitation')}
+                >
+                  <Send className="w-8 h-8 text-blue-500" />
+                </Button>
+              </div>
+              
+              {/* Instagram */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                  onClick={() => console.log('Instagram invitation')}
+                >
+                  <Instagram className="w-8 h-8 text-pink-600" />
+                </Button>
+              </div>
+              
+              {/* Copy Link */}
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                  onClick={() => {
+                    navigator.clipboard.writeText(`https://example.com/invite?id=${customer.id}`);
+                    console.log('Link copied');
+                  }}
+                >
+                  <Copy className="w-8 h-8 text-gray-600" />
+                </Button>
+              </div>
+              
+              {/* SMS and Email - only show for customers without LINE ID */}
+              {!customer.lineId && (
+                <>
+                  {/* SMS */}
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                      onClick={() => onSendInvitation(customer.id, 'sms')}
+                    >
+                      <Phone className="w-8 h-8 text-blue-600" />
+                    </Button>
+                  </div>
+                  
+                  {/* Email */}
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-12 h-12 p-0 flex items-center justify-center hover:bg-white rounded-full"
+                      onClick={() => onSendInvitation(customer.id, 'email')}
+                    >
+                      <Mail className="w-8 h-8 text-red-600" />
+                    </Button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+        
         <ExpandedCard
           customer={customer}
           activeSection={activeSection}
