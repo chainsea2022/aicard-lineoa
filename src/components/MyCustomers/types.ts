@@ -75,9 +75,6 @@ export interface ScheduleRecord {
   time?: string;
   type: 'meeting' | 'call' | 'event' | 'other';
   createdAt: string;
-  completed?: boolean;
-  completedAt?: string;
-  completionNotes?: string;
 }
 
 export interface MyCustomersProps {
