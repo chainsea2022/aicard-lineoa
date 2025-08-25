@@ -553,33 +553,14 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           </div>}
       </div>
 
-      {/* Contact Information */}
-      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-        <div className="flex items-center justify-between">
-          <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
-        </div>
-        
-        {customer.phone && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1">
-              <Phone className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.phone}</span>
-            </div>
-            <Button onClick={() => onPhoneClick(customer.phone)} variant="outline" size="sm" className="text-xs">
-              撥打
-            </Button>
-          </div>}
-
-        {customer.email && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1">
-              <Mail className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.email}</span>
-            </div>
-            <Button onClick={() => window.open(`mailto:${customer.email}`)} variant="outline" size="sm" className="text-xs">
-              寄信
-            </Button>
-          </div>}
-
-        {customer.line && <div className="flex items-center justify-between">
+      {/* Contact Information - Only show if LINE ID exists */}
+      {customer.line && (
+        <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
+          </div>
+          
+          <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 flex-1">
               <MessageSquare className="w-4 h-4 text-gray-500" />
               <span className="text-sm">LINE: {customer.line}</span>
@@ -587,91 +568,40 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
             <Button onClick={() => onLineClick(customer.line)} variant="outline" size="sm" className="text-xs">
               開啟
             </Button>
-          </div>}
-
-        {customer.website && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1 min-w-0">
-              <Globe className="w-4 h-4 text-gray-500 flex-shrink-0" />
-              <span className="text-sm truncate">{customer.website}</span>
-            </div>
-            <Button onClick={() => window.open(customer.website, '_blank')} variant="outline" size="sm" className="text-xs flex-shrink-0">
-              開啟
-            </Button>
-          </div>}
-
-        {customer.facebook && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1">
-              <Facebook className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.facebook}</span>
-            </div>
-            <Button 
-              onClick={() => {
-                if (isValidUrl(customer.facebook)) {
-                  window.open(customer.facebook, '_blank');
-                } else {
-                  window.open(`https://facebook.com/${customer.facebook}`, '_blank');
-                }
-              }} 
-              variant="outline" 
-              size="sm" 
-              className="text-xs"
-            >
-              開啟
-            </Button>
-          </div>}
-
-        {customer.instagram && <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 flex-1">
-              <Instagram className="w-4 h-4 text-gray-500" />
-              <span className="text-sm">{customer.instagram}</span>
-            </div>
-            <Button 
-              onClick={() => {
-                if (isValidUrl(customer.instagram)) {
-                  window.open(customer.instagram, '_blank');
-                } else {
-                  window.open(`https://instagram.com/${customer.instagram}`, '_blank');
-                }
-              }} 
-              variant="outline" 
-              size="sm" 
-              className="text-xs"
-            >
-              開啟
-            </Button>
-          </div>}
-
-        {/* Notes Section */}
-        <div className="pt-2 border-t border-gray-200">
-          <div className="flex items-center justify-between mb-2">
-            <h5 className="font-medium text-sm text-gray-800">備註</h5>
-            {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="p-1">
-                <Edit className="w-4 h-4 text-gray-600" />
-              </Button>}
           </div>
-          
-          {isEditingNotes ? <div className="space-y-2">
-              <div className="relative">
-                <Textarea value={editedNotes} onChange={e => setEditedNotes(e.target.value)} placeholder="輸入備註..." rows={3} className="text-sm pr-10" />
-                <div className="absolute top-2 right-2">
-                  <VoiceInput onResult={handleVoiceInput} placeholder="語音輸入備註" />
-                </div>
-              </div>
-              <div className="flex space-x-2">
-                <Button onClick={handleSaveNotes} size="sm" className="text-xs">
-                  儲存
-                </Button>
-                <Button onClick={() => {
-              setIsEditingNotes(false);
-              setEditedNotes(customer.notes || '');
-            }} variant="outline" size="sm" className="text-xs">
-                  取消
-                </Button>
-              </div>
-            </div> : <p className="text-sm text-gray-600 bg-white rounded p-2 min-h-[2.5rem] cursor-pointer" onClick={() => setIsEditingNotes(true)}>
-              {customer.notes || '點擊新增備註...'}
-            </p>}
         </div>
+      )}
+
+      {/* Notes Section */}
+      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <h4 className="font-medium text-sm text-gray-800">備註</h4>
+          {!isEditingNotes && <Button onClick={() => setIsEditingNotes(true)} variant="ghost" size="sm" className="p-1">
+              <Edit className="w-4 h-4 text-gray-600" />
+            </Button>}
+        </div>
+        
+        {isEditingNotes ? <div className="space-y-2">
+            <div className="relative">
+              <Textarea value={editedNotes} onChange={e => setEditedNotes(e.target.value)} placeholder="輸入備註..." rows={3} className="text-sm pr-10" />
+              <div className="absolute top-2 right-2">
+                <VoiceInput onResult={handleVoiceInput} placeholder="語音輸入備註" />
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <Button onClick={handleSaveNotes} size="sm" className="text-xs">
+                儲存
+              </Button>
+              <Button onClick={() => {
+            setIsEditingNotes(false);
+            setEditedNotes(customer.notes || '');
+          }} variant="outline" size="sm" className="text-xs">
+                取消
+              </Button>
+            </div>
+          </div> : <p className="text-sm text-gray-600 bg-white rounded p-2 min-h-[2.5rem] cursor-pointer" onClick={() => setIsEditingNotes(true)}>
+            {customer.notes || '點擊新增備註...'}
+          </p>}
       </div>
 
 
