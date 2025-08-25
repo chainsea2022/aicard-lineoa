@@ -207,16 +207,6 @@ const Points: React.FC<PointsProps> = ({
       {/* iOS風格分頁標籤 */}
       <div className="flex bg-gray-50 mx-4 mt-3 mb-4 rounded-xl p-1">
         <button 
-          onClick={() => setActiveTab('overview')} 
-          className={`flex-1 py-2 px-3 text-center font-medium rounded-lg text-sm transition-all ${
-            activeTab === 'overview' 
-              ? 'bg-white text-blue-600 shadow-sm' 
-              : 'text-gray-600 hover:text-gray-900'
-          }`}
-        >
-          點數總覽
-        </button>
-        <button 
           onClick={() => setActiveTab('upgrade')} 
           className={`flex-1 py-2 px-3 text-center font-medium rounded-lg text-sm transition-all ${
             activeTab === 'upgrade' 
@@ -225,6 +215,16 @@ const Points: React.FC<PointsProps> = ({
           }`}
         >
           兌點升級
+        </button>
+        <button 
+          onClick={() => setActiveTab('overview')} 
+          className={`flex-1 py-2 px-3 text-center font-medium rounded-lg text-sm transition-all ${
+            activeTab === 'overview' 
+              ? 'bg-white text-blue-600 shadow-sm' 
+              : 'text-gray-600 hover:text-gray-900'
+          }`}
+        >
+          點數總覽
         </button>
         <button 
           onClick={() => setActiveTab('history')} 
