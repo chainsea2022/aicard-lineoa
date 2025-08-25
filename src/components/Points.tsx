@@ -35,7 +35,7 @@ const Points: React.FC<PointsProps> = ({
 }) => {
   const [currentPoints, setCurrentPoints] = useState(0);
   const [transactions, setTransactions] = useState<PointTransaction[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'upgrade' | 'history'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'upgrade' | 'history'>('upgrade');
   const [milestones, setMilestones] = useState<Milestone[]>([{
     cardCount: 10,
     points: 30,
