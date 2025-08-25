@@ -45,8 +45,8 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {/* Invitation Section */}
-        {!customer.isRegisteredUser && (
+        {/* Invitation Section - Only for paper card scans without LINE ID */}
+        {!customer.isRegisteredUser && !customer.lineId && !customer.isDigitalCard && (
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 space-y-3 bg-white mb-4">
             <div className="flex items-center justify-between">
               <h4 className="font-medium text-sm text-gray-800">邀請聯絡人</h4>
