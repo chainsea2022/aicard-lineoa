@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { ArrowLeft, X, MessageSquare, Send, Instagram, Copy, Mail, Phone, Check, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { ExpandedCard } from './ExpandedCard';
 import { Customer } from './types';
 
@@ -36,48 +36,73 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
 
   const handleInvitation = async (type: string) => {
     try {
+      const inviteUrl = `https://example.com/invite?id=${customer.id}`;
+      const inviteMessage = `嗨！我想邀請你使用電子名片，點擊連結註冊：${inviteUrl}`;
+      
       switch (type) {
         case 'line':
-          // LINE分享邀請
+          // LINE分享邀請 - 開啟LINE App選擇好友或群組
           if (window.liff) {
             await window.liff.shareTargetPicker([
               {
                 type: 'text',
-                text: `嗨！我想邀請你使用電子名片，點擊連結註冊：https://example.com/invite?id=${customer.id}`
+                text: inviteMessage
               }
             ]);
+            toast({ description: 'LINE 邀請已發送' });
           } else {
-            // 非LINE環境，複製連結
-            await navigator.clipboard.writeText(`https://example.com/invite?id=${customer.id}`);
-            toast.success('邀請連結已複製到剪貼簿');
+            // 非LINE環境，使用LINE URL scheme
+            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(inviteMessage)}`;
+            window.open(lineUrl, '_blank');
+            toast({ description: '正在開啟 LINE App' });
           }
           break;
         
         case 'messenger':
-          // Messenger分享
-          const messengerUrl = `https://www.messenger.com/t/?link=${encodeURIComponent(`https://example.com/invite?id=${customer.id}`)}&app_id=YOUR_APP_ID`;
-          window.open(messengerUrl, '_blank');
+          // Messenger分享 - 跳轉至Messenger App
+          const messengerUrl = `fb-messenger://share/?link=${encodeURIComponent(inviteUrl)}&app_id=YOUR_APP_ID`;
+          try {
+            window.location.href = messengerUrl;
+            // 如果無法開啟App，則使用web版本
+            setTimeout(() => {
+              const webMessengerUrl = `https://www.messenger.com/t/?link=${encodeURIComponent(inviteUrl)}`;
+              window.open(webMessengerUrl, '_blank');
+            }, 1000);
+            toast({ description: '正在開啟 Messenger App' });
+          } catch (error) {
+            const webMessengerUrl = `https://www.messenger.com/t/?link=${encodeURIComponent(inviteUrl)}`;
+            window.open(webMessengerUrl, '_blank');
+            toast({ description: '正在開啟 Messenger' });
+          }
           break;
         
         case 'instagram':
-          // Instagram分享（複製連結，用戶手動分享）
-          await navigator.clipboard.writeText(`https://example.com/invite?id=${customer.id}`);
-          toast.success('邀請連結已複製，請到Instagram分享給聯絡人');
+          // Instagram分享 - 自動複製連結，提示用戶貼至限時動態、貼文或私訊
+          await navigator.clipboard.writeText(inviteUrl);
+          toast({ description: '邀請連結已複製！請到 Instagram 貼至限時動態、貼文或私訊中分享給朋友' });
           break;
         
         case 'copy':
-          // 複製連結
-          await navigator.clipboard.writeText(`https://example.com/invite?id=${customer.id}`);
-          toast.success('邀請連結已複製到剪貼簿');
+          // 複製連結 - 自動複製邀請連結，系統提示「連結已複製」
+          await navigator.clipboard.writeText(inviteUrl);
+          toast({ description: '連結已複製' });
           break;
         
         case 'sms':
-          // 簡訊邀請
+          // 簡訊邀請 - 開啟簡訊App，帶入預設邀請內容與連結
+          const smsUrl = `sms:${customer.phone}?body=${encodeURIComponent(inviteMessage)}`;
+          window.location.href = smsUrl;
+          toast({ description: '正在開啟簡訊 App' });
           onSendInvitation(customer.id, 'sms');
           break;
         
         case 'email':
-          // 郵件邀請
+          // Email邀請 - 開啟內建Email App，建立邀請信草稿
+          const emailSubject = '邀請您註冊電子名片';
+          const emailBody = `親愛的 ${customer.name}，\n\n我想邀請您使用電子名片服務，透過數位化名片讓聯繫更便利！\n\n請點擊以下連結註冊：\n${inviteUrl}\n\n期待與您在數位名片上相會！\n\n祝好`;
+          const mailtoUrl = `mailto:${customer.email}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+          window.location.href = mailtoUrl;
+          toast({ description: '正在開啟 Email App' });
           onSendInvitation(customer.id, 'email');
           break;
       }
@@ -94,7 +119,7 @@ export const CustomerDetailPage: React.FC<CustomerDetailPageProps> = ({
       
     } catch (error) {
       console.error('發送邀請失敗:', error);
-      toast.error('發送邀請失敗，請重試');
+      toast({ description: '發送邀請失敗，請重試', variant: 'destructive' });
     }
   };
 
