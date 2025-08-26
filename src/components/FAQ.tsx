@@ -10,7 +10,7 @@ interface FAQProps {
 const FAQ: React.FC<FAQProps> = ({ onClose }) => {
   const faqCategories = [
     {
-      title: "• 註冊與登入",
+      title: "註冊與登入",
       questions: [
         {
           question: "Q1. 如何註冊 AiCard APP？",
@@ -27,7 +27,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "• 電子名片管理",
+      title: "電子名片管理",
       questions: [
         {
           question: "Q4. 我可以建立多張電子名片嗎？",
@@ -44,7 +44,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "• 名片夾與聯絡人",
+      title: "名片夾與聯絡人",
       questions: [
         {
           question: "Q7. 如何將新朋友加入我的名片夾？",
@@ -61,7 +61,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "• 名片識別與整合",
+      title: "名片識別與整合",
       questions: [
         {
           question: "Q10. 如何掃描紙本名片？",
@@ -74,7 +74,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "• 行程與互動",
+      title: "行程與互動",
       questions: [
         {
           question: "Q12. 行程管理功能有哪些？",
@@ -91,7 +91,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "• 會員點數與升級",
+      title: "會員點數與升級",
       questions: [
         {
           question: "Q15. 如何累積點數？",
@@ -108,7 +108,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "• 資料安全與隱私",
+      title: "資料安全與隱私",
       questions: [
         {
           question: "Q18. AiCard 如何保障我的資料安全？",
