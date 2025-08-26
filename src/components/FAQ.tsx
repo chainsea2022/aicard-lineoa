@@ -128,6 +128,41 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
 
   return (
     <div className="flex flex-col h-full bg-gray-50">
+      {/* App Download Section - Top Priority */}
+      <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6 shadow-lg">
+        <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-5 border border-white/20">
+          <div className="text-center">
+            <div className="inline-flex items-center bg-white/20 px-4 py-2 rounded-full mb-4">
+              <Smartphone className="w-5 h-5 text-white mr-2" />
+              <span className="text-sm font-semibold text-white">完整功能體驗</span>
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-2">下載 AiCard APP</h3>
+            <p className="text-white/90 text-sm mb-6 leading-relaxed">
+              享受數據分析、行程管理等進階功能<br/>
+              讓商務交流更加便利高效
+            </p>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <Button className="bg-black/80 hover:bg-black text-white font-medium py-3 px-4 rounded-2xl shadow-lg backdrop-blur-sm border border-white/10 transition-all duration-300 hover:scale-105">
+                <Download className="w-4 h-4 mr-2" />
+                <div className="text-left">
+                  <div className="text-xs opacity-75">Download on the</div>
+                  <div className="text-sm font-semibold">App Store</div>
+                </div>
+              </Button>
+              <Button className="bg-green-600/90 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-2xl shadow-lg backdrop-blur-sm border border-white/10 transition-all duration-300 hover:scale-105">
+                <Download className="w-4 h-4 mr-2" />
+                <div className="text-left">
+                  <div className="text-xs opacity-75">GET IT ON</div>
+                  <div className="text-sm font-semibold">Google Play</div>
+                </div>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Header */}
       <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -151,23 +186,6 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {/* App Download Prompt */}
-        <div className="mb-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-2xl p-4 shadow-sm">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
-              <Smartphone className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-gray-800 mb-1">體驗更多功能</h3>
-              <p className="text-sm text-gray-600 mb-3">下載 AiCard APP，享受完整功能與更佳體驗</p>
-              <Button className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-medium py-2 rounded-xl shadow-sm">
-                <Download className="w-4 h-4 mr-2" />
-                立即下載 APP
-              </Button>
-            </div>
-          </div>
-        </div>
-
         {/* FAQ Accordion */}
         <div className="space-y-4">
           <Accordion type="single" collapsible className="space-y-4">
