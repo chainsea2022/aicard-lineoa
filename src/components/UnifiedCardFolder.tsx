@@ -127,7 +127,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     (c.isRegisteredUser && !c.isRecommendation && !c.isPendingInvitation) ||
     ((c.line || c.lineId) && c.photo && !c.isRecommendation)
   ).length;
-  const unregisteredCount = customers.filter(c => !c.isRegisteredUser).length;
+  const unregisteredCount = customers.filter(c => 
+    !c.isRegisteredUser && !((c.line || c.lineId) && c.photo)
+  ).length;
   const recommendationsCount = customers.filter(c => c.isRecommendation).length;
   const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
   const invitedCount = customers.filter(c => c.invitationSent || c.emailInvitationSent).length;
@@ -278,7 +280,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                  customer.needsManualApproval || customer.isPendingInvitation ||
                  ((customer.line || customer.lineId) && customer.photo && !customer.isRecommendation);
         case 'unregistered':
-          return !customer.isRegisteredUser;
+          return !customer.isRegisteredUser && !((customer.line || customer.lineId) && customer.photo);
         case 'recommendations':
           return customer.isRecommendation;
         case 'invited-by':
