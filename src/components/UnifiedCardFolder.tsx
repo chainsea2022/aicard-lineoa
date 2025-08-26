@@ -123,7 +123,10 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
   const commonTags = ['同事', '客戶', '朋友', '供應商', '合作夥伴', '主管', '下屬', '同學', '家人', '醫生'];
 
   // Calculate counts for filters
-  const myCardsCount = customers.filter(c => c.isRegisteredUser && !c.isRecommendation && !c.isPendingInvitation).length;
+  const myCardsCount = customers.filter(c => 
+    (c.isRegisteredUser && !c.isRecommendation && !c.isPendingInvitation) ||
+    ((c.line || c.lineId) && c.photo && !c.isRecommendation)
+  ).length;
   const unregisteredCount = customers.filter(c => !c.isRegisteredUser).length;
   const recommendationsCount = customers.filter(c => c.isRecommendation).length;
   const invitedByCount = customers.filter(c => c.relationshipStatus === 'addedMe' || c.isPendingInvitation).length;
@@ -272,7 +275,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       switch (filter.category) {
         case 'my-cards':
           return (customer.isRegisteredUser && !customer.isRecommendation && !customer.isPendingInvitation) || 
-                 customer.needsManualApproval || customer.isPendingInvitation;
+                 customer.needsManualApproval || customer.isPendingInvitation ||
+                 ((customer.line || customer.lineId) && customer.photo && !customer.isRecommendation);
         case 'unregistered':
           return !customer.isRegisteredUser;
         case 'recommendations':
