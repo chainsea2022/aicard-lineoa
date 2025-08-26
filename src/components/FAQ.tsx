@@ -129,26 +129,26 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
   return (
     <div className="flex flex-col h-full bg-gray-50">
       {/* App Download Section - Top Priority */}
-      <div className="bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-4 shadow-md">
-        <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+      <div className="bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300 p-4 shadow-md">
+        <div className="bg-white/30 backdrop-blur-sm rounded-2xl p-4 border border-white/40">
           <div className="text-center">
-            <div className="inline-flex items-center bg-white/20 px-3 py-1 rounded-full mb-3">
-              <Smartphone className="w-4 h-4 text-white mr-1" />
-              <span className="text-xs font-medium text-white">完整功能體驗</span>
+            <div className="inline-flex items-center bg-blue-500/20 px-3 py-1 rounded-full mb-3">
+              <Smartphone className="w-4 h-4 text-blue-700 mr-1" />
+              <span className="text-xs font-medium text-blue-700">完整功能體驗</span>
             </div>
             
-            <h3 className="text-lg font-bold text-white mb-1">下載 AiCard APP</h3>
-            <p className="text-white/90 text-xs mb-4">
+            <h3 className="text-lg font-bold text-blue-800 mb-1">下載 AiCard APP</h3>
+            <p className="text-blue-700 text-xs mb-4">
               享受數據分析、行程管理等進階功能
             </p>
             
             <div className="grid grid-cols-2 gap-2">
-              <Button className="bg-black/80 hover:bg-black text-white font-medium py-2 px-3 rounded-xl shadow-md backdrop-blur-sm border border-white/10 transition-all duration-300 hover:scale-105">
+              <Button className="bg-gray-800/90 hover:bg-gray-800 text-white font-medium py-2 px-3 rounded-xl shadow-md backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-105">
                 <div className="text-left">
                   <div className="text-xs font-semibold">App Store</div>
                 </div>
               </Button>
-              <Button className="bg-green-600/90 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-xl shadow-md backdrop-blur-sm border border-white/10 transition-all duration-300 hover:scale-105">
+              <Button className="bg-green-600/90 hover:bg-green-600 text-white font-medium py-2 px-3 rounded-xl shadow-md backdrop-blur-sm border border-white/20 transition-all duration-300 hover:scale-105">
                 <div className="text-left">
                   <div className="text-xs font-semibold">Google Play</div>
                 </div>
