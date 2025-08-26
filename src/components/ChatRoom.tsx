@@ -13,6 +13,7 @@ import MemberPoints from './MemberPoints';
 import UpgradeExperience from './UpgradeExperience';
 import CardManagement from './CardManagement';
 import MemberInterface from './MemberInterface';
+import FAQ from './FAQ';
 import { CardSelectionLIFF } from './CardSelectionLIFF';
 import { FullCardLIFF } from './FullCardLIFF';
 import PhoneVerificationLIFF from './PhoneVerificationLIFF';
@@ -95,6 +96,21 @@ const newMenuItemsForMember: MenuItem[] = [{
   title: '帳戶設置',
   icon: User,
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
+}, {
+  id: 'card-management',
+  title: '名片管理',
+  icon: Edit,
+  color: 'bg-gradient-to-br from-purple-500 to-purple-600'
+}, {
+  id: 'my-points',
+  title: '我的點數',
+  icon: Coins,
+  color: 'bg-gradient-to-br from-yellow-500 to-yellow-600'
+}, {
+  id: 'faq',
+  title: 'FAQ',
+  icon: MessageCircle,
+  color: 'bg-gradient-to-br from-teal-500 to-teal-600'
 }];
 
 // 新的 Richmenu 模式選項 - 未註冊版本
@@ -113,6 +129,21 @@ const newMenuItemsForGuest: MenuItem[] = [{
   title: '註冊',
   icon: User,
   color: 'bg-gradient-to-br from-purple-500 to-purple-600'
+}, {
+  id: 'card-management',
+  title: '名片管理',
+  icon: Edit,
+  color: 'bg-gradient-to-br from-purple-500 to-purple-600'
+}, {
+  id: 'my-points',
+  title: '我的點數',
+  icon: Coins,
+  color: 'bg-gradient-to-br from-yellow-500 to-yellow-600'
+}, {
+  id: 'faq',
+  title: 'FAQ',
+  icon: MessageCircle,
+  color: 'bg-gradient-to-br from-teal-500 to-teal-600'
 }];
 
 // 統一使用的客戶名稱
@@ -773,6 +804,18 @@ const ChatRoom = () => {
       // 升級體驗
       setActiveView('upgrade');
       setIsMenuOpen(false);
+    } else if (itemId === 'card-management') {
+      // 名片管理
+      setActiveView('card-management');
+      setIsMenuOpen(false);
+    } else if (itemId === 'my-points') {
+      // 我的點數
+      setActiveView('points');
+      setIsMenuOpen(false);
+    } else if (itemId === 'faq') {
+      // FAQ
+      setActiveView('faq');  
+      setIsMenuOpen(false);
     } else {
       setActiveView(itemId);
       setIsMenuOpen(false);
@@ -1037,6 +1080,12 @@ const ChatRoom = () => {
       case 'member':
         console.log('Debug - 渲染會員介面');
         return <MemberInterface onClose={handleCloseView} />;
+      case 'card-management':
+        return <CardManagement onClose={handleCloseView} />;
+      case 'points':
+        return <Points onClose={handleCloseView} />;
+      case 'faq':
+        return <FAQ onClose={handleCloseView} />;
       default:
         return null;
     }
