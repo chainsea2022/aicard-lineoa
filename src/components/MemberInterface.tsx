@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { ArrowLeft, X, Coins, Settings, LogOut } from 'lucide-react';
+import { ArrowLeft, X, Settings, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import Points from './Points';
 import { ProfileSettings } from './MyCustomers/ProfileSettings';
 interface MemberInterfaceProps {
   onClose: () => void;
@@ -10,7 +9,7 @@ interface MemberInterfaceProps {
 const MemberInterface: React.FC<MemberInterfaceProps> = ({
   onClose
 }) => {
-  const [activeTab, setActiveTab] = useState('points');
+  const [activeTab, setActiveTab] = useState('profile-settings');
   const handleLogout = () => {
     // 清除所有用戶相關資料
     localStorage.removeItem('aicard-user-registered');
@@ -48,11 +47,7 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({
       {/* Tabs */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-2 bg-white border-b border-gray-200 rounded-none h-auto">
-            <TabsTrigger value="points" className="py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
-              <Coins className="w-4 h-4 mr-2" />
-              我的點數
-            </TabsTrigger>
+          <TabsList className="grid w-full grid-cols-1 bg-white border-b border-gray-200 rounded-none h-auto">
             <TabsTrigger value="profile-settings" className="py-3 text-sm font-medium data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
               <Settings className="w-4 h-4 mr-2" />
               資料設定
@@ -60,12 +55,6 @@ const MemberInterface: React.FC<MemberInterfaceProps> = ({
           </TabsList>
 
           <div className="flex-1 overflow-hidden">
-            <TabsContent value="points" className="mt-0 h-full">
-              <div className="h-full relative">
-                <Points onClose={() => setActiveTab('points')} />
-              </div>
-            </TabsContent>
-
             <TabsContent value="profile-settings" className="mt-0 h-full">
               <div className="h-full relative">
                 <ProfileSettings onClose={() => setActiveTab('profile-settings')} />
