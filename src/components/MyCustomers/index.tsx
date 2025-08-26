@@ -148,10 +148,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
     });
   };
   const allDigitalCards = localCustomers.filter(customer => 
-    customer.isDigitalCard !== false || (customer.lineId && customer.photo)
+    customer.isDigitalCard !== false || 
+    ((customer.line || customer.lineId) && customer.photo)
   );
   const allPaperCards = localCustomers.filter(customer => 
-    customer.isDigitalCard === false && !(customer.lineId && customer.photo)
+    customer.isDigitalCard === false && 
+    !((customer.line || customer.lineId) && customer.photo)
   );
   const filteredDigitalCards = getFilteredCustomers(allDigitalCards);
   const filteredPaperCards = getFilteredCustomers(allPaperCards);
