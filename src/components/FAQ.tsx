@@ -1,36 +1,128 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { X, MessageCircle, Phone, Mail, HelpCircle } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { X, MessageCircle, Phone, Mail, HelpCircle, Download, Smartphone } from 'lucide-react';
 
 interface FAQProps {
   onClose: () => void;
 }
 
 const FAQ: React.FC<FAQProps> = ({ onClose }) => {
-  const faqData = [
+  const faqCategories = [
     {
-      question: '如何建立我的電子名片？',
-      answer: '點擊「註冊」按鈕，填寫基本資料即可建立您的專屬電子名片。完成後可隨時透過「我的名片」查看和編輯。'
+      title: "一、註冊與登入",
+      questions: [
+        {
+          question: "Q1. 如何註冊 AiCard APP？",
+          answer: "開啟 APP 或 LINE OA，點擊「立即註冊」，依指示完成 LINE 登入與手機 OTP 驗證，即可完成註冊並建立您的第一張電子名片。"
+        },
+        {
+          question: "Q2. 如果忘記密碼或更換手機號碼，該怎麼辦？",
+          answer: "AiCard 採 LINE 授權登入與手機 OTP 驗證，忘記密碼無需重設，僅需使用同 LINE 帳號與手機驗證即可完成登入。若更換手機號碼，請至「設定 > 資料設定」更新並重新驗證。"
+        },
+        {
+          question: "Q3. 我需要下載 APP 才能註冊嗎？",
+          answer: "不一定。首次可直接透過 LINE OA 完成註冊，但若要使用完整功能（如數據分析、行程管理進階功能），建議下載 APP 以獲得完整體驗。"
+        }
+      ]
     },
     {
-      question: '如何與他人交換名片？',
-      answer: '您可以透過掃描對方的 QR Code，或是直接分享您的名片連結給對方。雙方都會自動加入彼此的名片夾中。'
+      title: "二、電子名片管理",
+      questions: [
+        {
+          question: "Q4. 我可以建立多張電子名片嗎？",
+          answer: "可以，AiCard 支援多張名片管理。第一張為主卡片不可刪除，其餘卡片可自由新增、編輯與刪除。"
+        },
+        {
+          question: "Q5. 如何分享我的電子名片？",
+          answer: "您可透過 LINE Flex Message 分享 QR Code，或於 APP 首頁點擊「分享名片」按鈕，快速生成分享連結或下載 PNG 檔案。"
+        },
+        {
+          question: "Q6. 可以自訂電子名片的背景風格嗎？",
+          answer: "可以。在「設定 > 我的名片」內選擇「背景樣式」，可套用系統預設主題或自訂圖片，並自動同步至分享版面與下載 QR Code 圖檔。"
+        }
+      ]
     },
     {
-      question: '什麼是 AiPoint 點數？',
-      answer: 'AiPoint 是我們的獎勵點數系統。您可以透過使用各項功能獲得點數，並用來兌換會員升級或其他優惠。'
+      title: "三、名片夾與聯絡人",
+      questions: [
+        {
+          question: "Q7. 如何將新朋友加入我的名片夾？",
+          answer: "透過掃描 QR Code、NFC 感應、Flex Message 點擊或邀請註冊連結即可。對方同意後，名片將同步新增至「我的名片夾」列表。"
+        },
+        {
+          question: "Q8. 我的名片夾顯示「尚未成為會員」，代表什麼意思？",
+          answer: "這表示該聯絡人尚未完成電子名片註冊，您可以透過 LINE 邀請訊息提醒對方完成註冊。"
+        },
+        {
+          question: "Q9. 如何使用標籤整理名片？",
+          answer: "在名片詳細頁面新增或刪除標籤，標籤將同步顯示於篩選區，方便快速搜尋與分類。"
+        }
+      ]
     },
     {
-      question: '如何管理我的名片夾？',
-      answer: '進入「名片夾」可以查看所有收藏的名片，您可以為聯絡人新增備註、設定提醒，或是查看互動記錄。'
+      title: "四、名片識別與整合",
+      questions: [
+        {
+          question: "Q10. 如何掃描紙本名片？",
+          answer: "進入「名片識別」頁面拍照掃描，AI 會自動辨識內容。若與雲端資料相似度 ≥90%，系統會自動匹配更新，並儲存到「我的名片夾」。"
+        },
+        {
+          question: "Q11. 匯入大量名片資料時有什麼限制？",
+          answer: "AiCard 支援 CSV/XLS/XLSX 批次匯入，首次匯入會啟動欄位對應導引，並提供標準格式範本下載，確保資料正確匯入。"
+        }
+      ]
     },
     {
-      question: '名片資料會保存多久？',
-      answer: '您的名片資料會永久保存在我們的安全伺服器中。您隨時可以編輯或刪除您的資料。'
+      title: "五、行程與互動",
+      questions: [
+        {
+          question: "Q12. 行程管理功能有哪些？",
+          answer: "行程管理包含提醒、快速新增、行程日曆檢視及郵件通知，並支援語音或手動輸入，讓您快速安排會議或拜訪行程。"
+        },
+        {
+          question: "Q13. 如何將行程與聯絡人連結？",
+          answer: "在新增行程時，選擇參與者即可自動帶出該聯絡人的電子名片，並記錄互動歷程。"
+        },
+        {
+          question: "Q14. AiCard 會自動提供行程建議嗎？",
+          answer: "會的。系統會根據您的互動記錄與行程歷史，提供標題、參與者與時間的智能建議。"
+        }
+      ]
     },
     {
-      question: '如何聯絡客服？',
-      answer: '如有任何問題，請透過以下方式聯絡我們：\n• LINE: @aicard\n• Email: support@aicard.com\n• 客服電話: 02-1234-5678'
+      title: "六、會員點數與升級",
+      questions: [
+        {
+          question: "Q15. 如何累積點數？",
+          answer: "完成註冊、交換名片、邀請好友等行為可獲得點數，點數可用於升級方案或兌換 Ai 生態圈服務。"
+        },
+        {
+          question: "Q16. 點數可以兌換哪些服務？",
+          answer: "點數可兌換 AiCard PRO 商務名片試用、Aile 商務版、Aile PRO 企業版試用，以及 Aiwow 點數商城的優惠活動。"
+        },
+        {
+          question: "Q17. 如何查看點數使用紀錄？",
+          answer: "進入「設定 > 會員點數」，可查看總覽、升級方案與累積使用紀錄，並支援歷程統計圖表。"
+        }
+      ]
+    },
+    {
+      title: "七、資料安全與隱私",
+      questions: [
+        {
+          question: "Q18. AiCard 如何保障我的資料安全？",
+          answer: "所有資料均加密儲存，手機號碼採 OTP 驗證，Email 採雙重驗證 (Double Opt-In)，確保安全與隱私。"
+        },
+        {
+          question: "Q19. 是否可以關閉我的名片公開狀態？",
+          answer: "可以，於「設定 > 隱私與通知」內關閉公開選項，即可隱藏您的電子名片資訊，僅保留基本聯絡功能。"
+        },
+        {
+          question: "Q20. 如果不想被其他用戶直接加入名片夾，該怎麼設置？",
+          answer: "在「隱私與通知」中關閉「允許直接加入」，他人需經您同意才能完成加入請求。"
+        }
+      ]
     }
   ];
 
@@ -59,24 +151,55 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-4">
-          {faqData.map((item, index) => (
-            <div key={index} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-              <div className="p-4">
-                <div className="flex items-start space-x-3">
-                  <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <HelpCircle className="w-4 h-4 text-teal-600" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-800 mb-2">{item.question}</h3>
-                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
-                      {item.answer}
-                    </p>
-                  </div>
-                </div>
-              </div>
+        {/* App Download Prompt */}
+        <div className="mb-6 bg-gradient-to-r from-blue-50 to-teal-50 border border-blue-200 rounded-2xl p-4 shadow-sm">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-blue-500 rounded-xl flex items-center justify-center">
+              <Smartphone className="w-6 h-6 text-white" />
             </div>
-          ))}
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-800 mb-1">體驗更多功能</h3>
+              <p className="text-sm text-gray-600 mb-3">下載 AiCard APP，享受完整功能與更佳體驗</p>
+              <Button className="w-full bg-gradient-to-r from-blue-500 to-teal-500 hover:from-blue-600 hover:to-teal-600 text-white font-medium py-2 rounded-xl shadow-sm">
+                <Download className="w-4 h-4 mr-2" />
+                立即下載 APP
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* FAQ Accordion */}
+        <div className="space-y-4">
+          <Accordion type="single" collapsible className="space-y-4">
+            {faqCategories.map((category, categoryIndex) => (
+              <AccordionItem 
+                key={categoryIndex} 
+                value={`category-${categoryIndex}`}
+                className="bg-white rounded-lg border border-gray-200 shadow-sm"
+              >
+                <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-teal-100 rounded-full flex items-center justify-center">
+                      <HelpCircle className="w-4 h-4 text-teal-600" />
+                    </div>
+                    <span className="font-medium text-gray-800 text-left">{category.title}</span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-4">
+                  <div className="space-y-4 pt-2">
+                    {category.questions.map((item, questionIndex) => (
+                      <div key={questionIndex} className="border-l-2 border-teal-100 pl-4">
+                        <h4 className="font-medium text-gray-800 mb-2">{item.question}</h4>
+                        <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
+                          {item.answer}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
 
         {/* Contact Section */}
