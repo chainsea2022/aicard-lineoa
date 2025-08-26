@@ -147,8 +147,12 @@ const MyCustomers: React.FC<MyCustomersProps> = ({
       return dateB - dateA;
     });
   };
-  const allDigitalCards = localCustomers.filter(customer => customer.isDigitalCard !== false);
-  const allPaperCards = localCustomers.filter(customer => customer.isDigitalCard === false);
+  const allDigitalCards = localCustomers.filter(customer => 
+    customer.isDigitalCard !== false || (customer.lineId && customer.photo)
+  );
+  const allPaperCards = localCustomers.filter(customer => 
+    customer.isDigitalCard === false && !(customer.lineId && customer.photo)
+  );
   const filteredDigitalCards = getFilteredCustomers(allDigitalCards);
   const filteredPaperCards = getFilteredCustomers(allPaperCards);
   const followingMeCount = allDigitalCards.filter(customer => customer.isFollowingMe && customer.relationshipStatus === 'addedMe').length;
