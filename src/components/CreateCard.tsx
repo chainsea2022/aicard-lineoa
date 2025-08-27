@@ -1164,7 +1164,7 @@ LINE: ${line || ''}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium text-gray-700">
-                  專業標籤
+                  個人標籤
                 </Label>
                 <div className="flex items-center space-x-2">
                   <Label className="text-xs text-gray-500">公開</Label>
