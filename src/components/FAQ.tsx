@@ -18,7 +18,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
         },
         {
           question: "Q2. 如果忘記密碼或更換手機號碼，該怎麼辦？",
-          answer: "AiCard 採 LINE 授權登入與手機 OTP 驗證，忘記密碼無需重設，僅需使用同 LINE 帳號與手機驗證即可完成登入。若更換手機號碼，請至「設定 > 資料設定」更新並重新驗證。"
+          answer: "AiCard 採 LINE 授權登入、手機 OTP 驗證 及 Email 驗證 機制，無需設定或重設密碼。 忘記密碼：直接使用相同 LINE 帳號登入，完成手機 OTP 及 Email 驗證即可。   更換手機號碼：請至「設定 > 資料設定」更新手機號碼，並重新進行 OTP 驗證；完成後，系統會自動同步驗證您原有的 Email 資料。   更換 Email：若需變更 Email，請在「設定 > 資料設定」中輸入新郵箱並完成 Double Opt-In（點擊驗證信中的連結）流程。"
         },
         {
           question: "Q3. 我需要下載 APP 才能註冊嗎？",
