@@ -1173,7 +1173,7 @@ LINE: ${line || ''}
               </div>
               <div className="space-y-3">
                 <p className="text-xs text-gray-500">
-                  加上個人專業標籤，讓名片更多曝光機會（最多3個標籤）
+                  加上個人標籤，讓名片更多曝光（最多3個）
                 </p>
                 
                 {/* 已添加的標籤 */}
