@@ -701,7 +701,7 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       {showTagsSection ? (
         <div className="px-4 py-2 border-b border-border bg-background">
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-foreground whitespace-nowrap">常用標籤</span>
+            <span className="text-sm font-medium text-foreground whitespace-nowrap">常用類別</span>
             <div className="flex items-center gap-2 overflow-x-auto flex-1">
               {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
                 <Button
