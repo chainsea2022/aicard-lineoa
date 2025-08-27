@@ -662,7 +662,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         <div className="flex items-center justify-between">
           <h4 className="font-medium text-sm text-gray-800 flex items-center">
             <Tag className="w-4 h-4 mr-1" />
-            標籤
+            類別
           </h4>
           <Button 
             onClick={() => setShowAddTag(true)} 
