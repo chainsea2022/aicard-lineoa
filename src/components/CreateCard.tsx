@@ -73,6 +73,13 @@ const CreateCard: React.FC<CreateCardProps> = ({
   const [otherInfo, setOtherInfo] = useState(''); // 其他資訊
   const [otherInfoVisible, setOtherInfoVisible] = useState(true);
 
+  // 專業標籤狀態
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagsVisible, setTagsVisible] = useState(true);
+  const [customTag, setCustomTag] = useState('');
+  const [showAddTag, setShowAddTag] = useState(false);
+  const [aiSuggestedTags, setAiSuggestedTags] = useState<string[]>([]);
+
   // UI States
   const [showLineTutorial, setShowLineTutorial] = useState(false);
   const [showFacebookTutorial, setShowFacebookTutorial] = useState(false);
@@ -94,9 +101,99 @@ const CreateCard: React.FC<CreateCardProps> = ({
     url: string;
   } | null>(null);
 
+  // AI標籤生成功能
+  const generateAITags = (jobTitle: string, companyName: string) => {
+    if (!jobTitle.trim()) {
+      setAiSuggestedTags([]);
+      return;
+    }
+    
+    const suggestions: string[] = [];
+    const title = jobTitle.toLowerCase();
+    const company = companyName.toLowerCase();
+
+    // 基於職稱的標籤推薦
+    if (title.includes('經理') || title.includes('manager')) {
+      suggestions.push('管理專家', '團隊領導', '策略規劃');
+    }
+    if (title.includes('工程師') || title.includes('engineer')) {
+      suggestions.push('技術專家', '解決方案', '創新思維');
+    }
+    if (title.includes('設計') || title.includes('design')) {
+      suggestions.push('創意設計', '視覺美學', '用戶體驗');
+    }
+    if (title.includes('行銷') || title.includes('marketing')) {
+      suggestions.push('行銷策略', '品牌推廣', '數位行銷');
+    }
+    if (title.includes('業務') || title.includes('sales')) {
+      suggestions.push('業務開發', '客戶關係', '銷售專家');
+    }
+    if (title.includes('總監') || title.includes('director')) {
+      suggestions.push('高階主管', '策略領導', '企業管理');
+    }
+    if (title.includes('顧問') || title.includes('consultant')) {
+      suggestions.push('專業顧問', '解決方案', '諮詢服務');
+    }
+
+    // 基於公司的標籤推薦
+    if (company.includes('科技') || company.includes('tech')) {
+      suggestions.push('科技創新', '數位轉型');
+    }
+    if (company.includes('金融') || company.includes('bank')) {
+      suggestions.push('金融專業', '投資理財');
+    }
+
+    // 通用專業標籤
+    if (suggestions.length < 3) {
+      const universalTags = ['專業服務', '品質保證', '客戶至上', '持續學習', '效率提升'];
+      universalTags.forEach(tag => {
+        if (suggestions.length < 3 && !suggestions.includes(tag)) {
+          suggestions.push(tag);
+        }
+      });
+    }
+
+    setAiSuggestedTags(suggestions.slice(0, 3));
+  };
+
+  // 標籤管理功能
+  const handleAddTag = (tag: string) => {
+    if (tags.length >= 3) {
+      toast({
+        title: "標籤數量限制",
+        description: "最多只能添加3個標籤",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    if (tag.trim() && !tags.includes(tag.trim())) {
+      setTags([...tags, tag.trim()]);
+      setCustomTag('');
+      setShowAddTag(false);
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleAddCustomTag = () => {
+    if (customTag.trim()) {
+      handleAddTag(customTag);
+    }
+  };
+
   // 語音錄製相關
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 監聽職稱變化，自動生成AI標籤
+  useEffect(() => {
+    if (jobTitle.trim()) {
+      generateAITags(jobTitle, companyName);
+    }
+  }, [jobTitle, companyName]);
 
   // Birthday formatting and validation functions
   const formatBirthdayInput = (value: string) => {
@@ -211,6 +308,8 @@ const CreateCard: React.FC<CreateCardProps> = ({
       setSocialMedia(cardInfo.socialMedia || []);
       setOtherInfo(cardInfo.otherInfo || '');
       setOtherInfoVisible(cardInfo.otherInfoVisible !== false);
+      setTags(cardInfo.tags || []);
+      setTagsVisible(cardInfo.tagsVisible !== false);
 
       // Convert birthday to Date object for calendar
       if (cardInfo.birthday) {
@@ -238,6 +337,8 @@ const CreateCard: React.FC<CreateCardProps> = ({
       setPhoto(null);
       setSocialMedia([]);
       setOtherInfo('');
+      setTags([]);
+      setTagsVisible(true);
     } else {
       // 預設載入主要名片資料（編輯預設名片）
       const savedCardData = localStorage.getItem('aile-card-data');
@@ -278,6 +379,8 @@ const CreateCard: React.FC<CreateCardProps> = ({
         setSocialMedia(cardInfo.socialMedia || []);
         setOtherInfo(cardInfo.otherInfo || '');
         setOtherInfoVisible(cardInfo.otherInfoVisible !== false);
+        setTags(cardInfo.tags || []);
+        setTagsVisible(cardInfo.tagsVisible !== false);
 
         // Convert birthday to Date object for calendar
         if (cardInfo.birthday) {
@@ -500,6 +603,8 @@ const CreateCard: React.FC<CreateCardProps> = ({
       companyNameVisible,
       jobTitle,
       jobTitleVisible,
+      tags,
+      tagsVisible,
       phone,
       phoneVisible,
       mobilePhone,
@@ -1053,6 +1158,122 @@ LINE: ${line || ''}
                 </div>
               </div>
               <Input id="job-title" type="text" placeholder="您的職稱" value={jobTitle} onChange={e => setJobTitle(e.target.value)} />
+            </div>
+
+            {/* 專業標籤 */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium text-gray-700">
+                  專業標籤
+                </Label>
+                <div className="flex items-center space-x-2">
+                  <Label className="text-xs text-gray-500">公開</Label>
+                  <Switch checked={tagsVisible} onCheckedChange={setTagsVisible} />
+                </div>
+              </div>
+              <div className="space-y-3">
+                <p className="text-xs text-gray-500">
+                  加上個人專業標籤，讓名片更多曝光機會（最多3個標籤）
+                </p>
+                
+                {/* 已添加的標籤 */}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {tags.map((tag, index) => (
+                      <div key={index} className="inline-flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                        <span>{tag}</span>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 ml-2 text-blue-600 hover:text-blue-800"
+                          onClick={() => handleRemoveTag(tag)}
+                        >
+                          <X className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* AI推薦標籤 */}
+                {aiSuggestedTags.length > 0 && tags.length < 3 && (
+                  <div className="space-y-2">
+                    <Label className="text-xs font-medium text-gray-600">AI推薦標籤：</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {aiSuggestedTags.map((tag, index) => (
+                        !tags.includes(tag) && (
+                          <Button
+                            key={index}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            className="h-auto px-3 py-1 text-xs border-dashed border-blue-300 text-blue-600 hover:bg-blue-50"
+                            onClick={() => handleAddTag(tag)}
+                            disabled={tags.length >= 3}
+                          >
+                            <Plus className="w-3 h-3 mr-1" />
+                            {tag}
+                          </Button>
+                        )
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* 添加自訂標籤 */}
+                {tags.length < 3 && (
+                  <div className="space-y-2">
+                    {!showAddTag ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-auto px-3 py-2 text-sm border-dashed"
+                        onClick={() => setShowAddTag(true)}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        自訂標籤
+                      </Button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          placeholder="輸入自訂標籤"
+                          value={customTag}
+                          onChange={(e) => setCustomTag(e.target.value)}
+                          className="flex-1"
+                          maxLength={10}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              handleAddCustomTag();
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={handleAddCustomTag}
+                          disabled={!customTag.trim()}
+                        >
+                          添加
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setShowAddTag(false);
+                            setCustomTag('');
+                          }}
+                        >
+                          取消
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* 公司電話 */}
