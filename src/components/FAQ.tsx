@@ -51,11 +51,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
           answer: "透過掃描 QR Code、NFC 感應、Flex Message 點擊或邀請註冊連結即可。對方同意後，名片將同步新增至「我的名片夾」列表。"
         },
         {
-          question: "Q8. 我的名片夾顯示「尚未成為會員」，代表什麼意思？",
-          answer: "這表示該聯絡人尚未完成電子名片註冊，您可以透過 LINE 邀請訊息提醒對方完成註冊。"
-        },
-        {
-          question: "Q9. 如何使用標籤整理名片？",
+          question: "Q8. 如何使用標籤整理名片？",
           answer: "在名片詳細頁面新增或刪除標籤，標籤將同步顯示於篩選區，方便快速搜尋與分類。"
         }
       ]
@@ -64,11 +60,11 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       title: "名片識別與整合",
       questions: [
         {
-          question: "Q10. 如何掃描紙本名片？",
+          question: "Q9. 如何掃描紙本名片？",
           answer: "進入「名片識別」頁面拍照掃描，AI 會自動辨識內容。若與雲端資料相似度 ≥90%，系統會自動匹配更新，並儲存到「我的名片夾」。"
         },
         {
-          question: "Q11. 匯入大量名片資料時有什麼限制？",
+          question: "Q10. 匯入大量名片資料時有什麼限制？",
           answer: "AiCard 支援 CSV/XLS/XLSX 批次匯入，首次匯入會啟動欄位對應導引，並提供標準格式範本下載，確保資料正確匯入。"
         }
       ]
@@ -77,15 +73,15 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       title: "行程與互動",
       questions: [
         {
-          question: "Q12. 行程管理功能有哪些？",
+          question: "Q11. 行程管理功能有哪些？",
           answer: "行程管理包含提醒、快速新增、行程日曆檢視及郵件通知，並支援語音或手動輸入，讓您快速安排會議或拜訪行程。"
         },
         {
-          question: "Q13. 如何將行程與聯絡人連結？",
+          question: "Q12. 如何將行程與聯絡人連結？",
           answer: "在新增行程時，選擇參與者即可自動帶出該聯絡人的電子名片，並記錄互動歷程。"
         },
         {
-          question: "Q14. AiCard 會自動提供行程建議嗎？",
+          question: "Q13. AiCard 會自動提供行程建議嗎？",
           answer: "會的。系統會根據您的互動記錄與行程歷史，提供標題、參與者與時間的智能建議。"
         }
       ]
@@ -94,15 +90,15 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       title: "會員點數與升級",
       questions: [
         {
-          question: "Q15. 如何累積點數？",
+          question: "Q14. 如何累積點數？",
           answer: "完成註冊、交換名片、邀請好友等行為可獲得點數，點數可用於升級方案或兌換 Ai 生態圈服務。"
         },
         {
-          question: "Q16. 點數可以兌換哪些服務？",
+          question: "Q15. 點數可以兌換哪些服務？",
           answer: "點數可兌換 AiCard PRO 商務名片試用、Aile 商務版、Aile PRO 企業版試用，以及 Aiwow 點數商城的優惠活動。"
         },
         {
-          question: "Q17. 如何查看點數使用紀錄？",
+          question: "Q16. 如何查看點數使用紀錄？",
           answer: "進入「設定 > 會員點數」，可查看總覽、升級方案與累積使用紀錄，並支援歷程統計圖表。"
         }
       ]
@@ -111,15 +107,15 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       title: "資料安全與隱私",
       questions: [
         {
-          question: "Q18. AiCard 如何保障我的資料安全？",
+          question: "Q17. AiCard 如何保障我的資料安全？",
           answer: "所有資料均加密儲存，手機號碼採 OTP 驗證，Email 採雙重驗證 (Double Opt-In)，確保安全與隱私。"
         },
         {
-          question: "Q19. 是否可以關閉我的名片公開狀態？",
+          question: "Q18. 是否可以關閉我的名片公開狀態？",
           answer: "可以，於「設定 > 隱私與通知」內關閉公開選項，即可隱藏您的電子名片資訊，僅保留基本聯絡功能。"
         },
         {
-          question: "Q20. 如果不想被其他用戶直接加入名片夾，該怎麼設置？",
+          question: "Q19. 如果不想被其他用戶直接加入名片夾，該怎麼設置？",
           answer: "在「隱私與通知」中關閉「允許直接加入」，他人需經您同意才能完成加入請求。"
         }
       ]
