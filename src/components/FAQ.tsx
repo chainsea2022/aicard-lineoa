@@ -70,7 +70,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
       ]
     },
     {
-      title: "行程與互動",
+      title: "AI智能行程管理",
       questions: [
         {
           question: "Q11. 行程管理功能有哪些？",
