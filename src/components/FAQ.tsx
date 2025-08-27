@@ -201,11 +201,13 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
                 <AccordionContent className="px-4 pb-4">
                   <div className="space-y-4 pt-2">
                     {category.questions.map((item, questionIndex) => (
-                      <div key={questionIndex} className="border-l-2 border-teal-100 pl-4">
-                        <h4 className="font-medium text-gray-800 mb-2">{item.question}</h4>
-                        <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line">
-                          {item.answer}
-                        </p>
+                      <div key={questionIndex} className="border-l-2 border-teal-100 pl-4 py-2">
+                        <h4 className="font-medium text-gray-800 mb-3">{item.question}</h4>
+                        <div className="text-sm text-gray-600 leading-relaxed whitespace-pre-line space-y-2">
+                          {item.answer.split('\n\n').map((paragraph, index) => (
+                            <p key={index} className="mb-2 last:mb-0">{paragraph}</p>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>
