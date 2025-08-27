@@ -1599,6 +1599,17 @@ LINE: ${line || ''}
                   <h2 className="text-2xl font-bold mb-1">{name && nameVisible ? name : '您的姓名'}</h2>
                   {jobTitle && jobTitleVisible && <p className="text-green-100 text-sm mb-1">{jobTitle}</p>}
                   {companyName && companyNameVisible && <p className="text-green-100 text-lg">{companyName}</p>}
+                  
+                  {/* 個人標籤 */}
+                  {tags.length > 0 && tagsVisible && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {tags.map((tag, index) => (
+                        <span key={index} className="inline-block bg-white/20 text-white px-2 py-1 rounded-full text-xs">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
