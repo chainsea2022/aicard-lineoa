@@ -35,7 +35,7 @@ const FAQ: React.FC<FAQProps> = ({ onClose }) => {
         },
         {
           question: "Q5. 如何分享我的電子名片？",
-          answer: "您可透過 LINE Flex Message 分享 QR Code，或於 APP 首頁點擊「分享名片」按鈕，快速生成分享連結或下載 PNG 檔案。"
+          answer: "您可透過 複製專屬網址、LINE、手機、簡訊、Facebook等社群分享電子名片。"
         },
         {
           question: "Q6. 可以自訂電子名片的背景風格嗎？",
