@@ -362,8 +362,8 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
       };
     }
     
-    // All unregistered users (contacts) should show "未註冊" badge
-    if (!customer.isRegisteredUser) {
+    // Only show "未註冊" badge for contacts without LINE profile/nickname
+    if (!customer.isRegisteredUser && !((customer.line || customer.lineId) && customer.photo)) {
       return {
         className: "border border-muted bg-card",
         badge: { text: "未註冊", className: "bg-unregistered-orange text-white" }
