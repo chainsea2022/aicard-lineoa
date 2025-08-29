@@ -121,6 +121,34 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const [calendarSelectedDate, setCalendarSelectedDate] = useState<string>('');
   const [selectedEmailRecipients, setSelectedEmailRecipients] = useState<Recipient[]>([]);
   const [showHistoryModal, setShowHistoryModal] = useState<'completed' | 'upcoming' | 'emails' | null>(null);
+  const [selectedHistoryItem, setSelectedHistoryItem] = useState<any>(null);
+
+  const handleHistoryItemClick = (item: any, type: 'meeting' | 'email') => {
+    setSelectedHistoryItem({ ...item, type });
+    
+    if (type === 'meeting') {
+      // 觸發會議相關事件
+      toast({
+        title: `會議詳情 - ${item.title}`,
+        description: `日期: ${item.date} ${item.time || ''}`,
+      });
+      
+      // 可以在這裡添加更多邏輯，例如跳轉到詳細頁面或編輯
+      if (item.status === 'scheduled') {
+        // 待進行會議的額外處理
+        console.log('處理待進行會議:', item);
+      } else if (item.status === 'completed') {
+        // 已完成會議的額外處理  
+        console.log('處理已完成會議:', item);
+      }
+    } else if (type === 'email') {
+      // 觸發郵件相關事件
+      toast({
+        title: `信件詳情 - ${item.title}`,
+        description: `發送時間: ${item.time}`,
+      });
+    }
+  };
 
   const generateMeetingSuggestions = (attendees: Attendee[]) => {
     if (attendees.length === 0) return { title: '', description: '' };
@@ -1138,9 +1166,10 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
 
       {/* History Modals */}
       {showHistoryModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
+          <div className="bg-white rounded-t-xl w-full h-full max-w-sm mx-auto overflow-y-auto">{/* 手機介面全螢幕 */}
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 bg-white border-b sticky top-0">
               <h3 className="text-lg font-bold text-gray-800">
                 {showHistoryModal === 'completed' && '已完成會議列表'}
                 {showHistoryModal === 'upcoming' && '待進行會議列表'}
@@ -1156,14 +1185,19 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
               </Button>
             </div>
             
-            <div className="space-y-3">
+            {/* Content */}
+            <div className="p-4 space-y-3">
               {showHistoryModal === 'completed' && (
                 <>
                   <div className="text-sm text-gray-600 mb-3">
                     本月完成 12 場會議
                   </div>
                   {meetings.filter(m => m.status === 'completed').map((meeting) => (
-                    <div key={meeting.id} className="bg-gray-50 border rounded-lg p-3">
+                    <div 
+                      key={meeting.id} 
+                      className="bg-gray-50 border rounded-lg p-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleHistoryItemClick(meeting, 'meeting')}
+                    >
                       <div className="font-medium text-gray-800">{meeting.title}</div>
                       <div className="text-sm text-gray-600">
                         {new Date(meeting.date).toLocaleDateString('zh-TW')} {meeting.time}
@@ -1172,12 +1206,28 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     </div>
                   ))}
                   {/* 補充一些模擬的已完成會議 */}
-                  <div className="bg-gray-50 border rounded-lg p-3">
+                  <div 
+                    className="bg-gray-50 border rounded-lg p-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleHistoryItemClick({
+                      title: '與ABC公司產品討論',
+                      date: '2024-01-10',
+                      time: '14:00',
+                      status: 'completed'
+                    }, 'meeting')}
+                  >
                     <div className="font-medium text-gray-800">與ABC公司產品討論</div>
                     <div className="text-sm text-gray-600">2024/01/10 14:00</div>
                     <div className="text-xs text-green-600 mt-1">✓ 已完成</div>
                   </div>
-                  <div className="bg-gray-50 border rounded-lg p-3">
+                  <div 
+                    className="bg-gray-50 border rounded-lg p-3 cursor-pointer hover:bg-gray-100 transition-colors"
+                    onClick={() => handleHistoryItemClick({
+                      title: '技術團隊月會',
+                      date: '2024-01-08',
+                      time: '10:00',
+                      status: 'completed'
+                    }, 'meeting')}
+                  >
                     <div className="font-medium text-gray-800">技術團隊月會</div>
                     <div className="text-sm text-gray-600">2024/01/08 10:00</div>
                     <div className="text-xs text-green-600 mt-1">✓ 已完成</div>
@@ -1191,7 +1241,11 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     即將進行 8 場會議
                   </div>
                   {meetings.filter(m => m.status === 'scheduled').map((meeting) => (
-                    <div key={meeting.id} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div 
+                      key={meeting.id} 
+                      className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+                      onClick={() => handleHistoryItemClick(meeting, 'meeting')}
+                    >
                       <div className="font-medium text-gray-800">{meeting.title}</div>
                       <div className="text-sm text-gray-600">
                         {new Date(meeting.date).toLocaleDateString('zh-TW')} {meeting.time}
@@ -1200,7 +1254,15 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                     </div>
                   ))}
                   {/* 補充一些模擬的待進行會議 */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                  <div 
+                    className="bg-blue-50 border border-blue-200 rounded-lg p-3 cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={() => handleHistoryItemClick({
+                      title: '季度業績檢討',
+                      date: '2024-01-20',
+                      time: '15:00',
+                      status: 'scheduled'
+                    }, 'meeting')}
+                  >
                     <div className="font-medium text-gray-800">季度業績檢討</div>
                     <div className="text-sm text-gray-600">2024/01/20 15:00</div>
                     <div className="text-xs text-blue-600 mt-1">⏱ 待進行</div>
@@ -1213,17 +1275,38 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                   <div className="text-sm text-gray-600 mb-3">
                     本月發送 25 封信件
                   </div>
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <div 
+                    className="bg-purple-50 border border-purple-200 rounded-lg p-3 cursor-pointer hover:bg-purple-100 transition-colors"
+                    onClick={() => handleHistoryItemClick({
+                      title: '會議邀請 - 產品介紹會議',
+                      recipients: 'zhang@example.com, li@example.com',
+                      time: '今天 09:30'
+                    }, 'email')}
+                  >
                     <div className="font-medium text-gray-800">會議邀請 - 產品介紹會議</div>
                     <div className="text-sm text-gray-600">發送至: zhang@example.com, li@example.com</div>
                     <div className="text-xs text-purple-600 mt-1">📧 今天 09:30</div>
                   </div>
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <div 
+                    className="bg-purple-50 border border-purple-200 rounded-lg p-3 cursor-pointer hover:bg-purple-100 transition-colors"
+                    onClick={() => handleHistoryItemClick({
+                      title: '跟進信件 - 合作提案',
+                      recipients: 'wang@example.com',
+                      time: '昨天 16:45'
+                    }, 'email')}
+                  >
                     <div className="font-medium text-gray-800">跟進信件 - 合作提案</div>
                     <div className="text-sm text-gray-600">發送至: wang@example.com</div>
                     <div className="text-xs text-purple-600 mt-1">📧 昨天 16:45</div>
                   </div>
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                  <div 
+                    className="bg-purple-50 border border-purple-200 rounded-lg p-3 cursor-pointer hover:bg-purple-100 transition-colors"
+                    onClick={() => handleHistoryItemClick({
+                      title: '會議提醒',
+                      recipients: 'chen@example.com, lin@example.com',
+                      time: '2024/01/12 14:20'
+                    }, 'email')}
+                  >
                     <div className="font-medium text-gray-800">會議提醒</div>
                     <div className="text-sm text-gray-600">發送至: chen@example.com, lin@example.com</div>
                     <div className="text-xs text-purple-600 mt-1">📧 2024/01/12 14:20</div>
@@ -1241,10 +1324,12 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
               )}
             </div>
             
-            <div className="flex justify-end mt-6">
+            {/* Footer */}
+            <div className="border-t bg-white p-4 sticky bottom-0">
               <Button
                 onClick={() => setShowHistoryModal(null)}
-                className="bg-gray-500 hover:bg-gray-600"
+                className="w-full bg-gray-500 hover:bg-gray-600 text-white"
+                size="lg"
               >
                 關閉
               </Button>
