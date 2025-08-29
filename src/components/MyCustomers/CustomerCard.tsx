@@ -70,8 +70,9 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                 
                 {/* 聯絡方式按鈕 - 根據註冊狀態顯示不同按鈕 */}
                 <div className="flex items-center space-x-1 flex-shrink-0">
-                  {/* 已註冊電子名片用戶：顯示關注、LINE、電話 */}
-                  {customer.isDigitalCard && customer.isRegisteredUser !== false && (
+                  {/* 已註冊電子名片用戶或LINE用戶有頭圖暱稱：顯示關注、LINE、電話 */}
+                  {(customer.isDigitalCard && customer.isRegisteredUser !== false) || 
+                   (customer.isDigitalCard && customer.isRegisteredUser === false && ((customer.lineId || customer.line) && customer.photo)) ? (
                     <>
                       {/* 官網按鈕 */}
                       {customer.website && (
@@ -83,10 +84,10 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                         </button>
                       )}
                       {/* LINE 按鈕 */}
-                      {customer.line && (
+                      {(customer.line || customer.lineId) && (
                         <button onClick={e => {
                           e.stopPropagation();
-                          onLineClick(customer.line!);
+                          onLineClick(customer.line || customer.lineId!);
                         }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
                           <MessageSquare className="w-3 h-3 text-green-600" />
                         </button>
@@ -101,14 +102,11 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                         </button>
                       )}
                     </>
-                  )}
+                  ) : null}
                   
                   {/* 未註冊電子名片用戶（但排除有LINE頭圖的用戶）：顯示關注、邀請、LINE */}
                   {customer.isDigitalCard && customer.isRegisteredUser === false && !((customer.lineId || customer.line) && customer.photo) && (
                     <>
-                      {/* 調試信息 */}
-                      {console.log(`Customer ${customer.name}: isDigitalCard=${customer.isDigitalCard}, isRegisteredUser=${customer.isRegisteredUser}, showing invitation button`)}
-                      
                       {/* 邀請按鈕 */}
                       {onShowInvitation && (
                         <button onClick={handleShowInvitation} className="p-1 rounded-full bg-orange-100 hover:bg-orange-200 transition-colors" title="發送邀請">
@@ -122,39 +120,6 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
                           onLineClick(customer.lineId || customer.line!);
                         }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
                           <MessageSquare className="w-3 h-3 text-green-600" />
-                        </button>
-                      )}
-                    </>
-                  )}
-                  
-                  {/* LINE用戶有頭圖暱稱的視為已註冊用戶：顯示和一般電子名片一樣的按鈕 */}
-                  {customer.isDigitalCard && customer.isRegisteredUser === false && ((customer.lineId || customer.line) && customer.photo) && (
-                    <>
-                      {/* 官網按鈕 */}
-                      {customer.website && (
-                        <button onClick={e => {
-                          e.stopPropagation();
-                          window.open(customer.website, '_blank');
-                        }} className="p-1 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors" title="開啟官網">
-                          <Globe className="w-3 h-3 text-purple-600" />
-                        </button>
-                      )}
-                      {/* LINE 按鈕 */}
-                      {(customer.lineId || customer.line) && (
-                        <button onClick={e => {
-                          e.stopPropagation();
-                          onLineClick(customer.lineId || customer.line!);
-                        }} className="p-1 rounded-full bg-green-100 hover:bg-green-200 transition-colors" title="開啟 LINE">
-                          <MessageSquare className="w-3 h-3 text-green-600" />
-                        </button>
-                      )}
-                      {/* 電話按鈕 */}
-                      {customer.phone && (
-                        <button onClick={e => {
-                          e.stopPropagation();
-                          onPhoneClick(customer.phone);
-                        }} className="p-1 rounded-full bg-blue-100 hover:bg-blue-200 transition-colors" title="撥打電話">
-                          <Phone className="w-3 h-3 text-blue-600" />
                         </button>
                       )}
                     </>
@@ -202,13 +167,9 @@ export const CustomerCard: React.FC<CustomerCardProps> = ({
             </div>
             
             <div className="text-xs text-gray-600 truncate mb-1">
-              {/* 已註冊電子名片用戶：顯示公司、職稱 */}
-              {customer.isDigitalCard && customer.isRegisteredUser !== false && (
-                customer.company && customer.jobTitle ? `${customer.company} · ${customer.jobTitle}` : customer.company || customer.jobTitle || '無公司資訊'
-              )}
-              
-              {/* LINE用戶有頭圖暱稱的視為已註冊：顯示公司職稱 */}
-              {customer.isDigitalCard && customer.isRegisteredUser === false && ((customer.lineId || customer.line) && customer.photo) && (
+              {/* 已註冊電子名片用戶或LINE用戶有頭圖暱稱：顯示公司、職稱 */}
+              {((customer.isDigitalCard && customer.isRegisteredUser !== false) || 
+                (customer.isDigitalCard && customer.isRegisteredUser === false && ((customer.lineId || customer.line) && customer.photo))) && (
                 customer.company && customer.jobTitle ? `${customer.company} · ${customer.jobTitle}` : customer.company || customer.jobTitle || '無公司資訊'
               )}
               
