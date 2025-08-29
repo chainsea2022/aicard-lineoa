@@ -1167,7 +1167,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
       {/* History Modals */}
       {showHistoryModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
-          <div className="bg-white rounded-t-xl w-full h-full overflow-y-auto">{/* 移除max-w-sm，改為聊天室介面大小 */}
+          <div className="bg-white rounded-t-xl w-full h-full max-w-sm mx-auto overflow-y-auto">{/* 手機介面全螢幕 */}
             {/* Header */}
             <div className="flex items-center justify-between p-4 bg-white border-b sticky top-0">
               <h3 className="text-lg font-bold text-gray-800">
