@@ -1181,7 +1181,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 onClick={() => setShowHistoryModal(null)}
                 className="h-8 w-8 p-0"
               >
-                <Trash2 className="w-4 h-4" />
+                <ArrowLeft className="w-4 h-4" />
               </Button>
             </div>
             
