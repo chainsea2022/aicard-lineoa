@@ -422,7 +422,7 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
 
         {/* Basic Information Fields - Clickable */}
         <div className="space-y-3">
-          {customer.phone && (
+          {customer.phone && !customer.line && (
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center space-x-3 flex-1 min-w-0">
                 <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" />
