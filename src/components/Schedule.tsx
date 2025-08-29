@@ -120,6 +120,7 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
   const [showReminder, setShowReminder] = useState<Meeting | null>(null);
   const [calendarSelectedDate, setCalendarSelectedDate] = useState<string>('');
   const [selectedEmailRecipients, setSelectedEmailRecipients] = useState<Recipient[]>([]);
+  const [showHistoryModal, setShowHistoryModal] = useState<'completed' | 'upcoming' | 'emails' | null>(null);
 
   const generateMeetingSuggestions = (attendees: Attendee[]) => {
     if (attendees.length === 0) return { title: '', description: '' };
@@ -823,15 +824,24 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <h3 className="font-bold text-gray-800 mb-3">本月統計</h3>
           <div className="grid grid-cols-3 gap-4 text-center">
-            <div>
+            <div 
+              className="cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
+              onClick={() => setShowHistoryModal('completed')}
+            >
               <div className="text-2xl font-bold text-blue-600">12</div>
               <div className="text-xs text-gray-600">已完成會議</div>
             </div>
-            <div>
+            <div 
+              className="cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
+              onClick={() => setShowHistoryModal('upcoming')}
+            >
               <div className="text-2xl font-bold text-green-600">8</div>
               <div className="text-xs text-gray-600">待進行會議</div>
             </div>
-            <div>
+            <div 
+              className="cursor-pointer hover:bg-gray-50 rounded-lg p-2 transition-colors"
+              onClick={() => setShowHistoryModal('emails')}
+            >
               <div className="text-2xl font-bold text-purple-600">25</div>
               <div className="text-xs text-gray-600">發送信件</div>
             </div>
@@ -1120,6 +1130,123 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
                 className="flex-1 bg-indigo-500 hover:bg-indigo-600"
               >
                 {editingMeeting ? '更新' : '建立'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* History Modals */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-60 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-800">
+                {showHistoryModal === 'completed' && '已完成會議列表'}
+                {showHistoryModal === 'upcoming' && '待進行會議列表'}
+                {showHistoryModal === 'emails' && '發送信件列表'}
+              </h3>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowHistoryModal(null)}
+                className="h-8 w-8 p-0"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="space-y-3">
+              {showHistoryModal === 'completed' && (
+                <>
+                  <div className="text-sm text-gray-600 mb-3">
+                    本月完成 12 場會議
+                  </div>
+                  {meetings.filter(m => m.status === 'completed').map((meeting) => (
+                    <div key={meeting.id} className="bg-gray-50 border rounded-lg p-3">
+                      <div className="font-medium text-gray-800">{meeting.title}</div>
+                      <div className="text-sm text-gray-600">
+                        {new Date(meeting.date).toLocaleDateString('zh-TW')} {meeting.time}
+                      </div>
+                      <div className="text-xs text-green-600 mt-1">✓ 已完成</div>
+                    </div>
+                  ))}
+                  {/* 補充一些模擬的已完成會議 */}
+                  <div className="bg-gray-50 border rounded-lg p-3">
+                    <div className="font-medium text-gray-800">與ABC公司產品討論</div>
+                    <div className="text-sm text-gray-600">2024/01/10 14:00</div>
+                    <div className="text-xs text-green-600 mt-1">✓ 已完成</div>
+                  </div>
+                  <div className="bg-gray-50 border rounded-lg p-3">
+                    <div className="font-medium text-gray-800">技術團隊月會</div>
+                    <div className="text-sm text-gray-600">2024/01/08 10:00</div>
+                    <div className="text-xs text-green-600 mt-1">✓ 已完成</div>
+                  </div>
+                </>
+              )}
+
+              {showHistoryModal === 'upcoming' && (
+                <>
+                  <div className="text-sm text-gray-600 mb-3">
+                    即將進行 8 場會議
+                  </div>
+                  {meetings.filter(m => m.status === 'scheduled').map((meeting) => (
+                    <div key={meeting.id} className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div className="font-medium text-gray-800">{meeting.title}</div>
+                      <div className="text-sm text-gray-600">
+                        {new Date(meeting.date).toLocaleDateString('zh-TW')} {meeting.time}
+                      </div>
+                      <div className="text-xs text-blue-600 mt-1">⏱ 待進行</div>
+                    </div>
+                  ))}
+                  {/* 補充一些模擬的待進行會議 */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                    <div className="font-medium text-gray-800">季度業績檢討</div>
+                    <div className="text-sm text-gray-600">2024/01/20 15:00</div>
+                    <div className="text-xs text-blue-600 mt-1">⏱ 待進行</div>
+                  </div>
+                </>
+              )}
+
+              {showHistoryModal === 'emails' && (
+                <>
+                  <div className="text-sm text-gray-600 mb-3">
+                    本月發送 25 封信件
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <div className="font-medium text-gray-800">會議邀請 - 產品介紹會議</div>
+                    <div className="text-sm text-gray-600">發送至: zhang@example.com, li@example.com</div>
+                    <div className="text-xs text-purple-600 mt-1">📧 今天 09:30</div>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <div className="font-medium text-gray-800">跟進信件 - 合作提案</div>
+                    <div className="text-sm text-gray-600">發送至: wang@example.com</div>
+                    <div className="text-xs text-purple-600 mt-1">📧 昨天 16:45</div>
+                  </div>
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                    <div className="font-medium text-gray-800">會議提醒</div>
+                    <div className="text-sm text-gray-600">發送至: chen@example.com, lin@example.com</div>
+                    <div className="text-xs text-purple-600 mt-1">📧 2024/01/12 14:20</div>
+                  </div>
+                </>
+              )}
+              
+              {/* 沒有記錄時的提示 */}
+              {((showHistoryModal === 'completed' && meetings.filter(m => m.status === 'completed').length === 0) ||
+                (showHistoryModal === 'upcoming' && meetings.filter(m => m.status === 'scheduled').length === 0)) && (
+                <div className="text-center py-8 text-gray-500">
+                  <div className="text-4xl mb-2">📅</div>
+                  <div>暫無相關記錄</div>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex justify-end mt-6">
+              <Button
+                onClick={() => setShowHistoryModal(null)}
+                className="bg-gray-500 hover:bg-gray-600"
+              >
+                關閉
               </Button>
             </div>
           </div>
