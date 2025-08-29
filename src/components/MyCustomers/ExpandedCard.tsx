@@ -483,27 +483,45 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
               <h5 className="font-medium text-xs text-gray-600 mb-2">社群媒體</h5>
               <div className="space-y-2">
                 {customer.line && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 flex-1">
-                      <MessageSquare className="w-4 h-4 text-green-600 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 truncate">
-                        {isValidUrl(customer.line) ? 'LINE 連結' : `LINE: ${customer.line}`}
-                      </span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2 flex-1">
+                        <MessageSquare className="w-4 h-4 text-green-600 flex-shrink-0" />
+                        <span className="text-sm text-gray-700 truncate">
+                          {isValidUrl(customer.line) ? 'LINE 連結' : `LINE: ${customer.line}`}
+                        </span>
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          if (isValidUrl(customer.line)) {
+                            window.open(customer.line, '_blank');
+                          } else {
+                            onLineClick(customer.line);
+                          }
+                        }} 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-8 w-8 flex-shrink-0"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </Button>
                     </div>
-                    <Button 
-                      onClick={() => {
-                        if (isValidUrl(customer.line)) {
-                          window.open(customer.line, '_blank');
-                        } else {
-                          onLineClick(customer.line);
-                        }
-                      }} 
-                      variant="outline" 
-                      size="sm" 
-                      className="text-xs"
-                    >
-                      開啟
-                    </Button>
+                    {customer.phone && (
+                      <div className="flex items-center justify-between pl-6">
+                        <div className="flex items-center space-x-2 flex-1">
+                          <Phone className="w-3 h-3 text-gray-500 flex-shrink-0" />
+                          <span className="text-sm text-gray-600 truncate">{customer.phone}</span>
+                        </div>
+                        <Button 
+                          onClick={() => window.open(`tel:${customer.phone}`, '_self')} 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-7 w-7 flex-shrink-0"
+                        >
+                          <Phone className="w-3 h-3" />
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
                 
