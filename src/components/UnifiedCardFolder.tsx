@@ -700,7 +700,9 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
               <Button
                 variant={filter.category === 'following' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setFilter({ category: 'following' })}
+                onClick={() => setFilter({ 
+                  category: filter.category === 'following' ? 'all' : 'following' 
+                })}
                 className="text-xs h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0 flex items-center gap-1"
               >
                 <Star className="w-3 h-3" />
