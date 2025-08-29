@@ -873,23 +873,49 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                 </>
                               )}
                               
-                              {/* Action buttons for unregistered LINE users */}
-                              {!customer.isRegisteredUser && customer.lineId && (
-                                <Button
-                                  size="sm"
-                                  variant="ghost"
-                                  className="h-8 w-8 p-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleSendInvitation(customer.id);
-                                  }}
-                                >
-                                  {customer.invitationSent ? 
-                                    <Bell className="w-4 h-4 text-green-600" /> : 
-                                    <Circle className="w-4 h-4 text-muted-foreground" />
-                                  }
-                                </Button>
-                              )}
+              {/* Action buttons for unregistered LINE users */}
+              {!customer.isRegisteredUser && customer.lineId && (
+                <>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleLineContact(customer.id);
+                    }}
+                  >
+                    <MessageCircle className="w-4 h-4 text-green-600" />
+                  </Button>
+                  {customer.phone && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-8 w-8 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePhoneCall(customer.id);
+                      }}
+                    >
+                      <Phone className="w-4 h-4 text-blue-600" />
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="h-8 w-8 p-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSendInvitation(customer.id);
+                    }}
+                  >
+                    {customer.invitationSent ? 
+                      <Bell className="w-4 h-4 text-green-600" /> : 
+                      <Circle className="w-4 h-4 text-muted-foreground" />
+                    }
+                  </Button>
+                </>
+              )}
                               
                               {/* Action buttons for paper card users */}
                               {!customer.isRegisteredUser && !customer.lineId && (
