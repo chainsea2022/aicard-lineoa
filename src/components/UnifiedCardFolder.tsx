@@ -820,6 +820,11 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                             </div>
                         
                         <div className="flex flex-col items-end space-y-2 ml-2">
+                          {cardStyle.badge && (
+                            <Badge className={cardStyle.badge.className} variant="secondary">
+                              {cardStyle.badge.text}
+                            </Badge>
+                          )}
                           
                           {/* Follow star for all cards except smart recommendations */}
                           {!customer.isRecommendation && (
