@@ -420,26 +420,56 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
           <h4 className="font-medium text-sm text-gray-800">聯絡資訊</h4>
         </div>
 
-        {/* Basic Information Fields - Plain Text Only */}
+        {/* Basic Information Fields - Clickable */}
         <div className="space-y-2">
           {customer.phone && (
-            <div className="flex items-center space-x-2">
-              <Phone className="w-4 h-4 text-gray-500 flex-shrink-0" />
-              <span className="text-sm text-gray-700">{customer.phone}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 flex-1">
+                <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700">{customer.phone}</span>
+              </div>
+              <Button 
+                onClick={() => window.open(`tel:${customer.phone}`, '_self')} 
+                variant="outline" 
+                size="sm" 
+                className="text-xs"
+              >
+                撥打
+              </Button>
             </div>
           )}
           
           {customer.email && (
-            <div className="flex items-center space-x-2">
-              <Mail className="w-4 h-4 text-gray-500 flex-shrink-0" />
-              <span className="text-sm text-gray-700">{customer.email}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 flex-1">
+                <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700 truncate">{customer.email}</span>
+              </div>
+              <Button 
+                onClick={() => window.open(`mailto:${customer.email}`, '_self')} 
+                variant="outline" 
+                size="sm" 
+                className="text-xs"
+              >
+                寄信
+              </Button>
             </div>
           )}
           
           {customer.website && (
-            <div className="flex items-center space-x-2">
-              <Globe className="w-4 h-4 text-gray-500 flex-shrink-0" />
-              <span className="text-sm text-gray-700">{customer.website}</span>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 flex-1">
+                <Globe className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span className="text-sm text-gray-700 truncate">{customer.website}</span>
+              </div>
+              <Button 
+                onClick={() => window.open(customer.website, '_blank')} 
+                variant="outline" 
+                size="sm" 
+                className="text-xs"
+              >
+                開啟
+              </Button>
             </div>
           )}
         </div>
