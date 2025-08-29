@@ -159,6 +159,59 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
     setPendingInvitations(mockInvitations);
   }, []);
 
+  // Generate AI tags based on job title and company
+  const generateAITags = (customer: Customer): string[] => {
+    const tags: string[] = [];
+    
+    // Don't generate tags for LINE-only users
+    if (customer.lineId && !customer.isRegisteredUser) {
+      return tags;
+    }
+    
+    // Generate tags for registered users with electronic business cards
+    if (customer.isRegisteredUser && customer.hasCard) {
+      // Industry tags based on company
+      if (customer.company) {
+        const company = customer.company.toLowerCase();
+        if (company.includes('科技') || company.includes('tech') || company.includes('軟體') || company.includes('資訊')) {
+          tags.push('科技業');
+        } else if (company.includes('銀行') || company.includes('金融') || company.includes('投資') || company.includes('保險')) {
+          tags.push('金融業');
+        } else if (company.includes('醫院') || company.includes('診所') || company.includes('醫療') || company.includes('健康')) {
+          tags.push('醫療業');
+        } else if (company.includes('教育') || company.includes('學校') || company.includes('大學') || company.includes('補習班')) {
+          tags.push('教育業');
+        } else if (company.includes('建設') || company.includes('建築') || company.includes('工程') || company.includes('營造')) {
+          tags.push('建築業');
+        } else if (company.includes('餐廳') || company.includes('飯店') || company.includes('旅遊') || company.includes('觀光')) {
+          tags.push('服務業');
+        } else if (company.includes('製造') || company.includes('工廠') || company.includes('生產')) {
+          tags.push('製造業');
+        }
+      }
+      
+      // Position tags based on job title
+      if (customer.jobTitle) {
+        const jobTitle = customer.jobTitle.toLowerCase();
+        if (jobTitle.includes('經理') || jobTitle.includes('manager') || jobTitle.includes('主管')) {
+          tags.push('管理層');
+        } else if (jobTitle.includes('執行長') || jobTitle.includes('ceo') || jobTitle.includes('總裁') || jobTitle.includes('董事')) {
+          tags.push('高階主管');
+        } else if (jobTitle.includes('工程師') || jobTitle.includes('engineer') || jobTitle.includes('開發') || jobTitle.includes('程式')) {
+          tags.push('技術人員');
+        } else if (jobTitle.includes('業務') || jobTitle.includes('sales') || jobTitle.includes('行銷') || jobTitle.includes('marketing')) {
+          tags.push('業務行銷');
+        } else if (jobTitle.includes('設計') || jobTitle.includes('designer') || jobTitle.includes('美術') || jobTitle.includes('創意')) {
+          tags.push('設計創意');
+        } else if (jobTitle.includes('會計') || jobTitle.includes('財務') || jobTitle.includes('finance') || jobTitle.includes('出納')) {
+          tags.push('財務會計');
+        }
+      }
+    }
+    
+    return tags.slice(0, 2); // Limit to 2 tags max
+  };
+
   // Handle invitation acceptance
   const handleAcceptInvitation = (customerId: number) => {
     const invitation = pendingInvitations.find(inv => inv.id === customerId);
@@ -818,6 +871,21 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                                   )}
                                   <h3 className="font-medium text-card-foreground truncate">{customer.name}</h3>
                                 </>
+                              )}
+                              
+                              {/* AI Generated Tags for electronic business cards */}
+                              {customer.isRegisteredUser && customer.hasCard && !customer.lineId && (
+                                <div className="flex flex-wrap gap-1 mt-2">
+                                  {generateAITags(customer).map((tag, index) => (
+                                    <Badge
+                                      key={index}
+                                      variant="outline"
+                                      className="text-xs bg-blue-50 text-blue-700 border-blue-200"
+                                    >
+                                      {tag}
+                                    </Badge>
+                                  ))}
+                                </div>
                               )}
                             </div>
                         
