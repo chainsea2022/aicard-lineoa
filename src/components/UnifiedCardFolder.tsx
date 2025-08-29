@@ -684,13 +684,6 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
                 >
                   已邀請 ({invitedCount})
                 </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => setFilter({ category: 'following' })}
-                  className={filter.category === 'following' ? 'bg-accent text-accent-foreground' : ''}
-                >
-                  <Star className="w-4 h-4 mr-2" />
-                  關注
-                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -703,6 +696,16 @@ const UnifiedCardFolder: React.FC<UnifiedCardFolderProps> = ({ onClose }) => {
           <div className="flex items-center gap-3">
             <span className="text-sm font-medium text-foreground whitespace-nowrap">常用類別</span>
             <div className="flex items-center gap-2 overflow-x-auto flex-1">
+              {/* Following button */}
+              <Button
+                variant={filter.category === 'following' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setFilter({ category: 'following' })}
+                className="text-xs h-6 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0 flex items-center gap-1"
+              >
+                <Star className="w-3 h-3" />
+                關注
+              </Button>
               {(showAllTags ? commonTags : commonTags.slice(0, 3)).map((tag, index) => (
                 <Button
                   key={index}
