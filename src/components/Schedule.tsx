@@ -340,7 +340,28 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     const attendees = extractAttendeesFromDescription(description);
     
     // 生成會議標題
-    const title = generateTitleFromDescription(description, attendees);
+    let title = generateTitleFromDescription(description, attendees);
+    
+    // 如果沒有標題，使用預設標題
+    if (!title) {
+      title = '智能行程';
+    }
+
+    // 如果沒有日期，設定為今天
+    let finalDate = dateTime.date;
+    if (!finalDate) {
+      const today = new Date();
+      finalDate = today.toISOString().split('T')[0];
+    }
+
+    // 如果沒有時間，設定為現在時間的下一個小時
+    let finalTime = dateTime.time;
+    if (!finalTime) {
+      const now = new Date();
+      now.setHours(now.getHours() + 1);
+      now.setMinutes(0);
+      finalTime = `${now.getHours().toString().padStart(2, '0')}:00`;
+    }
 
     // 計算分析信心度
     let confidence = 0.5; // 基礎信心度
@@ -353,8 +374,8 @@ const Schedule: React.FC<ScheduleProps> = ({ onClose }) => {
     const analysisResult = {
       title,
       description,
-      date: dateTime.date,
-      time: dateTime.time,
+      date: finalDate,
+      time: finalTime,
       location,
       type,
       attendees,
