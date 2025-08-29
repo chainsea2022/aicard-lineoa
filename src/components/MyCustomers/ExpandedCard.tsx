@@ -421,54 +421,56 @@ export const ExpandedCard: React.FC<ExpandedCardProps> = ({
         </div>
 
         {/* Basic Information Fields - Clickable */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           {customer.phone && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
                 <Phone className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <span className="text-sm text-gray-700">{customer.phone}</span>
+                <span className="text-sm text-gray-700 truncate">{customer.phone}</span>
               </div>
               <Button 
                 onClick={() => window.open(`tel:${customer.phone}`, '_self')} 
                 variant="outline" 
-                size="sm" 
-                className="text-xs"
+                size="icon" 
+                className="h-8 w-8 flex-shrink-0"
               >
-                撥打
+                <Phone className="w-4 h-4" />
               </Button>
             </div>
           )}
           
           {customer.email && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
                 <Mail className="w-4 h-4 text-blue-600 flex-shrink-0" />
                 <span className="text-sm text-gray-700 truncate">{customer.email}</span>
               </div>
               <Button 
                 onClick={() => window.open(`mailto:${customer.email}`, '_self')} 
                 variant="outline" 
-                size="sm" 
-                className="text-xs"
+                size="icon" 
+                className="h-8 w-8 flex-shrink-0"
               >
-                寄信
+                <Mail className="w-4 h-4" />
               </Button>
             </div>
           )}
           
           {customer.website && (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 flex-1">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center space-x-3 flex-1 min-w-0">
                 <Globe className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                <span className="text-sm text-gray-700 truncate">{customer.website}</span>
+                <span className="text-sm text-gray-700 truncate" title={customer.website}>
+                  {customer.website}
+                </span>
               </div>
               <Button 
                 onClick={() => window.open(customer.website, '_blank')} 
                 variant="outline" 
-                size="sm" 
-                className="text-xs"
+                size="icon" 
+                className="h-8 w-8 flex-shrink-0"
               >
-                開啟
+                <Globe className="w-4 h-4" />
               </Button>
             </div>
           )}
