@@ -98,7 +98,7 @@ const newMenuItemsForMember: MenuItem[] = [{
   color: 'bg-gradient-to-br from-blue-500 to-blue-600'
 }, {
   id: 'card-management',
-  title: '名片管理',
+  title: '編輯名片',
   icon: Edit,
   color: 'bg-gradient-to-br from-purple-500 to-purple-600'
 }, {
@@ -131,7 +131,7 @@ const newMenuItemsForGuest: MenuItem[] = [{
   color: 'bg-gradient-to-br from-purple-500 to-purple-600'
 }, {
   id: 'card-management',
-  title: '名片管理',
+  title: '編輯名片',
   icon: Edit,
   color: 'bg-gradient-to-br from-purple-500 to-purple-600'
 }, {
