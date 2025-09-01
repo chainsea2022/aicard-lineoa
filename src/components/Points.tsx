@@ -55,7 +55,7 @@ const Points: React.FC<PointsProps> = ({
   }]);
   const [earningMethods, setEarningMethods] = useState<EarningMethod[]>([{
     id: 'register',
-    title: '完成電子名片註冊',
+    title: '完成名片註冊',
     description: '完成電子名片註冊',
     points: 50,
     icon: <FileText className="w-5 h-5 text-white" />,
