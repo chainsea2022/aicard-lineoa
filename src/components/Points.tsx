@@ -80,17 +80,6 @@ const Points: React.FC<PointsProps> = ({
     textColor: 'text-purple-900',
     completed: true // Show as completed for demo
   }, {
-    id: 'invite-others',
-    title: '邀請好友完成電子名片註冊 (1人)',
-    description: '邀請好友完成電子名片註冊',
-    points: 50,
-    icon: <Users className="w-5 h-5 text-white" />,
-    bgGradient: 'from-orange-50 to-orange-100',
-    borderColor: 'border-orange-200',
-    iconBg: 'bg-orange-500',
-    textColor: 'text-orange-900',
-    completed: true // Show as completed for demo
-  }, {
     id: 'share-card',
     title: '分享好友電子名片卡加入名片夾 (1人)',
     description: '分享好友電子名片卡加入名片夾',
@@ -138,16 +127,10 @@ const Points: React.FC<PointsProps> = ({
         points: 50,
         description: '完整電子名片個人資料(70%以上)',
         date: new Date(Date.now() - 86400000)
-      }, {
-        id: 3,
-        type: 'earn',
-        points: 50,
-        description: '邀請好友完成電子名片註冊 (1人)',
-        date: new Date(Date.now() - 172800000)
       }];
       setTransactions(initialTransactions);
-      setCurrentPoints(150);
-      localStorage.setItem('aile-user-points', '150');
+      setCurrentPoints(100);
+      localStorage.setItem('aile-user-points', '100');
       localStorage.setItem('aile-points-history', JSON.stringify(initialTransactions));
     }
     const savedCustomers = localStorage.getItem('aile-saved-customers');
@@ -159,16 +142,6 @@ const Points: React.FC<PointsProps> = ({
         achieved: cardCount >= milestone.cardCount
       })));
     }
-    setEarningMethods(prev => prev.map(method => {
-      if (method.id === 'invite-others') {
-        const hasInvitedOthers = transactions.some(t => t.description === '邀請好友完成電子名片註冊 (1人)');
-        return {
-          ...method,
-          completed: hasInvitedOthers
-        };
-      }
-      return method;
-    }));
   }, [transactions]);
   const formatDate = (date: Date) => {
     return date.toLocaleDateString('zh-TW', {
