@@ -81,7 +81,7 @@ const Points: React.FC<PointsProps> = ({
     completed: true // Show as completed for demo
   }, {
     id: 'share-card',
-    title: '分享好友電子名片卡加入名片夾 (1人)',
+    title: '分享好友完成名片註冊（1人)',
     description: '分享好友電子名片卡加入名片夾',
     points: 10,
     icon: <FileText className="w-5 h-5 text-white" />,
