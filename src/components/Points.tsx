@@ -66,7 +66,7 @@ const Points: React.FC<PointsProps> = ({
     completed: true // Assume registration is completed
   }, {
     id: 'complete-profile',
-    title: '完整電子名片個人資料(70%以上)',
+    title: '完整名片資料（1張70%以上）',
     description: '包含公司名稱、姓名、大頭照、手機、信箱',
     points: 50,
     icon: <div className="flex space-x-0.5">
@@ -125,7 +125,7 @@ const Points: React.FC<PointsProps> = ({
         id: 2,
         type: 'earn',
         points: 50,
-        description: '完整電子名片個人資料(70%以上)',
+        description: '完整名片資料（1張70%以上）',
         date: new Date(Date.now() - 86400000)
       }];
       setTransactions(initialTransactions);
