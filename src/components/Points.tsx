@@ -90,17 +90,6 @@ const Points: React.FC<PointsProps> = ({
     iconBg: 'bg-green-500',
     textColor: 'text-green-900',
     completed: false
-  }, {
-    id: 'share-ocr',
-    title: '分享好友OCR 名片識別加入名片夾 (1人)',
-    description: '分享好友OCR 名片識別加入名片夾',
-    points: 10,
-    icon: <Camera className="w-5 h-5 text-white" />,
-    bgGradient: 'from-teal-50 to-teal-100',
-    borderColor: 'border-teal-200',
-    iconBg: 'bg-teal-500',
-    textColor: 'text-teal-900',
-    completed: false
   }]);
   useEffect(() => {
     const savedPoints = localStorage.getItem('aile-user-points');
@@ -119,7 +108,7 @@ const Points: React.FC<PointsProps> = ({
         id: 1,
         type: 'earn',
         points: 50,
-        description: '完成電子名片註冊',
+        description: '完成名片註冊',
         date: new Date()
       }, {
         id: 2,
